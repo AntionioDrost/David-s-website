@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CMP | Property Compliance Operating System</title>
+    <meta
+      name="description"
+      content="CMP is a smart landlord compliance platform for property-by-property actions, evidence packs, renewals, and service bookings."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body class="is-auth-checking">
+    <div class="ambient-grid" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="CMP home">
+        <span class="brand-mark">CMP</span>
+        <span>
+          <strong>ComplyMyProperty</strong>
+          <small>Landlord compliance OS</small>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="#dashboard">Dashboard</a>
+        <a href="#guided-check">Guided check</a>
+        <a href="#evidence-pack">Evidence pack</a>
+        <a href="#services">Services</a>
+      </nav>
+
+      <div class="topbar-actions">
+        <span class="session-pill" id="sessionEmail">Checking session</span>
+        <button class="icon-button" type="button" id="signOutButton" aria-label="Sign out">
+          <i data-lucide="log-out"></i>
+        </button>
+        <button class="icon-button" type="button" data-open-upload aria-label="Upload evidence">
+          <i data-lucide="scan-line"></i>
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="os-shell" id="dashboard">
+        <aside class="sidebar" aria-label="Landlord portfolio">
+          <div class="sidebar-heading">
+            <span>Portfolio</span>
+            <button class="mini-button" type="button" id="addPropertyButton">
+              <i data-lucide="plus"></i>
+              Add
+            </button>
+          </div>
+
+          <div class="property-list" id="propertyList"></div>
+
+          <div class="journey-card">
+            <span class="section-kicker">Start with intent</span>
+            <h2>What do you need help with?</h2>
+            <div class="journey-list" id="journeyList"></div>
+          </div>
+        </aside>
+
+        <section class="workspace" aria-live="polite">
+          <div class="workspace-header">
+            <div>
+              <span class="section-kicker">Property dashboard</span>
+              <h1 id="propertyTitle">Loading property</h1>
+              <p id="propertySubtitle"></p>
+            </div>
+            <div class="header-actions">
+              <button class="secondary-button" type="button" id="pullEpcButton">
+                <i data-lucide="cloud-download"></i>
+                Pull EPC
+              </button>
+              <button class="primary-button" type="button" id="startGuidedCheck">
+                <i data-lucide="sparkles"></i>
+                Guided check
+              </button>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <section class="score-panel">
+              <div class="score-ring" id="scoreRing" aria-label="Compliance score">
+                <span id="scoreValue">0%</span>
+                <small id="riskLabel">Risk</small>
+              </div>
+              <div class="score-copy">
+                <h2 id="scoreHeadline">CMP is checking the property.</h2>
+                <p id="scoreNarrative"></p>
+              </div>
+            </section>
+
+            <section class="priority-panel">
+              <div class="panel-heading">
+                <span class="section-kicker">Today</span>
+                <h2>Do this in order</h2>
+              </div>
+              <p class="panel-helper">Start with the first action. The detailed checks are below when you need them.</p>
+              <div class="priority-list" id="priorityList"></div>
+            </section>
+          </div>
+
+          <section class="intelligence-strip" id="intelligenceStrip"></section>
+
+          <nav class="detail-tabs" aria-label="Dashboard sections">
+            <button class="detail-tab" type="button" data-dashboard-tab="requirements">
+              <i data-lucide="list-checks"></i>
+              Requirements
+            </button>
+            <button class="detail-tab is-active" type="button" data-dashboard-tab="check">
+              <i data-lucide="sparkles"></i>
+              Guided check
+            </button>
+            <button class="detail-tab" type="button" data-dashboard-tab="evidence">
+              <i data-lucide="folder-check"></i>
+              Evidence pack
+            </button>
+            <button class="detail-tab" type="button" data-dashboard-tab="services">
+              <i data-lucide="calendar-plus"></i>
+              Services
+            </button>
+          </nav>
+
+          <section class="compliance-section detail-panel" data-dashboard-panel="requirements">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">Compliance map</span>
+                <h2>Only open the detail when you need it</h2>
+              </div>
+              <span class="quiet-pill" id="lastUpdated"></span>
+            </div>
+            <div class="compliance-grid" id="complianceGrid"></div>
+          </section>
+
+          <section class="guided-check detail-panel is-active" id="guided-check" data-dashboard-panel="check">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">Guided compliance interview</span>
+                <h2>Answer what you know. CMP organises the rest.</h2>
+              </div>
+              <div class="step-count" id="stepCount"></div>
+            </div>
+
+            <div class="wizard-shell">
+              <div class="wizard-tabs" id="wizardTabs"></div>
+              <form class="wizard-form" id="wizardForm"></form>
+            </div>
+          </section>
+
+          <section class="evidence-workspace detail-panel" id="evidence-pack" data-dashboard-panel="evidence">
+            <div class="evidence-section">
+              <div class="section-heading">
+                <div>
+                  <span class="section-kicker">Property evidence pack</span>
+                  <h2>What proof is stored, and what is missing</h2>
+                </div>
+                <button class="secondary-button" type="button" data-open-upload>
+                  <i data-lucide="upload-cloud"></i>
+                  Upload
+                </button>
+              </div>
+              <div class="evidence-grid" id="evidenceGrid"></div>
+            </div>
+
+            <div class="activity-section">
+              <div class="section-heading">
+                <div>
+                  <span class="section-kicker">Property timeline</span>
+                  <h2>Recent compliance activity</h2>
+                </div>
+              </div>
+              <div class="timeline" id="timeline"></div>
+            </div>
+          </section>
+
+          <section class="support-section detail-panel" id="services" data-dashboard-panel="services">
+            <div class="support-grid">
+              <section class="assistant-panel">
+                <div class="assistant-orb">
+                  <i data-lucide="brain-circuit"></i>
+                </div>
+                <span class="section-kicker">CMP assistant</span>
+                <h2 id="assistantHeadline">Smart guidance, controlled by you</h2>
+                <p id="assistantCopy"></p>
+              </section>
+
+              <section class="scan-panel">
+                <div class="panel-heading">
+                  <span class="section-kicker">AI document scan</span>
+                  <h2>Drop evidence into the vault</h2>
+                </div>
+                <button class="scan-drop" type="button" data-open-upload>
+                  <i data-lucide="file-search"></i>
+                  <span>Upload certificates, notices, reports, or tenancy documents</span>
+                </button>
+                <div class="scan-results" id="scanResults"></div>
+              </section>
+
+              <section class="service-panel">
+                <div class="panel-heading">
+                  <span class="section-kicker">Recommended services</span>
+                  <h2>Contextual bookings</h2>
+                </div>
+                <div class="service-list" id="serviceList"></div>
+              </section>
+            </div>
+          </section>
+        </section>
+      </section>
+    </main>
+
+    <footer class="footer">
+      <div>
+        <strong>COMPLYMYPROPERTY</strong>
+        <p>The compliance operating system for UK landlords.</p>
+      </div>
+      <div>
+        <span>Contact</span>
+        <a href="tel:01217708814">0121 770 8814</a>
+        <a href="mailto:compliance@complymyproperty.com">compliance@complymyproperty.com</a>
+      </div>
+      <div>
+        <span>Specialist inboxes</span>
+        <a href="mailto:epc@complymyproperty.com">epc@complymyproperty.com</a>
+        <a href="mailto:gassafety@complymyproperty.com">gassafety@complymyproperty.com</a>
+      </div>
+    </footer>
+
+    <div class="upload-modal" id="uploadModal" hidden>
+      <div class="modal-backdrop" data-close-upload></div>
+      <section class="modal-card" role="dialog" aria-modal="true" aria-labelledby="uploadTitle">
+        <button class="icon-button modal-close" type="button" data-close-upload aria-label="Close upload panel">
+          <i data-lucide="x"></i>
+        </button>
+        <span class="section-kicker">AI evidence intake</span>
+        <h2 id="uploadTitle">Upload property evidence</h2>
+        <p>
+          The prototype scans file names and readable text for dates and document type.
+          A production CMP build would use OCR, PDF parsing, and human confirmation.
+        </p>
+        <label class="upload-zone" for="documentUpload">
+          <i data-lucide="upload"></i>
+          <span>Choose documents</span>
+          <small>PDF, image, or text files</small>
+        </label>
+        <input id="documentUpload" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx">
+      </section>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="auth-guard.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

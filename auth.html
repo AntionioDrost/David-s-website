@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sign in | ComplyMyProperty</title>
+    <meta name="description" content="Create or access your ComplyMyProperty landlord compliance dashboard account.">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="landing.css">
+  </head>
+  <body>
+    <header class="site-nav">
+      <a class="brand" href="index.html" aria-label="ComplyMyProperty home">
+        <span class="brand-mark">CMP</span>
+        <span><strong>ComplyMyProperty</strong><small>Compliance OS for UK landlords</small></span>
+      </a>
+      <nav class="nav-links" aria-label="Main navigation">
+        <a href="index.html#platform">Platform</a>
+        <a href="services.html">Services</a>
+        <a href="pricing.html">Pricing</a>
+        <a href="index.html#faq">FAQ</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <a class="nav-cta" href="index.html"><i data-lucide="arrow-left"></i>Back to site</a>
+    </header>
+
+    <main class="auth-page">
+      <section class="auth-shell">
+        <div class="auth-copy">
+          <span class="eyebrow">Dashboard access</span>
+          <h1>Sign in before opening the compliance dashboard.</h1>
+          <p>
+            CMP keeps the public website separate from the landlord operating system.
+            Once Supabase confirms the user session, the dashboard unlocks.
+          </p>
+          <div class="auth-benefits">
+            <span><i data-lucide="shield-check"></i> Protected dashboard route</span>
+            <span><i data-lucide="user-plus"></i> Account creation flow</span>
+            <span><i data-lucide="log-in"></i> Supabase email login</span>
+          </div>
+        </div>
+
+        <section class="auth-card" aria-labelledby="authModeTitle">
+          <div class="auth-tabs" role="tablist" aria-label="Authentication mode">
+            <button class="is-active" type="button" data-auth-mode="signin">Sign in</button>
+            <button type="button" data-auth-mode="signup">Create account</button>
+          </div>
+
+          <span class="mini-label">CMP account</span>
+          <h2 id="authModeTitle">Sign in to CMP</h2>
+          <p id="authModeCopy">Use your landlord account to unlock the protected compliance dashboard.</p>
+
+          <div class="auth-status" id="authStatus" hidden></div>
+
+          <form class="auth-form" id="authForm">
+            <label id="nameGroup" hidden>
+              <span>Full name</span>
+              <input id="authName" name="name" type="text" autocomplete="name" placeholder="David Landlord">
+            </label>
+            <label>
+              <span>Email</span>
+              <input id="authEmail" name="email" type="email" autocomplete="email" placeholder="you@example.com" required>
+            </label>
+            <label>
+              <span>Password</span>
+              <input id="authPassword" name="password" type="password" autocomplete="current-password" minlength="8" required>
+            </label>
+            <button class="button primary" id="authSubmit" type="submit">Sign in</button>
+          </form>
+
+          <button class="auth-link" id="forgotPassword" type="button">Send password reset link</button>
+        </section>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase-config.js"></script>
+    <script src="supabase-client.js"></script>
+    <script src="auth.js"></script>
+  </body>
+</html>
