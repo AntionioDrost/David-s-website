@@ -32,6 +32,7 @@
         <a href="index.html">Home</a>
         <a href="#dashboard">Dashboard</a>
         <a href="#guided-check">Guided check</a>
+        <a href="#az-checker">A-Z checker</a>
         <a href="#evidence-pack">Evidence pack</a>
         <a href="#services">Services</a>
       </nav>
@@ -119,6 +120,10 @@
               <i data-lucide="sparkles"></i>
               Guided check
             </button>
+            <button class="detail-tab" type="button" data-dashboard-tab="az">
+              <i data-lucide="list-tree"></i>
+              A-Z checker
+            </button>
             <button class="detail-tab" type="button" data-dashboard-tab="evidence">
               <i data-lucide="folder-check"></i>
               Evidence pack
@@ -152,6 +157,101 @@
             <div class="wizard-shell">
               <div class="wizard-tabs" id="wizardTabs"></div>
               <form class="wizard-form" id="wizardForm"></form>
+            </div>
+          </section>
+
+          <section class="az-checker detail-panel" id="az-checker" data-dashboard-panel="az">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">A-Z full compliance checker</span>
+                <h2>Work through the property from paperwork dump to action plan.</h2>
+                <p class="section-copy">A deeper checker for landlords who want CMP to organise every known document, date, and missing compliance item.</p>
+              </div>
+              <span class="quiet-pill save-pill" id="azSaveStatus">Not saved yet</span>
+            </div>
+
+            <div class="az-command">
+              <section class="az-hero-card">
+                <span class="plastic-token"><i data-lucide="route"></i></span>
+                <div>
+                  <h3>One guided checklist, one document dump, one live property record.</h3>
+                  <p id="azPrimaryAction">CMP will turn answers and evidence into the next most useful action.</p>
+                </div>
+                <div class="az-meter" aria-label="A-Z checker completion">
+                  <strong id="azProgressValue">0%</strong>
+                  <span id="azProgressText">Not started</span>
+                </div>
+              </section>
+
+              <section class="document-dump-card">
+                <div class="panel-heading">
+                  <span class="section-kicker">Document dump</span>
+                  <h3>Drop everything about this house here</h3>
+                </div>
+                <label class="document-dump-zone" for="azDocumentDump">
+                  <i data-lucide="files"></i>
+                  <span>Certificates, tenancy paperwork, notices, reports, licences, deposit proof</span>
+                  <small>Readable files are scanned for document type and key dates in this prototype.</small>
+                </label>
+                <input id="azDocumentDump" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx,.csv,.md">
+                <div class="az-document-results" id="azDocumentResults"></div>
+              </section>
+            </div>
+
+            <div class="az-layout">
+              <section class="az-checklist-panel">
+                <div class="panel-heading">
+                  <span class="section-kicker">Step-by-step compliance path</span>
+                  <h3>Answer what is known. CMP will keep the rest visible.</h3>
+                </div>
+                <div class="az-checklist" id="azChecklist"></div>
+              </section>
+
+              <aside class="az-side-panel">
+                <section class="latest-facts-card">
+                  <div class="panel-heading">
+                    <span class="section-kicker">Most recent data</span>
+                    <h3>What CMP currently believes</h3>
+                  </div>
+                  <div class="latest-facts" id="azLatestFacts"></div>
+                </section>
+
+                <section class="ai-key-card">
+                  <div class="panel-heading">
+                    <span class="section-kicker">AI document reader</span>
+                    <h3>Connect document extraction</h3>
+                  </div>
+                  <p class="ai-key-note">For this static prototype, the raw key stays in this browser. In production this should run through a secure server or Supabase Edge Function.</p>
+                  <div class="ai-settings-grid">
+                    <label>
+                      Provider
+                      <select id="documentAiProvider">
+                        <option value="openai">OpenAI-compatible</option>
+                        <option value="azure">Azure OpenAI</option>
+                        <option value="custom">Custom OCR/API</option>
+                      </select>
+                    </label>
+                    <label>
+                      Endpoint
+                      <input id="documentAiEndpoint" type="url" placeholder="https://api.openai.com/v1">
+                    </label>
+                    <label class="full">
+                      API key
+                      <input id="documentAiKey" type="password" autocomplete="off" placeholder="Paste key for this browser">
+                    </label>
+                  </div>
+                  <div class="ai-key-actions">
+                    <button class="primary-button" type="button" id="saveAiSettings">
+                      <i data-lucide="key-round"></i>
+                      Save reader settings
+                    </button>
+                    <button class="secondary-button" type="button" id="clearAiKey">
+                      Clear key
+                    </button>
+                  </div>
+                  <span class="quiet-pill" id="aiKeyStatus">No reader connected</span>
+                </section>
+              </aside>
             </div>
           </section>
 

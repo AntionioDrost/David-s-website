@@ -8,8 +8,24 @@ const state = {
   activeJourney: "compliance",
   activeStep: 0,
   activeDashboardPanel: "check",
-  scans: []
+  scans: [],
+  azChecklist: {},
+  aiSettings: {
+    provider: "openai",
+    endpoint: "https://api.openai.com/v1",
+    keyHint: "",
+    keyPresent: false
+  },
+  saveStatus: "Not saved yet",
+  saveTone: "idle"
 };
+
+const WORKSPACE_TABLE = "cmp_property_compliance_workspaces";
+const AI_PREF_TABLE = "cmp_ai_preferences";
+const LOCAL_WORKSPACE_STORAGE = "cmp_compliance_workspaces";
+const LOCAL_AI_PREF_STORAGE = "cmp_ai_preferences";
+const AI_KEY_STORAGE = "cmp_document_ai_key";
+let workspaceSaveTimer = null;
 
 const journeys = [
   {
@@ -64,6 +80,93 @@ const evidenceTypes = [
   { key: "licence", title: "Licensing documents", icon: "badge-check" },
   { key: "inspection", title: "Inspection reports", icon: "clipboard-list" },
   { key: "notice", title: "Rent or possession notices", icon: "scale" }
+];
+
+const azAnswerOptions = [
+  { value: "yes", label: "Yes", icon: "check" },
+  { value: "no", label: "No", icon: "x" },
+  { value: "unknown", label: "Not sure", icon: "circle-help" },
+  { value: "na", label: "N/A", icon: "minus" }
+];
+
+const azSections = [
+  {
+    id: "property",
+    title: "Property setup",
+    icon: "home",
+    checks: [
+      { id: "profile_confirmed", label: "Address, property type, bedrooms and storeys are confirmed.", help: "The base record decides which checks apply." },
+      { id: "tenancy_status_confirmed", label: "Current tenancy status is recorded.", help: "This affects served-document and possession readiness checks." },
+      { id: "appliances_confirmed", label: "Gas and fixed-combustion appliances are confirmed.", help: "Used for gas safety and CO alarm requirements." },
+      { id: "licensing_triggers_checked", label: "HMO, selective, and additional licensing triggers are checked.", help: "Flags local authority risk early." }
+    ]
+  },
+  {
+    id: "epc",
+    title: "EPC",
+    icon: "leaf",
+    checks: [
+      { id: "epc_certificate_current", label: "A current EPC is recorded or uploaded.", help: "CMP stores rating, issue date, expiry, and certificate number." },
+      { id: "epc_rating_acceptable", label: "The rating is E or above, or an exemption is evidenced.", help: "Poor ratings become priority actions." },
+      { id: "epc_served_to_tenant", label: "EPC service to the tenant is evidenced.", help: "Important for tenancy and possession workflows." },
+      { id: "epc_recommendations_reviewed", label: "Improvement recommendations have been reviewed.", help: "Useful for planning upgrades before expiry." }
+    ]
+  },
+  {
+    id: "gas",
+    title: "Gas safety",
+    icon: "flame",
+    checks: [
+      { id: "gas_requirement_known", label: "CMP knows whether gas appliances are present.", help: "N/A is fine where no gas applies." },
+      { id: "gas_certificate_uploaded", label: "A valid Gas Safety Certificate is stored.", help: "Annual renewal and expiry dates are tracked." },
+      { id: "gas_engineer_details_recorded", label: "Engineer or registration details are recorded.", help: "AI extraction should capture this from the certificate." },
+      { id: "gas_served_to_tenant", label: "Certificate service to the tenant is evidenced.", help: "This matters before certain tenancy actions." }
+    ]
+  },
+  {
+    id: "electrical",
+    title: "Electrical safety",
+    icon: "zap",
+    checks: [
+      { id: "eicr_uploaded", label: "A current EICR is stored.", help: "CMP tracks the five-year cycle." },
+      { id: "eicr_satisfactory", label: "The EICR result is satisfactory or remedials are evidenced.", help: "Unsatisfactory reports should create follow-up actions." },
+      { id: "eicr_served_to_tenant", label: "EICR service to the tenant is evidenced.", help: "Keep proof alongside the report." },
+      { id: "remedial_documents_stored", label: "Any remedial works evidence is stored.", help: "Needed if the original report raised issues." }
+    ]
+  },
+  {
+    id: "alarms",
+    title: "Alarms",
+    icon: "bell-ring",
+    checks: [
+      { id: "smoke_each_storey", label: "Smoke alarms are confirmed on each relevant storey.", help: "Photos or inspection notes can support this." },
+      { id: "co_alarm_confirmed", label: "CO alarms are confirmed where required.", help: "Appliance facts decide whether this is required." },
+      { id: "alarm_start_tested", label: "Alarms were tested at the start of the tenancy.", help: "CMP stores the evidence, not just the answer." },
+      { id: "alarm_evidence_uploaded", label: "Alarm photos, report, or inspection proof is uploaded.", help: "Completes the evidence trail." }
+    ]
+  },
+  {
+    id: "tenancy",
+    title: "Tenancy and deposit",
+    icon: "file-text",
+    checks: [
+      { id: "tenancy_agreement_stored", label: "Written tenancy agreement is stored.", help: "Forms part of the evidence pack." },
+      { id: "how_to_rent_served", label: "How to Rent guide service is evidenced.", help: "Important for possession readiness." },
+      { id: "right_to_rent_recorded", label: "Right to Rent check is recorded.", help: "Keeps tenancy onboarding complete." },
+      { id: "deposit_protected", label: "Deposit protection and prescribed information are evidenced.", help: "CMP should flag this as high risk when missing." }
+    ]
+  },
+  {
+    id: "operations",
+    title: "Licensing, inspections, rent, possession",
+    icon: "shield-check",
+    checks: [
+      { id: "licence_evidence_stored", label: "Licence evidence or council check result is stored.", help: "Includes HMO, selective, and additional licensing." },
+      { id: "inspection_report_current", label: "A recent inspection or condition report is stored.", help: "Useful for disputes and renewals." },
+      { id: "rent_notice_evidence_ready", label: "Rent increase notices are stored where relevant.", help: "Keeps the rent history auditable." },
+      { id: "possession_pack_ready", label: "Possession evidence has been checked before notice steps.", help: "CMP should guide and flag, not make legal decisions." }
+    ]
+  }
 ];
 
 const properties = [
@@ -541,13 +644,267 @@ function sortedActions(items) {
     });
 }
 
+function safeJsonParse(value, fallback) {
+  if (value === null || value === undefined || value === "") return fallback;
+  try {
+    return JSON.parse(value) ?? fallback;
+  } catch {
+    return fallback;
+  }
+}
+
+async function getSupabaseSession() {
+  const client = window.CMPAuth?.getClient?.();
+  if (!client) return { client: null, user: null };
+
+  const { data, error } = await client.auth.getSession();
+  if (error || !data?.session?.user) return { client, user: null };
+  return { client, user: data.session.user };
+}
+
+function mergeScans(scans) {
+  const byId = new Map(state.scans.map((scan) => [scan.id, scan]));
+  scans
+    .filter((scan) => scan?.id && scan?.propertyId)
+    .forEach((scan) => byId.set(scan.id, { ...scan }));
+  state.scans = Array.from(byId.values());
+}
+
+function propertySnapshot(property) {
+  return JSON.parse(JSON.stringify(property));
+}
+
+function mergePropertySnapshot(propertyId, snapshot) {
+  if (!snapshot || typeof snapshot !== "object") return;
+  const property = properties.find((item) => item.id === propertyId);
+  if (property) {
+    Object.assign(property, { ...snapshot, id: propertyId });
+    return;
+  }
+  properties.push({ ...snapshot, id: propertyId });
+}
+
+function unpackCheckerState(value) {
+  if (!value || typeof value !== "object") return {};
+  return value.answers || value;
+}
+
+function loadLocalWorkspace() {
+  const saved = safeJsonParse(localStorage.getItem(LOCAL_WORKSPACE_STORAGE), {});
+  Object.entries(saved || {}).forEach(([propertyId, workspace]) => {
+    const checkerState = workspace.checkerState || workspace.checker_state || {};
+    state.azChecklist[propertyId] = unpackCheckerState(checkerState);
+    mergePropertySnapshot(propertyId, checkerState.propertySnapshot || workspace.propertySnapshot);
+    mergeScans(workspace.documentScans || workspace.document_scans || []);
+  });
+}
+
+async function loadPersistedWorkspace() {
+  loadLocalWorkspace();
+  await loadAiPreferences();
+
+  const { client, user } = await getSupabaseSession();
+  if (!client || !user) {
+    state.saveStatus = "Saved locally";
+    state.saveTone = "local";
+    return;
+  }
+
+  const { data, error } = await client
+    .from(WORKSPACE_TABLE)
+    .select("property_id, checker_state, document_scans, extracted_facts");
+
+  if (error) {
+    console.warn("Could not load CMP workspace", error);
+    state.saveStatus = "Local save active";
+    state.saveTone = "local";
+    return;
+  }
+
+  (data || []).forEach((row) => {
+    state.azChecklist[row.property_id] = unpackCheckerState(row.checker_state);
+    mergePropertySnapshot(row.property_id, row.checker_state?.propertySnapshot);
+    mergeScans(row.document_scans || []);
+  });
+  state.saveStatus = "Synced with Supabase";
+  state.saveTone = "saved";
+}
+
+function saveWorkspaceLocally(propertyId) {
+  const saved = safeJsonParse(localStorage.getItem(LOCAL_WORKSPACE_STORAGE), {});
+  const property = properties.find((item) => item.id === propertyId);
+  const checkerState = {
+    answers: state.azChecklist[propertyId] || {},
+    propertySnapshot: property ? propertySnapshot(property) : null,
+    updatedAt: new Date().toISOString()
+  };
+  saved[propertyId] = {
+    checkerState,
+    documentScans: state.scans.filter((scan) => scan.propertyId === propertyId),
+    extractedFacts: property ? extractedFactsObject(property) : {},
+    updatedAt: new Date().toISOString()
+  };
+  localStorage.setItem(LOCAL_WORKSPACE_STORAGE, JSON.stringify(saved));
+}
+
+function setSaveStatus(status, tone = "idle") {
+  state.saveStatus = status;
+  state.saveTone = tone;
+  renderSaveStatus();
+}
+
+function renderSaveStatus() {
+  const target = document.querySelector("#azSaveStatus");
+  if (!target) return;
+  target.textContent = state.saveStatus;
+  target.dataset.tone = state.saveTone;
+}
+
+function queueWorkspaceSave(propertyId = state.activePropertyId) {
+  window.clearTimeout(workspaceSaveTimer);
+  setSaveStatus("Saving workspace...", "saving");
+  workspaceSaveTimer = window.setTimeout(() => saveWorkspace(propertyId), 650);
+}
+
+async function saveWorkspace(propertyId = state.activePropertyId) {
+  saveWorkspaceLocally(propertyId);
+
+  const property = properties.find((item) => item.id === propertyId);
+  const { client, user } = await getSupabaseSession();
+  if (!client || !user || !property) {
+    setSaveStatus("Saved in this browser", "local");
+    return;
+  }
+
+  const { error } = await client.from(WORKSPACE_TABLE).upsert({
+    user_id: user.id,
+    property_id: propertyId,
+    checker_state: {
+      answers: state.azChecklist[propertyId] || {},
+      propertySnapshot: propertySnapshot(property),
+      updatedAt: new Date().toISOString()
+    },
+    document_scans: state.scans.filter((scan) => scan.propertyId === propertyId),
+    extracted_facts: extractedFactsObject(property),
+    updated_at: new Date().toISOString()
+  }, { onConflict: "user_id,property_id" });
+
+  if (error) {
+    console.warn("Could not save CMP workspace", error);
+    setSaveStatus("Saved locally - Supabase retry later", "local");
+    return;
+  }
+
+  setSaveStatus("Saved to Supabase", "saved");
+}
+
+function maskKey(value) {
+  if (!value) return "";
+  const clean = String(value).trim();
+  if (clean.length <= 8) return "saved key";
+  return `${clean.slice(0, 4)}...${clean.slice(-4)}`;
+}
+
+async function loadAiPreferences() {
+  const localPrefs = safeJsonParse(localStorage.getItem(LOCAL_AI_PREF_STORAGE), {});
+  const localKey = localStorage.getItem(AI_KEY_STORAGE);
+  state.aiSettings = {
+    provider: localPrefs.provider || state.aiSettings.provider,
+    endpoint: localPrefs.endpoint || state.aiSettings.endpoint,
+    keyHint: localPrefs.keyHint || localPrefs.key_hint || (localKey ? maskKey(localKey) : ""),
+    keyPresent: Boolean(localKey)
+  };
+
+  const { client, user } = await getSupabaseSession();
+  if (!client || !user) return;
+
+  const { data, error } = await client
+    .from(AI_PREF_TABLE)
+    .select("provider, endpoint, key_hint")
+    .maybeSingle();
+
+  if (!error && data) {
+    state.aiSettings = {
+      provider: data.provider || state.aiSettings.provider,
+      endpoint: data.endpoint || state.aiSettings.endpoint,
+      keyHint: data.key_hint || state.aiSettings.keyHint,
+      keyPresent: Boolean(localKey || data.key_hint)
+    };
+  }
+}
+
+async function saveAiPreferences() {
+  const provider = document.querySelector("#documentAiProvider")?.value || "openai";
+  const endpoint = document.querySelector("#documentAiEndpoint")?.value.trim() || "https://api.openai.com/v1";
+  const key = document.querySelector("#documentAiKey")?.value.trim() || "";
+  const currentKey = localStorage.getItem(AI_KEY_STORAGE);
+  const keyHint = key ? maskKey(key) : state.aiSettings.keyHint;
+
+  if (key) {
+    localStorage.setItem(AI_KEY_STORAGE, key);
+  }
+
+  state.aiSettings = {
+    provider,
+    endpoint,
+    keyHint,
+    keyPresent: Boolean(key || currentKey || keyHint)
+  };
+  localStorage.setItem(LOCAL_AI_PREF_STORAGE, JSON.stringify(state.aiSettings));
+  renderAiSettings();
+
+  const { client, user } = await getSupabaseSession();
+  if (!client || !user) return;
+
+  const { error } = await client.from(AI_PREF_TABLE).upsert({
+    user_id: user.id,
+    provider,
+    endpoint,
+    key_hint: keyHint,
+    updated_at: new Date().toISOString()
+  }, { onConflict: "user_id" });
+
+  if (error) {
+    console.warn("Could not save AI preferences", error);
+  }
+}
+
+async function clearAiKey() {
+  localStorage.removeItem(AI_KEY_STORAGE);
+  state.aiSettings = {
+    provider: document.querySelector("#documentAiProvider")?.value || state.aiSettings.provider,
+    endpoint: document.querySelector("#documentAiEndpoint")?.value.trim() || state.aiSettings.endpoint,
+    keyHint: "",
+    keyPresent: false
+  };
+  localStorage.setItem(LOCAL_AI_PREF_STORAGE, JSON.stringify(state.aiSettings));
+  renderAiSettings();
+
+  const { client, user } = await getSupabaseSession();
+  if (!client || !user) return;
+
+  const { error } = await client.from(AI_PREF_TABLE).upsert({
+    user_id: user.id,
+    provider: state.aiSettings.provider,
+    endpoint: state.aiSettings.endpoint,
+    key_hint: "",
+    updated_at: new Date().toISOString()
+  }, { onConflict: "user_id" });
+
+  if (error) {
+    console.warn("Could not clear AI key hint", error);
+  }
+}
+
 function renderAll() {
   renderPropertyList();
   renderJourneyList();
   renderDashboard();
   renderWizard();
+  renderAzChecker();
   renderUploadModalState();
   syncDashboardPanels();
+  renderSaveStatus();
   refreshIcons();
 }
 
@@ -614,6 +971,16 @@ function showDashboardPanel(panel, scroll = true) {
     const target = document.querySelector(`[data-dashboard-panel="${panel}"]`);
     target?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
+}
+
+function dashboardPanelFromHash(hash) {
+  return {
+    "#dashboard": "requirements",
+    "#guided-check": "check",
+    "#az-checker": "az",
+    "#evidence-pack": "evidence",
+    "#services": "services"
+  }[hash] || "";
 }
 
 function syncDashboardPanels() {
@@ -813,6 +1180,223 @@ function renderServices(actions, items) {
       <button class="service-button" type="button">Start</button>
     </article>
   `).join("");
+}
+
+function getAzAnswers(propertyId = state.activePropertyId) {
+  state.azChecklist[propertyId] = state.azChecklist[propertyId] || {};
+  return state.azChecklist[propertyId];
+}
+
+function azCheckCount() {
+  return azSections.reduce((count, section) => count + section.checks.length, 0);
+}
+
+function summarizeAzAnswers(answers) {
+  const total = azCheckCount();
+  const values = azSections.flatMap((section) => section.checks.map((check) => answers[check.id]));
+  const answered = values.filter((value) => ["yes", "no", "na"].includes(value)).length;
+  const complete = values.filter((value) => value === "yes" || value === "na").length;
+  const issues = values.filter((value) => value === "no").length;
+  const unknown = total - answered;
+  return {
+    total,
+    answered,
+    complete,
+    issues,
+    unknown,
+    completion: Math.round((answered / total) * 100),
+    compliance: Math.round((complete / total) * 100)
+  };
+}
+
+function suggestAzPrimaryAction(summary) {
+  if (summary.issues) {
+    return `${summary.issues} compliance item${summary.issues === 1 ? "" : "s"} need action before this property feels complete.`;
+  }
+  if (summary.unknown) {
+    return `${summary.unknown} check${summary.unknown === 1 ? "" : "s"} still need evidence or a landlord answer.`;
+  }
+  return "A-Z checker complete. Keep renewals and document evidence updated.";
+}
+
+function setAzAnswer(checkId, answer) {
+  const answers = getAzAnswers();
+  answers[checkId] = answer;
+  queueWorkspaceSave();
+  renderAll();
+}
+
+function factsList(property) {
+  const epcExpiry = property.epc?.issue ? addYears(property.epc.issue, 10) : null;
+  const gasExpiry = property.hasGas && property.gas?.issue ? addYears(property.gas.issue, 1) : null;
+  const eicrExpiry = property.eicr?.issue ? addYears(property.eicr.issue, 5) : null;
+  const latestScan = state.scans
+    .filter((scan) => scan.propertyId === property.id)
+    .sort((a, b) => String(b.scannedAt || b.id).localeCompare(String(a.scannedAt || a.id)))[0];
+
+  return [
+    {
+      key: "property_profile",
+      label: "Property profile",
+      value: `${property.type} - ${property.bedrooms} bed - ${property.storeys} storey${property.storeys === 1 ? "" : "s"}`,
+      source: "Property record"
+    },
+    {
+      key: "epc",
+      label: "EPC",
+      value: property.epc?.rating ? `Rating ${property.epc.rating}, expires ${formatDate(epcExpiry)}` : "No EPC rating stored",
+      source: property.epc?.certificate ? `Certificate ${property.epc.certificate}` : "Needs register pull or upload"
+    },
+    {
+      key: "gas",
+      label: "Gas safety",
+      value: property.hasGas ? (property.gas?.issue ? `Issued ${formatDate(property.gas.issue)}, expires ${formatDate(gasExpiry)}` : "Gas applies, certificate date missing") : "No gas appliances recorded",
+      source: property.gas?.engineer || "Property answer"
+    },
+    {
+      key: "eicr",
+      label: "Electrical safety",
+      value: property.eicr?.issue ? `Issued ${formatDate(property.eicr.issue)}, expires ${formatDate(eicrExpiry)}` : "No EICR date stored",
+      source: property.eicr?.result || "No result recorded"
+    },
+    {
+      key: "deposit",
+      label: "Deposit",
+      value: property.deposit?.taken ? (property.deposit?.protected ? "Protected" : "Protection not confirmed") : "No deposit recorded",
+      source: property.deposit?.prescribedInfo ? "Prescribed information recorded" : "Evidence incomplete"
+    },
+    {
+      key: "latest_document",
+      label: "Latest document intake",
+      value: latestScan ? latestScan.title : "No document dump scans yet",
+      source: latestScan ? `${latestScan.fileName} - ${latestScan.confidence}% confidence` : "Upload evidence to populate this"
+    }
+  ];
+}
+
+function extractedFactsObject(property) {
+  return factsList(property).reduce((facts, item) => {
+    facts[item.key] = {
+      label: item.label,
+      value: item.value,
+      source: item.source
+    };
+    return facts;
+  }, {});
+}
+
+function renderAzChecker() {
+  const root = document.querySelector("#az-checker");
+  if (!root) return;
+
+  const property = activeProperty();
+  const answers = getAzAnswers(property.id);
+  const summary = summarizeAzAnswers(answers);
+  const propertyScans = state.scans
+    .filter((scan) => scan.propertyId === property.id)
+    .slice(-6)
+    .reverse();
+
+  document.querySelector("#azProgressValue").textContent = `${summary.completion}%`;
+  document.querySelector("#azProgressText").textContent = `${summary.answered}/${summary.total} checks answered - ${summary.compliance}% evidence ready`;
+  document.querySelector("#azPrimaryAction").textContent = suggestAzPrimaryAction(summary);
+
+  document.querySelector("#azChecklist").innerHTML = azSections.map((section) => {
+    const sectionAnswered = section.checks.filter((check) => ["yes", "no", "na"].includes(answers[check.id])).length;
+    return `
+      <article class="az-section-card">
+        <header class="az-section-header">
+          <span class="card-icon"><i data-lucide="${section.icon}"></i></span>
+          <div>
+            <h4>${escapeHtml(section.title)}</h4>
+            <span>${sectionAnswered}/${section.checks.length} answered</span>
+          </div>
+        </header>
+        <div class="az-question-list">
+          ${section.checks.map((check) => renderAzQuestion(check, answers[check.id])).join("")}
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  document.querySelector("#azLatestFacts").innerHTML = factsList(property).map((fact) => `
+    <article class="latest-fact">
+      <span>${escapeHtml(fact.label)}</span>
+      <strong>${escapeHtml(fact.value)}</strong>
+      <small>${escapeHtml(fact.source)}</small>
+    </article>
+  `).join("");
+
+  document.querySelector("#azDocumentResults").innerHTML = propertyScans.length ? propertyScans.map((scan) => `
+    <article class="az-document-result">
+      <div>
+        <strong>${escapeHtml(scan.title)}</strong>
+        <span>${escapeHtml(scan.fileName)} - ${scan.confidence}% confidence</span>
+        <small>${scan.issue ? `Issue ${formatDate(scan.issue)}` : "Issue date not found"}${scan.expiry ? ` - expires ${formatDate(scan.expiry)}` : ""}</small>
+      </div>
+      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}">Use</button>
+    </article>
+  `).join("") : `
+    <article class="az-document-result empty">
+      <strong>No documents dumped yet</strong>
+      <span>Uploads will appear here with extracted dates and confidence.</span>
+    </article>
+  `;
+
+  root.querySelectorAll("[data-az-answer]").forEach((button) => {
+    button.addEventListener("click", () => setAzAnswer(button.dataset.azCheck, button.dataset.azAnswer));
+  });
+
+  root.querySelectorAll("[data-apply-scan]").forEach((button) => {
+    button.addEventListener("click", () => applyScan(button.dataset.applyScan));
+  });
+
+  renderAiSettings();
+}
+
+function renderAzQuestion(check, selected = "") {
+  return `
+    <div class="az-question">
+      <div>
+        <strong>${escapeHtml(check.label)}</strong>
+        <span>${escapeHtml(check.help)}</span>
+      </div>
+      <div class="az-answer-group" role="group" aria-label="${escapeHtml(check.label)}">
+        ${azAnswerOptions.map((option) => `
+          <button
+            class="az-answer${selected === option.value ? " is-active" : ""}"
+            type="button"
+            data-az-check="${escapeHtml(check.id)}"
+            data-az-answer="${escapeHtml(option.value)}"
+            data-answer="${escapeHtml(option.value)}"
+            title="${escapeHtml(option.label)}"
+          >
+            <i data-lucide="${option.icon}"></i>
+            <span>${escapeHtml(option.label)}</span>
+          </button>
+        `).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function renderAiSettings() {
+  const provider = document.querySelector("#documentAiProvider");
+  const endpoint = document.querySelector("#documentAiEndpoint");
+  const keyInput = document.querySelector("#documentAiKey");
+  const status = document.querySelector("#aiKeyStatus");
+  if (!provider || !endpoint || !keyInput || !status) return;
+
+  provider.value = state.aiSettings.provider || "openai";
+  endpoint.value = state.aiSettings.endpoint || "https://api.openai.com/v1";
+  keyInput.value = "";
+  keyInput.placeholder = state.aiSettings.keyPresent && state.aiSettings.keyHint
+    ? `Stored locally: ${state.aiSettings.keyHint}`
+    : "Paste key for this browser";
+  status.textContent = state.aiSettings.keyPresent
+    ? `Reader connected (${state.aiSettings.keyHint || "local key"})`
+    : "No reader connected";
+  status.dataset.tone = state.aiSettings.keyPresent ? "saved" : "idle";
 }
 
 function renderWizard() {
@@ -1045,6 +1629,7 @@ function updateField(input, rerender = true) {
     property.postcode = input.value.toUpperCase();
   }
 
+  queueWorkspaceSave(property.id);
   if (rerender) renderAll();
   else renderDashboard();
 }
@@ -1106,7 +1691,8 @@ function scanDocument(file, text = "") {
     title: match.title,
     issue,
     expiry,
-    confidence
+    confidence,
+    scannedAt: new Date().toISOString()
   };
 }
 
@@ -1189,6 +1775,7 @@ function applyScan(scanId) {
     title: `${scan.title} applied`,
     detail: `${scan.confidence}% confidence from ${scan.fileName}.`
   });
+  queueWorkspaceSave(property.id);
   renderAll();
 }
 
@@ -1198,12 +1785,14 @@ function handleFiles(files) {
     reader.onload = () => {
       const content = typeof reader.result === "string" ? reader.result.slice(0, 5000) : "";
       state.scans.push(scanDocument(file, content));
+      queueWorkspaceSave();
       renderAll();
     };
     if (file.type.startsWith("text") || /\.(txt|csv|md)$/i.test(file.name)) {
       reader.readAsText(file);
     } else {
       state.scans.push(scanDocument(file));
+      queueWorkspaceSave();
       renderAll();
     }
   });
@@ -1259,7 +1848,8 @@ function pullEpcData() {
     title: "EPC register data pulled",
     issue: property.epc.issue,
     expiry: addYears(property.epc.issue, 10),
-    confidence: 91
+    confidence: 91,
+    scannedAt: new Date().toISOString()
   });
 
   property.timeline.unshift({
@@ -1267,6 +1857,7 @@ function pullEpcData() {
     title: "EPC register data pulled",
     detail: `Rating ${property.epc.rating}, potential ${property.epc.potential}. Production build should call the authenticated domestic EPC API.`
   });
+  queueWorkspaceSave(property.id);
   renderAll();
 }
 
@@ -1305,12 +1896,20 @@ function addProperty() {
   });
   state.activePropertyId = id;
   state.activeStep = 0;
-  state.activeDashboardPanel = "check";
+  state.activeDashboardPanel = "az";
+  queueWorkspaceSave(id);
   renderAll();
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  state.activeDashboardPanel = dashboardPanelFromHash(window.location.hash) || state.activeDashboardPanel;
   renderAll();
+  loadPersistedWorkspace()
+    .then(() => renderAll())
+    .catch((error) => {
+      console.warn("Could not initialise saved workspace", error);
+      setSaveStatus("Local save active", "local");
+    });
 
   document.querySelector("#pullEpcButton").addEventListener("click", pullEpcData);
   document.querySelector("#startGuidedCheck").addEventListener("click", () => {
@@ -1325,13 +1924,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelectorAll('.nav-links a[href^="#"]').forEach((link) => {
     link.addEventListener("click", () => {
-      const panelByHash = {
-        "#dashboard": "requirements",
-        "#guided-check": "check",
-        "#evidence-pack": "evidence",
-        "#services": "services"
-      };
-      const panel = panelByHash[link.getAttribute("href")];
+      const panel = dashboardPanelFromHash(link.getAttribute("href"));
       if (panel) showDashboardPanel(panel, false);
     });
   });
@@ -1345,4 +1938,13 @@ document.addEventListener("DOMContentLoaded", () => {
     closeUploadModal();
     event.target.value = "";
   });
+
+  document.querySelector("#azDocumentDump")?.addEventListener("change", (event) => {
+    handleFiles(event.target.files);
+    showDashboardPanel("az", false);
+    event.target.value = "";
+  });
+
+  document.querySelector("#saveAiSettings")?.addEventListener("click", saveAiPreferences);
+  document.querySelector("#clearAiKey")?.addEventListener("click", clearAiKey);
 });

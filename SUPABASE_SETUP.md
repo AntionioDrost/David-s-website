@@ -32,3 +32,14 @@ http://localhost:8000/**
 ```
 
 Do not put a `service_role` or secret key in the browser. This site only needs the public project URL and publishable key.
+
+## Dashboard workspace persistence
+
+The dashboard also expects two RLS-protected tables in `public`:
+
+- `cmp_property_compliance_workspaces` stores each user's property A-Z checker answers, document scan previews, extracted facts, and a property snapshot.
+- `cmp_ai_preferences` stores the AI document reader provider, endpoint, and a masked key hint.
+
+The schema is documented in `supabase-workspace-schema.sql`.
+
+The raw AI document reader API key is intentionally not saved to Supabase. In this static prototype it is saved only in the user's browser `localStorage`; a production build should move document extraction behind a secure server or Supabase Edge Function.
