@@ -6,6 +6,9 @@
   --paper: #f5f5f7;
   --panel: rgba(255, 255, 255, 0.84);
   --panel-strong: #ffffff;
+  --plastic: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(226, 242, 255, 0.76) 48%, rgba(255, 255, 255, 0.9));
+  --plastic-blue: linear-gradient(145deg, #0b8cff, #0067d7 52%, #004da8);
+  --blue-glow: rgba(0, 113, 227, 0.18);
   --line: rgba(24, 31, 38, 0.12);
   --line-strong: rgba(24, 31, 38, 0.2);
   --blue: #0071e3;
@@ -16,6 +19,7 @@
   --teal: #18a3a3;
   --violet: #7761d6;
   --shadow: 0 18px 60px rgba(30, 38, 48, 0.12);
+  --plastic-shadow: 0 22px 54px rgba(0, 72, 155, 0.14), inset 0 1px 0 rgba(255, 255, 255, 0.98), inset 0 -14px 30px rgba(0, 113, 227, 0.05);
   --small-shadow: 0 10px 28px rgba(30, 38, 48, 0.09);
   --radius: 8px;
   --tap: 44px;
@@ -34,6 +38,7 @@ body {
   min-width: 320px;
   overflow-x: hidden;
   background:
+    linear-gradient(135deg, rgba(231, 245, 255, 0.92), rgba(255, 255, 255, 0.92) 28%, rgba(237, 247, 255, 0.92) 62%, #eef2f7),
     linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(245, 245, 247, 0.96) 35%, #f1f2f4),
     var(--paper);
   color: var(--ink);
@@ -114,7 +119,9 @@ h3 {
   gap: 20px;
   padding: 14px clamp(16px, 4vw, 42px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.72);
-  background: rgba(247, 247, 249, 0.78);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(232, 245, 255, 0.76)),
+    rgba(247, 247, 249, 0.78);
   backdrop-filter: blur(24px) saturate(170%);
 }
 
@@ -132,12 +139,12 @@ h3 {
   place-items: center;
   border: 1px solid rgba(16, 20, 24, 0.14);
   border-radius: 12px;
-  background: linear-gradient(145deg, #191d22, #4a5564);
+  background: linear-gradient(145deg, #0b7fff, #0f1724 72%);
   color: white;
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), var(--small-shadow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48), inset 0 -10px 18px rgba(0, 0, 0, 0.18), var(--small-shadow);
 }
 
 .brand strong {
@@ -160,7 +167,8 @@ h3 {
   padding: 6px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.62);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(232, 245, 255, 0.78));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98), 0 10px 26px rgba(0, 74, 160, 0.08);
 }
 
 .nav-links a {
@@ -197,7 +205,7 @@ h3 {
 .icon-button {
   width: var(--tap);
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.78);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(226, 242, 255, 0.84));
   border: 1px solid var(--line);
 }
 
@@ -205,20 +213,20 @@ h3 {
   min-height: 34px;
   padding: 0 12px;
   color: var(--blue);
-  background: rgba(0, 113, 227, 0.08);
+  background: linear-gradient(180deg, rgba(232, 246, 255, 0.98), rgba(206, 232, 255, 0.86));
 }
 
 .primary-button {
   padding: 0 18px;
   color: #fff;
-  background: linear-gradient(180deg, var(--blue), var(--blue-deep));
-  box-shadow: 0 12px 24px rgba(0, 113, 227, 0.24);
+  background: var(--plastic-blue);
+  box-shadow: 0 16px 30px rgba(0, 113, 227, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -14px 22px rgba(0, 0, 0, 0.16);
 }
 
 .secondary-button {
   padding: 0 16px;
   color: var(--ink);
-  background: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(231, 244, 255, 0.84));
   border: 1px solid var(--line);
 }
 
@@ -313,8 +321,8 @@ svg {
 .source-section {
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
-  background: var(--panel);
-  box-shadow: var(--small-shadow);
+  background: var(--plastic);
+  box-shadow: var(--plastic-shadow);
   backdrop-filter: blur(24px) saturate(140%);
 }
 
@@ -440,9 +448,9 @@ svg {
   border: 1px solid rgba(255, 255, 255, 0.82);
   border-radius: var(--radius);
   background:
-    linear-gradient(135deg, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0.72)),
-    linear-gradient(135deg, rgba(0, 113, 227, 0.12), rgba(47, 189, 101, 0.08));
-  box-shadow: var(--shadow);
+    linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(224, 241, 255, 0.74) 52%, rgba(255, 255, 255, 0.9)),
+    linear-gradient(135deg, rgba(0, 113, 227, 0.15), rgba(47, 189, 101, 0.08));
+  box-shadow: var(--plastic-shadow);
   backdrop-filter: blur(24px) saturate(150%);
 }
 
@@ -495,6 +503,33 @@ svg {
 .support-section,
 .evidence-workspace {
   padding: clamp(16px, 2vw, 22px);
+}
+
+.workspace-header,
+.score-panel,
+.priority-panel,
+.compliance-section,
+.guided-check,
+.evidence-section,
+.activity-section,
+.support-section,
+.evidence-workspace {
+  position: relative;
+  overflow: hidden;
+}
+
+.workspace-header::before,
+.score-panel::before,
+.priority-panel::before,
+.guided-check::before,
+.compliance-section::before,
+.evidence-section::before,
+.support-section::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 7px;
+  background: linear-gradient(90deg, #8fd0ff, #0071e3 46%, #63e3ff);
+  content: "";
 }
 
 .score-panel {
@@ -562,7 +597,8 @@ svg {
   padding: 11px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.7);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(235, 247, 255, 0.78));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98);
 }
 
 .priority-item:first-child {
@@ -647,8 +683,8 @@ svg {
   padding: 12px;
   border: 1px solid rgba(255, 255, 255, 0.85);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.74);
-  box-shadow: var(--small-shadow);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(235, 247, 255, 0.78));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98), var(--small-shadow);
 }
 
 .intel-stat strong {
@@ -673,8 +709,8 @@ svg {
   padding: 7px;
   border: 1px solid rgba(255, 255, 255, 0.8);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.62);
-  box-shadow: var(--small-shadow);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(230, 244, 255, 0.78));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98), var(--small-shadow);
   backdrop-filter: blur(24px) saturate(140%);
 }
 
@@ -725,7 +761,8 @@ svg {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.78);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(235, 247, 255, 0.78));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98);
 }
 
 .compliance-card {
@@ -749,7 +786,8 @@ svg {
   place-items: center;
   border-radius: 12px;
   color: var(--blue);
-  background: rgba(0, 113, 227, 0.1);
+  background: linear-gradient(145deg, #f7fbff, #d9efff);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -8px 12px rgba(0, 113, 227, 0.1), 0 8px 16px rgba(0, 113, 227, 0.12);
 }
 
 .compliance-card h3,
@@ -850,7 +888,7 @@ svg {
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: #fff;
+  background: linear-gradient(145deg, #fff, #edf7ff);
 }
 
 .question.full {

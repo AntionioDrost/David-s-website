@@ -6,6 +6,10 @@
   --paper: #f5f5f7;
   --surface: rgba(255, 255, 255, 0.86);
   --surface-strong: #ffffff;
+  --plastic: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(224, 241, 255, 0.74) 46%, rgba(255, 255, 255, 0.9));
+  --plastic-blue: linear-gradient(145deg, #0b8cff, #0067d7 52%, #004da8);
+  --blue-soft: #e6f3ff;
+  --blue-glow: rgba(0, 113, 227, 0.2);
   --line: rgba(18, 24, 31, 0.13);
   --line-strong: rgba(18, 24, 31, 0.22);
   --blue: #0071e3;
@@ -14,6 +18,7 @@
   --amber: #d88916;
   --red: #d94343;
   --shadow: 0 24px 70px rgba(19, 28, 38, 0.14);
+  --plastic-shadow: 0 24px 60px rgba(0, 72, 155, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.98), inset 0 -16px 34px rgba(0, 113, 227, 0.06);
   --soft-shadow: 0 14px 34px rgba(19, 28, 38, 0.1);
   --radius: 8px;
   --tap: 44px;
@@ -32,6 +37,7 @@ body {
   min-width: 320px;
   overflow-x: hidden;
   background:
+    linear-gradient(135deg, rgba(229, 244, 255, 0.9), rgba(255, 255, 255, 0.88) 22%, rgba(240, 247, 255, 0.9) 58%, #eef2f7),
     linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(245, 245, 247, 0.94) 42%, #f0f2f4),
     var(--paper);
   color: var(--ink);
@@ -119,7 +125,9 @@ svg {
   gap: 18px;
   padding: 14px clamp(16px, 4vw, 44px);
   border-bottom: 1px solid rgba(255, 255, 255, 0.74);
-  background: rgba(247, 247, 249, 0.82);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.9), rgba(234, 245, 255, 0.74)),
+    rgba(247, 247, 249, 0.82);
   backdrop-filter: blur(24px) saturate(170%);
 }
 
@@ -137,11 +145,11 @@ svg {
   place-items: center;
   border: 1px solid rgba(16, 20, 24, 0.14);
   border-radius: 12px;
-  background: linear-gradient(145deg, #191d22, #4a5564);
+  background: linear-gradient(145deg, #0b7fff, #0f1724 72%);
   color: #fff;
   font-size: 0.72rem;
   font-weight: 800;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.18), var(--soft-shadow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.48), inset 0 -10px 18px rgba(0, 0, 0, 0.18), var(--soft-shadow);
 }
 
 .brand strong,
@@ -162,7 +170,8 @@ svg {
   padding: 6px;
   border: 1px solid var(--line);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.66);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(232, 245, 255, 0.78));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 10px 26px rgba(0, 74, 160, 0.08);
 }
 
 .nav-links a {
@@ -199,15 +208,16 @@ svg {
 .button.secondary {
   padding: 0 16px;
   border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.84);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(232, 244, 255, 0.82));
   color: var(--ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98), inset 0 -10px 18px rgba(0, 113, 227, 0.04), 0 12px 24px rgba(15, 44, 80, 0.06);
 }
 
 .button.primary {
   padding: 0 20px;
   color: #fff;
-  background: linear-gradient(180deg, var(--blue), var(--blue-deep));
-  box-shadow: 0 14px 28px rgba(0, 113, 227, 0.24);
+  background: var(--plastic-blue);
+  box-shadow: 0 18px 34px rgba(0, 113, 227, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -16px 24px rgba(0, 0, 0, 0.16);
 }
 
 .button:hover,
@@ -253,7 +263,7 @@ svg {
   inset: 0;
   z-index: -2;
   background:
-    linear-gradient(90deg, rgba(245, 245, 247, 0.98) 0%, rgba(245, 245, 247, 0.94) 38%, rgba(245, 245, 247, 0.6) 68%, rgba(245, 245, 247, 0.25) 100%),
+    linear-gradient(90deg, rgba(245, 250, 255, 0.98) 0%, rgba(236, 247, 255, 0.94) 34%, rgba(210, 233, 255, 0.62) 66%, rgba(245, 245, 247, 0.2) 100%),
     linear-gradient(0deg, rgba(245, 245, 247, 0.95), rgba(245, 245, 247, 0.12) 42%);
 }
 
@@ -278,6 +288,7 @@ svg {
   font-size: clamp(3.25rem, 7vw, 6.7rem);
   line-height: 0.95;
   letter-spacing: 0;
+  text-wrap: balance;
 }
 
 .hero p {
@@ -310,9 +321,9 @@ svg {
   padding: 0 13px;
   border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(226, 242, 255, 0.78));
   color: var(--muted);
-  box-shadow: var(--soft-shadow);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96), inset 0 -8px 16px rgba(0, 113, 227, 0.05), var(--soft-shadow);
   backdrop-filter: blur(18px);
 }
 
@@ -354,9 +365,38 @@ svg {
 .page-hero {
   border: 1px solid rgba(255, 255, 255, 0.86);
   border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--shadow);
+  background: var(--plastic);
+  box-shadow: var(--plastic-shadow);
   backdrop-filter: blur(24px) saturate(140%);
+  position: relative;
+  overflow: hidden;
+}
+
+.split-section::before,
+.product-preview::before,
+.evidence-section::before,
+.pricing-preview::before,
+.final-cta::before,
+.page-hero::before {
+  position: absolute;
+  inset: 0 0 auto;
+  height: 9px;
+  background: linear-gradient(90deg, #8fd0ff, #0071e3 45%, #63e3ff);
+  content: "";
+}
+
+.split-section::after,
+.product-preview::after,
+.evidence-section::after,
+.pricing-preview::after,
+.final-cta::after,
+.page-hero::after {
+  position: absolute;
+  inset: 12px 14px auto;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0));
+  content: "";
+  pointer-events: none;
 }
 
 .split-section {
@@ -385,6 +425,7 @@ svg {
   font-size: clamp(2rem, 4vw, 4.2rem);
   line-height: 1.04;
   letter-spacing: 0;
+  text-wrap: balance;
 }
 
 .section-copy p,
@@ -417,8 +458,8 @@ svg {
 .faq-grid details {
   border: 1px solid rgba(255, 255, 255, 0.86);
   border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--soft-shadow);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(237, 247, 255, 0.76));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98), inset 0 -14px 26px rgba(0, 113, 227, 0.04), var(--soft-shadow);
   backdrop-filter: blur(22px) saturate(140%);
 }
 
@@ -438,8 +479,9 @@ svg {
   height: 42px;
   place-items: center;
   border-radius: 12px;
-  background: rgba(0, 113, 227, 0.1);
+  background: linear-gradient(145deg, #f7fbff, #d9efff);
   color: var(--blue);
+  box-shadow: inset 0 1px 0 #fff, inset 0 -8px 12px rgba(0, 113, 227, 0.1), 0 8px 16px rgba(0, 113, 227, 0.12);
 }
 
 .problem-grid h3,
@@ -489,9 +531,31 @@ svg {
   min-height: 30px;
   padding: 0 10px;
   border-radius: 999px;
-  background: rgba(16, 20, 24, 0.06);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(226, 242, 255, 0.8));
   color: var(--ink-soft);
   font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.price-card li {
+  position: relative;
+  padding-left: 24px;
+}
+
+.price-card li::before {
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  display: grid;
+  width: 17px;
+  height: 17px;
+  place-items: center;
+  border-radius: 5px;
+  background: var(--plastic-blue);
+  color: #fff;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+  content: "✓";
+  font-size: 0.7rem;
   font-weight: 800;
 }
 
@@ -551,8 +615,8 @@ svg {
   padding: clamp(20px, 3vw, 34px);
   border: 1px solid rgba(255, 255, 255, 0.86);
   border-radius: var(--radius);
-  background: var(--surface);
-  box-shadow: var(--soft-shadow);
+  background: var(--plastic);
+  box-shadow: var(--plastic-shadow);
 }
 
 .journey-output h3 {
@@ -582,7 +646,7 @@ svg {
   padding: 13px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.72);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(231, 244, 255, 0.78));
   color: var(--ink-soft);
   font-weight: 800;
 }
@@ -609,7 +673,8 @@ svg {
   padding: 14px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
-  background: rgba(255, 255, 255, 0.72);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(235, 247, 255, 0.78));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98), 0 10px 24px rgba(0, 74, 160, 0.08);
 }
 
 .scan-list h3 {
@@ -628,7 +693,7 @@ svg {
   min-height: 32px;
   padding: 7px 10px;
   border-radius: 999px;
-  background: rgba(37, 169, 91, 0.1);
+  background: linear-gradient(180deg, rgba(231, 255, 241, 0.98), rgba(206, 247, 224, 0.88));
   color: var(--green);
   font-size: 0.78rem;
   white-space: nowrap;
@@ -756,7 +821,8 @@ svg {
 
 .price-card.featured {
   border-color: rgba(0, 113, 227, 0.28);
-  background: linear-gradient(180deg, rgba(0, 113, 227, 0.08), rgba(255, 255, 255, 0.9));
+  background: linear-gradient(145deg, rgba(231, 245, 255, 0.98), rgba(255, 255, 255, 0.88) 54%, rgba(207, 232, 255, 0.76));
+  box-shadow: 0 24px 60px rgba(0, 113, 227, 0.16), inset 0 1px 0 #fff, inset 0 -18px 32px rgba(0, 113, 227, 0.08);
 }
 
 .price {
