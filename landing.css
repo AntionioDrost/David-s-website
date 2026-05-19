@@ -977,7 +977,7 @@ svg {
 
 .auth-card {
   display: grid;
-  align-content: center;
+  align-content: start;
   min-height: 560px;
   padding: clamp(22px, 4vw, 36px);
 }
