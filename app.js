@@ -4,7 +4,7 @@ const today = new Date();
 today.setHours(0, 0, 0, 0);
 
 const state = {
-  activePropertyId: "station-road",
+  activePropertyId: "",
   activeJourney: "compliance",
   activeStep: 0,
   activeDashboardPanel: "check",
@@ -292,8 +292,16 @@ const properties = [
   }
 ];
 
+properties.length = 0;
+
 function activeProperty() {
-  return properties.find((property) => property.id === state.activePropertyId) || properties[0];
+  return properties.find((property) => property.id === state.activePropertyId) || null;
+}
+
+function ensureActiveProperty() {
+  if (!properties.some((property) => property.id === state.activePropertyId)) {
+    state.activePropertyId = properties[0]?.id || "";
+  }
 }
 
 function escapeHtml(value) {
@@ -697,6 +705,7 @@ function loadLocalWorkspace() {
     mergePropertySnapshot(propertyId, checkerState.propertySnapshot || workspace.propertySnapshot);
     mergeScans(workspace.documentScans || workspace.document_scans || []);
   });
+  ensureActiveProperty();
 }
 
 async function loadPersistedWorkspace() {
@@ -726,6 +735,7 @@ async function loadPersistedWorkspace() {
     mergePropertySnapshot(row.property_id, row.checker_state?.propertySnapshot);
     mergeScans(row.document_scans || []);
   });
+  ensureActiveProperty();
   state.saveStatus = "Synced with Supabase";
   state.saveTone = "saved";
 }
@@ -733,6 +743,12 @@ async function loadPersistedWorkspace() {
 function saveWorkspaceLocally(propertyId) {
   const saved = safeJsonParse(localStorage.getItem(LOCAL_WORKSPACE_STORAGE), {});
   const property = properties.find((item) => item.id === propertyId);
+  if (!property) {
+    delete saved[propertyId];
+    localStorage.setItem(LOCAL_WORKSPACE_STORAGE, JSON.stringify(saved));
+    return;
+  }
+
   const checkerState = {
     answers: state.azChecklist[propertyId] || {},
     propertySnapshot: property ? propertySnapshot(property) : null,
@@ -744,6 +760,12 @@ function saveWorkspaceLocally(propertyId) {
     extractedFacts: property ? extractedFactsObject(property) : {},
     updatedAt: new Date().toISOString()
   };
+  localStorage.setItem(LOCAL_WORKSPACE_STORAGE, JSON.stringify(saved));
+}
+
+function removeWorkspaceLocally(propertyId) {
+  const saved = safeJsonParse(localStorage.getItem(LOCAL_WORKSPACE_STORAGE), {});
+  delete saved[propertyId];
   localStorage.setItem(LOCAL_WORKSPACE_STORAGE, JSON.stringify(saved));
 }
 
@@ -767,11 +789,16 @@ function queueWorkspaceSave(propertyId = state.activePropertyId) {
 }
 
 async function saveWorkspace(propertyId = state.activePropertyId) {
+  const property = properties.find((item) => item.id === propertyId);
+  if (!property) {
+    removeWorkspaceLocally(propertyId);
+    return;
+  }
+
   saveWorkspaceLocally(propertyId);
 
-  const property = properties.find((item) => item.id === propertyId);
   const { client, user } = await getSupabaseSession();
-  if (!client || !user || !property) {
+  if (!client || !user) {
     setSaveStatus("Saved in this browser", "local");
     return;
   }
@@ -897,6 +924,7 @@ async function clearAiKey() {
 }
 
 function renderAll() {
+  ensureActiveProperty();
   renderPropertyList();
   renderJourneyList();
   renderDashboard();
@@ -916,17 +944,32 @@ function refreshIcons() {
 
 function renderPropertyList() {
   const list = document.querySelector("#propertyList");
+  if (!properties.length) {
+    list.innerHTML = `
+      <div class="portfolio-empty">
+        <strong>No portfolio listings yet</strong>
+        <span>Add a property when you are ready to start a compliance check.</span>
+      </div>
+    `;
+    return;
+  }
+
   list.innerHTML = properties.map((property) => {
     const evaluation = evaluateProperty(property);
     const active = property.id === state.activePropertyId ? " is-active" : "";
     return `
-      <button class="property-button${active}" type="button" data-property="${property.id}">
-        <span>
-          <strong>${escapeHtml(property.shortName)}</strong>
-          <span>${escapeHtml(property.type)} - ${escapeHtml(property.postcode)}</span>
-        </span>
-        <span class="property-score">${evaluation.score}%</span>
-      </button>
+      <article class="property-row${active}">
+        <button class="property-button${active}" type="button" data-property="${property.id}">
+          <span>
+            <strong>${escapeHtml(property.shortName)}</strong>
+            <span>${escapeHtml(property.type)}${property.postcode ? ` - ${escapeHtml(property.postcode)}` : ""}</span>
+          </span>
+          <span class="property-score">${evaluation.score}%</span>
+        </button>
+        <button class="property-remove" type="button" data-remove-property="${property.id}" aria-label="Remove ${escapeHtml(property.shortName)}">
+          <i data-lucide="trash-2"></i>
+        </button>
+      </article>
     `;
   }).join("");
 
@@ -936,6 +979,10 @@ function renderPropertyList() {
       state.activeStep = 0;
       renderAll();
     });
+  });
+
+  list.querySelectorAll("[data-remove-property]").forEach((button) => {
+    button.addEventListener("click", () => removeProperty(button.dataset.removeProperty));
   });
 }
 
@@ -997,6 +1044,38 @@ function syncDashboardPanels() {
 
 function renderDashboard() {
   const property = activeProperty();
+  if (!property) {
+    document.querySelector("#propertyTitle").textContent = "No portfolio properties yet";
+    document.querySelector("#propertySubtitle").textContent = "Add a property to start the guided compliance check.";
+    document.querySelector("#scoreValue").textContent = "0%";
+    document.querySelector("#riskLabel").textContent = "Empty";
+    document.querySelector("#scoreRing").style.setProperty("--score", 0);
+    document.querySelector("#scoreRing").style.setProperty("--ring-color", "var(--blue)");
+    document.querySelector("#scoreHeadline").textContent = "Your portfolio is empty.";
+    document.querySelector("#scoreNarrative").textContent = "New accounts now start with a blank portfolio. Use Add to create the first property listing.";
+    document.querySelector("#priorityList").innerHTML = `<article class="priority-item empty-state"><span class="status-dot info"></span><div><h3>No actions yet</h3><p>Add a property to generate compliance actions.</p></div></article>`;
+    document.querySelector("#intelligenceStrip").innerHTML = ["Properties", "Urgent", "Expiring soon", "Evidence gaps"].map((label) => `
+      <article class="intel-stat">
+        <span>${label}</span>
+        <strong>0</strong>
+        <span>Waiting for a property listing</span>
+      </article>
+    `).join("");
+    document.querySelector("#lastUpdated").textContent = "";
+    document.querySelector("#complianceGrid").innerHTML = "";
+    document.querySelector("#evidenceGrid").innerHTML = "";
+    document.querySelector("#timeline").innerHTML = "";
+    document.querySelector("#assistantHeadline").textContent = "Smart guidance, controlled by you";
+    document.querySelector("#assistantCopy").textContent = "Add a property listing to unlock document scans, evidence packs, reminders, and recommended services.";
+    document.querySelector("#scanResults").innerHTML = `<article class="scan-result"><strong>No property selected</strong><span>Add a portfolio listing before uploading evidence.</span></article>`;
+    document.querySelector("#serviceList").innerHTML = "";
+    document.querySelector("#pullEpcButton").disabled = true;
+    document.querySelector("#startGuidedCheck").disabled = true;
+    return;
+  }
+
+  document.querySelector("#pullEpcButton").disabled = false;
+  document.querySelector("#startGuidedCheck").disabled = false;
   const evaluation = evaluateProperty(property);
   const actions = sortedActions(evaluation.items);
   const ring = document.querySelector("#scoreRing");
@@ -1290,6 +1369,27 @@ function renderAzChecker() {
   if (!root) return;
 
   const property = activeProperty();
+  if (!property) {
+    document.querySelector("#azProgressValue").textContent = "0%";
+    document.querySelector("#azProgressText").textContent = "No property selected";
+    document.querySelector("#azPrimaryAction").textContent = "Add a property listing to start the A-Z checker.";
+    document.querySelector("#azChecklist").innerHTML = `
+      <div class="empty-panel">
+        <strong>No checklist yet</strong>
+        <span>The A-Z path appears once a property has been added.</span>
+      </div>
+    `;
+    document.querySelector("#azLatestFacts").innerHTML = "";
+    document.querySelector("#azDocumentResults").innerHTML = `
+      <article class="az-document-result empty">
+        <strong>No property selected</strong>
+        <span>Add a portfolio listing before dumping documents.</span>
+      </article>
+    `;
+    renderAiSettings();
+    return;
+  }
+
   const answers = getAzAnswers(property.id);
   const summary = summarizeAzAnswers(answers);
   const propertyScans = state.scans
@@ -1401,6 +1501,17 @@ function renderAiSettings() {
 
 function renderWizard() {
   const property = activeProperty();
+  if (!property) {
+    document.querySelector("#stepCount").textContent = "";
+    document.querySelector("#wizardTabs").innerHTML = "";
+    document.querySelector("#wizardForm").innerHTML = `
+      <div class="empty-panel">
+        <strong>No property selected</strong>
+        <span>Add a property listing to begin the guided compliance interview.</span>
+      </div>
+    `;
+    return;
+  }
   const step = wizardSteps[state.activeStep];
   document.querySelector("#stepCount").textContent = `${state.activeStep + 1} of ${wizardSteps.length}`;
   document.querySelector("#wizardTabs").innerHTML = wizardSteps.map((item, index) => `
@@ -1614,6 +1725,7 @@ function uploadQuestion(label) {
 
 function updateField(input, rerender = true) {
   const property = activeProperty();
+  if (!property) return;
   const value = input.type === "checkbox"
     ? input.checked
     : input.type === "number"
@@ -1743,6 +1855,7 @@ function applyScan(scanId) {
   const scan = state.scans.find((item) => item.id === scanId);
   if (!scan) return;
   const property = activeProperty();
+  if (!property) return;
   const issue = scan.issue || new Date().toISOString().slice(0, 10);
 
   if (scan.key === "gas") setPath(property, "gas.issue", issue);
@@ -1780,6 +1893,10 @@ function applyScan(scanId) {
 }
 
 function handleFiles(files) {
+  if (!activeProperty()) {
+    window.alert("Add a property listing before uploading evidence.");
+    return;
+  }
   Array.from(files).forEach((file) => {
     const reader = new FileReader();
     reader.onload = () => {
@@ -1800,6 +1917,7 @@ function handleFiles(files) {
 
 function pullEpcData() {
   const property = activeProperty();
+  if (!property) return;
   const samples = {
     "B37 7BA": {
       rating: "C",
@@ -1899,6 +2017,42 @@ function addProperty() {
   state.activeDashboardPanel = "az";
   queueWorkspaceSave(id);
   renderAll();
+}
+
+async function removeProperty(propertyId) {
+  const property = properties.find((item) => item.id === propertyId);
+  if (!property) return;
+
+  const confirmed = window.confirm(`Are you sure you want to remove ${property.shortName || "this portfolio listing"} from the portfolio?`);
+  if (!confirmed) return;
+
+  properties.splice(properties.indexOf(property), 1);
+  delete state.azChecklist[propertyId];
+  state.scans = state.scans.filter((scan) => scan.propertyId !== propertyId);
+  removeWorkspaceLocally(propertyId);
+  ensureActiveProperty();
+  setSaveStatus("Removing portfolio listing...", "saving");
+  renderAll();
+
+  const { client, user } = await getSupabaseSession();
+  if (!client || !user) {
+    setSaveStatus("Removed in this browser", "local");
+    return;
+  }
+
+  const { error } = await client
+    .from(WORKSPACE_TABLE)
+    .delete()
+    .eq("user_id", user.id)
+    .eq("property_id", propertyId);
+
+  if (error) {
+    console.warn("Could not remove CMP workspace", error);
+    setSaveStatus("Removed locally - Supabase retry needed", "local");
+    return;
+  }
+
+  setSaveStatus("Portfolio listing removed", "saved");
 }
 
 document.addEventListener("DOMContentLoaded", () => {

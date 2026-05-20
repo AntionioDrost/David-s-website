@@ -361,6 +361,37 @@ svg {
   padding: 8px;
 }
 
+.portfolio-empty,
+.empty-panel {
+  display: grid;
+  gap: 6px;
+  padding: 14px;
+  color: var(--muted);
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.portfolio-empty strong,
+.empty-panel strong {
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+
+.property-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 36px;
+  align-items: stretch;
+  gap: 6px;
+  border: 1px solid transparent;
+  border-radius: var(--radius);
+}
+
+.property-row:hover,
+.property-row.is-active {
+  border-color: var(--line);
+  background: #fff;
+}
+
 .property-button {
   display: grid;
   grid-template-columns: 1fr auto;
@@ -376,8 +407,7 @@ svg {
 
 .property-button:hover,
 .property-button.is-active {
-  border-color: var(--line);
-  background: #fff;
+  background: transparent;
 }
 
 .property-button strong {
@@ -398,6 +428,28 @@ svg {
   color: var(--blue);
   font-weight: 800;
   text-align: right;
+}
+
+.property-remove {
+  display: grid;
+  width: 36px;
+  min-height: 44px;
+  place-items: center;
+  align-self: stretch;
+  border: 0;
+  border-radius: 10px;
+  background: transparent;
+  color: var(--muted);
+}
+
+.property-remove:hover {
+  background: rgba(255, 59, 48, 0.09);
+  color: var(--red);
+}
+
+.property-remove i {
+  width: 16px;
+  height: 16px;
 }
 
 .journey-card,
