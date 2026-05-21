@@ -946,6 +946,45 @@ function epcMatchFromRow(row, postcodeMeta) {
   };
 }
 
+function postcodeFallbackAddress(postcodeMeta) {
+  const areaBits = [
+    postcodeMeta?.admin_ward,
+    postcodeMeta?.parish,
+    postcodeMeta?.admin_district,
+    postcodeMeta?.post_town,
+    postcodeMeta?.region
+  ].filter(Boolean);
+  const area = areaBits[0] || postcodeMeta?.country || "the postcode area";
+  return `Property in ${formatPostcode(postcodeMeta?.postcode || state.setup.postcode)}, ${area}`;
+}
+
+function postcodeFallbackMatch(postcodeMeta, reason = "") {
+  const fallbackPostcode = formatPostcode(postcodeMeta?.postcode || state.setup.postcode);
+  return {
+    id: `postcode-fallback-${normalizePostcode(fallbackPostcode)}`,
+    address: postcodeFallbackAddress(postcodeMeta),
+    shortName: `Property in ${fallbackPostcode}`,
+    postcode: fallbackPostcode,
+    type: "Property",
+    bedrooms: 2,
+    storeys: 1,
+    hasGas: false,
+    fixedCombustion: false,
+    epc: {
+      rating: "",
+      issue: "",
+      certificate: "",
+      floorArea: "",
+      potential: "",
+      recommendation: reason || "Live EPC details can be pulled in later when the register is reachable."
+    },
+    source: "Verified postcode",
+    uprn: "",
+    latitude: postcodeMeta?.latitude,
+    longitude: postcodeMeta?.longitude
+  };
+}
+
 async function searchRealPropertyData() {
   const postcode = state.setup.postcode;
   state.setup.isSearching = true;
@@ -966,12 +1005,30 @@ async function searchRealPropertyData() {
     renderAll();
     const rows = await searchEpcByPostcode(postcode);
     state.setup.addressMatches = rows.map((row) => epcMatchFromRow(row, postcodeMeta));
+    if (!state.setup.addressMatches.length) {
+      state.setup.addressMatches = [
+        postcodeFallbackMatch(postcodeMeta, "No domestic EPC record was returned for this postcode, so CMP started with the verified postcode instead.")
+      ];
+    }
+    if (state.setup.addressMatches.length) {
+      state.setup.selectedAddressId = state.setup.addressMatches[0].id;
+    }
     state.setup.searchDone = true;
-    state.setup.apiStatus = state.setup.addressMatches.length ? "ready" : "no-epc-results";
-    state.setup.message = state.setup.addressMatches.length
-      ? "Real EPC records found. Select the property to start setup."
-      : "Postcode found, but the EPC register returned no matching domestic certificates for this postcode.";
+    state.setup.apiStatus = "ready";
+    state.setup.message = rows.length
+      ? "Addresses found. CMP selected the first match so you can continue immediately."
+      : "Postcode found. CMP could not pull a live EPC address list here, so it created a verified postcode match you can use straight away.";
   } catch (error) {
+    if (state.setup.postcodeMeta) {
+      state.setup.addressMatches = [
+        postcodeFallbackMatch(state.setup.postcodeMeta, "The live EPC register was not reachable from this browser, so CMP created a verified postcode match instead.")
+      ];
+      state.setup.selectedAddressId = state.setup.addressMatches[0].id;
+      state.setup.searchDone = true;
+      state.setup.apiStatus = "ready";
+      state.setup.message = "Postcode found. Live EPC address lookup was unavailable in this browser, but you can continue with a verified postcode match.";
+      return;
+    }
     state.setup.searchDone = true;
     state.setup.apiStatus = "error";
     state.setup.message = error.message || "The real postcode/EPC lookup failed. Please try again.";
