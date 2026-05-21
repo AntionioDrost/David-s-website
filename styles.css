@@ -387,6 +387,54 @@ svg {
   display: none;
 }
 
+.completion-banner {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  border: 1px solid rgba(24, 31, 38, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: var(--small-shadow);
+}
+
+.completion-banner[hidden] {
+  display: none;
+}
+
+.completion-icon {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 14px;
+  color: var(--amber);
+  background: rgba(245, 166, 35, 0.1);
+}
+
+.completion-banner[data-tone="complete"] .completion-icon {
+  color: var(--green);
+  background: rgba(47, 189, 101, 0.1);
+}
+
+.completion-banner strong,
+.completion-banner span {
+  display: block;
+}
+
+.completion-banner strong {
+  color: var(--ink);
+  font-size: 0.94rem;
+  line-height: 1.2;
+}
+
+.completion-banner div > span {
+  margin-top: 2px;
+  color: var(--muted);
+  font-size: 0.82rem;
+}
+
 .setup-panel::before {
   position: absolute;
   inset: 0 0 auto;
@@ -640,6 +688,18 @@ svg {
 .setup-result div {
   display: grid;
   gap: 3px;
+}
+
+.setup-choice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.setup-choice-actions .primary-button,
+.setup-choice-actions .secondary-button {
+  min-width: 150px;
 }
 
 .setup-journeys {
@@ -2097,6 +2157,7 @@ svg {
 .secondary-button,
 .property-list,
 .setup-panel,
+.completion-banner,
 .journey-card,
 .score-panel,
 .priority-panel,
@@ -2155,6 +2216,7 @@ svg {
 .nav-links,
 .property-list,
 .setup-panel,
+.completion-banner,
 .journey-card,
 .score-panel,
 .priority-panel,
@@ -2312,6 +2374,7 @@ svg {
 .score-panel,
 .priority-panel,
 .setup-panel,
+.completion-banner,
 .guided-check,
 .az-checker,
 .evidence-section,
@@ -2714,8 +2777,20 @@ svg {
 
   .workspace-header,
   .score-panel,
-  .priority-panel {
+  .priority-panel,
+  .completion-banner {
     grid-template-columns: 1fr;
+  }
+
+  .completion-banner .primary-button,
+  .completion-banner .secondary-button,
+  .setup-choice-actions .primary-button,
+  .setup-choice-actions .secondary-button {
+    width: 100%;
+  }
+
+  .setup-choice-actions {
+    justify-content: stretch;
   }
 
   .detail-tabs {

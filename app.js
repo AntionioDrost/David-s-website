@@ -1110,19 +1110,26 @@ function completeOnboarding() {
   localStorage.setItem(ONBOARDING_STORAGE, new Date().toISOString());
 }
 
-function createPropertyFromMatch(match) {
+function createPropertyFromMatch(match, onboardingPath = "manual") {
   const property = buildPropertyFromAddress(match);
   properties.unshift(property);
   state.activePropertyId = property.id;
   state.activeStep = 0;
-  state.activeJourney = "compliance";
-  state.activeDashboardPanel = "check";
+  state.activeJourney = onboardingPath === "az" ? "upload" : "compliance";
+  state.activeDashboardPanel = onboardingPath === "az" ? "az" : "check";
   state.setup.isChecking = false;
+  state.setup.isOpen = false;
   state.setup.createdPropertyId = property.id;
-  state.setup.message = "Property found. Setup has started and CMP is ready to guide the first check.";
+  state.setup.message = onboardingPath === "az"
+    ? "Property added. CMP opened the A-Z checker."
+    : "Property added. CMP opened the manual guided setup.";
   completeOnboarding();
   queueWorkspaceSave(property.id);
   renderAll();
+  window.setTimeout(() => {
+    document.querySelector(onboardingPath === "az" ? "#az-checker" : "#guided-check")
+      ?.scrollIntoView({ behavior: "smooth", block: "start" });
+  }, 0);
 }
 
 function renderPropertySetup() {
@@ -1187,34 +1194,26 @@ function renderPropertySetup() {
       </div>
     ` : ""}
 
-    <div class="setup-result${state.setup.createdPropertyId ? " is-found" : ""}">
+    <div class="setup-result${activeMatch ? " is-found" : ""}">
       <div>
-        <strong>${state.setup.isChecking ? "Checking property records..." : state.setup.createdPropertyId ? "Property found. Setup started." : "What happens next?"}</strong>
+        <strong>${state.setup.isChecking ? "Creating property..." : activeMatch ? "Choose how to continue" : "What happens next?"}</strong>
         <span>${state.setup.isChecking
           ? "Creating the workspace."
-          : state.setup.createdPropertyId
-            ? escapeHtml(state.setup.message)
+          : activeMatch
+            ? "Use the full checklist, or add the details yourself."
             : "Choose the address, then follow the guided path."}</span>
       </div>
-      <button class="secondary-button" type="button" id="continueSetupButton" ${!state.setup.isChecking && (activeMatch || state.setup.createdPropertyId) ? "" : "disabled"}>
-        <i data-lucide="${state.setup.createdPropertyId ? "arrow-down" : "sparkles"}"></i>
-        ${state.setup.createdPropertyId ? "Choose a path" : "Use this property"}
-      </button>
-    </div>
-
-    ${state.setup.createdPropertyId ? `
-      <div class="setup-journeys" aria-label="Choose what to do next">
-        ${journeys.map((journey) => `
-          <button class="setup-journey${journey.id === state.activeJourney ? " is-active" : ""}" type="button" data-setup-journey="${journey.id}">
-            <i data-lucide="${journey.icon}"></i>
-            <span>
-              <strong>${escapeHtml(journey.title)}</strong>
-              <small>${escapeHtml(journey.detail)}</small>
-            </span>
-          </button>
-        `).join("")}
+      <div class="setup-choice-actions" aria-label="Choose setup method">
+        <button class="primary-button" type="button" data-onboarding-path="az" ${!state.setup.isChecking && activeMatch ? "" : "disabled"}>
+          <i data-lucide="list-tree"></i>
+          Use A-Z checker
+        </button>
+        <button class="secondary-button" type="button" data-onboarding-path="manual" ${!state.setup.isChecking && activeMatch ? "" : "disabled"}>
+          <i data-lucide="pencil-line"></i>
+          Add manually
+        </button>
       </div>
-    ` : ""}
+    </div>
   `;
 
   panel.querySelector("#postcodeSearchForm")?.addEventListener("submit", (event) => {
@@ -1240,21 +1239,14 @@ function renderPropertySetup() {
     });
   });
 
-  panel.querySelector("#continueSetupButton")?.addEventListener("click", () => {
-    if (state.setup.createdPropertyId) {
-      panel.querySelector(".setup-journeys")?.scrollIntoView({ behavior: "smooth", block: "center" });
-      return;
-    }
-
-    const match = state.setup.addressMatches.find((item) => item.id === state.setup.selectedAddressId);
-    if (!match) return;
-    state.setup.isChecking = true;
-    renderAll();
-    window.setTimeout(() => createPropertyFromMatch(match), 900);
-  });
-
-  panel.querySelectorAll("[data-setup-journey]").forEach((button) => {
-    button.addEventListener("click", () => activateJourney(button.dataset.setupJourney));
+  panel.querySelectorAll("[data-onboarding-path]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const match = state.setup.addressMatches.find((item) => item.id === state.setup.selectedAddressId);
+      if (!match) return;
+      state.setup.isChecking = true;
+      renderAll();
+      window.setTimeout(() => createPropertyFromMatch(match, button.dataset.onboardingPath), 500);
+    });
   });
 }
 
@@ -1368,9 +1360,61 @@ function syncDashboardPanels() {
   });
 }
 
+function propertyCompletionSummary(property, evaluation) {
+  const missingEvidence = evidenceTypes.filter((type) => !hasEvidence(property, type.key)).length;
+  const openActions = evaluation.items.filter((item) => ["critical", "missing", "warning"].includes(item.status));
+  const total = Math.max(missingEvidence, openActions.length);
+  return {
+    total,
+    labels: openActions.slice(0, 3).map((item) => item.title)
+  };
+}
+
+function renderCompletionBanner(property, evaluation) {
+  const banner = document.querySelector("#completionBanner");
+  if (!banner) return;
+
+  if (!property) {
+    banner.hidden = true;
+    banner.innerHTML = "";
+    return;
+  }
+
+  const summary = propertyCompletionSummary(property, evaluation);
+  if (!summary.total) {
+    banner.hidden = false;
+    banner.dataset.tone = "complete";
+    banner.innerHTML = `
+      <span class="completion-icon"><i data-lucide="check"></i></span>
+      <div>
+        <strong>Property looks complete</strong>
+        <span>Keep documents and renewal dates updated.</span>
+      </div>
+      <button class="secondary-button" type="button" data-dashboard-tab="evidence">Review evidence</button>
+    `;
+    return;
+  }
+
+  banner.hidden = false;
+  banner.dataset.tone = "warning";
+  banner.innerHTML = `
+    <span class="completion-icon"><i data-lucide="alert-circle"></i></span>
+    <div>
+      <strong>${summary.total} item${summary.total === 1 ? "" : "s"} left to complete this property</strong>
+      <span>${escapeHtml(summary.labels.join(", ") || "Add the missing compliance details.")}</span>
+    </div>
+    <button class="primary-button" type="button" data-dashboard-tab="az">Finish setup</button>
+  `;
+
+  banner.querySelectorAll("[data-dashboard-tab]").forEach((button) => {
+    button.addEventListener("click", () => showDashboardPanel(button.dataset.dashboardTab));
+  });
+}
+
 function renderDashboard() {
   const property = activeProperty();
   if (!property) {
+    renderCompletionBanner(null);
     document.querySelector("#propertyTitle").textContent = "Start with a postcode";
     document.querySelector("#propertySubtitle").textContent = "Find the address. Follow the next step.";
     document.querySelector("#scoreValue").textContent = "0%";
@@ -1413,6 +1457,7 @@ function renderDashboard() {
   document.querySelector("#riskLabel").textContent = `${evaluation.risk} risk`;
   ring.style.setProperty("--score", evaluation.score);
   ring.style.setProperty("--ring-color", riskColor);
+  renderCompletionBanner(property, evaluation);
 
   const topAction = actions[0];
   document.querySelector("#scoreHeadline").textContent = topAction
