@@ -4,11 +4,11 @@
   --ink-soft: #303842;
   --muted: #65707d;
   --paper: #f5f5f7;
-  --panel: rgba(255, 255, 255, 0.84);
+  --panel: rgba(255, 255, 255, 0.92);
   --panel-strong: #ffffff;
-  --plastic: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(239, 248, 255, 0.82) 52%, rgba(255, 255, 255, 0.92));
-  --glass: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(246, 250, 255, 0.9));
-  --plastic-blue: linear-gradient(145deg, #0b8cff, #0067d7 52%, #004da8);
+  --plastic: rgba(255, 255, 255, 0.92);
+  --glass: rgba(255, 255, 255, 0.96);
+  --plastic-blue: #ffffff;
   --blue-glow: rgba(0, 113, 227, 0.18);
   --line: rgba(24, 31, 38, 0.12);
   --line-strong: rgba(24, 31, 38, 0.2);
@@ -19,10 +19,10 @@
   --red: #e34d4d;
   --teal: #18a3a3;
   --violet: #7761d6;
-  --shadow: 0 22px 70px rgba(30, 38, 48, 0.1);
-  --plastic-shadow: 0 18px 46px rgba(0, 72, 155, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.98), inset 0 -12px 26px rgba(0, 113, 227, 0.035);
-  --small-shadow: 0 10px 24px rgba(30, 38, 48, 0.075);
-  --radius: 8px;
+  --shadow: 0 22px 70px rgba(30, 38, 48, 0.09);
+  --plastic-shadow: 0 16px 42px rgba(30, 38, 48, 0.08), inset 0 1px 0 rgba(255, 255, 255, 0.98);
+  --small-shadow: 0 10px 24px rgba(30, 38, 48, 0.065);
+  --radius: 16px;
   --tap: 44px;
 }
 
@@ -2052,6 +2052,222 @@ svg {
   height: 1px;
   opacity: 0;
   pointer-events: none;
+}
+
+/* Calm interface refresh: keep the atmosphere in the page background, not inside controls. */
+.topbar,
+.nav-links,
+.session-pill,
+.icon-button,
+.mini-button,
+.primary-button,
+.secondary-button,
+.property-list,
+.setup-panel,
+.journey-card,
+.score-panel,
+.priority-panel,
+.compliance-section,
+.guided-check,
+.az-checker,
+.evidence-workspace,
+.evidence-section,
+.activity-section,
+.assistant-panel,
+.scan-panel,
+.service-panel,
+.support-section,
+.platform-section,
+.source-section,
+.postcode-search,
+.address-results,
+.setup-result,
+.address-option,
+.setup-journey,
+.priority-item,
+.timeline-item,
+.intel-stat,
+.detail-tabs,
+.detail-tab,
+.compliance-card,
+.evidence-card,
+.capability-grid article,
+.card-icon,
+.assistant-orb,
+.question,
+.wizard-form,
+.wizard-tab,
+.scan-drop,
+.scan-result,
+.service-item,
+.az-hero-card,
+.document-dump-card,
+.az-checklist-panel,
+.latest-facts-card,
+.ai-key-card,
+.az-meter,
+.document-dump-zone,
+.az-document-result,
+.az-section-card,
+.az-question,
+.az-answer,
+.latest-fact,
+.modal-card,
+.upload-zone,
+.source-links a {
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.topbar,
+.nav-links,
+.property-list,
+.setup-panel,
+.journey-card,
+.score-panel,
+.priority-panel,
+.compliance-section,
+.guided-check,
+.az-checker,
+.evidence-workspace,
+.evidence-section,
+.activity-section,
+.assistant-panel,
+.scan-panel,
+.service-panel,
+.support-section,
+.detail-tabs {
+  border-color: rgba(24, 31, 38, 0.1);
+  box-shadow: var(--plastic-shadow);
+}
+
+.primary-button,
+.secondary-button,
+.icon-button,
+.mini-button,
+.service-button,
+.scan-drop,
+.document-dump-zone,
+.detail-tab,
+.wizard-tab,
+.journey-button,
+.setup-journey,
+.property-row,
+.address-option,
+.az-answer {
+  border: 1px solid rgba(24, 31, 38, 0.12);
+  box-shadow: 0 8px 20px rgba(30, 38, 48, 0.055);
+}
+
+.primary-button,
+.secondary-button,
+.icon-button,
+.mini-button,
+.service-button {
+  color: var(--ink);
+  background: #fff;
+}
+
+.primary-button,
+.service-button {
+  color: var(--blue-deep);
+}
+
+.primary-button:hover,
+.secondary-button:hover,
+.icon-button:hover,
+.mini-button:hover,
+.service-button:hover,
+.detail-tab:hover,
+.wizard-tab:hover {
+  border-color: rgba(0, 113, 227, 0.26);
+  background: #fff;
+  color: var(--blue-deep);
+}
+
+.brand-mark {
+  background: #111820;
+}
+
+.setup-panel::before,
+.workspace-header::before,
+.score-panel::before,
+.priority-panel::before,
+.guided-check::before,
+.az-checker::before,
+.compliance-section::before,
+.evidence-section::before,
+.support-section::before {
+  height: 1px;
+  background: rgba(0, 113, 227, 0.18);
+}
+
+.setup-steps span,
+.metric-row .mini-chip,
+.status-pill,
+.quiet-pill,
+.steps span {
+  background: #fff;
+}
+
+.property-row:hover,
+.property-row.is-active,
+.property-button:hover,
+.property-button.is-active,
+.detail-tab:hover,
+.detail-tab:focus-visible,
+.detail-tab.is-active,
+.wizard-tab.is-active,
+.journey-button.is-active,
+.setup-journey:hover,
+.setup-journey.is-active,
+.address-option:hover,
+.address-option.is-selected {
+  border-color: rgba(0, 113, 227, 0.28);
+  background: #fff;
+  color: var(--blue-deep);
+}
+
+.intelligence-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.intel-stat {
+  min-height: 72px;
+  box-shadow: var(--small-shadow);
+}
+
+.intel-stat strong {
+  font-size: 1.05rem;
+}
+
+.card-icon,
+.assistant-orb,
+.setup-journey i,
+.plastic-token {
+  color: var(--blue);
+  background: #f8fbff;
+  box-shadow: inset 0 0 0 1px rgba(0, 113, 227, 0.1);
+}
+
+.plastic-token {
+  color: var(--blue);
+}
+
+.scan-drop,
+.document-dump-zone,
+.upload-zone {
+  border-style: dashed;
+  color: var(--blue-deep);
+}
+
+.az-answer.is-active[data-answer="yes"],
+.az-answer.is-active[data-answer="na"],
+.az-answer.is-active[data-answer="no"],
+.az-answer.is-active[data-answer="unknown"],
+.address-results[data-tone="warning"],
+.address-results[data-tone="error"],
+.setup-result.is-found {
+  background: #fff;
 }
 
 @media (max-width: 1280px) {
