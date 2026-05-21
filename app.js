@@ -17,9 +17,6 @@ const state = {
     isSearching: false,
     addressMatches: [],
     postcodeMeta: null,
-    epcCredentials: {
-      token: ""
-    },
     apiStatus: "idle",
     createdPropertyId: "",
     message: ""
@@ -42,9 +39,10 @@ const LOCAL_WORKSPACE_STORAGE = "cmp_compliance_workspaces";
 const LOCAL_AI_PREF_STORAGE = "cmp_ai_preferences";
 const AI_KEY_STORAGE = "cmp_document_ai_key";
 const ONBOARDING_STORAGE = "cmp_onboarding_complete";
-const EPC_CREDENTIAL_STORAGE = "cmp_epc_bearer_token";
 const POSTCODES_IO_BASE = "https://api.postcodes.io";
 const EPC_API_BASE = "https://api.get-energy-performance-data.communities.gov.uk/api/domestic";
+const EPC_API_BEARER_TOKEN = "zOgGRYlWU4p4zP7vhfTF4of99wvkOQAhuT6WmVQY82ZAbPip90yuZmm67yJe5HaI";
+const DOCUMENT_AI_MODEL = "gpt-4o-mini";
 let workspaceSaveTimer = null;
 
 const journeys = [
@@ -739,13 +737,18 @@ function maskKey(value) {
   return `${clean.slice(0, 4)}...${clean.slice(-4)}`;
 }
 
+function getDocumentAiKey() {
+  return window.CMP_DOCUMENT_AI_KEY || localStorage.getItem(AI_KEY_STORAGE) || "";
+}
+
 async function loadAiPreferences() {
   const localPrefs = safeJsonParse(localStorage.getItem(LOCAL_AI_PREF_STORAGE), {});
-  const localKey = localStorage.getItem(AI_KEY_STORAGE);
+  const localFileKey = window.CMP_DOCUMENT_AI_KEY || "";
+  const localKey = getDocumentAiKey();
   state.aiSettings = {
     provider: localPrefs.provider || state.aiSettings.provider,
     endpoint: localPrefs.endpoint || state.aiSettings.endpoint,
-    keyHint: localPrefs.keyHint || localPrefs.key_hint || (localKey ? maskKey(localKey) : ""),
+    keyHint: localFileKey ? maskKey(localFileKey) : localPrefs.keyHint || localPrefs.key_hint || (localKey ? maskKey(localKey) : ""),
     keyPresent: Boolean(localKey)
   };
 
@@ -771,7 +774,7 @@ async function saveAiPreferences() {
   const provider = document.querySelector("#documentAiProvider")?.value || "openai";
   const endpoint = document.querySelector("#documentAiEndpoint")?.value.trim() || "https://api.openai.com/v1";
   const key = document.querySelector("#documentAiKey")?.value.trim() || "";
-  const currentKey = localStorage.getItem(AI_KEY_STORAGE);
+  const currentKey = getDocumentAiKey();
   const keyHint = key ? maskKey(key) : state.aiSettings.keyHint;
 
   if (key) {
@@ -805,11 +808,12 @@ async function saveAiPreferences() {
 
 async function clearAiKey() {
   localStorage.removeItem(AI_KEY_STORAGE);
+  const localFileKey = window.CMP_DOCUMENT_AI_KEY || "";
   state.aiSettings = {
     provider: document.querySelector("#documentAiProvider")?.value || state.aiSettings.provider,
     endpoint: document.querySelector("#documentAiEndpoint")?.value.trim() || state.aiSettings.endpoint,
-    keyHint: "",
-    keyPresent: false
+    keyHint: localFileKey ? maskKey(localFileKey) : "",
+    keyPresent: Boolean(localFileKey)
   };
   localStorage.setItem(LOCAL_AI_PREF_STORAGE, JSON.stringify(state.aiSettings));
   renderAiSettings();
@@ -855,26 +859,15 @@ function formatPostcode(value) {
 }
 
 function setupFromStorage() {
-  const savedCredentials = safeJsonParse(localStorage.getItem(EPC_CREDENTIAL_STORAGE), {});
-  state.setup.epcCredentials = {
-    token: savedCredentials.token || ""
-  };
   state.setup.isOpen = !localStorage.getItem(ONBOARDING_STORAGE) || !properties.length;
 }
 
-function saveEpcCredentials(token) {
-  state.setup.epcCredentials = { token: token.trim() };
-  if (state.setup.epcCredentials.token) {
-    localStorage.setItem(EPC_CREDENTIAL_STORAGE, JSON.stringify(state.setup.epcCredentials));
-  }
-}
-
 function hasEpcCredentials() {
-  return Boolean(state.setup.epcCredentials.token);
+  return Boolean(EPC_API_BEARER_TOKEN);
 }
 
 function epcAuthHeader() {
-  return `Bearer ${state.setup.epcCredentials.token}`;
+  return `Bearer ${EPC_API_BEARER_TOKEN}`;
 }
 
 async function lookupPostcode(postcode) {
@@ -969,13 +962,6 @@ async function searchRealPropertyData() {
     const postcodeMeta = await lookupPostcode(postcode);
     state.setup.postcodeMeta = postcodeMeta;
 
-    if (!hasEpcCredentials()) {
-      state.setup.searchDone = true;
-      state.setup.apiStatus = "needs-epc-access";
-      state.setup.message = "Postcode found. Add an energy performance data API bearer token to retrieve real address and certificate results.";
-      return;
-    }
-
     state.setup.message = "Postcode found. Searching the official EPC register for address matches...";
     renderAll();
     const rows = await searchEpcByPostcode(postcode);
@@ -1046,7 +1032,6 @@ function buildPropertyFromAddress(match) {
 }
 
 function resetPropertySetup(open = true) {
-  const credentials = state.setup.epcCredentials;
   state.setup = {
     isOpen: open,
     postcode: "",
@@ -1056,7 +1041,6 @@ function resetPropertySetup(open = true) {
     isSearching: false,
     addressMatches: [],
     postcodeMeta: null,
-    epcCredentials: credentials,
     apiStatus: "idle",
     createdPropertyId: "",
     message: ""
@@ -1095,7 +1079,7 @@ function renderPropertySetup() {
   panel.hidden = false;
   const matches = state.setup.searchDone ? state.setup.addressMatches : [];
   const activeMatch = matches.find((item) => item.id === state.setup.selectedAddressId);
-  const statusTone = state.setup.apiStatus === "error" ? "error" : state.setup.apiStatus === "needs-epc-access" ? "warning" : "neutral";
+  const statusTone = state.setup.apiStatus === "error" ? "error" : "neutral";
 
   panel.innerHTML = `
     <div class="setup-copy">
@@ -1118,17 +1102,7 @@ function renderPropertySetup() {
           ${state.setup.isSearching ? "Searching..." : "Find address"}
         </button>
       </div>
-      <small>Postcode validation uses Postcodes.io. Address and EPC results use the official Energy Performance Data domestic search API.</small>
-      <details class="epc-access" ${hasEpcCredentials() ? "" : "open"}>
-        <summary>Energy Performance Data API access</summary>
-        <div class="epc-access-grid">
-          <label>
-            <span>Bearer token</span>
-            <input id="epcBearerToken" type="password" value="${escapeHtml(state.setup.epcCredentials.token)}" placeholder="GOV.UK One Login API bearer token">
-          </label>
-        </div>
-        <small>Stored only in this browser. A production build should move this request behind a secure server function.</small>
-      </details>
+      <small>Postcode validation uses free Postcodes.io lookups. Address and EPC results come from the official Energy Performance Data domestic search API.</small>
     </form>
 
     ${state.setup.searchDone ? `
@@ -1187,8 +1161,6 @@ function renderPropertySetup() {
   panel.querySelector("#postcodeSearchForm")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const value = panel.querySelector("#postcodeSearch")?.value || "";
-    const token = panel.querySelector("#epcBearerToken")?.value || "";
-    saveEpcCredentials(token);
     state.setup.postcode = formatPostcode(value);
     if (!normalizePostcode(value)) {
       state.setup.searchDone = true;
@@ -1793,7 +1765,7 @@ function renderAiSettings() {
     ? `Stored locally: ${state.aiSettings.keyHint}`
     : "Paste key for this browser";
   status.textContent = state.aiSettings.keyPresent
-    ? `Reader connected (${state.aiSettings.keyHint || "local key"})`
+    ? `Reader connected (${state.aiSettings.keyHint || "local key"}) - AI fill enabled`
     : "No reader connected";
   status.dataset.tone = state.aiSettings.keyPresent ? "saved" : "idle";
 }
@@ -2107,6 +2079,198 @@ function scanDocument(file, text = "") {
   };
 }
 
+function openAiOutputText(response) {
+  if (response.output_text) return response.output_text;
+  return (response.output || [])
+    .flatMap((item) => item.content || [])
+    .map((content) => content.text || "")
+    .join("")
+    .trim();
+}
+
+async function extractDocumentFactsWithAi(file, text, scan) {
+  const key = getDocumentAiKey();
+  if (!key) return null;
+
+  const endpoint = (state.aiSettings.endpoint || "https://api.openai.com/v1").replace(/\/$/, "");
+  const property = activeProperty();
+  const response = await fetch(`${endpoint}/responses`, {
+    method: "POST",
+    headers: {
+      "Authorization": `Bearer ${key}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      model: DOCUMENT_AI_MODEL,
+      input: [
+        {
+          role: "system",
+          content: [
+            "You extract UK landlord compliance facts for CMP.",
+            "Return only valid JSON.",
+            "Use empty strings for unknown text/date fields, null for unknown numbers, and only yes/no/unknown/na for checklist answers.",
+            "Do not invent facts that are not supported by the file name, readable text, or current property record."
+          ].join(" ")
+        },
+        {
+          role: "user",
+          content: JSON.stringify({
+            fileName: file.name,
+            fileType: file.type || "",
+            readableText: text || "",
+            currentProperty: property ? propertySnapshot(property) : null,
+            currentScanGuess: scan,
+            checklistIds: azSections.flatMap((section) => section.checks.map((check) => check.id)),
+            returnShape: {
+              document: {
+                key: "epc | gas | eicr | alarm | deposit | tenancy | licence | inspection | notice",
+                title: "short document title",
+                issue: "YYYY-MM-DD or empty string",
+                expiry: "YYYY-MM-DD or empty string",
+                confidence: "0-100 number"
+              },
+              property: {
+                address: "",
+                postcode: "",
+                type: "",
+                bedrooms: null,
+                storeys: null,
+                hasGas: null,
+                fixedCombustion: null,
+                epc: { rating: "", issue: "", certificate: "", floorArea: "", potential: "", recommendation: "" },
+                gas: { issue: "", engineer: "" },
+                eicr: { issue: "", result: "" },
+                alarms: { smokeEachStorey: null, coAlarm: null, testedAtStart: null },
+                deposit: { taken: null, protected: null, prescribedInfo: null },
+                tenancy: {
+                  currentlyTenanted: null,
+                  agreement: null,
+                  howToRent: null,
+                  epcServed: null,
+                  gasServed: null,
+                  eicrServed: null,
+                  rightToRent: null
+                },
+                licensing: { localChecked: null, hmoLicence: null, licenceExpiry: "" },
+                inspections: { last: "" },
+                rent: { increasePlanned: null, lastIncrease: "" },
+                possession: { planned: null, noticeDraft: null }
+              },
+              checklistAnswers: {
+                example_check_id: "yes | no | unknown | na"
+              }
+            }
+          })
+        }
+      ],
+      text: { format: { type: "json_object" } }
+    })
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(detail || `OpenAI request failed with ${response.status}`);
+  }
+
+  return safeJsonParse(openAiOutputText(await response.json()), null);
+}
+
+const aiFieldMap = {
+  address: "address",
+  postcode: "postcode",
+  type: "type",
+  bedrooms: "bedrooms",
+  storeys: "storeys",
+  hasGas: "hasGas",
+  fixedCombustion: "fixedCombustion",
+  "epc.rating": "epc.rating",
+  "epc.issue": "epc.issue",
+  "epc.certificate": "epc.certificate",
+  "epc.floorArea": "epc.floorArea",
+  "epc.potential": "epc.potential",
+  "epc.recommendation": "epc.recommendation",
+  "gas.issue": "gas.issue",
+  "gas.engineer": "gas.engineer",
+  "eicr.issue": "eicr.issue",
+  "eicr.result": "eicr.result",
+  "alarms.smokeEachStorey": "alarms.smokeEachStorey",
+  "alarms.coAlarm": "alarms.coAlarm",
+  "alarms.testedAtStart": "alarms.testedAtStart",
+  "deposit.taken": "deposit.taken",
+  "deposit.protected": "deposit.protected",
+  "deposit.prescribedInfo": "deposit.prescribedInfo",
+  "tenancy.currentlyTenanted": "tenancy.currentlyTenanted",
+  "tenancy.agreement": "tenancy.agreement",
+  "tenancy.howToRent": "tenancy.howToRent",
+  "tenancy.epcServed": "tenancy.epcServed",
+  "tenancy.gasServed": "tenancy.gasServed",
+  "tenancy.eicrServed": "tenancy.eicrServed",
+  "tenancy.rightToRent": "tenancy.rightToRent",
+  "licensing.localChecked": "licensing.localChecked",
+  "licensing.hmoLicence": "licensing.hmoLicence",
+  "licensing.licenceExpiry": "licensing.licenceExpiry",
+  "inspections.last": "inspections.last",
+  "rent.increasePlanned": "rent.increasePlanned",
+  "rent.lastIncrease": "rent.lastIncrease",
+  "possession.planned": "possession.planned",
+  "possession.noticeDraft": "possession.noticeDraft"
+};
+
+function flattenObject(value, prefix = "", output = {}) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return output;
+  Object.entries(value).forEach(([key, child]) => {
+    const path = prefix ? `${prefix}.${key}` : key;
+    if (child && typeof child === "object" && !Array.isArray(child)) {
+      flattenObject(child, path, output);
+    } else {
+      output[path] = child;
+    }
+  });
+  return output;
+}
+
+function isKnownValue(value) {
+  if (value === null || value === undefined) return false;
+  if (typeof value === "string") return value.trim() !== "";
+  if (typeof value === "number") return Number.isFinite(value);
+  return typeof value === "boolean";
+}
+
+function applyAiExtraction(extraction, scan) {
+  const property = activeProperty();
+  if (!property || !extraction || typeof extraction !== "object") return false;
+
+  const flatProperty = flattenObject(extraction.property || extraction.propertyPatch || {});
+  Object.entries(flatProperty).forEach(([sourcePath, value]) => {
+    const targetPath = aiFieldMap[sourcePath];
+    if (!targetPath || !isKnownValue(value)) return;
+    setPath(property, targetPath, typeof value === "string" && sourcePath === "postcode" ? value.toUpperCase() : value);
+  });
+
+  const document = extraction.document || {};
+  if (document.key) scan.key = document.key;
+  if (document.title) scan.title = document.title;
+  if (document.issue) scan.issue = document.issue;
+  if (document.expiry) scan.expiry = document.expiry;
+  const confidence = Number(document.confidence);
+  if (Number.isFinite(confidence)) scan.confidence = Math.max(0, Math.min(100, Math.round(confidence)));
+
+  const validCheckIds = new Set(azSections.flatMap((section) => section.checks.map((check) => check.id)));
+  const answers = getAzAnswers(property.id);
+  Object.entries(extraction.checklistAnswers || {}).forEach(([checkId, answer]) => {
+    if (!validCheckIds.has(checkId) || !azAnswerOptions.some((option) => option.value === answer)) return;
+    answers[checkId] = answer;
+  });
+
+  if (property.address) property.shortName = property.address.split(",")[0] || property.shortName;
+  property.timeline.unshift({
+    date: new Date().toISOString().slice(0, 10),
+    title: "AI filled property details",
+    detail: `${scan.title} was analysed with ${DOCUMENT_AI_MODEL}.`
+  });
+  return true;
+}
+
 function extractDate(value) {
   const iso = value.match(/\b(20\d{2})[-_.\s](0?[1-9]|1[0-2])[-_.\s](0?[1-9]|[12]\d|3[01])\b/);
   if (iso) {
@@ -2198,33 +2362,46 @@ function handleFiles(files) {
   }
   Array.from(files).forEach((file) => {
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       const content = typeof reader.result === "string" ? reader.result.slice(0, 5000) : "";
-      state.scans.push(scanDocument(file, content));
+      const scan = scanDocument(file, content);
+      state.scans.push(scan);
       queueWorkspaceSave();
       renderAll();
+      await enrichScanWithAi(file, content, scan);
     };
     if (file.type.startsWith("text") || /\.(txt|csv|md)$/i.test(file.name)) {
       reader.readAsText(file);
     } else {
-      state.scans.push(scanDocument(file));
+      const scan = scanDocument(file);
+      state.scans.push(scan);
       queueWorkspaceSave();
       renderAll();
+      enrichScanWithAi(file, "", scan);
     }
   });
+}
+
+async function enrichScanWithAi(file, content, scan) {
+  if (!getDocumentAiKey()) return;
+
+  setSaveStatus("AI filling property details...", "saving");
+  try {
+    const extraction = await extractDocumentFactsWithAi(file, content, scan);
+    if (!applyAiExtraction(extraction, scan)) {
+      setSaveStatus("AI did not find new fields", "idle");
+      return;
+    }
+    applyScan(scan.id);
+  } catch (error) {
+    console.warn("Could not fill CMP fields with AI", error);
+    setSaveStatus("AI fill failed - saved preview only", "local");
+  }
 }
 
 async function pullEpcData() {
   const property = activeProperty();
   if (!property) return;
-  if (!hasEpcCredentials()) {
-    window.alert("Add an Energy Performance Data API bearer token in the postcode setup panel before pulling live EPC data.");
-    resetPropertySetup(true);
-    state.setup.postcode = property.postcode;
-    renderAll();
-    document.querySelector("#propertySetup")?.scrollIntoView({ behavior: "smooth", block: "start" });
-    return;
-  }
 
   const button = document.querySelector("#pullEpcButton");
   button.disabled = true;
