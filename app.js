@@ -8,6 +8,22 @@ const state = {
   activeJourney: "compliance",
   activeStep: 0,
   activeDashboardPanel: "check",
+  setup: {
+    isOpen: true,
+    postcode: "",
+    searchDone: false,
+    selectedAddressId: "",
+    isChecking: false,
+    isSearching: false,
+    addressMatches: [],
+    postcodeMeta: null,
+    epcCredentials: {
+      token: ""
+    },
+    apiStatus: "idle",
+    createdPropertyId: "",
+    message: ""
+  },
   scans: [],
   azChecklist: {},
   aiSettings: {
@@ -25,40 +41,45 @@ const AI_PREF_TABLE = "cmp_ai_preferences";
 const LOCAL_WORKSPACE_STORAGE = "cmp_compliance_workspaces";
 const LOCAL_AI_PREF_STORAGE = "cmp_ai_preferences";
 const AI_KEY_STORAGE = "cmp_document_ai_key";
+const ONBOARDING_STORAGE = "cmp_onboarding_complete";
+const EPC_CREDENTIAL_STORAGE = "cmp_epc_bearer_token";
+const POSTCODES_IO_BASE = "https://api.postcodes.io";
+const EPC_API_BASE = "https://api.get-energy-performance-data.communities.gov.uk/api/domestic";
 let workspaceSaveTimer = null;
 
 const journeys = [
   {
     id: "compliance",
     icon: "clipboard-check",
-    title: "Check compliance",
-    detail: "Score the property and build an action plan."
+    title: "Check my property compliance",
+    detail: "Get a plain-English score and the next safest action."
   },
   {
-    id: "epc",
-    icon: "leaf",
-    title: "I need an EPC",
-    detail: "Pull register data or book a new assessment."
+    id: "certificate",
+    icon: "badge-check",
+    title: "I need a certificate",
+    detail: "Start with EPC, Gas Safety, EICR, licence, or inspection needs."
   },
   {
-    id: "gas",
-    icon: "flame",
-    title: "Renew gas safety",
-    detail: "Check expiry, evidence, and service status."
+    id: "upload",
+    icon: "folder-up",
+    title: "I have documents to upload",
+    detail: "Drop certificates and tenancy paperwork into one evidence pack."
   },
   {
-    id: "possession",
-    icon: "scale",
-    title: "Possession readiness",
-    detail: "Review evidence before notices or claims."
+    id: "tenancy",
+    icon: "file-signature",
+    title: "I'm preparing for a tenancy",
+    detail: "Check the documents and proof a tenant should receive."
   },
   {
-    id: "portfolio",
-    icon: "layout-dashboard",
-    title: "Portfolio renewals",
-    detail: "See what needs attention across properties."
+    id: "issue",
+    icon: "life-buoy",
+    title: "I'm dealing with a compliance issue",
+    detail: "Find the missing evidence or renewal that needs attention."
   }
 ];
+
 
 const wizardSteps = [
   { id: "property", title: "Property", icon: "home" },
@@ -169,130 +190,7 @@ const azSections = [
   }
 ];
 
-const properties = [
-  {
-    id: "station-road",
-    shortName: "Station Road",
-    address: "66 Station Road, Marston Green, Birmingham B37 7BA",
-    postcode: "B37 7BA",
-    type: "Single let house",
-    bedrooms: 3,
-    storeys: 2,
-    hasGas: true,
-    fixedCombustion: true,
-    epc: {
-      rating: "C",
-      issue: "2024-04-18",
-      certificate: "0420-2843-9201-3184-1022",
-      floorArea: "89 sq m",
-      potential: "B",
-      recommendation: "Loft insulation and heating controls"
-    },
-    gas: { issue: "2025-07-06", engineer: "Gas Safe engineer recorded" },
-    eicr: { issue: "2021-05-20", result: "Satisfactory" },
-    alarms: { smokeEachStorey: true, coAlarm: false, testedAtStart: true },
-    deposit: { taken: true, protected: true, prescribedInfo: false },
-    tenancy: {
-      currentlyTenanted: true,
-      agreement: true,
-      howToRent: true,
-      epcServed: true,
-      gasServed: false,
-      eicrServed: false,
-      rightToRent: true
-    },
-    licensing: { localChecked: false, hmoLicence: false },
-    inspections: { last: "2025-11-24" },
-    rent: { increasePlanned: false, lastIncrease: "2025-04-01" },
-    possession: { planned: true, noticeDraft: false },
-    docs: [
-      { key: "epc", title: "EPC certificate", date: "2024-04-18", source: "EPC register" },
-      { key: "gas", title: "Gas certificate scan", date: "2025-07-06", source: "Uploaded PDF" },
-      { key: "tenancy", title: "AST agreement", date: "2025-08-01", source: "Uploaded PDF" }
-    ],
-    timeline: [
-      { date: "2026-05-19", title: "Possession readiness check started", detail: "CMP is checking evidence needed before next steps." },
-      { date: "2025-11-24", title: "Property inspection logged", detail: "Routine inspection evidence stored." },
-      { date: "2024-04-18", title: "EPC imported", detail: "Rating C, potential B." }
-    ]
-  },
-  {
-    id: "kings-heath",
-    shortName: "Kings Heath Flat",
-    address: "Flat 4, 18 York Road, Kings Heath, Birmingham B14 7RZ",
-    postcode: "B14 7RZ",
-    type: "Flat",
-    bedrooms: 2,
-    storeys: 1,
-    hasGas: false,
-    fixedCombustion: false,
-    epc: { rating: "E", issue: "2016-06-12", certificate: "8921-5520-7120-0924-1180", floorArea: "61 sq m", potential: "C" },
-    gas: { issue: "" },
-    eicr: { issue: "" },
-    alarms: { smokeEachStorey: true, coAlarm: true, testedAtStart: false },
-    deposit: { taken: true, protected: false, prescribedInfo: false },
-    tenancy: {
-      currentlyTenanted: true,
-      agreement: false,
-      howToRent: false,
-      epcServed: false,
-      gasServed: false,
-      eicrServed: false,
-      rightToRent: false
-    },
-    licensing: { localChecked: false, hmoLicence: false },
-    inspections: { last: "" },
-    rent: { increasePlanned: true, lastIncrease: "2024-10-01" },
-    possession: { planned: false, noticeDraft: false },
-    docs: [{ key: "epc", title: "Old EPC certificate", date: "2016-06-12", source: "Manual entry" }],
-    timeline: [
-      { date: "2026-05-19", title: "Compliance check opened", detail: "Missing evidence detected across tenancy and electrical records." }
-    ]
-  },
-  {
-    id: "hmo-selly",
-    shortName: "Selly Oak HMO",
-    address: "21 Raddlebarn Road, Selly Oak, Birmingham B29 6HH",
-    postcode: "B29 6HH",
-    type: "HMO",
-    bedrooms: 5,
-    storeys: 3,
-    hasGas: true,
-    fixedCombustion: true,
-    epc: { rating: "D", issue: "2023-02-01", certificate: "6321-8842-1093-7720-4911", floorArea: "132 sq m", potential: "B" },
-    gas: { issue: "2026-02-18", engineer: "Gas Safe engineer recorded" },
-    eicr: { issue: "2024-08-14", result: "Satisfactory" },
-    alarms: { smokeEachStorey: true, coAlarm: true, testedAtStart: true },
-    deposit: { taken: true, protected: true, prescribedInfo: true },
-    tenancy: {
-      currentlyTenanted: true,
-      agreement: true,
-      howToRent: true,
-      epcServed: true,
-      gasServed: true,
-      eicrServed: true,
-      rightToRent: true
-    },
-    licensing: { localChecked: true, hmoLicence: true, licenceExpiry: "2026-09-30" },
-    inspections: { last: "2026-03-10" },
-    rent: { increasePlanned: false, lastIncrease: "2025-09-01" },
-    possession: { planned: false, noticeDraft: false },
-    docs: [
-      { key: "epc", title: "EPC certificate", date: "2023-02-01", source: "EPC register" },
-      { key: "gas", title: "Gas Safety Certificate", date: "2026-02-18", source: "Uploaded PDF" },
-      { key: "eicr", title: "EICR", date: "2024-08-14", source: "Uploaded PDF" },
-      { key: "licence", title: "HMO licence", date: "2021-09-30", source: "Council record" },
-      { key: "inspection", title: "March inspection report", date: "2026-03-10", source: "Uploaded PDF" }
-    ],
-    timeline: [
-      { date: "2026-03-10", title: "Inspection report uploaded", detail: "No urgent hazards recorded." },
-      { date: "2026-02-18", title: "Gas Safety renewed", detail: "Certificate stored in evidence pack." },
-      { date: "2024-08-14", title: "EICR uploaded", detail: "Electrical certificate marked satisfactory." }
-    ]
-  }
-];
-
-properties.length = 0;
+const properties = [];
 
 function activeProperty() {
   return properties.find((property) => property.id === state.activePropertyId) || null;
@@ -706,6 +604,9 @@ function loadLocalWorkspace() {
     mergeScans(workspace.documentScans || workspace.document_scans || []);
   });
   ensureActiveProperty();
+  if (properties.length && localStorage.getItem(ONBOARDING_STORAGE)) {
+    state.setup.isOpen = false;
+  }
 }
 
 async function loadPersistedWorkspace() {
@@ -716,6 +617,9 @@ async function loadPersistedWorkspace() {
   if (!client || !user) {
     state.saveStatus = "Saved locally";
     state.saveTone = "local";
+    if (properties.length && localStorage.getItem(ONBOARDING_STORAGE)) {
+      state.setup.isOpen = false;
+    }
     return;
   }
 
@@ -736,6 +640,9 @@ async function loadPersistedWorkspace() {
     mergeScans(row.document_scans || []);
   });
   ensureActiveProperty();
+  if (properties.length && localStorage.getItem(ONBOARDING_STORAGE)) {
+    state.setup.isOpen = false;
+  }
   state.saveStatus = "Synced with Supabase";
   state.saveTone = "saved";
 }
@@ -926,6 +833,7 @@ async function clearAiKey() {
 function renderAll() {
   ensureActiveProperty();
   renderPropertyList();
+  renderPropertySetup();
   renderJourneyList();
   renderDashboard();
   renderWizard();
@@ -934,6 +842,389 @@ function renderAll() {
   syncDashboardPanels();
   renderSaveStatus();
   refreshIcons();
+}
+
+function normalizePostcode(value) {
+  return String(value || "").replace(/\s+/g, "").toUpperCase();
+}
+
+function formatPostcode(value) {
+  const normalized = normalizePostcode(value);
+  if (normalized.length <= 3) return normalized;
+  return `${normalized.slice(0, -3)} ${normalized.slice(-3)}`;
+}
+
+function setupFromStorage() {
+  const savedCredentials = safeJsonParse(localStorage.getItem(EPC_CREDENTIAL_STORAGE), {});
+  state.setup.epcCredentials = {
+    token: savedCredentials.token || ""
+  };
+  state.setup.isOpen = !localStorage.getItem(ONBOARDING_STORAGE) || !properties.length;
+}
+
+function saveEpcCredentials(token) {
+  state.setup.epcCredentials = { token: token.trim() };
+  if (state.setup.epcCredentials.token) {
+    localStorage.setItem(EPC_CREDENTIAL_STORAGE, JSON.stringify(state.setup.epcCredentials));
+  }
+}
+
+function hasEpcCredentials() {
+  return Boolean(state.setup.epcCredentials.token);
+}
+
+function epcAuthHeader() {
+  return `Bearer ${state.setup.epcCredentials.token}`;
+}
+
+async function lookupPostcode(postcode) {
+  const response = await fetch(`${POSTCODES_IO_BASE}/postcodes/${encodeURIComponent(normalizePostcode(postcode))}`);
+  const data = await response.json().catch(() => ({}));
+  if (!response.ok || data.status !== 200 || !data.result) {
+    throw new Error("That postcode was not found by Postcodes.io. Check the postcode and try again.");
+  }
+  return data.result;
+}
+
+async function searchEpcByPostcode(postcode) {
+  const params = new URLSearchParams({ postcode: formatPostcode(postcode), page_size: "50" });
+  const response = await fetch(`${EPC_API_BASE}/search?${params}`, {
+    headers: {
+      Accept: "application/json",
+      Authorization: epcAuthHeader()
+    }
+  });
+
+  if (response.status === 401 || response.status === 403) {
+    throw new Error("The Energy Performance Data API rejected that bearer token. Check the GOV.UK One Login API access token.");
+  }
+  if (!response.ok) {
+    throw new Error("The EPC register could not be reached. Try again in a moment.");
+  }
+
+  const data = await response.json();
+  return Array.isArray(data.data) ? data.data : Array.isArray(data.rows) ? data.rows : Array.isArray(data) ? data : [];
+}
+
+function epcAddress(row) {
+  return [
+    row.addressLine1 || row.address1,
+    row.addressLine2 || row.address2,
+    row.addressLine3 || row.address3,
+    row.addressLine4,
+    row.postTown || row.posttown,
+    row.postcode
+  ]
+    .filter(Boolean)
+    .join(", ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function epcMatchFromRow(row, postcodeMeta) {
+  const certificateNumber = row.certificateNumber || row["lmk-key"] || row["building-reference-number"] || "";
+  const address = epcAddress(row) || `EPC record ${certificateNumber || row.uprn || "found"}`;
+  const propertyType = titleCase(row.propertyType || row["property-type"] || "Property");
+  const rooms = Number(row["number-habitable-rooms"] || row["number-heated-rooms"] || 2);
+  return {
+    id: certificateNumber || row.uprn || address,
+    address,
+    shortName: address.split(",")[0] || "Property",
+    postcode: formatPostcode(row.postcode || postcodeMeta?.postcode || state.setup.postcode),
+    type: propertyType,
+    bedrooms: Number.isFinite(rooms) && rooms > 0 ? Math.min(rooms, 6) : 2,
+    storeys: Number(row["number-open-fireplaces"] || 0) > 0 ? 2 : 1,
+    hasGas: /gas/i.test(`${row["mainheat-description"] || ""} ${row["main-fuel"] || ""}`),
+    fixedCombustion: /gas|oil|solid fuel|wood|coal/i.test(`${row["mainheat-description"] || ""} ${row["main-fuel"] || ""}`),
+    epc: {
+      rating: row.currentEnergyEfficiencyBand || row["current-energy-rating"] || "",
+      issue: row.registrationDate || row["inspection-date"] || row["lodgement-date"] || "",
+      certificate: certificateNumber,
+      floorArea: row.totalFloorArea || row["total-floor-area"] ? `${row.totalFloorArea || row["total-floor-area"]} sq m` : "",
+      potential: row.potentialEnergyEfficiencyBand || row["potential-energy-rating"] || "",
+      recommendation: row.environmentImpactCurrent || row["environment-impact-current"]
+        ? `Environmental impact score ${row.environmentImpactCurrent || row["environment-impact-current"]}`
+        : "View the EPC register for recommendations"
+    },
+    source: "Energy Performance Data API",
+    uprn: row.uprn || "",
+    latitude: postcodeMeta?.latitude,
+    longitude: postcodeMeta?.longitude
+  };
+}
+
+async function searchRealPropertyData() {
+  const postcode = state.setup.postcode;
+  state.setup.isSearching = true;
+  state.setup.isChecking = false;
+  state.setup.searchDone = false;
+  state.setup.addressMatches = [];
+  state.setup.selectedAddressId = "";
+  state.setup.createdPropertyId = "";
+  state.setup.message = "Checking the postcode with Postcodes.io...";
+  state.setup.apiStatus = "checking";
+  renderAll();
+
+  try {
+    const postcodeMeta = await lookupPostcode(postcode);
+    state.setup.postcodeMeta = postcodeMeta;
+
+    if (!hasEpcCredentials()) {
+      state.setup.searchDone = true;
+      state.setup.apiStatus = "needs-epc-access";
+      state.setup.message = "Postcode found. Add an energy performance data API bearer token to retrieve real address and certificate results.";
+      return;
+    }
+
+    state.setup.message = "Postcode found. Searching the official EPC register for address matches...";
+    renderAll();
+    const rows = await searchEpcByPostcode(postcode);
+    state.setup.addressMatches = rows.map((row) => epcMatchFromRow(row, postcodeMeta));
+    state.setup.searchDone = true;
+    state.setup.apiStatus = state.setup.addressMatches.length ? "ready" : "no-epc-results";
+    state.setup.message = state.setup.addressMatches.length
+      ? "Real EPC records found. Select the property to start setup."
+      : "Postcode found, but the EPC register returned no matching domestic certificates for this postcode.";
+  } catch (error) {
+    state.setup.searchDone = true;
+    state.setup.apiStatus = "error";
+    state.setup.message = error.message || "The real postcode/EPC lookup failed. Please try again.";
+  } finally {
+    state.setup.isSearching = false;
+    renderAll();
+  }
+}
+
+function buildPropertyFromAddress(match) {
+  const id = `property-${Date.now()}`;
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const epcIssue = match.epc?.issue || "";
+  return {
+    id,
+    shortName: match.shortName,
+    address: match.address,
+    postcode: match.postcode,
+    type: match.type,
+    bedrooms: match.bedrooms,
+    storeys: match.storeys,
+    hasGas: match.hasGas,
+    fixedCombustion: match.fixedCombustion,
+    epc: { ...match.epc },
+    gas: { issue: "" },
+    eicr: { issue: "" },
+    alarms: { smokeEachStorey: false, coAlarm: false, testedAtStart: false },
+    deposit: { taken: true, protected: false, prescribedInfo: false },
+    tenancy: {
+      currentlyTenanted: true,
+      agreement: false,
+      howToRent: false,
+      epcServed: false,
+      gasServed: false,
+      eicrServed: false,
+      rightToRent: false
+    },
+    licensing: { localChecked: false, hmoLicence: false },
+    inspections: { last: "" },
+    rent: { increasePlanned: false, lastIncrease: "" },
+    possession: { planned: false, noticeDraft: false },
+    docs: epcIssue ? [{ key: "epc", title: "EPC register result", date: epcIssue, source: match.source || "Energy Performance Data API" }] : [],
+    timeline: [
+      {
+        date: todayIso,
+        title: "Property found",
+        detail: "Postcode and EPC register search selected this address and started the compliance setup."
+      },
+      {
+        date: todayIso,
+        title: "EPC data checked",
+        detail: match.epc?.rating
+          ? `EPC rating ${match.epc.rating}, potential ${match.epc.potential || "not recorded"}.`
+          : "No current EPC rating was returned for this property."
+      }
+    ]
+  };
+}
+
+function resetPropertySetup(open = true) {
+  const credentials = state.setup.epcCredentials;
+  state.setup = {
+    isOpen: open,
+    postcode: "",
+    searchDone: false,
+    selectedAddressId: "",
+    isChecking: false,
+    isSearching: false,
+    addressMatches: [],
+    postcodeMeta: null,
+    epcCredentials: credentials,
+    apiStatus: "idle",
+    createdPropertyId: "",
+    message: ""
+  };
+}
+
+function completeOnboarding() {
+  localStorage.setItem(ONBOARDING_STORAGE, new Date().toISOString());
+}
+
+function createPropertyFromMatch(match) {
+  const property = buildPropertyFromAddress(match);
+  properties.unshift(property);
+  state.activePropertyId = property.id;
+  state.activeStep = 0;
+  state.activeJourney = "compliance";
+  state.activeDashboardPanel = "check";
+  state.setup.isChecking = false;
+  state.setup.createdPropertyId = property.id;
+  state.setup.message = "Property found. Setup has started and CMP is ready to guide the first check.";
+  completeOnboarding();
+  queueWorkspaceSave(property.id);
+  renderAll();
+}
+
+function renderPropertySetup() {
+  const panel = document.querySelector("#propertySetup");
+  if (!panel) return;
+
+  if (!state.setup.isOpen) {
+    panel.hidden = true;
+    panel.innerHTML = "";
+    return;
+  }
+
+  panel.hidden = false;
+  const matches = state.setup.searchDone ? state.setup.addressMatches : [];
+  const activeMatch = matches.find((item) => item.id === state.setup.selectedAddressId);
+  const statusTone = state.setup.apiStatus === "error" ? "error" : state.setup.apiStatus === "needs-epc-access" ? "warning" : "neutral";
+
+  panel.innerHTML = `
+    <div class="setup-copy">
+      <span class="section-kicker">Start here</span>
+      <h2 id="propertySetupTitle">Add a property in under a minute.</h2>
+      <p>Search by postcode, choose a real EPC register address, then CMP starts a simple compliance record for the property.</p>
+      <div class="setup-steps" aria-label="Property setup steps">
+        <span class="is-complete"><i data-lucide="search"></i> Postcode</span>
+        <span class="${matches.length ? "is-complete" : state.setup.isSearching ? "is-active" : ""}"><i data-lucide="map-pin"></i> Address</span>
+        <span class="${state.setup.createdPropertyId ? "is-complete" : state.setup.isChecking ? "is-active" : ""}"><i data-lucide="radar"></i> EPC preview</span>
+      </div>
+    </div>
+
+    <form class="postcode-search" id="postcodeSearchForm">
+      <label for="postcodeSearch">Property postcode</label>
+      <div class="postcode-control">
+        <input id="postcodeSearch" type="text" value="${escapeHtml(state.setup.postcode)}" placeholder="B37 7BA" autocomplete="postal-code">
+        <button class="primary-button" type="submit" ${state.setup.isSearching ? "disabled" : ""}>
+          <i data-lucide="search"></i>
+          ${state.setup.isSearching ? "Searching..." : "Find address"}
+        </button>
+      </div>
+      <small>Postcode validation uses Postcodes.io. Address and EPC results use the official Energy Performance Data domestic search API.</small>
+      <details class="epc-access" ${hasEpcCredentials() ? "" : "open"}>
+        <summary>Energy Performance Data API access</summary>
+        <div class="epc-access-grid">
+          <label>
+            <span>Bearer token</span>
+            <input id="epcBearerToken" type="password" value="${escapeHtml(state.setup.epcCredentials.token)}" placeholder="GOV.UK One Login API bearer token">
+          </label>
+        </div>
+        <small>Stored only in this browser. A production build should move this request behind a secure server function.</small>
+      </details>
+    </form>
+
+    ${state.setup.searchDone ? `
+      <div class="address-results" aria-live="polite" data-tone="${statusTone}">
+        <div class="address-results-heading">
+          <strong>${matches.length ? `${matches.length} EPC address${matches.length === 1 ? "" : "es"} found` : "No selectable address yet"}</strong>
+          <span>${escapeHtml(formatPostcode(state.setup.postcode))}</span>
+        </div>
+        ${state.setup.message ? `<p class="api-message">${escapeHtml(state.setup.message)}</p>` : ""}
+        ${matches.length ? `
+          <div class="address-list">
+            ${matches.map((match) => `
+              <button class="address-option${match.id === state.setup.selectedAddressId ? " is-selected" : ""}" type="button" data-address-id="${escapeHtml(match.id)}">
+                <span>
+                  <strong>${escapeHtml(match.address)}</strong>
+                  <small>${escapeHtml(match.type)} · ${match.bedrooms} bed estimate · EPC ${escapeHtml(match.epc.rating || "not recorded")} · ${escapeHtml(match.source)}</small>
+                </span>
+                <i data-lucide="${match.id === state.setup.selectedAddressId ? "check-circle-2" : "circle"}"></i>
+              </button>
+            `).join("")}
+          </div>
+        ` : ""}
+      </div>
+    ` : ""}
+
+    <div class="setup-result${state.setup.createdPropertyId ? " is-found" : ""}">
+      <div>
+        <strong>${state.setup.isChecking ? "Checking property records..." : state.setup.createdPropertyId ? "Property found. Setup started." : "What happens next?"}</strong>
+        <span>${state.setup.isChecking
+          ? "CMP is turning the selected EPC register record into a starter compliance workspace."
+          : state.setup.createdPropertyId
+            ? escapeHtml(state.setup.message)
+            : "After you choose an EPC address, CMP opens clear paths for compliance, certificates, documents, tenancy setup, or an issue."}</span>
+      </div>
+      <button class="secondary-button" type="button" id="continueSetupButton" ${!state.setup.isChecking && (activeMatch || state.setup.createdPropertyId) ? "" : "disabled"}>
+        <i data-lucide="${state.setup.createdPropertyId ? "arrow-down" : "sparkles"}"></i>
+        ${state.setup.createdPropertyId ? "Choose a path" : "Use this property"}
+      </button>
+    </div>
+
+    ${state.setup.createdPropertyId ? `
+      <div class="setup-journeys" aria-label="Choose what to do next">
+        ${journeys.map((journey) => `
+          <button class="setup-journey${journey.id === state.activeJourney ? " is-active" : ""}" type="button" data-setup-journey="${journey.id}">
+            <i data-lucide="${journey.icon}"></i>
+            <span>
+              <strong>${escapeHtml(journey.title)}</strong>
+              <small>${escapeHtml(journey.detail)}</small>
+            </span>
+          </button>
+        `).join("")}
+      </div>
+    ` : ""}
+  `;
+
+  panel.querySelector("#postcodeSearchForm")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const value = panel.querySelector("#postcodeSearch")?.value || "";
+    const token = panel.querySelector("#epcBearerToken")?.value || "";
+    saveEpcCredentials(token);
+    state.setup.postcode = formatPostcode(value);
+    if (!normalizePostcode(value)) {
+      state.setup.searchDone = true;
+      state.setup.apiStatus = "error";
+      state.setup.message = "Enter a postcode to search for matching addresses.";
+      renderAll();
+      return;
+    }
+    searchRealPropertyData();
+  });
+
+  panel.querySelectorAll("[data-address-id]").forEach((button) => {
+    button.addEventListener("click", () => {
+      state.setup.selectedAddressId = button.dataset.addressId;
+      state.setup.createdPropertyId = "";
+      state.setup.message = "";
+      renderAll();
+    });
+  });
+
+  panel.querySelector("#continueSetupButton")?.addEventListener("click", () => {
+    if (state.setup.createdPropertyId) {
+      panel.querySelector(".setup-journeys")?.scrollIntoView({ behavior: "smooth", block: "center" });
+      return;
+    }
+
+    const match = state.setup.addressMatches.find((item) => item.id === state.setup.selectedAddressId);
+    if (!match) return;
+    state.setup.isChecking = true;
+    renderAll();
+    window.setTimeout(() => createPropertyFromMatch(match), 900);
+  });
+
+  panel.querySelectorAll("[data-setup-journey]").forEach((button) => {
+    button.addEventListener("click", () => activateJourney(button.dataset.setupJourney));
+  });
 }
 
 function refreshIcons() {
@@ -947,8 +1238,8 @@ function renderPropertyList() {
   if (!properties.length) {
     list.innerHTML = `
       <div class="portfolio-empty">
-        <strong>No portfolio listings yet</strong>
-        <span>Add a property when you are ready to start a compliance check.</span>
+        <strong>No properties yet</strong>
+        <span>Start with a postcode search. CMP will build the first property record from there.</span>
       </div>
     `;
     return;
@@ -999,16 +1290,20 @@ function renderJourneyList() {
   `).join("");
 
   list.querySelectorAll("[data-journey]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.activeJourney = button.dataset.journey;
-      if (state.activeJourney === "gas") state.activeStep = 1;
-      if (state.activeJourney === "epc") state.activeStep = 0;
-      if (state.activeJourney === "possession") state.activeStep = 4;
-      state.activeDashboardPanel = "check";
-      renderAll();
-      document.querySelector("#guided-check").scrollIntoView({ behavior: "smooth", block: "start" });
-    });
+    button.addEventListener("click", () => activateJourney(button.dataset.journey));
   });
+}
+
+function activateJourney(journeyId) {
+  state.activeJourney = journeyId;
+  if (state.activeJourney === "certificate") state.activeStep = 1;
+  if (state.activeJourney === "upload") state.activeDashboardPanel = "evidence";
+  if (state.activeJourney === "tenancy") state.activeStep = 4;
+  if (state.activeJourney === "issue") state.activeStep = 5;
+  if (state.activeJourney !== "upload") state.activeDashboardPanel = "check";
+  renderAll();
+  document.querySelector(state.activeJourney === "upload" ? '[data-dashboard-panel="evidence"]' : "#guided-check")
+    ?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function showDashboardPanel(panel, scroll = true) {
@@ -1045,15 +1340,15 @@ function syncDashboardPanels() {
 function renderDashboard() {
   const property = activeProperty();
   if (!property) {
-    document.querySelector("#propertyTitle").textContent = "No portfolio properties yet";
-    document.querySelector("#propertySubtitle").textContent = "Add a property to start the guided compliance check.";
+    document.querySelector("#propertyTitle").textContent = "Start with a postcode";
+    document.querySelector("#propertySubtitle").textContent = "Find an address first, then CMP will create the starter compliance record.";
     document.querySelector("#scoreValue").textContent = "0%";
     document.querySelector("#riskLabel").textContent = "Empty";
     document.querySelector("#scoreRing").style.setProperty("--score", 0);
     document.querySelector("#scoreRing").style.setProperty("--ring-color", "var(--blue)");
-    document.querySelector("#scoreHeadline").textContent = "Your portfolio is empty.";
-    document.querySelector("#scoreNarrative").textContent = "New accounts now start with a blank portfolio. Use Add to create the first property listing.";
-    document.querySelector("#priorityList").innerHTML = `<article class="priority-item empty-state"><span class="status-dot info"></span><div><h3>No actions yet</h3><p>Add a property to generate compliance actions.</p></div></article>`;
+    document.querySelector("#scoreHeadline").textContent = "No property selected yet.";
+    document.querySelector("#scoreNarrative").textContent = "Use the postcode search above. CMP validates the postcode and uses Energy Performance Data API results for address and certificate records.";
+    document.querySelector("#priorityList").innerHTML = `<article class="priority-item empty-state"><span class="status-dot info"></span><div><h3>First step</h3><p>Enter a postcode, choose the property, then pick the journey that fits your reason for visiting.</p></div></article>`;
     document.querySelector("#intelligenceStrip").innerHTML = ["Properties", "Urgent", "Expiring soon", "Evidence gaps"].map((label) => `
       <article class="intel-stat">
         <span>${label}</span>
@@ -1222,25 +1517,29 @@ function renderAssistant(property, evaluation, actions) {
   const top = actions[0];
   const name = property.shortName;
 
-  if (journey === "possession") {
-    headline.textContent = "Check evidence before action";
+  if (journey === "issue") {
+    headline.textContent = "Start with the risk, then the proof";
     copy.textContent = top
-      ? `${name} has evidence issues that may need attention before possession steps are progressed. CMP should guide, not make final legal decisions.`
-      : `${name} has the core evidence recorded. CMP can now assemble a possession evidence pack for review.`;
+      ? `${name} has a clear first issue to resolve: ${top.title.toLowerCase()}. CMP keeps the next step practical and evidence-led.`
+      : `${name} has no urgent issue showing. CMP can keep watching renewals and evidence gaps.`;
     return;
   }
 
-  if (journey === "gas") {
-    headline.textContent = "Gas safety is handled in context";
-    copy.textContent = property.hasGas
-      ? "CMP checks the certificate date, proof of service, and whether the certificate has been given to the tenant."
-      : "No gas appliances are recorded. CMP keeps this as a property fact and will re-check if the record changes.";
+  if (journey === "certificate") {
+    headline.textContent = "Certificates should start from the property";
+    copy.textContent = "CMP looks at EPC, Gas Safety, EICR, licensing, and inspection needs together, then suggests the certificate or service that fits this property.";
     return;
   }
 
-  if (journey === "epc") {
-    headline.textContent = "EPC data should auto-fill";
-    copy.textContent = "In production, CMP can connect to the domestic EPC API, pull rating, expiry, lodgement, floor area, certificate number, and recommendations.";
+  if (journey === "upload") {
+    headline.textContent = "Documents become a property record";
+    copy.textContent = "Upload certificates, tenancy paperwork, notices, or reports. This prototype scans readable filenames and text, then turns them into evidence items.";
+    return;
+  }
+
+  if (journey === "tenancy") {
+    headline.textContent = "Prepare the tenancy pack before it becomes stressful";
+    copy.textContent = "CMP checks the EPC, Gas Safety, EICR, How to Rent, deposit, Right to Rent, and served-document trail in one place.";
     return;
   }
 
@@ -1915,47 +2214,49 @@ function handleFiles(files) {
   });
 }
 
-function pullEpcData() {
+async function pullEpcData() {
   const property = activeProperty();
   if (!property) return;
-  const samples = {
-    "B37 7BA": {
-      rating: "C",
-      issue: "2024-04-18",
-      certificate: "0420-2843-9201-3184-1022",
-      floorArea: "89 sq m",
-      potential: "B",
-      recommendation: "Upgrade heating controls and loft insulation"
-    },
-    "B14 7RZ": {
-      rating: "E",
-      issue: "2016-06-12",
-      certificate: "8921-5520-7120-0924-1180",
-      floorArea: "61 sq m",
-      potential: "C",
-      recommendation: "Wall insulation and low-energy lighting"
-    },
-    "B29 6HH": {
-      rating: "D",
-      issue: "2023-02-01",
-      certificate: "6321-8842-1093-7720-4911",
-      floorArea: "132 sq m",
-      potential: "B",
-      recommendation: "Solar water heating and heating controls"
-    }
-  };
+  if (!hasEpcCredentials()) {
+    window.alert("Add an Energy Performance Data API bearer token in the postcode setup panel before pulling live EPC data.");
+    resetPropertySetup(true);
+    state.setup.postcode = property.postcode;
+    renderAll();
+    document.querySelector("#propertySetup")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    return;
+  }
 
-  property.epc = samples[property.postcode?.toUpperCase()] || {
-    rating: "D",
-    issue: new Date(today.getFullYear() - 2, today.getMonth(), today.getDate()).toISOString().slice(0, 10),
-    certificate: "API-READY-DEMO",
-    floorArea: "Unknown",
-    potential: "C",
-    recommendation: "Connect domestic EPC API with authenticated search"
-  };
+  const button = document.querySelector("#pullEpcButton");
+  button.disabled = true;
+  button.innerHTML = `<i data-lucide="cloud-download"></i> Pulling EPC`;
+  refreshIcons();
+
+  try {
+    const postcodeMeta = await lookupPostcode(property.postcode);
+    const matches = (await searchEpcByPostcode(property.postcode)).map((row) => epcMatchFromRow(row, postcodeMeta));
+    const normalizedAddress = property.address.toLowerCase();
+    const match = matches.find((item) => normalizedAddress.includes(item.shortName.toLowerCase()) || item.address.toLowerCase() === normalizedAddress) || matches[0];
+    if (!match) {
+      window.alert("No EPC record was returned for this property postcode.");
+      return;
+    }
+    property.epc = { ...match.epc };
+    property.type = match.type || property.type;
+    property.bedrooms = match.bedrooms || property.bedrooms;
+    property.storeys = match.storeys || property.storeys;
+    property.hasGas = match.hasGas;
+    property.fixedCombustion = match.fixedCombustion;
+  } catch (error) {
+    window.alert(error.message || "Could not pull EPC data.");
+    return;
+  } finally {
+    button.disabled = false;
+    button.innerHTML = `<i data-lucide="cloud-download"></i> Pull EPC`;
+    refreshIcons();
+  }
 
   if (!property.docs.some((doc) => doc.key === "epc")) {
-    property.docs.unshift({ key: "epc", title: "EPC certificate", date: property.epc.issue, source: "EPC register preview" });
+    property.docs.unshift({ key: "epc", title: "EPC certificate", date: property.epc.issue, source: "Energy Performance Data API" });
   }
 
   state.scans.push({
@@ -1973,50 +2274,16 @@ function pullEpcData() {
   property.timeline.unshift({
     date: new Date().toISOString().slice(0, 10),
     title: "EPC register data pulled",
-    detail: `Rating ${property.epc.rating}, potential ${property.epc.potential}. Production build should call the authenticated domestic EPC API.`
+    detail: `Rating ${property.epc.rating || "not recorded"}, potential ${property.epc.potential || "not recorded"} from the Energy Performance Data domestic search API.`
   });
   queueWorkspaceSave(property.id);
   renderAll();
 }
 
 function addProperty() {
-  const id = `property-${Date.now()}`;
-  properties.unshift({
-    id,
-    shortName: "New property",
-    address: "New property, England",
-    postcode: "",
-    type: "Single let house",
-    bedrooms: 2,
-    storeys: 2,
-    hasGas: true,
-    fixedCombustion: true,
-    epc: { rating: "", issue: "", certificate: "", floorArea: "", potential: "" },
-    gas: { issue: "" },
-    eicr: { issue: "" },
-    alarms: { smokeEachStorey: false, coAlarm: false, testedAtStart: false },
-    deposit: { taken: true, protected: false, prescribedInfo: false },
-    tenancy: {
-      currentlyTenanted: true,
-      agreement: false,
-      howToRent: false,
-      epcServed: false,
-      gasServed: false,
-      eicrServed: false,
-      rightToRent: false
-    },
-    licensing: { localChecked: false, hmoLicence: false },
-    inspections: { last: "" },
-    rent: { increasePlanned: false, lastIncrease: "" },
-    possession: { planned: false, noticeDraft: false },
-    docs: [],
-    timeline: [{ date: new Date().toISOString().slice(0, 10), title: "Property created", detail: "Guided compliance check ready to start." }]
-  });
-  state.activePropertyId = id;
-  state.activeStep = 0;
-  state.activeDashboardPanel = "az";
-  queueWorkspaceSave(id);
+  resetPropertySetup(true);
   renderAll();
+  document.querySelector("#propertySetup")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 async function removeProperty(propertyId) {
@@ -2056,6 +2323,7 @@ async function removeProperty(propertyId) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
+  setupFromStorage();
   state.activeDashboardPanel = dashboardPanelFromHash(window.location.hash) || state.activeDashboardPanel;
   renderAll();
   loadPersistedWorkspace()
