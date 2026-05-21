@@ -671,6 +671,58 @@ svg {
   color: var(--blue);
 }
 
+.manual-address-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(110px, 0.45fr) minmax(160px, 0.75fr);
+  align-items: end;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(0, 113, 227, 0.18);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.manual-address-card div,
+.manual-address-card label {
+  display: grid;
+  gap: 5px;
+}
+
+.manual-address-card strong,
+.manual-address-card label span {
+  color: var(--ink);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.manual-address-card div span,
+.manual-address-card small {
+  color: var(--muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.manual-address-card input {
+  min-height: 42px;
+  width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.98);
+  color: var(--ink);
+  outline: none;
+}
+
+.manual-address-card input:focus {
+  border-color: rgba(0, 113, 227, 0.45);
+  box-shadow: 0 0 0 4px rgba(0, 113, 227, 0.1);
+}
+
+.manual-address-card small {
+  grid-column: 1 / -1;
+  padding-top: 2px;
+}
+
 .setup-result {
   grid-column: 1 / -1;
   display: flex;
@@ -2779,6 +2831,10 @@ svg {
   .score-panel,
   .priority-panel,
   .completion-banner {
+    grid-template-columns: 1fr;
+  }
+
+  .manual-address-card {
     grid-template-columns: 1fr;
   }
 

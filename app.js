@@ -17,6 +17,10 @@ const state = {
     isSearching: false,
     addressMatches: [],
     postcodeMeta: null,
+    manualAddress: {
+      houseNumber: "",
+      roadName: ""
+    },
     apiStatus: "idle",
     createdPropertyId: "",
     message: ""
@@ -858,6 +862,41 @@ function formatPostcode(value) {
   return `${normalized.slice(0, -3)} ${normalized.slice(-3)}`;
 }
 
+function cityFromPostcodeMeta(postcodeMeta) {
+  const value = [
+    postcodeMeta?.post_town,
+    postcodeMeta?.admin_district,
+    postcodeMeta?.bua,
+    postcodeMeta?.ttwa,
+    postcodeMeta?.region,
+    postcodeMeta?.country
+  ].find(Boolean);
+  return titleCase(String(value || "").toLowerCase());
+}
+
+function splitStreetLine(value) {
+  const line = String(value || "").replace(/\s+/g, " ").trim();
+  const match = line.match(/^([0-9]+[a-zA-Z]?(?:\s*(?:-|\/)\s*[0-9]+[a-zA-Z]?)?)\s+(.+)$/);
+  if (!match) {
+    return { houseNumber: line, roadName: "" };
+  }
+  return {
+    houseNumber: match[1].replace(/\s+/g, ""),
+    roadName: titleCase(match[2].toLowerCase())
+  };
+}
+
+function fullAddressLabel({ houseNumber, roadName, postcode, city, fallbackAddress }) {
+  const street = [houseNumber, roadName].filter(Boolean).join(" ").trim();
+  return [
+    street || fallbackAddress,
+    formatPostcode(postcode),
+    city
+  ]
+    .filter(Boolean)
+    .join(", ");
+}
+
 function setupFromStorage() {
   state.setup.isOpen = !localStorage.getItem(ONBOARDING_STORAGE) || !properties.length;
 }
@@ -916,14 +955,28 @@ function epcAddress(row) {
 
 function epcMatchFromRow(row, postcodeMeta) {
   const certificateNumber = row.certificateNumber || row["lmk-key"] || row["building-reference-number"] || "";
-  const address = epcAddress(row) || `EPC record ${certificateNumber || row.uprn || "found"}`;
+  const addressLine1 = row.addressLine1 || row.address1 || "";
+  const addressLine2 = row.addressLine2 || row.address2 || "";
+  const street = splitStreetLine(addressLine1);
+  const postcode = formatPostcode(row.postcode || postcodeMeta?.postcode || state.setup.postcode);
+  const city = cityFromPostcodeMeta({ ...postcodeMeta, post_town: row.postTown || row.posttown || postcodeMeta?.post_town });
+  const address = fullAddressLabel({
+    houseNumber: street.houseNumber,
+    roadName: street.roadName || titleCase(String(addressLine2).toLowerCase()),
+    postcode,
+    city,
+    fallbackAddress: epcAddress(row) || `EPC record ${certificateNumber || row.uprn || "found"}`
+  });
   const propertyType = titleCase(row.propertyType || row["property-type"] || "Property");
   const rooms = Number(row["number-habitable-rooms"] || row["number-heated-rooms"] || 2);
   return {
     id: certificateNumber || row.uprn || address,
     address,
     shortName: address.split(",")[0] || "Property",
-    postcode: formatPostcode(row.postcode || postcodeMeta?.postcode || state.setup.postcode),
+    houseNumber: street.houseNumber,
+    roadName: street.roadName || titleCase(String(addressLine2).toLowerCase()),
+    city,
+    postcode,
     type: propertyType,
     bedrooms: Number.isFinite(rooms) && rooms > 0 ? Math.min(rooms, 6) : 2,
     storeys: Number(row["number-open-fireplaces"] || 0) > 0 ? 2 : 1,
@@ -947,17 +1000,10 @@ function epcMatchFromRow(row, postcodeMeta) {
 }
 
 function postcodeFallbackAddress(postcodeMeta) {
-  const areaBits = [
-    postcodeMeta?.post_town,
-    postcodeMeta?.admin_district,
-    postcodeMeta?.bua,
-    postcodeMeta?.ttwa,
-    postcodeMeta?.admin_ward,
-    postcodeMeta?.parish,
-    postcodeMeta?.region
-  ].filter((value) => value && !/unparished area/i.test(value));
-  const area = areaBits[0] || postcodeMeta?.country || "the postcode area";
-  return `Property in ${formatPostcode(postcodeMeta?.postcode || state.setup.postcode)}, ${area}`;
+  return [
+    formatPostcode(postcodeMeta?.postcode || state.setup.postcode),
+    cityFromPostcodeMeta(postcodeMeta)
+  ].filter(Boolean).join(", ");
 }
 
 function postcodeFallbackMatch(postcodeMeta, reason = "") {
@@ -965,8 +1011,12 @@ function postcodeFallbackMatch(postcodeMeta, reason = "") {
   return {
     id: `postcode-fallback-${normalizePostcode(fallbackPostcode)}`,
     address: postcodeFallbackAddress(postcodeMeta),
-    shortName: `Property in ${fallbackPostcode}`,
+    shortName: fallbackPostcode,
+    houseNumber: "",
+    roadName: "",
+    city: cityFromPostcodeMeta(postcodeMeta),
     postcode: fallbackPostcode,
+    requiresManualAddress: true,
     type: "Property",
     bedrooms: 2,
     storeys: 1,
@@ -994,6 +1044,7 @@ async function searchRealPropertyData() {
   state.setup.searchDone = false;
   state.setup.addressMatches = [];
   state.setup.selectedAddressId = "";
+  state.setup.manualAddress = { houseNumber: "", roadName: "" };
   state.setup.createdPropertyId = "";
   state.setup.message = "Checking the postcode with Postcodes.io...";
   state.setup.apiStatus = "checking";
@@ -1044,11 +1095,25 @@ function buildPropertyFromAddress(match) {
   const id = `property-${Date.now()}`;
   const todayIso = new Date().toISOString().slice(0, 10);
   const epcIssue = match.epc?.issue || "";
+  const houseNumber = String(match.houseNumber || state.setup.manualAddress.houseNumber || "").trim();
+  const roadName = titleCase(String(match.roadName || state.setup.manualAddress.roadName || "").toLowerCase());
+  const city = titleCase(String(match.city || cityFromPostcodeMeta(state.setup.postcodeMeta)).toLowerCase());
+  const postcode = formatPostcode(match.postcode || state.setup.postcode);
+  const address = fullAddressLabel({
+    houseNumber,
+    roadName,
+    postcode,
+    city,
+    fallbackAddress: match.address
+  });
   return {
     id,
-    shortName: match.shortName,
-    address: match.address,
-    postcode: match.postcode,
+    shortName: address.split(",")[0] || match.shortName,
+    address,
+    houseNumber,
+    roadName,
+    city,
+    postcode,
     type: match.type,
     bedrooms: match.bedrooms,
     storeys: match.storeys,
@@ -1100,6 +1165,10 @@ function resetPropertySetup(open = true) {
     isSearching: false,
     addressMatches: [],
     postcodeMeta: null,
+    manualAddress: {
+      houseNumber: "",
+      roadName: ""
+    },
     apiStatus: "idle",
     createdPropertyId: "",
     message: ""
@@ -1145,6 +1214,9 @@ function renderPropertySetup() {
   panel.hidden = false;
   const matches = state.setup.searchDone ? state.setup.addressMatches : [];
   const activeMatch = matches.find((item) => item.id === state.setup.selectedAddressId);
+  const needsManualAddress = Boolean(activeMatch?.requiresManualAddress);
+  const hasManualAddress = !needsManualAddress || (state.setup.manualAddress.houseNumber.trim() && state.setup.manualAddress.roadName.trim());
+  const canCreateProperty = Boolean(activeMatch && hasManualAddress && !state.setup.isChecking);
   const statusTone = state.setup.apiStatus === "error" ? "error" : "neutral";
 
   panel.innerHTML = `
@@ -1174,7 +1246,7 @@ function renderPropertySetup() {
     ${state.setup.searchDone ? `
       <div class="address-results" aria-live="polite" data-tone="${statusTone}">
         <div class="address-results-heading">
-          <strong>${matches.length ? `${matches.length} EPC address${matches.length === 1 ? "" : "es"} found` : "No selectable address yet"}</strong>
+          <strong>${matches.length ? `${matches.filter((match) => !match.requiresManualAddress).length || matches.length} ${matches.some((match) => match.requiresManualAddress) ? "postcode match" : `EPC address${matches.length === 1 ? "" : "es"}`} found` : "No selectable address yet"}</strong>
           <span>${escapeHtml(formatPostcode(state.setup.postcode))}</span>
         </div>
         ${state.setup.message ? `<p class="api-message">${escapeHtml(state.setup.message)}</p>` : ""}
@@ -1191,24 +1263,48 @@ function renderPropertySetup() {
             `).join("")}
           </div>
         ` : ""}
+        ${needsManualAddress ? `
+          <div class="manual-address-card">
+            <div>
+              <strong>Add the full property address</strong>
+              <span>Postcode is verified. Add the house number and road so the property is registered correctly.</span>
+            </div>
+            <label>
+              <span>House number</span>
+              <input type="text" data-manual-address="houseNumber" value="${escapeHtml(state.setup.manualAddress.houseNumber)}" placeholder="12" autocomplete="address-line1">
+            </label>
+            <label>
+              <span>Road name</span>
+              <input type="text" data-manual-address="roadName" value="${escapeHtml(state.setup.manualAddress.roadName)}" placeholder="High Street" autocomplete="address-line2">
+            </label>
+            <small data-address-preview>Property will be saved as ${escapeHtml(fullAddressLabel({
+              houseNumber: state.setup.manualAddress.houseNumber || "House number",
+              roadName: state.setup.manualAddress.roadName || "Road name",
+              postcode: activeMatch.postcode,
+              city: activeMatch.city
+            }))}</small>
+          </div>
+        ` : ""}
       </div>
     ` : ""}
 
     <div class="setup-result${activeMatch ? " is-found" : ""}">
       <div>
-        <strong>${state.setup.isChecking ? "Creating property..." : activeMatch ? "Choose how to continue" : "What happens next?"}</strong>
+        <strong>${state.setup.isChecking ? "Creating property..." : activeMatch && !hasManualAddress ? "Complete the address" : activeMatch ? "Choose how to continue" : "What happens next?"}</strong>
         <span>${state.setup.isChecking
           ? "Creating the workspace."
-          : activeMatch
+          : activeMatch && !hasManualAddress
+            ? "Add the missing house number and road name first."
+            : activeMatch
             ? "Use the full checklist, or add the details yourself."
             : "Choose the address, then follow the guided path."}</span>
       </div>
       <div class="setup-choice-actions" aria-label="Choose setup method">
-        <button class="primary-button" type="button" data-onboarding-path="az" ${!state.setup.isChecking && activeMatch ? "" : "disabled"}>
+        <button class="primary-button" type="button" data-onboarding-path="az" ${canCreateProperty ? "" : "disabled"}>
           <i data-lucide="list-tree"></i>
           Use A-Z checker
         </button>
-        <button class="secondary-button" type="button" data-onboarding-path="manual" ${!state.setup.isChecking && activeMatch ? "" : "disabled"}>
+        <button class="secondary-button" type="button" data-onboarding-path="manual" ${canCreateProperty ? "" : "disabled"}>
           <i data-lucide="pencil-line"></i>
           Add manually
         </button>
@@ -1239,10 +1335,42 @@ function renderPropertySetup() {
     });
   });
 
+  panel.querySelectorAll("[data-manual-address]").forEach((input) => {
+    input.addEventListener("input", () => {
+      state.setup.manualAddress[input.dataset.manualAddress] = input.value;
+      const complete = Boolean(state.setup.manualAddress.houseNumber.trim() && state.setup.manualAddress.roadName.trim());
+      panel.querySelectorAll("[data-onboarding-path]").forEach((button) => {
+        button.disabled = !complete || state.setup.isChecking;
+      });
+      const preview = panel.querySelector("[data-address-preview]");
+      if (preview && activeMatch) {
+        preview.textContent = `Property will be saved as ${fullAddressLabel({
+          houseNumber: state.setup.manualAddress.houseNumber || "House number",
+          roadName: state.setup.manualAddress.roadName || "Road name",
+          postcode: activeMatch.postcode,
+          city: activeMatch.city
+        })}`;
+      }
+      const resultTitle = panel.querySelector(".setup-result strong");
+      const resultCopy = panel.querySelector(".setup-result span");
+      if (resultTitle && resultCopy) {
+        resultTitle.textContent = complete ? "Choose how to continue" : "Complete the address";
+        resultCopy.textContent = complete
+          ? "Use the full checklist, or add the details yourself."
+          : "Add the missing house number and road name first.";
+      }
+    });
+  });
+
   panel.querySelectorAll("[data-onboarding-path]").forEach((button) => {
     button.addEventListener("click", () => {
       const match = state.setup.addressMatches.find((item) => item.id === state.setup.selectedAddressId);
       if (!match) return;
+      if (match.requiresManualAddress && (!state.setup.manualAddress.houseNumber.trim() || !state.setup.manualAddress.roadName.trim())) {
+        state.setup.message = "Add the house number and road name before creating the property.";
+        renderAll();
+        return;
+      }
       state.setup.isChecking = true;
       renderAll();
       window.setTimeout(() => createPropertyFromMatch(match, button.dataset.onboardingPath), 500);
