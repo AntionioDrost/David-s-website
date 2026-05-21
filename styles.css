@@ -1650,6 +1650,28 @@ svg {
   font-size: 0.78rem;
 }
 
+.scan-result.has-warning,
+.az-document-result.has-warning {
+  border-color: rgba(245, 166, 35, 0.38);
+  background: rgba(255, 248, 232, 0.9);
+}
+
+.listing-warning {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 6px;
+  margin-top: 8px !important;
+  color: #9a5b00 !important;
+  font-weight: 800;
+}
+
+.listing-warning svg {
+  flex: 0 0 auto;
+  width: 15px;
+  height: 15px;
+  margin-top: 1px;
+}
+
 .service-item button {
   margin-top: 10px;
 }

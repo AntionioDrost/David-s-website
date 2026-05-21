@@ -220,41 +220,6 @@
                   <div class="latest-facts" id="azLatestFacts"></div>
                 </section>
 
-                <section class="ai-key-card">
-                  <div class="panel-heading">
-                    <span class="section-kicker">AI document reader</span>
-                    <h3>Connect document extraction</h3>
-                  </div>
-                  <p class="ai-key-note">For this static prototype, the raw key stays in this browser. In production this should run through a secure server or Supabase Edge Function.</p>
-                  <div class="ai-settings-grid">
-                    <label>
-                      Provider
-                      <select id="documentAiProvider">
-                        <option value="openai">OpenAI-compatible</option>
-                        <option value="azure">Azure OpenAI</option>
-                        <option value="custom">Custom OCR/API</option>
-                      </select>
-                    </label>
-                    <label>
-                      Endpoint
-                      <input id="documentAiEndpoint" type="url" placeholder="https://api.openai.com/v1">
-                    </label>
-                    <label class="full">
-                      API key
-                      <input id="documentAiKey" type="password" autocomplete="off" placeholder="Paste key for this browser">
-                    </label>
-                  </div>
-                  <div class="ai-key-actions">
-                    <button class="primary-button" type="button" id="saveAiSettings">
-                      <i data-lucide="key-round"></i>
-                      Save reader settings
-                    </button>
-                    <button class="secondary-button" type="button" id="clearAiKey">
-                      Clear key
-                    </button>
-                  </div>
-                  <span class="quiet-pill" id="aiKeyStatus">No reader connected</span>
-                </section>
               </aside>
             </div>
           </section>

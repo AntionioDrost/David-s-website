@@ -31,7 +31,8 @@ const state = {
     provider: "openai",
     endpoint: "https://api.openai.com/v1",
     keyHint: "",
-    keyPresent: false
+    keyPresent: false,
+    key: ""
   },
   saveStatus: "Not saved yet",
   saveTone: "idle"
@@ -742,7 +743,7 @@ function maskKey(value) {
 }
 
 function getDocumentAiKey() {
-  return window.CMP_DOCUMENT_AI_KEY || localStorage.getItem(AI_KEY_STORAGE) || "";
+  return window.CMP_DOCUMENT_AI_KEY || state.aiSettings.key || localStorage.getItem(AI_KEY_STORAGE) || "";
 }
 
 async function loadAiPreferences() {
@@ -753,7 +754,8 @@ async function loadAiPreferences() {
     provider: localPrefs.provider || state.aiSettings.provider,
     endpoint: localPrefs.endpoint || state.aiSettings.endpoint,
     keyHint: localFileKey ? maskKey(localFileKey) : localPrefs.keyHint || localPrefs.key_hint || (localKey ? maskKey(localKey) : ""),
-    keyPresent: Boolean(localKey)
+    keyPresent: Boolean(localKey),
+    key: state.aiSettings.key || ""
   };
 
   const { client, user } = await getSupabaseSession();
@@ -761,15 +763,17 @@ async function loadAiPreferences() {
 
   const { data, error } = await client
     .from(AI_PREF_TABLE)
-    .select("provider, endpoint, key_hint")
+    .select("*")
     .maybeSingle();
 
   if (!error && data) {
+    const supabaseKey = data.document_reader_key || data.api_key || data.key || data.openai_key || "";
     state.aiSettings = {
       provider: data.provider || state.aiSettings.provider,
       endpoint: data.endpoint || state.aiSettings.endpoint,
-      keyHint: data.key_hint || state.aiSettings.keyHint,
-      keyPresent: Boolean(localKey || data.key_hint)
+      keyHint: supabaseKey ? maskKey(supabaseKey) : data.key_hint || state.aiSettings.keyHint,
+      keyPresent: Boolean(localKey || supabaseKey || data.key_hint),
+      key: supabaseKey
     };
   }
 }
@@ -1936,13 +1940,14 @@ function renderAzChecker() {
   `).join("");
 
   document.querySelector("#azDocumentResults").innerHTML = propertyScans.length ? propertyScans.map((scan) => `
-    <article class="az-document-result">
+    <article class="az-document-result${scan.blocked || scan.listingWarning ? " has-warning" : ""}">
       <div>
         <strong>${escapeHtml(scan.title)}</strong>
         <span>${escapeHtml(scan.fileName)} - ${scan.confidence}% confidence</span>
         <small>${scan.issue ? `Issue ${formatDate(scan.issue)}` : "Issue date not found"}${scan.expiry ? ` - expires ${formatDate(scan.expiry)}` : ""}</small>
+        ${scan.listingWarning ? `<small class="listing-warning"><i data-lucide="alert-triangle"></i>${escapeHtml(scan.listingWarning)}</small>` : ""}
       </div>
-      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}">${scan.applied ? "Applied" : "Use"}</button>
+      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}" ${scan.blocked || scan.listingWarning ? "disabled" : ""}>${scan.applied ? "Applied" : "Use"}</button>
     </article>
   `).join("") : `
     <article class="az-document-result empty">
@@ -2356,7 +2361,13 @@ async function buildDocumentAiContent(file, text, scan, property) {
         title: "short document title",
         issue: "YYYY-MM-DD or empty string",
         expiry: "YYYY-MM-DD or empty string",
-        confidence: "0-100 number"
+        confidence: "0-100 number",
+        address: "property address printed on the document, or empty string",
+        postcode: "postcode printed on the document, or empty string"
+      },
+      listingCheck: {
+        matchesCurrentProperty: "yes | no | unknown",
+        reason: "short reason when no or unknown"
       },
       property: {
         address: "",
@@ -2412,7 +2423,10 @@ async function buildDocumentAiContent(file, text, scan, property) {
 
 async function extractDocumentFactsWithAi(file, text, scan) {
   const key = getDocumentAiKey();
-  if (!key) return null;
+  if (!key) {
+    const edgeResult = await extractDocumentFactsWithSupabase(file, text, scan);
+    return edgeResult;
+  }
 
   const endpoint = (state.aiSettings.endpoint || "https://api.openai.com/v1").replace(/\/$/, "");
   const property = activeProperty();
@@ -2432,6 +2446,8 @@ async function extractDocumentFactsWithAi(file, text, scan) {
             "You extract UK landlord compliance facts for CMP.",
             "Return only valid JSON.",
             "Use empty strings for unknown text/date fields, null for unknown numbers, and only yes/no/unknown/na for checklist answers.",
+            "Compare any property address or postcode printed in the document with the current property record.",
+            "If the document appears to belong to a different listing, set listingCheck.matchesCurrentProperty to no.",
             "Do not invent facts that are not supported by the file name, readable text, or current property record."
           ].join(" ")
         },
@@ -2452,9 +2468,34 @@ async function extractDocumentFactsWithAi(file, text, scan) {
   return safeJsonParse(openAiOutputText(await response.json()), null);
 }
 
+async function extractDocumentFactsWithSupabase(file, text, scan) {
+  const { client, user } = await getSupabaseSession();
+  if (!client || !user || !client.functions?.invoke) return null;
+
+  const property = activeProperty();
+  const payload = {
+    fileName: file.name,
+    fileType: file.type || "",
+    readableText: text || "",
+    currentProperty: property ? propertySnapshot(property) : null,
+    currentScanGuess: scan,
+    fileData: canSendFileToAi(file) ? base64FromDataUrl(await readFileAsDataUrl(file)) : ""
+  };
+  const functionNames = ["document-reader", "DocumentReader", "documentReader"];
+
+  for (const functionName of functionNames) {
+    const { data, error } = await client.functions.invoke(functionName, { body: payload });
+    if (!error && data) return typeof data === "string" ? safeJsonParse(data, null) : data;
+    if (error && !/not found|404/i.test(error.message || "")) {
+      console.warn(`Document reader function ${functionName} failed`, error);
+      return null;
+    }
+  }
+
+  return null;
+}
+
 const aiFieldMap = {
-  address: "address",
-  postcode: "postcode",
   type: "type",
   bedrooms: "bedrooms",
   storeys: "storeys",
@@ -2513,9 +2554,87 @@ function isKnownValue(value) {
   return typeof value === "boolean";
 }
 
+function extractPostcodes(value) {
+  return Array.from(String(value || "").matchAll(/\b[A-Z]{1,2}\d[A-Z\d]?\s*\d[A-Z]{2}\b/gi))
+    .map((match) => formatPostcode(match[0]));
+}
+
+function normalizeMatchText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function propertyAddressTokens(property) {
+  return {
+    postcode: normalizePostcode(property.postcode),
+    houseNumber: normalizeMatchText(property.houseNumber || property.shortName?.match(/^\d+[a-z]?/i)?.[0] || ""),
+    roadName: normalizeMatchText(property.roadName || property.address?.split(",")[0]?.replace(/^\d+[a-z]?\s*/i, "") || ""),
+    city: normalizeMatchText(property.city || "")
+  };
+}
+
+function buildListingWarning(reason, documentAddress = "") {
+  return {
+    blocked: true,
+    reason,
+    documentAddress
+  };
+}
+
+function validateScanForProperty(scan, property, sources = {}) {
+  if (!property) return buildListingWarning("No active property is selected.");
+  const text = [scan.fileName, sources.text, sources.address, sources.postcode].filter(Boolean).join(" ");
+  const propertyPostcode = normalizePostcode(property.postcode);
+  const documentPostcodes = extractPostcodes(text);
+  const uniqueDocumentPostcodes = [...new Set(documentPostcodes.map(normalizePostcode))];
+
+  if (propertyPostcode && uniqueDocumentPostcodes.length && !uniqueDocumentPostcodes.includes(propertyPostcode)) {
+    return buildListingWarning(
+      `This document shows postcode ${formatPostcode(uniqueDocumentPostcodes[0])}, but the selected listing is ${formatPostcode(propertyPostcode)}.`,
+      sources.address || formatPostcode(uniqueDocumentPostcodes[0])
+    );
+  }
+
+  const tokens = propertyAddressTokens(property);
+  const normalizedAddress = normalizeMatchText([sources.address, sources.text].filter(Boolean).join(" "));
+  if (tokens.houseNumber && tokens.roadName && normalizedAddress) {
+    const hasRoad = normalizedAddress.includes(tokens.roadName);
+    const houseMatches = new RegExp(`\\b${tokens.houseNumber.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}\\b`, "i").test(normalizedAddress);
+    if (hasRoad && !houseMatches) {
+      return buildListingWarning(
+        `This document appears to be for ${sources.address || "another house on the same road"}.`,
+        sources.address || ""
+      );
+    }
+  }
+
+  return { blocked: false, reason: "", documentAddress: sources.address || "" };
+}
+
+function markScanListingWarning(scan, warning) {
+  scan.listingWarning = warning?.blocked ? warning.reason : "";
+  scan.documentAddress = warning?.documentAddress || scan.documentAddress || "";
+  scan.blocked = Boolean(warning?.blocked);
+}
+
 function applyAiExtraction(extraction, scan) {
   const property = activeProperty();
   if (!property || !extraction || typeof extraction !== "object") return false;
+
+  const document = extraction.document || {};
+  const listingCheck = extraction.listingCheck || {};
+  const warning = validateScanForProperty(scan, property, {
+    address: document.address || extraction.property?.address || "",
+    postcode: document.postcode || extraction.property?.postcode || "",
+    text: listingCheck.reason || ""
+  });
+  if (listingCheck.matchesCurrentProperty === "no" || warning.blocked) {
+    markScanListingWarning(scan, warning.blocked ? warning : buildListingWarning(listingCheck.reason || "This document appears to belong to a different listing.", document.address || document.postcode || ""));
+    return false;
+  }
 
   const flatProperty = flattenObject(extraction.property || extraction.propertyPatch || {});
   Object.entries(flatProperty).forEach(([sourcePath, value]) => {
@@ -2524,7 +2643,6 @@ function applyAiExtraction(extraction, scan) {
     setPath(property, targetPath, typeof value === "string" && sourcePath === "postcode" ? value.toUpperCase() : value);
   });
 
-  const document = extraction.document || {};
   if (document.key) scan.key = document.key;
   if (document.title) scan.title = document.title;
   if (document.issue) scan.issue = document.issue;
@@ -2578,11 +2696,12 @@ function renderScanResults() {
   }
 
   target.innerHTML = propertyScans.map((scan) => `
-    <article class="scan-result">
+    <article class="scan-result${scan.blocked || scan.listingWarning ? " has-warning" : ""}">
       <strong>${escapeHtml(scan.title)}</strong>
       <span>${escapeHtml(scan.fileName)} · ${scan.confidence}% confidence</span>
       <span>${scan.issue ? `Issue date ${formatDate(scan.issue)}` : "No issue date found"}${scan.expiry ? ` · expires ${formatDate(scan.expiry)}` : ""}</span>
-      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}">${scan.applied ? "Applied" : "Use details"}</button>
+      ${scan.listingWarning ? `<small class="listing-warning"><i data-lucide="alert-triangle"></i>${escapeHtml(scan.listingWarning)}</small>` : ""}
+      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}" ${scan.blocked || scan.listingWarning ? "disabled" : ""}>${scan.applied ? "Applied" : "Use details"}</button>
     </article>
   `).join("");
 
@@ -2596,6 +2715,15 @@ function applyScan(scanId, options = {}) {
   if (!scan) return;
   const property = activeProperty();
   if (!property) return;
+  if (scan.blocked || scan.listingWarning) {
+    markScanListingWarning(scan, {
+      blocked: true,
+      reason: scan.listingWarning || "This document needs to be checked before it can be applied.",
+      documentAddress: scan.documentAddress || ""
+    });
+    if (options.render !== false) renderAll();
+    return;
+  }
   const issue = scan.issue || "";
   const documentDate = issue || String(scan.scannedAt || new Date().toISOString()).slice(0, 10);
 
@@ -2649,7 +2777,8 @@ function applyScan(scanId, options = {}) {
 }
 
 function handleFiles(files) {
-  if (!activeProperty()) {
+  const property = activeProperty();
+  if (!property) {
     window.alert("Add a property listing before uploading evidence.");
     return;
   }
@@ -2658,8 +2787,11 @@ function handleFiles(files) {
     reader.onload = async () => {
       const content = typeof reader.result === "string" ? reader.result.slice(0, 5000) : "";
       const scan = scanDocument(file, content);
+      markScanListingWarning(scan, validateScanForProperty(scan, property, { text: content }));
       state.scans.push(scan);
-      applyScan(scan.id, { render: false });
+      if (!scan.blocked && !getDocumentAiKey()) {
+        applyScan(scan.id, { render: false });
+      }
       queueWorkspaceSave();
       renderAll();
       await enrichScanWithAi(file, content, scan);
@@ -2668,8 +2800,11 @@ function handleFiles(files) {
       reader.readAsText(file);
     } else {
       const scan = scanDocument(file);
+      markScanListingWarning(scan, validateScanForProperty(scan, property));
       state.scans.push(scan);
-      applyScan(scan.id, { render: false });
+      if (!scan.blocked && !getDocumentAiKey()) {
+        applyScan(scan.id, { render: false });
+      }
       queueWorkspaceSave();
       renderAll();
       enrichScanWithAi(file, "", scan);
@@ -2684,12 +2819,25 @@ async function enrichScanWithAi(file, content, scan) {
   try {
     const extraction = await extractDocumentFactsWithAi(file, content, scan);
     if (!applyAiExtraction(extraction, scan)) {
+      if (scan.blocked || scan.listingWarning) {
+        setSaveStatus("Upload blocked - document is for another listing", "local");
+        queueWorkspaceSave();
+        renderAll();
+        return;
+      }
+      applyScan(scan.id, { render: false });
       setSaveStatus("AI did not find new fields", "idle");
+      queueWorkspaceSave();
+      renderAll();
       return;
     }
     applyScan(scan.id, { ai: true });
   } catch (error) {
     console.warn("Could not fill CMP fields with AI", error);
+    if (!scan.blocked && !scan.listingWarning) {
+      applyScan(scan.id, { render: false });
+      renderAll();
+    }
     setSaveStatus("AI fill failed - saved preview only", "local");
   }
 }
