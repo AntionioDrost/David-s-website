@@ -1259,12 +1259,15 @@ svg {
 .wizard-shell {
   display: grid;
   grid-template-columns: 220px minmax(0, 1fr);
+  align-items: stretch;
   gap: 16px;
   margin-top: 16px;
 }
 
 .wizard-tabs {
   display: grid;
+  align-content: start;
+  grid-auto-rows: 52px;
   gap: 8px;
 }
 
@@ -1272,14 +1275,20 @@ svg {
   display: flex;
   align-items: center;
   gap: 9px;
-  min-height: 42px;
+  min-height: 52px;
   padding: 9px 10px;
+  overflow: hidden;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.72);
   color: var(--muted);
   font-weight: 800;
+  line-height: 1.2;
   text-align: left;
+}
+
+.wizard-tab i {
+  flex: 0 0 auto;
 }
 
 .wizard-tab.is-active {
@@ -1289,23 +1298,34 @@ svg {
 }
 
 .wizard-form {
-  min-height: 320px;
+  display: grid;
+  grid-template-rows: auto auto minmax(0, 1fr) auto;
+  min-height: 640px;
   padding: 18px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
   background: rgba(255, 255, 255, 0.78);
 }
 
+.wizard-form > h3 {
+  min-height: 48px;
+  margin: 0;
+}
+
 .question-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+  align-content: start;
+  grid-auto-rows: minmax(104px, auto);
   gap: 12px;
   margin-top: 16px;
 }
 
 .question {
   display: grid;
+  grid-template-rows: auto minmax(42px, auto) auto;
   gap: 7px;
+  min-height: 104px;
   padding: 12px;
   border: 1px solid var(--line);
   border-radius: var(--radius);
@@ -1398,9 +1418,22 @@ svg {
 
 .wizard-actions {
   display: flex;
+  align-self: end;
   justify-content: space-between;
   gap: 10px;
   margin-top: 16px;
+}
+
+.wizard-actions .primary-button,
+.wizard-actions .secondary-button,
+.wizard-tab {
+  transform: none;
+}
+
+.wizard-actions .primary-button:hover,
+.wizard-actions .secondary-button:hover,
+.wizard-tab:hover {
+  transform: none;
 }
 
 .evidence-card {
@@ -2270,6 +2303,217 @@ svg {
   background: #fff;
 }
 
+/* Apple-inspired dashboard flow: glance first, detail only when the user asks for it. */
+.workspace {
+  gap: 16px;
+}
+
+.workspace-header,
+.score-panel,
+.priority-panel,
+.setup-panel,
+.guided-check,
+.az-checker,
+.evidence-section,
+.activity-section,
+.support-section {
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.workspace-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  padding: clamp(18px, 2.4vw, 26px);
+  border: 1px solid rgba(24, 31, 38, 0.1);
+  border-radius: 22px;
+  box-shadow: var(--small-shadow);
+}
+
+.workspace-header h1 {
+  max-width: 920px;
+  font-size: clamp(1.8rem, 3vw, 3.15rem);
+  letter-spacing: 0;
+  line-height: 1.04;
+}
+
+.workspace-header p,
+.score-copy p,
+.panel-helper,
+.priority-item p,
+.journey-button small,
+.setup-journey small,
+.compliance-card p,
+.evidence-card p,
+.scan-result span,
+.service-item span,
+.latest-fact small,
+.az-question span {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.setup-copy p,
+.postcode-search small,
+.setup-result span,
+.api-message {
+  max-width: 56ch;
+  font-size: 0.82rem;
+  line-height: 1.35;
+}
+
+.dashboard-grid {
+  grid-template-columns: minmax(320px, 0.45fr) minmax(360px, 0.55fr);
+}
+
+.score-panel {
+  grid-template-columns: 112px minmax(0, 1fr);
+  min-height: 178px;
+}
+
+.score-ring {
+  width: 112px;
+  height: 112px;
+}
+
+.score-ring span {
+  font-size: 1.55rem;
+}
+
+.score-ring small {
+  margin-top: -24px;
+  font-size: 0.68rem;
+}
+
+.priority-panel {
+  min-height: 178px;
+}
+
+.priority-list {
+  gap: 7px;
+}
+
+.priority-item {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  min-height: 58px;
+  padding: 10px 12px;
+  border-radius: 14px;
+}
+
+.priority-item h3 {
+  font-size: 0.9rem;
+}
+
+.priority-item p {
+  margin-top: 2px;
+}
+
+.intelligence-strip {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.intel-stat {
+  min-height: 66px;
+  padding: 10px 12px;
+}
+
+.intel-stat span:last-child {
+  display: none;
+}
+
+.detail-tabs {
+  position: sticky;
+  top: 76px;
+  z-index: 30;
+  border-radius: 999px;
+}
+
+.detail-tab {
+  min-height: 42px;
+  border-radius: 999px;
+}
+
+.journey-button,
+.setup-journey,
+.address-option,
+.scan-result,
+.service-item,
+.latest-fact {
+  border-radius: 16px;
+}
+
+.journey-button {
+  grid-template-columns: 34px minmax(0, 1fr);
+  min-height: 58px;
+  padding: 11px 12px;
+}
+
+.journey-button i {
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+}
+
+.journey-button span span {
+  font-size: 0.92rem;
+}
+
+.compliance-grid,
+.evidence-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.compliance-card,
+.evidence-card {
+  min-height: 118px;
+  border-radius: 16px;
+}
+
+.wizard-shell {
+  grid-template-columns: 190px minmax(0, 1fr);
+}
+
+.wizard-tabs {
+  grid-auto-rows: 56px;
+}
+
+.wizard-tab {
+  width: 100%;
+  height: 56px;
+  min-height: 56px;
+  align-items: center;
+  border-radius: 16px;
+}
+
+.wizard-tab.is-active {
+  box-shadow: inset 0 0 0 1px rgba(0, 113, 227, 0.18), 0 8px 20px rgba(30, 38, 48, 0.055);
+}
+
+.wizard-form {
+  min-height: 560px;
+  border-radius: 20px;
+}
+
+.wizard-actions .primary-button,
+.wizard-actions .secondary-button {
+  width: 142px;
+  min-width: 142px;
+  height: 44px;
+  flex: 0 0 142px;
+}
+
+.question {
+  border-radius: 16px;
+}
+
+.priority-panel .panel-helper,
+.journey-button small,
+.setup-journey small {
+  display: none;
+}
+
 @media (max-width: 1280px) {
   .os-shell {
     grid-template-columns: minmax(210px, 250px) minmax(0, 1fr);
@@ -2466,6 +2710,24 @@ svg {
 
   .workspace-header h1 {
     font-size: 1.65rem;
+  }
+
+  .workspace-header,
+  .score-panel,
+  .priority-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .detail-tabs {
+    position: static;
+    border-radius: var(--radius);
+  }
+
+  .wizard-actions .primary-button,
+  .wizard-actions .secondary-button {
+    width: 100%;
+    min-width: 0;
+    flex: 1 1 0;
   }
 
   .header-actions {

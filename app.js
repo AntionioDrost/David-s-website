@@ -948,12 +948,14 @@ function epcMatchFromRow(row, postcodeMeta) {
 
 function postcodeFallbackAddress(postcodeMeta) {
   const areaBits = [
+    postcodeMeta?.post_town,
+    postcodeMeta?.admin_district,
+    postcodeMeta?.bua,
+    postcodeMeta?.ttwa,
     postcodeMeta?.admin_ward,
     postcodeMeta?.parish,
-    postcodeMeta?.admin_district,
-    postcodeMeta?.post_town,
     postcodeMeta?.region
-  ].filter(Boolean);
+  ].filter((value) => value && !/unparished area/i.test(value));
   const area = areaBits[0] || postcodeMeta?.country || "the postcode area";
   return `Property in ${formatPostcode(postcodeMeta?.postcode || state.setup.postcode)}, ${area}`;
 }
@@ -1142,7 +1144,7 @@ function renderPropertySetup() {
     <div class="setup-copy">
       <span class="section-kicker">Start here</span>
       <h2 id="propertySetupTitle">Add a property in under a minute.</h2>
-      <p>Search by postcode, choose a real EPC register address, then CMP starts a simple compliance record for the property.</p>
+      <p>Find the address. CMP will prepare the next step.</p>
       <div class="setup-steps" aria-label="Property setup steps">
         <span class="is-complete"><i data-lucide="search"></i> Postcode</span>
         <span class="${matches.length ? "is-complete" : state.setup.isSearching ? "is-active" : ""}"><i data-lucide="map-pin"></i> Address</span>
@@ -1159,7 +1161,7 @@ function renderPropertySetup() {
           ${state.setup.isSearching ? "Searching..." : "Find address"}
         </button>
       </div>
-      <small>Postcode validation uses free Postcodes.io lookups. Address and EPC results come from the official Energy Performance Data domestic search API.</small>
+      <small>Uses Postcodes.io and official EPC data.</small>
     </form>
 
     ${state.setup.searchDone ? `
@@ -1189,10 +1191,10 @@ function renderPropertySetup() {
       <div>
         <strong>${state.setup.isChecking ? "Checking property records..." : state.setup.createdPropertyId ? "Property found. Setup started." : "What happens next?"}</strong>
         <span>${state.setup.isChecking
-          ? "CMP is turning the selected EPC register record into a starter compliance workspace."
+          ? "Creating the workspace."
           : state.setup.createdPropertyId
             ? escapeHtml(state.setup.message)
-            : "After you choose an EPC address, CMP opens clear paths for compliance, certificates, documents, tenancy setup, or an issue."}</span>
+            : "Choose the address, then follow the guided path."}</span>
       </div>
       <button class="secondary-button" type="button" id="continueSetupButton" ${!state.setup.isChecking && (activeMatch || state.setup.createdPropertyId) ? "" : "disabled"}>
         <i data-lucide="${state.setup.createdPropertyId ? "arrow-down" : "sparkles"}"></i>
@@ -1370,19 +1372,19 @@ function renderDashboard() {
   const property = activeProperty();
   if (!property) {
     document.querySelector("#propertyTitle").textContent = "Start with a postcode";
-    document.querySelector("#propertySubtitle").textContent = "Find an address first, then CMP will create the starter compliance record.";
+    document.querySelector("#propertySubtitle").textContent = "Find the address. Follow the next step.";
     document.querySelector("#scoreValue").textContent = "0%";
     document.querySelector("#riskLabel").textContent = "Empty";
     document.querySelector("#scoreRing").style.setProperty("--score", 0);
     document.querySelector("#scoreRing").style.setProperty("--ring-color", "var(--blue)");
     document.querySelector("#scoreHeadline").textContent = "No property selected yet.";
-    document.querySelector("#scoreNarrative").textContent = "Use the postcode search above. CMP validates the postcode and uses Energy Performance Data API results for address and certificate records.";
-    document.querySelector("#priorityList").innerHTML = `<article class="priority-item empty-state"><span class="status-dot info"></span><div><h3>First step</h3><p>Enter a postcode, choose the property, then pick the journey that fits your reason for visiting.</p></div></article>`;
+    document.querySelector("#scoreNarrative").textContent = "Use the postcode search above.";
+    document.querySelector("#priorityList").innerHTML = `<article class="priority-item empty-state"><span class="status-dot info"></span><div><h3>First step</h3><p>Enter a postcode.</p></div></article>`;
     document.querySelector("#intelligenceStrip").innerHTML = ["Properties", "Urgent", "Expiring soon", "Evidence gaps"].map((label) => `
       <article class="intel-stat">
         <span>${label}</span>
         <strong>0</strong>
-        <span>Waiting for a property listing</span>
+        <span>Waiting</span>
       </article>
     `).join("");
     document.querySelector("#lastUpdated").textContent = "";
@@ -1390,7 +1392,7 @@ function renderDashboard() {
     document.querySelector("#evidenceGrid").innerHTML = "";
     document.querySelector("#timeline").innerHTML = "";
     document.querySelector("#assistantHeadline").textContent = "Smart guidance, controlled by you";
-    document.querySelector("#assistantCopy").textContent = "Add a property listing to unlock document scans, evidence packs, reminders, and recommended services.";
+    document.querySelector("#assistantCopy").textContent = "Add a property to unlock scans and reminders.";
     document.querySelector("#scanResults").innerHTML = `<article class="scan-result"><strong>No property selected</strong><span>Add a portfolio listing before uploading evidence.</span></article>`;
     document.querySelector("#serviceList").innerHTML = "";
     document.querySelector("#pullEpcButton").disabled = true;
@@ -1406,7 +1408,7 @@ function renderDashboard() {
   const riskColor = evaluation.risk === "High" ? "var(--red)" : evaluation.risk === "Medium" ? "var(--amber)" : "var(--green)";
 
   document.querySelector("#propertyTitle").textContent = property.address;
-  document.querySelector("#propertySubtitle").textContent = `${property.type} - ${property.bedrooms} bedrooms - ${property.storeys} storey${property.storeys === 1 ? "" : "s"} - ${journeySubtitle()}`;
+  document.querySelector("#propertySubtitle").textContent = `${property.type} - ${property.bedrooms} bed - ${journeySubtitle()}`;
   document.querySelector("#scoreValue").textContent = `${evaluation.score}%`;
   document.querySelector("#riskLabel").textContent = `${evaluation.risk} risk`;
   ring.style.setProperty("--score", evaluation.score);
@@ -1438,22 +1440,22 @@ function renderDashboard() {
     <article class="intel-stat">
       <span>Compliance score</span>
       <strong>${evaluation.score}%</strong>
-      <span>${evaluation.risk} compliance risk</span>
+      <span>${evaluation.risk} risk</span>
     </article>
     <article class="intel-stat">
       <span>Urgent</span>
       <strong>${critical}</strong>
-      <span>Critical issues needing attention</span>
+      <span>Need action</span>
     </article>
     <article class="intel-stat">
       <span>Expiring soon</span>
       <strong>${expiringSoon}</strong>
-      <span>Renewals or checks due soon</span>
+      <span>Due soon</span>
     </article>
     <article class="intel-stat">
       <span>Evidence gaps</span>
       <strong>${missingEvidence}</strong>
-      <span>Missing proof in this property pack</span>
+      <span>Missing proof</span>
     </article>
   `;
 
@@ -1467,8 +1469,13 @@ function renderDashboard() {
 }
 
 function journeySubtitle() {
-  const journey = journeys.find((item) => item.id === state.activeJourney);
-  return journey ? journey.detail : "Compliance dashboard";
+  return {
+    compliance: "Compliance check",
+    certificate: "Certificate path",
+    upload: "Document upload",
+    tenancy: "Tenancy setup",
+    issue: "Resolve an issue"
+  }[state.activeJourney] || "Compliance dashboard";
 }
 
 function renderComplianceCard(item) {
@@ -1762,7 +1769,7 @@ function renderAzChecker() {
         <span>${escapeHtml(scan.fileName)} - ${scan.confidence}% confidence</span>
         <small>${scan.issue ? `Issue ${formatDate(scan.issue)}` : "Issue date not found"}${scan.expiry ? ` - expires ${formatDate(scan.expiry)}` : ""}</small>
       </div>
-      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}">Use</button>
+      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}">${scan.applied ? "Applied" : "Use"}</button>
     </article>
   `).join("") : `
     <article class="az-document-result empty">
@@ -2145,12 +2152,98 @@ function openAiOutputText(response) {
     .trim();
 }
 
+function readFileAsDataUrl(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onerror = () => reject(new Error("Could not read the uploaded file for AI scanning."));
+    reader.onload = () => resolve(String(reader.result || ""));
+    reader.readAsDataURL(file);
+  });
+}
+
+function base64FromDataUrl(dataUrl) {
+  return String(dataUrl).split(",")[1] || "";
+}
+
+function canSendFileToAi(file) {
+  return file.size <= 20 * 1024 * 1024;
+}
+
+async function buildDocumentAiContent(file, text, scan, property) {
+  const promptPayload = {
+    fileName: file.name,
+    fileType: file.type || "",
+    readableText: text || "",
+    currentProperty: property ? propertySnapshot(property) : null,
+    currentScanGuess: scan,
+    checklistIds: azSections.flatMap((section) => section.checks.map((check) => check.id)),
+    returnShape: {
+      document: {
+        key: "epc | gas | eicr | alarm | deposit | tenancy | licence | inspection | notice",
+        title: "short document title",
+        issue: "YYYY-MM-DD or empty string",
+        expiry: "YYYY-MM-DD or empty string",
+        confidence: "0-100 number"
+      },
+      property: {
+        address: "",
+        postcode: "",
+        type: "",
+        bedrooms: null,
+        storeys: null,
+        hasGas: null,
+        fixedCombustion: null,
+        epc: { rating: "", issue: "", certificate: "", floorArea: "", potential: "", recommendation: "" },
+        gas: { issue: "", engineer: "" },
+        eicr: { issue: "", result: "" },
+        alarms: { smokeEachStorey: null, coAlarm: null, testedAtStart: null },
+        deposit: { taken: null, protected: null, prescribedInfo: null },
+        tenancy: {
+          currentlyTenanted: null,
+          agreement: null,
+          howToRent: null,
+          epcServed: null,
+          gasServed: null,
+          eicrServed: null,
+          rightToRent: null
+        },
+        licensing: { localChecked: null, hmoLicence: null, licenceExpiry: "" },
+        inspections: { last: "" },
+        rent: { increasePlanned: null, lastIncrease: "" },
+        possession: { planned: null, noticeDraft: null }
+      },
+      checklistAnswers: {
+        example_check_id: "yes | no | unknown | na"
+      }
+    }
+  };
+
+  const content = [{ type: "input_text", text: JSON.stringify(promptPayload) }];
+  if (!canSendFileToAi(file)) return content;
+
+  const isImage = file.type.startsWith("image/") || /\.(png|jpe?g|webp|gif)$/i.test(file.name);
+  const isFileInput = /(\.pdf|\.docx?|\.rtf|\.odt|\.txt|\.md|\.json|\.csv|\.tsv|\.xls|\.xlsx)$/i.test(file.name);
+
+  if (isImage) {
+    content.push({ type: "input_image", image_url: await readFileAsDataUrl(file) });
+  } else if (isFileInput) {
+    content.push({
+      type: "input_file",
+      filename: file.name,
+      file_data: base64FromDataUrl(await readFileAsDataUrl(file))
+    });
+  }
+
+  return content;
+}
+
 async function extractDocumentFactsWithAi(file, text, scan) {
   const key = getDocumentAiKey();
   if (!key) return null;
 
   const endpoint = (state.aiSettings.endpoint || "https://api.openai.com/v1").replace(/\/$/, "");
   const property = activeProperty();
+  const userContent = await buildDocumentAiContent(file, text, scan, property);
   const response = await fetch(`${endpoint}/responses`, {
     method: "POST",
     headers: {
@@ -2171,53 +2264,7 @@ async function extractDocumentFactsWithAi(file, text, scan) {
         },
         {
           role: "user",
-          content: JSON.stringify({
-            fileName: file.name,
-            fileType: file.type || "",
-            readableText: text || "",
-            currentProperty: property ? propertySnapshot(property) : null,
-            currentScanGuess: scan,
-            checklistIds: azSections.flatMap((section) => section.checks.map((check) => check.id)),
-            returnShape: {
-              document: {
-                key: "epc | gas | eicr | alarm | deposit | tenancy | licence | inspection | notice",
-                title: "short document title",
-                issue: "YYYY-MM-DD or empty string",
-                expiry: "YYYY-MM-DD or empty string",
-                confidence: "0-100 number"
-              },
-              property: {
-                address: "",
-                postcode: "",
-                type: "",
-                bedrooms: null,
-                storeys: null,
-                hasGas: null,
-                fixedCombustion: null,
-                epc: { rating: "", issue: "", certificate: "", floorArea: "", potential: "", recommendation: "" },
-                gas: { issue: "", engineer: "" },
-                eicr: { issue: "", result: "" },
-                alarms: { smokeEachStorey: null, coAlarm: null, testedAtStart: null },
-                deposit: { taken: null, protected: null, prescribedInfo: null },
-                tenancy: {
-                  currentlyTenanted: null,
-                  agreement: null,
-                  howToRent: null,
-                  epcServed: null,
-                  gasServed: null,
-                  eicrServed: null,
-                  rightToRent: null
-                },
-                licensing: { localChecked: null, hmoLicence: null, licenceExpiry: "" },
-                inspections: { last: "" },
-                rent: { increasePlanned: null, lastIncrease: "" },
-                possession: { planned: null, noticeDraft: null }
-              },
-              checklistAnswers: {
-                example_check_id: "yes | no | unknown | na"
-              }
-            }
-          })
+          content: userContent
         }
       ],
       text: { format: { type: "json_object" } }
@@ -2362,7 +2409,7 @@ function renderScanResults() {
       <strong>${escapeHtml(scan.title)}</strong>
       <span>${escapeHtml(scan.fileName)} · ${scan.confidence}% confidence</span>
       <span>${scan.issue ? `Issue date ${formatDate(scan.issue)}` : "No issue date found"}${scan.expiry ? ` · expires ${formatDate(scan.expiry)}` : ""}</span>
-      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}">Use details</button>
+      <button class="service-button" type="button" data-apply-scan="${escapeHtml(scan.id)}">${scan.applied ? "Applied" : "Use details"}</button>
     </article>
   `).join("");
 
@@ -2371,20 +2418,22 @@ function renderScanResults() {
   });
 }
 
-function applyScan(scanId) {
+function applyScan(scanId, options = {}) {
   const scan = state.scans.find((item) => item.id === scanId);
   if (!scan) return;
   const property = activeProperty();
   if (!property) return;
-  const issue = scan.issue || new Date().toISOString().slice(0, 10);
+  const issue = scan.issue || "";
+  const documentDate = issue || String(scan.scannedAt || new Date().toISOString()).slice(0, 10);
 
-  if (scan.key === "gas") setPath(property, "gas.issue", issue);
-  if (scan.key === "eicr") setPath(property, "eicr.issue", issue);
-  if (scan.key === "epc") setPath(property, "epc.issue", issue);
-  if (scan.key === "inspection") setPath(property, "inspections.last", issue);
+  if (scan.key === "gas" && issue) setPath(property, "gas.issue", issue);
+  if (scan.key === "eicr" && issue) setPath(property, "eicr.issue", issue);
+  if (scan.key === "epc" && issue) setPath(property, "epc.issue", issue);
+  if (scan.key === "inspection" && issue) setPath(property, "inspections.last", issue);
   if (scan.key === "licence") {
     setPath(property, "licensing.localChecked", true);
     setPath(property, "licensing.hmoLicence", property.type === "HMO" ? true : property.licensing?.hmoLicence);
+    if (scan.expiry) setPath(property, "licensing.licenceExpiry", scan.expiry);
   }
   if (scan.key === "deposit") {
     setPath(property, "deposit.protected", true);
@@ -2397,19 +2446,33 @@ function applyScan(scanId) {
   }
   if (scan.key === "notice") setPath(property, "possession.noticeDraft", true);
 
-  property.docs.unshift({
-    key: scan.key,
-    title: scan.title,
-    date: issue,
-    source: "AI scan preview"
-  });
-  property.timeline.unshift({
-    date: new Date().toISOString().slice(0, 10),
-    title: `${scan.title} applied`,
-    detail: `${scan.confidence}% confidence from ${scan.fileName}.`
-  });
+  scan.docId = scan.docId || scan.id;
+  const existingDoc = property.docs.find((doc) => doc.scanId === scan.docId);
+  if (existingDoc) {
+    existingDoc.key = scan.key;
+    existingDoc.title = scan.title;
+    existingDoc.date = documentDate;
+    existingDoc.source = options.ai ? "AI document scan" : "Auto scan";
+  } else {
+    property.docs.unshift({
+      scanId: scan.docId,
+      key: scan.key,
+      title: scan.title,
+      date: documentDate,
+      source: options.ai ? "AI document scan" : "Auto scan"
+    });
+  }
+
+  if (!scan.applied) {
+    property.timeline.unshift({
+      date: new Date().toISOString().slice(0, 10),
+      title: `${scan.title} applied`,
+      detail: `${scan.confidence}% confidence from ${scan.fileName}.`
+    });
+  }
+  scan.applied = true;
   queueWorkspaceSave(property.id);
-  renderAll();
+  if (options.render !== false) renderAll();
 }
 
 function handleFiles(files) {
@@ -2423,6 +2486,7 @@ function handleFiles(files) {
       const content = typeof reader.result === "string" ? reader.result.slice(0, 5000) : "";
       const scan = scanDocument(file, content);
       state.scans.push(scan);
+      applyScan(scan.id, { render: false });
       queueWorkspaceSave();
       renderAll();
       await enrichScanWithAi(file, content, scan);
@@ -2432,6 +2496,7 @@ function handleFiles(files) {
     } else {
       const scan = scanDocument(file);
       state.scans.push(scan);
+      applyScan(scan.id, { render: false });
       queueWorkspaceSave();
       renderAll();
       enrichScanWithAi(file, "", scan);
@@ -2449,7 +2514,7 @@ async function enrichScanWithAi(file, content, scan) {
       setSaveStatus("AI did not find new fields", "idle");
       return;
     }
-    applyScan(scan.id);
+    applyScan(scan.id, { ai: true });
   } catch (error) {
     console.warn("Could not fill CMP fields with AI", error);
     setSaveStatus("AI fill failed - saved preview only", "local");
