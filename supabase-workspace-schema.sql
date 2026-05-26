@@ -11,7 +11,7 @@ create table if not exists public.cmp_property_compliance_workspaces (
 
 alter table public.cmp_property_compliance_workspaces enable row level security;
 
-grant select, insert, update on public.cmp_property_compliance_workspaces to authenticated;
+grant select, insert, update, delete on public.cmp_property_compliance_workspaces to authenticated;
 
 do $$
 begin
@@ -53,6 +53,19 @@ begin
       to authenticated
       using (auth.uid() = user_id)
       with check (auth.uid() = user_id);
+  end if;
+
+  if not exists (
+    select 1 from pg_policies
+    where schemaname = 'public'
+      and tablename = 'cmp_property_compliance_workspaces'
+      and policyname = 'Users can delete their own compliance workspaces'
+  ) then
+    create policy "Users can delete their own compliance workspaces"
+      on public.cmp_property_compliance_workspaces
+      for delete
+      to authenticated
+      using (auth.uid() = user_id);
   end if;
 end $$;
 

@@ -40,6 +40,19 @@ function renderJourney(id) {
   `;
 }
 
+function wireJourneyEntryPoints() {
+  document.querySelectorAll("[data-journey-entry-service]").forEach((element) => {
+    element.addEventListener("click", () => {
+      if (!window.CMPJourney?.setEntry) return;
+      window.CMPJourney.setEntry({
+        entryService: element.dataset.journeyEntryService || "full_compliance",
+        focusMode: element.dataset.journeyFocusMode || "full_compliance",
+        sourceRoute: `${window.location.pathname.split("/").pop() || "index.html"}${window.location.hash}`
+      });
+    });
+  });
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   document.querySelectorAll(".journey-tab").forEach((button) => {
     button.addEventListener("click", () => {
@@ -49,6 +62,8 @@ document.addEventListener("DOMContentLoaded", () => {
       renderJourney(button.dataset.journey);
     });
   });
+
+  wireJourneyEntryPoints();
 
   if (window.lucide) {
     window.lucide.createIcons();

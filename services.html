@@ -23,7 +23,7 @@
         <a href="index.html#faq">FAQ</a>
         <a href="contact.html">Contact</a>
       </nav>
-      <a class="nav-cta" href="auth.html?redirect=dashboard.html"><i data-lucide="log-in"></i>Log in</a>
+      <a class="nav-cta" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance"><i data-lucide="log-in"></i>Log in</a>
     </header>
 
     <main>
@@ -36,7 +36,7 @@
             missing evidence, expiring certificates, licensing uncertainty, or possession risk.
           </p>
           <div class="hero-actions">
-            <a class="button primary" href="auth.html?redirect=dashboard.html">Log in to check</a>
+            <a class="button primary" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">Log in to check</a>
             <a class="button secondary" href="contact.html">Talk to CMP</a>
           </div>
         </div>
@@ -53,49 +53,49 @@
             <span>EPC</span>
             <h3>Book an EPC</h3>
             <p>For missing, expired, poor-rated, or unverified EPC records.</p>
-            <a href="contact.html">Request EPC</a>
+            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="epc" data-journey-focus-mode="service_only">Start EPC check</a>
           </article>
           <article id="gas">
             <span>Gas Safety</span>
             <h3>Renew Gas Safety</h3>
             <p>For properties with gas appliances and certificates due soon or missing.</p>
-            <a href="contact.html">Request Gas Safety</a>
+            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="gas" data-journey-focus-mode="service_only">Start Gas Safety check</a>
           </article>
           <article id="eicr">
             <span>EICR</span>
             <h3>Book EICR</h3>
             <p>For electrical certificates that are missing, expired, or require remedial proof.</p>
-            <a href="contact.html">Request EICR</a>
+            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="eicr" data-journey-focus-mode="service_only">Start EICR check</a>
           </article>
           <article>
             <span>Inspection</span>
             <h3>Property inspection</h3>
             <p>For condition checks, alarm evidence, and renewal-ready property notes.</p>
-            <a href="contact.html">Request inspection</a>
+            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="inspection" data-journey-focus-mode="service_only">Start inspection journey</a>
           </article>
           <article>
             <span>Licensing</span>
             <h3>Licensing check</h3>
             <p>For HMO, selective, or additional licensing uncertainty.</p>
-            <a href="contact.html">Request check</a>
+            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="licensing" data-journey-focus-mode="service_only">Start licensing check</a>
           </article>
           <article id="possession">
             <span>Possession</span>
             <h3>Evidence pack review</h3>
             <p>For landlords preparing a notice or wanting a stronger evidence position.</p>
-            <a href="contact.html">Request review</a>
+            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="eviction" data-journey-focus-mode="full_compliance">Start possession prep</a>
           </article>
           <article>
             <span>Deposit</span>
             <h3>Deposit evidence review</h3>
             <p>For protection certificate, prescribed information, and proof-of-service gaps.</p>
-            <a href="contact.html">Request review</a>
+            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="evidence_pack" data-journey-focus-mode="full_compliance">Start evidence pack</a>
           </article>
           <article>
             <span>Portfolio</span>
             <h3>Portfolio audit</h3>
             <p>For landlords who need a renewal and risk view across multiple properties.</p>
-            <a href="contact.html">Request audit</a>
+            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">Start portfolio review</a>
           </article>
         </div>
       </section>
@@ -105,7 +105,7 @@
           <span class="eyebrow">Better than a menu</span>
           <h2>Let the property dashboard decide what service should happen next.</h2>
         </div>
-        <a class="button primary" href="auth.html?redirect=dashboard.html">Log in to dashboard</a>
+        <a class="button primary" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">Log in to dashboard</a>
       </section>
     </main>
 
@@ -116,6 +116,7 @@
     </footer>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="journey-context.js"></script>
     <script src="landing.js"></script>
   </body>
 </html>

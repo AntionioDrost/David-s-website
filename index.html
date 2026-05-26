@@ -34,7 +34,7 @@
         <a href="contact.html">Contact</a>
       </nav>
 
-      <a class="nav-cta" href="auth.html?redirect=dashboard.html">
+      <a class="nav-cta" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">
         <i data-lucide="log-in"></i>
         Log in
       </a>
@@ -54,7 +54,7 @@
           </p>
 
           <div class="hero-actions">
-            <a class="button primary" href="auth.html?redirect=dashboard.html">
+            <a class="button primary" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">
               <i data-lucide="sparkles"></i>
               Log in to dashboard
             </a>
@@ -155,7 +155,7 @@
             The dashboard leads with the compliance score, risk level, and the next action.
             Deeper requirements, evidence, and services are available when the landlord needs them.
           </p>
-          <a class="button secondary" href="auth.html?redirect=dashboard.html">
+          <a class="button secondary" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">
             Log in to view prototype
             <i data-lucide="arrow-right"></i>
           </a>
@@ -298,25 +298,25 @@
             <span>EPC missing or poor-rated</span>
             <h3>Book an EPC</h3>
             <p>Triggered when an EPC is missing, expired, or likely below the required standard.</p>
-            <a href="services.html#epc">View service</a>
+            <a href="services.html#epc" data-journey-entry-service="epc" data-journey-focus-mode="service_only">View service</a>
           </article>
           <article>
             <span>Gas expires soon</span>
             <h3>Renew Gas Safety</h3>
             <p>Triggered by the property gas record, certificate date, and tenancy status.</p>
-            <a href="services.html#gas">View service</a>
+            <a href="services.html#gas" data-journey-entry-service="gas" data-journey-focus-mode="service_only">View service</a>
           </article>
           <article>
             <span>EICR absent or overdue</span>
             <h3>Book EICR</h3>
             <p>Triggered when electrical safety evidence is missing, expired, or unresolved.</p>
-            <a href="services.html#eicr">View service</a>
+            <a href="services.html#eicr" data-journey-entry-service="eicr" data-journey-focus-mode="service_only">View service</a>
           </article>
           <article>
             <span>Notice risk</span>
             <h3>Prepare possession pack</h3>
             <p>Triggered when possession is active and key evidence is incomplete.</p>
-            <a href="services.html#possession">View service</a>
+            <a href="services.html#possession" data-journey-entry-service="eviction" data-journey-focus-mode="full_compliance">View service</a>
           </article>
         </div>
       </section>
@@ -395,6 +395,7 @@
     </footer>
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="journey-context.js"></script>
     <script src="landing.js"></script>
   </body>
 </html>

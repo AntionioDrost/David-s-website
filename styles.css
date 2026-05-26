@@ -1109,6 +1109,12 @@ svg {
   color: var(--muted);
 }
 
+.compliance-note {
+  margin-top: 10px;
+  color: var(--muted);
+  font-size: 0.76rem;
+}
+
 .panel-helper {
   margin-top: 6px;
   color: var(--muted);
@@ -1157,6 +1163,16 @@ svg {
   --status: var(--amber);
 }
 
+.status-dot.unknown,
+.status-pill.unknown {
+  --status: var(--blue);
+}
+
+.status-dot.na,
+.status-pill.na {
+  --status: rgba(16, 20, 24, 0.36);
+}
+
 .status-dot.critical,
 .status-pill.critical,
 .status-dot.missing,
@@ -1184,6 +1200,12 @@ svg {
   margin-top: 4px;
   color: var(--muted);
   font-size: 0.82rem;
+}
+
+.timeline-meta {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
 }
 
 .status-pill,
@@ -1268,6 +1290,14 @@ svg {
   background: #fff;
   color: var(--blue);
   outline: none;
+}
+
+.detail-tab.is-secondary {
+  opacity: 0.74;
+}
+
+.detail-tab.is-secondary.is-active {
+  opacity: 1;
 }
 
 .detail-panel {
@@ -1403,6 +1433,13 @@ svg {
   flex: 0 0 auto;
 }
 
+.wizard-tab small {
+  margin-left: auto;
+  color: var(--muted);
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
 .wizard-tab.is-active {
   color: var(--blue);
   border-color: rgba(0, 113, 227, 0.34);
@@ -1477,12 +1514,101 @@ svg {
   resize: vertical;
 }
 
+.question-confirmed {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 12px;
+  border: 1px solid rgba(0, 113, 227, 0.14);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(235, 247, 255, 0.78));
+}
+
+.question-confirmed-stack {
+  grid-template-columns: 1fr;
+}
+
+.question-confirmed label {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.question-confirmed strong {
+  display: block;
+  margin-top: 4px;
+  color: var(--ink);
+  font-size: 0.9rem;
+  line-height: 1.28;
+}
+
+.question-confirmed small {
+  color: var(--muted);
+  font-size: 0.74rem;
+  line-height: 1.35;
+}
+
+.question-confirmed-actions {
+  display: grid;
+  justify-items: end;
+  gap: 8px;
+}
+
 .toggle-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
   min-height: 42px;
+}
+
+.toggle-row-stack {
+  flex-direction: column;
+  align-items: stretch;
+}
+
+.choice-group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.choice-button {
+  min-height: 38px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: var(--ink-soft);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.choice-button.is-active[data-choice-value="yes"] {
+  border-color: rgba(47, 189, 101, 0.3);
+  background: rgba(47, 189, 101, 0.12);
+  color: #1d7b43;
+}
+
+.choice-button.is-active[data-choice-value="no"] {
+  border-color: rgba(240, 68, 56, 0.28);
+  background: rgba(240, 68, 56, 0.12);
+  color: #b12d21;
+}
+
+.choice-button.is-active[data-choice-value="unknown"] {
+  border-color: rgba(0, 113, 227, 0.26);
+  background: rgba(0, 113, 227, 0.1);
+  color: var(--blue);
+}
+
+.choice-button.is-active[data-choice-value="na"] {
+  border-color: rgba(16, 20, 24, 0.16);
+  background: rgba(16, 20, 24, 0.08);
+  color: var(--ink-soft);
 }
 
 .switch {
@@ -1573,6 +1699,10 @@ svg {
   gap: 6px;
 }
 
+.evidence-summary-list {
+  margin-top: 12px;
+}
+
 .timeline {
   display: grid;
   gap: 10px;
@@ -1617,6 +1747,12 @@ svg {
   margin-top: 14px;
 }
 
+.action-centre {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
 .support-section.is-active {
   display: block;
 }
@@ -1635,6 +1771,43 @@ svg {
   background: rgba(255, 255, 255, 0.76);
 }
 
+.action-centre-card {
+  display: grid;
+  gap: 10px;
+  padding: 12px;
+  border: 1px solid rgba(0, 113, 227, 0.18);
+  border-radius: var(--radius);
+  background: linear-gradient(145deg, rgba(247, 251, 255, 0.96), rgba(235, 247, 255, 0.86));
+}
+
+.action-centre-card header,
+.service-item header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.action-centre-list {
+  display: grid;
+  gap: 8px;
+}
+
+.action-centre-item {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.action-centre-item-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .scan-result strong,
 .service-item strong {
   display: block;
@@ -1642,6 +1815,7 @@ svg {
   line-height: 1.22;
 }
 
+.action-centre-item span,
 .scan-result span,
 .service-item span {
   display: block;
@@ -1697,6 +1871,11 @@ svg {
 .save-pill[data-tone="local"] {
   color: var(--amber);
   background: rgba(245, 166, 35, 0.12);
+}
+
+.save-pill[data-tone="error"] {
+  color: var(--red);
+  background: rgba(240, 68, 56, 0.12);
 }
 
 .az-command {
@@ -1905,6 +2084,11 @@ svg {
   background: rgba(255, 255, 255, 0.72);
 }
 
+.az-section-card.is-current {
+  border-color: rgba(0, 113, 227, 0.32);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.94), rgba(226, 242, 255, 0.84));
+}
+
 .az-section-header {
   display: flex;
   align-items: center;
@@ -1930,6 +2114,25 @@ svg {
 .az-question-list {
   display: grid;
   gap: 8px;
+}
+
+.az-question-summary-list .priority-item {
+  grid-template-columns: auto minmax(0, 1fr) auto;
+}
+
+.az-section-actions {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+  margin-top: 12px;
+}
+
+.wizard-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin-top: 16px;
 }
 
 .az-question {
@@ -2181,6 +2384,11 @@ svg {
   color: var(--muted);
 }
 
+.upload-prototype-note {
+  margin-top: 8px;
+  font-size: 0.82rem;
+}
+
 .modal-close {
   position: absolute;
   top: 12px;
@@ -2211,6 +2419,11 @@ svg {
 .upload-zone small {
   color: var(--muted);
   font-weight: 600;
+}
+
+.question [data-open-upload] {
+  width: 100%;
+  justify-content: center;
 }
 
 #documentUpload {
@@ -2899,6 +3112,7 @@ svg {
   .support-grid,
   .right-rail,
   .question-grid,
+  .wizard-summary-grid,
   .capability-grid,
   .wizard-tabs {
     grid-template-columns: 1fr;
@@ -2913,6 +3127,11 @@ svg {
   .timeline-item .status-pill {
     grid-column: 2;
     justify-self: start;
+  }
+
+  .timeline-meta {
+    grid-column: 2;
+    justify-items: start;
   }
 
   .score-ring {

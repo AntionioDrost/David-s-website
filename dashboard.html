@@ -42,7 +42,7 @@
         <button class="icon-button" type="button" id="signOutButton" aria-label="Sign out">
           <i data-lucide="log-out"></i>
         </button>
-        <button class="icon-button" type="button" data-open-upload aria-label="Upload evidence">
+        <button class="icon-button" type="button" data-open-upload data-upload-category="other" data-upload-label="Upload property evidence" data-upload-prompt="Add certificates, notices, photos, or reports for this property." data-upload-source="topbar" aria-label="Upload evidence">
           <i data-lucide="scan-line"></i>
         </button>
       </div>
@@ -73,7 +73,7 @@
 
           <div class="workspace-header">
             <div>
-              <span class="section-kicker">Property dashboard</span>
+              <span class="section-kicker" id="dashboardHeaderKicker">Property dashboard</span>
               <h1 id="propertyTitle">Loading property</h1>
               <p id="propertySubtitle"></p>
             </div>
@@ -100,15 +100,16 @@
               <div class="score-copy">
                 <h2 id="scoreHeadline">CMP is checking the property.</h2>
                 <p id="scoreNarrative"></p>
+                <p class="compliance-note" id="complianceDisclaimer">CMP helps organise and highlight property compliance information, but it is not legal advice.</p>
               </div>
             </section>
 
             <section class="priority-panel">
               <div class="panel-heading">
                 <span class="section-kicker">Today</span>
-                <h2>Do this in order</h2>
+                <h2 id="priorityHeading">Do this in order</h2>
               </div>
-              <p class="panel-helper">Start with the first action. The detailed checks are below when you need them.</p>
+              <p class="panel-helper" id="priorityHelper">Start with the first action. The detailed checks are below when you need them.</p>
               <div class="priority-list" id="priorityList"></div>
             </section>
           </div>
@@ -142,7 +143,7 @@
             <div class="section-heading">
               <div>
                 <span class="section-kicker">Compliance map</span>
-                <h2>Only open the detail when you need it</h2>
+                <h2 id="requirementsHeading">Only open the detail when you need it</h2>
               </div>
               <span class="quiet-pill" id="lastUpdated"></span>
             </div>
@@ -153,7 +154,7 @@
             <div class="section-heading">
               <div>
                 <span class="section-kicker">Guided compliance interview</span>
-                <h2>Answer what you know. CMP organises the rest.</h2>
+                <h2 id="guidedHeading">Answer what you know. CMP organises the rest.</h2>
               </div>
               <div class="step-count" id="stepCount"></div>
             </div>
@@ -229,9 +230,9 @@
               <div class="section-heading">
                 <div>
                   <span class="section-kicker">Property evidence pack</span>
-                  <h2>What proof is stored, and what is missing</h2>
+                  <h2 id="evidenceHeading">What proof is stored, and what is missing</h2>
                 </div>
-                <button class="secondary-button" type="button" data-open-upload>
+                <button class="secondary-button" type="button" data-open-upload data-upload-category="other" data-upload-label="Upload property evidence" data-upload-prompt="Add documents for the current evidence pack." data-upload-source="evidence-panel">
                   <i data-lucide="upload-cloud"></i>
                   Upload
                 </button>
@@ -243,7 +244,7 @@
               <div class="section-heading">
                 <div>
                   <span class="section-kicker">Property timeline</span>
-                  <h2>Recent compliance activity</h2>
+                  <h2 id="timelineHeading">Recent compliance activity</h2>
                 </div>
               </div>
               <div class="timeline" id="timeline"></div>
@@ -264,9 +265,9 @@
               <section class="scan-panel">
                 <div class="panel-heading">
                   <span class="section-kicker">AI document scan</span>
-                  <h2>Drop evidence into the vault</h2>
+                  <h2 id="scanHeading">Drop evidence into the vault</h2>
                 </div>
-                <button class="scan-drop" type="button" data-open-upload>
+                <button class="scan-drop" type="button" data-open-upload data-upload-category="other" data-upload-label="Upload property evidence" data-upload-prompt="Add certificates, reports, notices, photos, or tenancy files for prototype analysis." data-upload-source="scan-panel">
                   <i data-lucide="file-search"></i>
                   <span>Upload certificates, notices, reports, or tenancy documents</span>
                 </button>
@@ -276,8 +277,9 @@
               <section class="service-panel">
                 <div class="panel-heading">
                   <span class="section-kicker">Recommended services</span>
-                  <h2>Contextual bookings</h2>
+                  <h2 id="serviceHeading">Contextual bookings</h2>
                 </div>
+                <div class="action-centre" id="actionCentre"></div>
                 <div class="service-list" id="serviceList"></div>
               </section>
             </div>
@@ -311,14 +313,15 @@
         </button>
         <span class="section-kicker">AI evidence intake</span>
         <h2 id="uploadTitle">Upload property evidence</h2>
-        <p>
+        <p id="uploadIntro">
           The prototype scans file names and readable text for dates and document type.
           A production CMP build would use OCR, PDF parsing, and human confirmation.
         </p>
+        <p class="upload-prototype-note" id="uploadStorageNote">Files are analysed in prototype mode and are not permanently stored yet.</p>
         <label class="upload-zone" for="documentUpload">
           <i data-lucide="upload"></i>
-          <span>Choose documents</span>
-          <small>PDF, image, or text files</small>
+          <span id="uploadLabelText">Choose documents</span>
+          <small id="uploadHintText">PDF, image, or text files</small>
         </label>
         <input id="documentUpload" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx">
       </section>
@@ -326,6 +329,7 @@
 
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="journey-context.js"></script>
     <script src="supabase-config.js"></script>
     <script src="supabase-client.js"></script>
     <script src="auth-guard.js"></script>
