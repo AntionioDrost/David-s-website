@@ -68,7 +68,7 @@
           </div>
 
           <div class="demo-studio">
-            <span class="section-kicker">Demo studio</span>
+            <span class="section-kicker">Quick preview</span>
             <h2>Preview a landlord journey</h2>
             <p>Use the simulator to test different dashboard states quickly.</p>
             <div class="demo-actions" id="demoActions">
@@ -86,20 +86,29 @@
           <section class="setup-panel" id="propertySetup" aria-labelledby="propertySetupTitle"></section>
 
           <div class="workspace-header">
-            <div>
+            <div class="workspace-header-copy">
               <span class="section-kicker" id="dashboardHeaderKicker">Property dashboard</span>
               <h1 id="propertyTitle">Loading property</h1>
               <p id="propertySubtitle"></p>
+              <div class="journey-badges" id="heroMetaChips"></div>
+              <p class="hero-reassurance" id="propertyReassurance">CMP keeps the next steps calm and focused on this property.</p>
             </div>
-            <div class="header-actions">
-              <button class="secondary-button" type="button" id="pullEpcButton">
-                <i data-lucide="cloud-download"></i>
-                Pull EPC
-              </button>
-              <button class="primary-button" type="button" id="startGuidedCheck">
-                <i data-lucide="sparkles"></i>
-                Guided check
-              </button>
+            <div class="workspace-header-side">
+              <div class="hero-status-card">
+                <span class="status-pill info" id="heroStatusPill">Setup in progress</span>
+                <strong id="heroActionHeading">Start with the next step</strong>
+                <p id="heroActionCopy">CMP will guide the next useful action for this property.</p>
+              </div>
+              <div class="header-actions">
+                <button class="secondary-button" type="button" id="pullEpcButton">
+                  <i data-lucide="cloud-download"></i>
+                  Refresh EPC
+                </button>
+                <button class="primary-button" type="button" id="startGuidedCheck">
+                  <i data-lucide="sparkles"></i>
+                  Continue check
+                </button>
+              </div>
             </div>
           </div>
 
@@ -210,6 +219,16 @@
               <div class="step-count" id="stepCount"></div>
             </div>
 
+            <div class="guided-progress-shell">
+              <div class="guided-progress-copy">
+                <strong id="guidedProgressNarrative">You can answer what you know and come back later.</strong>
+                <span id="guidedProgressHelper">Not sure at this point is always a safe option.</span>
+              </div>
+              <div class="guided-progress-track" aria-hidden="true">
+                <span id="guidedProgressFill"></span>
+              </div>
+            </div>
+
             <div class="wizard-shell">
               <div class="wizard-tabs" id="wizardTabs"></div>
               <form class="wizard-form" id="wizardForm"></form>
@@ -308,7 +327,7 @@
                 <div class="assistant-orb">
                   <i data-lucide="brain-circuit"></i>
                 </div>
-                <span class="section-kicker">CMP assistant</span>
+                <span class="section-kicker">CMP guide</span>
                 <h2 id="assistantHeadline">Smart guidance, controlled by you</h2>
                 <p id="assistantCopy"></p>
               </section>
