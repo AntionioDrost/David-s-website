@@ -11,7 +11,7 @@
   if (demoMode) {
     const emailTarget = document.getElementById("sessionEmail");
     if (emailTarget) {
-      emailTarget.textContent = "Demo mode · local only";
+      emailTarget.textContent = "Prototype preview · local only";
     }
 
     document.body.classList.remove("is-auth-checking");

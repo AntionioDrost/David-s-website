@@ -1835,7 +1835,7 @@ function bestEvidenceItem(property, category) {
 function evidenceSourceCopy(item) {
   if (!item) return "";
   if (item.source === "api") return "Imported from EPC";
-  if (item.source === "upload") return item.fileStored ? "File uploaded" : "File selected in prototype mode";
+  if (item.source === "upload") return item.fileStored ? "File uploaded" : "Selected for this demo";
   if (item.source === "scan") return "Scanned from upload";
   if (item.source === "journey_answer" || item.source === "manual") return "Confirmed by answer";
   return "Property evidence";
@@ -1955,7 +1955,7 @@ function evidenceActionCandidates(property, modulePlan) {
       push("Ignore file", `${item.filename || item.title} looks unrelated to this property.`, "optional", item.category, item);
       return;
     }
-    push("Review document", `${item.filename || item.title} was imported in prototype mode and should be reviewed.`, "check", item.category, item);
+    push("Review document", `${item.filename || item.title} was selected for this demo and should be reviewed.`, "check", item.category, item);
   });
 
   if (modulePlan.primaryFocus === "eviction") {
@@ -2371,8 +2371,8 @@ function timelineDescriptionForEvidence(item) {
   }
   if (item.source === "upload") {
     return item.reviewNeeded
-      ? "File selected in prototype mode. CMP may need a manual review before relying on it."
-      : "File selected in prototype mode for this evidence record.";
+      ? "File selected for this demo. CMP may need a manual review before relying on it."
+      : "File selected for this evidence record in this prototype preview.";
   }
   if (item.source === "scan") {
     return "Prototype scan result linked to this evidence record.";
@@ -2914,7 +2914,7 @@ function defaultRecommendationList(property = activeProperty(), evaluation = pro
         type: "review_document",
         serviceKey: serviceKeyForItemKey(evidence.category, modulePlan),
         title: evidence.category === "irrelevant" ? "Review unrelated file" : "Review imported document",
-        reason: evidence.notes || "CMP found a document in prototype mode that may need review.",
+        reason: evidence.notes || "CMP found a document in this prototype preview that may need review.",
         urgency: evidence.category === "irrelevant" ? "low" : "medium",
         source: "evidence",
         ctaLabel: evidence.category === "irrelevant" ? "Ignore file" : "Review document",
@@ -3685,7 +3685,7 @@ async function loadPersistedWorkspace() {
   if (!client || !user) {
     loadJourneyContextForSession(null);
     loadLocalWorkspace();
-    state.saveStatus = DEMO_MODE ? "Demo mode · saved in this browser" : "Saved locally";
+    state.saveStatus = DEMO_MODE ? "Prototype preview · saved in this browser" : "Saved locally";
     state.saveTone = "local";
     return;
   }
@@ -3778,7 +3778,7 @@ async function saveWorkspace(propertyId = state.activePropertyId) {
 
   saveWorkspaceLocally(propertyId, user?.id || null);
   if (!client || !user) {
-    setSaveStatus(DEMO_MODE ? "Demo change saved in this browser" : "Saved in this browser", "local");
+    setSaveStatus(DEMO_MODE ? "Preview change saved in this browser" : "Saved in this browser", "local");
     return;
   }
 
@@ -4409,7 +4409,7 @@ async function searchRealPropertyData() {
     } catch (error) {
       if (!DEMO_MODE) throw error;
       postcodeMeta = demoPostcodeMeta(postcode);
-      state.setup.message = "Demo mode is using a realistic postcode fallback for this preview.";
+      state.setup.message = "CMP is using a realistic postcode fallback for this preview.";
     }
     state.setup.postcodeMeta = postcodeMeta;
 
@@ -4418,7 +4418,7 @@ async function searchRealPropertyData() {
       state.setup.selectedAddressId = state.setup.addressMatches[0].id;
       state.setup.searchDone = true;
       state.setup.apiStatus = "ready";
-      state.setup.message = "Demo mode loaded a realistic address list and EPC preview for this postcode.";
+      state.setup.message = "CMP loaded a realistic address list and EPC preview for this postcode.";
       return;
     }
 
@@ -4452,7 +4452,7 @@ async function searchRealPropertyData() {
     state.setup.message = rows.length
       ? "Addresses found. CMP selected the first match so you can continue immediately."
       : DEMO_MODE
-        ? "Live EPC results were unavailable, so demo address cards were loaded instead."
+        ? "Live EPC results were unavailable, so example address cards were loaded instead."
         : "Postcode found. CMP could not pull a live EPC address list here, so it created a verified postcode match you can use straight away.";
   } catch (error) {
     if (DEMO_MODE) {
@@ -4461,7 +4461,7 @@ async function searchRealPropertyData() {
       state.setup.selectedAddressId = state.setup.addressMatches[0].id;
       state.setup.searchDone = true;
       state.setup.apiStatus = "ready";
-      state.setup.message = "Demo mode kept the journey moving with simulated address and EPC data.";
+      state.setup.message = "CMP kept the journey moving with example address and EPC data.";
       return;
     }
     if (state.setup.postcodeMeta) {
@@ -4718,7 +4718,7 @@ function seedDemoScenarioProperty(property, scenarioKey = demoScenarioKeyForJour
         source: "manual",
         date: threeMonthsAgo,
         status: "review_needed",
-        notes: "Demo mode: tenant reported mould in the front bedroom."
+        notes: "Prototype preview: tenant reported mould in the front bedroom."
       });
       upsertEvidenceItem(property, "repairs", (item) => item.linkedQuestionId === "demo_repair_visit", {
         id: `demo:${property.id}:repair-visit`,
@@ -4726,7 +4726,7 @@ function seedDemoScenarioProperty(property, scenarioKey = demoScenarioKeyForJour
         source: "manual",
         date: lastMonth,
         status: "review_needed",
-        notes: "Demo mode: extractor fan replacement was scheduled, but follow-up evidence is still missing."
+        notes: "Prototype preview: extractor fan replacement was scheduled, but follow-up evidence is still missing."
       });
       setTimelineEvent(property, `demo:${property.id}:mould-reported`, true, {
         type: "note",
@@ -4749,7 +4749,7 @@ function seedDemoScenarioProperty(property, scenarioKey = demoScenarioKeyForJour
         type: "inspection",
         category: "inspection",
         title: "Inspection note added",
-        description: "Demo mode imported one recent inspection to make the dashboard feel alive.",
+        description: "CMP imported one recent example inspection to make the dashboard feel alive.",
         eventDate: sixMonthsAgo,
         source: "manual",
         status: "completed"
@@ -4950,7 +4950,7 @@ function renderPropertySetup() {
           ${state.setup.isSearching ? "Searching..." : isRefreshMode ? "Find EPC records" : "Find address"}
         </button>
       </div>
-      <small>${DEMO_MODE ? "Demo mode will keep this flow moving, even if live EPC data is unavailable." : "Postcodes.io validates the postcode only. Address options and EPC data come from the Energy Performance Data domestic search API."}</small>
+      <small>${DEMO_MODE ? "CMP will keep this flow moving, even if live EPC data is unavailable." : "Postcodes.io validates the postcode only. Address options and EPC data come from the Energy Performance Data domestic search API."}</small>
       <details class="epc-access" ${hasEpcCredentials() ? "" : "open"}>
         <summary>Energy Performance Data API access</summary>
         <div class="epc-access-grid">
@@ -4959,7 +4959,7 @@ function renderPropertySetup() {
             <input id="epcBearerToken" type="password" value="${escapeHtml(epcBearerToken)}" placeholder="GOV.UK One Login API bearer token">
           </label>
         </div>
-        <small>${DEMO_MODE ? "Optional in demo mode: if the live token is missing, CMP falls back to realistic simulated EPC data." : "Prototype only: the token is stored in this browser for testing. A production build should move this request behind a secure server function."}</small>
+        <small>${DEMO_MODE ? "Optional in this prototype preview: if the live token is missing, CMP falls back to realistic simulated EPC data." : "Prototype only: the token is stored in this browser for testing. A production build should move this request behind a secure server function."}</small>
       </details>
     </form>
 
@@ -5703,7 +5703,7 @@ function renderDashboard() {
     document.querySelector("#serviceList").innerHTML = `<article class="service-item"><strong>Start with your first property</strong><span>CMP will suggest certificates and services after the address has been added.</span></article>`;
     renderOverviewState("#knownSnapshot", [], "Nothing confirmed yet", "Imported property details and completed answers will appear here.");
     renderOverviewState("#missingSnapshot", [], "No checks started yet", "CMP will list the unanswered or evidence-light areas once a property is added.");
-    renderOverviewState("#actionSnapshot", [], "Add a property first", "Use the postcode search or load a demo journey from the sidebar.");
+    renderOverviewState("#actionSnapshot", [], "Add a property first", "Use the postcode search or load an example journey from the sidebar.");
     renderTrackerPreview(null, [], { sectionSummaries: [], answeredQuestions: 0, totalQuestions: 0, completedSections: 0, totalSections: 0 }, null);
     renderActionCentre(null, []);
     document.querySelector("#guidedProgressNarrative").textContent = "You can answer what you know and come back later.";
@@ -6403,7 +6403,7 @@ function renderGuidedEvidenceOverview(property) {
           <label>Evidence overview</label>
           <strong>No urgent evidence gaps are showing right now.</strong>
         </div>
-        <small>Uploads and scan previews in this prototype are still demo-only.</small>
+        <small>Uploads and scan previews in this prototype are still preview-only.</small>
       </div>
     `;
   }
@@ -6961,7 +6961,7 @@ function scanDocument(file, text = "", hintedCategory = "other") {
       ? "Prototype classification should be reviewed before relying on it."
       : categoryMatchedByHint
         ? `Classified using the selected ${UPLOAD_CATEGORY_TITLES[normalizedHint] || normalizedHint} upload type.`
-        : "Classified from file name and readable text in prototype mode.",
+        : "Classified from the file name and readable text in this prototype preview.",
     scannedAt: new Date().toISOString()
   };
 }
@@ -7426,7 +7426,7 @@ function handleFiles(files) {
     source: "dashboard"
   };
   showUploadFeedback(
-    `${files.length} file${files.length === 1 ? "" : "s"} selected in prototype mode. CMP is updating the evidence area and timeline now.`,
+    `${files.length} file${files.length === 1 ? "" : "s"} selected for this demo. CMP is updating the evidence area and timeline now.`,
     "saved"
   );
   setSaveStatus("Prototype upload analysed", "local");

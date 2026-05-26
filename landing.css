@@ -203,6 +203,7 @@ svg {
   justify-content: center;
   gap: 8px;
   min-height: var(--tap);
+  padding-inline: 16px;
   border-radius: 999px;
   font-weight: 800;
   white-space: nowrap;
@@ -316,18 +317,18 @@ svg {
 }
 
 .hero h1 {
-  margin-top: 10px;
-  font-size: clamp(3.25rem, 7vw, 6.7rem);
-  line-height: 0.95;
+  margin-top: 8px;
+  font-size: clamp(2.75rem, 5vw, 5.1rem);
+  line-height: 0.97;
   letter-spacing: 0;
   text-wrap: balance;
 }
 
 .hero p {
   width: min(650px, 100%);
-  margin-top: 22px;
+  margin-top: 18px;
   color: var(--ink-soft);
-  font-size: clamp(1.04rem, 1.8vw, 1.26rem);
+  font-size: clamp(1rem, 1.5vw, 1.12rem);
 }
 
 .hero-actions,
@@ -338,23 +339,24 @@ svg {
 }
 
 .hero-actions {
-  margin-top: 30px;
+  margin-top: 24px;
 }
 
 .hero-metrics {
-  margin-top: 26px;
+  margin-top: 20px;
 }
 
 .hero-metrics span,
 .trust-strip span {
   display: inline-flex;
   align-items: center;
-  min-height: 40px;
-  padding: 0 13px;
+  min-height: 34px;
+  padding: 0 11px;
   border: 1px solid rgba(255, 255, 255, 0.78);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(226, 242, 255, 0.78));
   color: var(--muted);
+  font-size: 0.82rem;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96), inset 0 -8px 16px rgba(0, 113, 227, 0.05), var(--soft-shadow);
   backdrop-filter: blur(18px);
 }
@@ -454,8 +456,8 @@ svg {
 .final-cta h2,
 .page-hero h1 {
   margin-top: 8px;
-  font-size: clamp(2rem, 4vw, 4.2rem);
-  line-height: 1.04;
+  font-size: clamp(1.72rem, 3.3vw, 3.25rem);
+  line-height: 1.08;
   letter-spacing: 0;
   text-wrap: balance;
 }
@@ -468,7 +470,7 @@ svg {
 .page-hero p {
   margin-top: 14px;
   color: var(--muted);
-  font-size: 1.02rem;
+  font-size: 0.98rem;
 }
 
 .problem-grid,
@@ -1480,17 +1482,17 @@ svg {
 .public-trust-band,
 .calculator-panel {
   border: 1px solid rgba(15, 23, 42, 0.09);
-  border-radius: 24px;
+  border-radius: 22px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 248, 251, 0.96));
-  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.06);
+  box-shadow: 0 14px 30px rgba(15, 23, 42, 0.055);
 }
 
 .public-page-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
-  gap: clamp(22px, 4vw, 42px);
+  gap: clamp(20px, 3vw, 34px);
   align-items: center;
-  padding: clamp(28px, 5vw, 46px);
+  padding: clamp(24px, 4vw, 38px);
   background:
     radial-gradient(circle at top right, rgba(0, 113, 227, 0.1), transparent 36%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(244, 247, 251, 0.97));
@@ -1511,11 +1513,11 @@ svg {
 .home-hero {
   display: grid;
   grid-template-columns: minmax(0, 1.08fr) minmax(300px, 0.92fr);
-  gap: clamp(22px, 4vw, 40px);
+  gap: clamp(18px, 3vw, 30px);
   align-items: stretch;
-  padding: clamp(30px, 5vw, 52px);
+  padding: clamp(24px, 4vw, 40px);
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 28px;
+  border-radius: 24px;
   background:
     linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(242, 247, 252, 0.96)),
     #fff;
@@ -1526,7 +1528,7 @@ svg {
 .section-copy,
 .section-heading {
   display: grid;
-  gap: 14px;
+  gap: 10px;
 }
 
 .hero-content p,
@@ -1578,7 +1580,7 @@ svg {
 .filter-row {
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -1590,10 +1592,10 @@ svg {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 34px;
-  padding: 0 12px;
+  min-height: 31px;
+  padding: 0 11px;
   border-radius: 999px;
-  font-size: 0.85rem;
+  font-size: 0.8rem;
   font-weight: 700;
 }
 
@@ -1645,7 +1647,7 @@ svg {
 .steps {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+  gap: 16px;
 }
 
 .service-grid-card,
@@ -1653,16 +1655,23 @@ svg {
 .property-summary-card,
 .checker-preview article {
   display: grid;
-  gap: 12px;
+  gap: 10px;
   min-width: 0;
-  padding: 20px;
+  padding: 18px;
 }
 
 .service-grid-card {
   border: 1px solid rgba(15, 23, 42, 0.08);
-  border-radius: 22px;
+  border-radius: 20px;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 248, 251, 0.95));
   box-shadow: 0 16px 34px rgba(15, 23, 42, 0.05);
+}
+
+.service-grid-card h3,
+.news-card h3,
+.property-summary-card h3 {
+  font-size: 1rem;
+  line-height: 1.24;
 }
 
 .service-grid-card:hover {
@@ -1694,7 +1703,7 @@ svg {
 }
 
 .checker-preview {
-  padding: 24px;
+  padding: 22px;
 }
 
 .checker-preview > div {
@@ -1715,16 +1724,16 @@ svg {
 .question-stack,
 .question-stack-inner {
   display: grid;
-  gap: 18px;
+  gap: 16px;
 }
 
 .service-journey-shell {
-  padding: clamp(24px, 4vw, 38px);
+  padding: clamp(22px, 4vw, 32px);
 }
 
 .journey-progress-bar {
-  height: 10px;
-  margin: 18px 0 24px;
+  height: 8px;
+  margin: 14px 0 20px;
   overflow: hidden;
   border-radius: 999px;
   background: rgba(15, 23, 42, 0.08);
@@ -1738,14 +1747,25 @@ svg {
 }
 
 .question-panel {
-  padding: 22px;
+  padding: 20px;
 }
 
 .question-panel-heading {
   display: flex;
   gap: 12px;
   align-items: center;
-  margin-bottom: 14px;
+  margin-bottom: 12px;
+}
+
+.question-panel h3 {
+  font-size: 1.06rem;
+  line-height: 1.25;
+}
+
+.question-panel-copy {
+  margin: -2px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
 }
 
 .section-kicker {
@@ -1761,14 +1781,14 @@ svg {
 .selection-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  gap: 10px;
 }
 
 .choice-card {
   display: grid;
   gap: 6px;
-  min-height: 112px;
-  padding: 16px;
+  min-height: 102px;
+  padding: 14px;
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 18px;
   background: #fff;
@@ -1776,9 +1796,15 @@ svg {
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
+.choice-card strong {
+  font-size: 0.95rem;
+  line-height: 1.24;
+}
+
 .choice-card p {
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .choice-card:hover,
@@ -1807,7 +1833,7 @@ svg {
 .question-card input,
 .question-card select {
   width: 100%;
-  min-height: 48px;
+  min-height: 46px;
   padding: 0 14px;
   border: 1px solid rgba(15, 23, 42, 0.12);
   border-radius: 14px;
@@ -1817,11 +1843,11 @@ svg {
 
 .upload-mini-zone {
   display: grid;
-  gap: 6px;
-  padding: 16px;
+  gap: 5px;
+  padding: 14px 15px;
   border: 1px dashed rgba(123, 58, 237, 0.28);
-  border-radius: 18px;
-  background: rgba(123, 58, 237, 0.06);
+  border-radius: 16px;
+  background: rgba(123, 58, 237, 0.045);
   cursor: pointer;
 }
 
@@ -1832,6 +1858,17 @@ svg {
 
 .upload-mini-zone small {
   color: #6b7280;
+  line-height: 1.45;
+}
+
+.optional-evidence-panel {
+  background:
+    linear-gradient(180deg, rgba(248, 246, 255, 0.98), rgba(255, 255, 255, 0.98)),
+    #fff;
+}
+
+.optional-evidence-panel .question-card label {
+  color: var(--ink-soft);
 }
 
 .calculator-grid {
@@ -1855,7 +1892,7 @@ svg {
 .calculator-summary article {
   display: grid;
   gap: 6px;
-  padding: 16px;
+  padding: 14px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 18px;
   background: rgba(247, 249, 252, 0.9);
@@ -1888,7 +1925,7 @@ svg {
 }
 
 .postcode-card {
-  padding: clamp(24px, 4vw, 34px);
+  padding: clamp(22px, 4vw, 30px);
 }
 
 .postcode-row {
@@ -1901,16 +1938,29 @@ svg {
 
 .address-card-list {
   display: grid;
-  gap: 14px;
+  gap: 12px;
 }
 
 .address-card {
   display: grid;
-  gap: 12px;
-  padding: 18px;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px 18px;
   border: 1px solid rgba(15, 23, 42, 0.1);
   border-radius: 18px;
   background: #fff;
+}
+
+.address-card strong {
+  display: block;
+  font-size: 0.98rem;
+  line-height: 1.3;
+}
+
+.address-card p,
+.address-card small {
+  margin-top: 4px;
 }
 
 .address-card.is-selected {
@@ -1929,9 +1979,13 @@ svg {
   align-content: start;
 }
 
+.property-summary-card .button {
+  justify-self: start;
+}
+
 .property-summary-meta {
   color: var(--muted);
-  font-size: 0.92rem;
+  font-size: 0.88rem;
 }
 
 .filter-row {
@@ -1951,7 +2005,7 @@ svg {
 .public-trust-band {
   display: grid;
   gap: 16px;
-  padding: 24px;
+  padding: 22px;
 }
 
 .helper-card.compact {
@@ -1969,8 +2023,8 @@ svg {
 }
 
 .assistant-fab {
-  min-height: 48px;
-  padding: 0 18px;
+  min-height: 46px;
+  padding: 0 16px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 999px;
   background: linear-gradient(180deg, rgba(19, 31, 58, 0.96), rgba(15, 23, 42, 0.96));
@@ -1980,7 +2034,7 @@ svg {
 
 .assistant-drawer {
   width: min(360px, calc(100vw - 32px));
-  padding: 18px;
+  padding: 16px;
   border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 22px;
   background: rgba(255, 255, 255, 0.98);
@@ -2132,8 +2186,8 @@ svg {
 
 .home-hero h1 {
   max-width: 10.4ch;
-  font-size: clamp(3rem, 6.2vw, 5.3rem);
-  line-height: 0.95;
+  font-size: clamp(2.6rem, 5.3vw, 4.5rem);
+  line-height: 0.98;
   text-wrap: balance;
   overflow-wrap: normal;
 }
@@ -2289,15 +2343,15 @@ svg {
   }
 
   .home-hero {
-    padding: 18px;
-    gap: 18px;
+    padding: 16px;
+    gap: 16px;
   }
 
   .home-hero h1,
   .public-page-hero h1 {
     max-width: none;
-    font-size: clamp(2.2rem, 12vw, 3.3rem);
-    line-height: 1;
+    font-size: clamp(2.05rem, 10vw, 2.95rem);
+    line-height: 1.02;
     text-wrap: initial;
     overflow-wrap: anywhere;
   }
@@ -2321,8 +2375,14 @@ svg {
 
   .postcode-row .button,
   .hero-actions .button,
-  .service-journey-actions .button {
+  .service-journey-actions .button,
+  .address-card .button {
     width: 100%;
+  }
+
+  .address-card {
+    grid-template-columns: 1fr;
+    align-items: start;
   }
 
   .footer-note {

@@ -28,6 +28,10 @@
         { key: "eviction_reason", type: "choice", label: "Is eviction part of the reason you're here?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure" } },
         { key: "already_have_epc", type: "choice", label: "Do you already have an EPC?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } }
       ],
+      optionalEvidence: [
+        { key: "epc_upload", type: "upload", label: "Upload an EPC if you have it" },
+        { key: "epc_issue_date", type: "date", label: "EPC issue date, if known" }
+      ],
       assistant: [
         "If you only came for the EPC, choose the focused option. CMP will not push the full checker too hard.",
         "If the EPC is already in place, CMP can use that as the first known fact when the property is added."
@@ -53,8 +57,8 @@
       questions: [
         { key: "has_gas_appliances", type: "choice", label: "Does the property have gas appliances?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
         { key: "has_gas_certificate", type: "choice", label: "Do you currently have a Gas Safety Certificate?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
-        { key: "last_gas_check", type: "date", label: "When was the last gas safety check?" },
-        { key: "gas_upload", type: "upload", label: "Upload certificate if you have it" }
+        { key: "last_gas_check", type: "date", label: "When was the last gas safety check?", placement: "documents" },
+        { key: "gas_upload", type: "upload", label: "Upload Gas Safety Certificate if you have it", placement: "documents" }
       ],
       assistant: [
         "If you are not sure whether gas applies, say so. CMP will treat that as a check-next item, not a failure.",
@@ -80,8 +84,8 @@
       ],
       questions: [
         { key: "has_eicr", type: "choice", label: "Do you currently have an EICR?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
-        { key: "last_eicr_check", type: "date", label: "When was the last electrical inspection?" },
-        { key: "eicr_upload", type: "upload", label: "Upload EICR report if you have it" }
+        { key: "last_eicr_check", type: "date", label: "When was the last electrical inspection?", placement: "documents" },
+        { key: "eicr_upload", type: "upload", label: "Upload EICR report if you have it", placement: "documents" }
       ],
       assistant: [
         "If you have the report but not the date, continue anyway. CMP can mark it as something to confirm later.",
@@ -108,6 +112,11 @@
       questions: [
         { key: "regaining_possession", type: "choice", label: "Is regaining possession your main goal?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure yet" } },
         { key: "eviction_situation", type: "select", label: "What situation sounds closest to your property?", options: ["Rent arrears", "Late payment pattern", "Anti-social behaviour", "Breach of tenancy", "Sale or move back in", "I'm not sure yet"] }
+      ],
+      optionalEvidence: [
+        { key: "tenancy_agreement_upload", type: "upload", label: "Upload tenancy agreement if you have it" },
+        { key: "deposit_proof_upload", type: "upload", label: "Upload deposit proof if available" },
+        { key: "notice_evidence_upload", type: "upload", label: "Upload notices or tenant communications if you have them" }
       ],
       assistant: [
         "CMP helps organise your information and evidence. It does not replace legal advice.",
@@ -142,6 +151,11 @@
       questions: [
         { key: "evidence_goal", type: "choice", label: "What do you want this to help with most?", options: ["organise_documents", "check_compliance", "prepare_timeline", "all_three"], optionLabels: { organise_documents: "Organise documents", check_compliance: "Check compliance first", prepare_timeline: "Build a timeline", all_three: "A bit of all three" } }
       ],
+      optionalEvidence: [
+        { key: "tenancy_agreement_upload", type: "upload", label: "Upload tenancy agreement if you have it" },
+        { key: "rent_arrears_upload", type: "upload", label: "Upload rent arrears evidence if it is relevant" },
+        { key: "notice_evidence_upload", type: "upload", label: "Upload notices or tenant communications if you have them" }
+      ],
       assistant: [
         "CMP helps organise your information and evidence. It does not replace legal advice.",
         "If you are not sure where to start, choose the closest scenario and keep moving."
@@ -168,7 +182,10 @@
         { key: "mould_severity", type: "choice", label: "How serious does the issue seem?", options: ["minor_condensation", "one_area", "widespread", "not_sure"], optionLabels: { minor_condensation: "Minor condensation only", one_area: "Visible mould in one area", widespread: "Widespread or recurring mould", not_sure: "I'm not sure" } },
         { key: "tenant_reported_mould", type: "choice", label: "Has the tenant reported it?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
         { key: "mould_repair_state", type: "choice", label: "Has anything been inspected or repaired?", options: ["inspected", "repaired", "both", "not_yet"], optionLabels: { inspected: "Inspected only", repaired: "Repaired only", both: "Inspected and repaired", not_yet: "Not yet" } },
-        { key: "mould_upload", type: "upload", label: "Upload photos or a report if you have them" }
+        { key: "mould_upload", type: "upload", label: "Upload photos or a report if you have them", placement: "documents" }
+      ],
+      optionalEvidence: [
+        { key: "mould_repair_notes_upload", type: "upload", label: "Upload repair or contractor notes if available" }
       ],
       assistant: [
         "This journey should stay practical. It is about records, dates, inspections, repairs, and communication.",
@@ -196,6 +213,9 @@
         { key: "licence_state", type: "choice", label: "What is the current licensing situation?", options: ["already_licensed", "not_licensed", "expired", "not_sure"], optionLabels: { already_licensed: "Already licensed", not_licensed: "Not licensed", expired: "Expired or needs renewal", not_sure: "I'm not sure" } },
         { key: "local_authority", type: "text", label: "Do you know the council or local authority?" }
       ],
+      optionalEvidence: [
+        { key: "licence_upload", type: "upload", label: "Upload a licence document if you have it" }
+      ],
       assistant: [
         "This page is only about licensing. Wider checks can stay secondary unless you choose otherwise.",
         "If you do not know the council yet, continue anyway and add it later."
@@ -221,8 +241,8 @@
       questions: [
         { key: "inspection_type", type: "choice", label: "What kind of inspection do you need?", options: ["routine", "pre_tenancy", "mid_tenancy", "end_tenancy"], optionLabels: { routine: "Routine inspection", pre_tenancy: "Pre-tenancy or move-in", mid_tenancy: "Mid-tenancy inspection", end_tenancy: "End-of-tenancy or condition check" } },
         { key: "inspection_concern", type: "text", label: "What are you most concerned about?" },
-        { key: "last_inspection", type: "date", label: "When was the property last inspected?" },
-        { key: "inspection_upload", type: "upload", label: "Upload photos or reports if you have them" }
+        { key: "last_inspection", type: "date", label: "When was the property last inspected?", placement: "documents" },
+        { key: "inspection_upload", type: "upload", label: "Upload inspection photos or reports if you have them", placement: "documents" }
       ],
       assistant: [
         "If you are not sure which inspection type fits best, pick the closest and keep moving.",
@@ -248,10 +268,10 @@
       ],
       questions: [
         { key: "aml_docs", type: "choice", label: "What documents do you currently have?", options: ["photo_id", "proof_of_address", "both", "not_sure"], optionLabels: { photo_id: "Photo ID", proof_of_address: "Proof of address", both: "Both", not_sure: "Not sure" } },
-        { key: "aml_upload", type: "upload", label: "Upload AML documents if you want to test the flow" }
+        { key: "aml_upload", type: "upload", label: "Upload AML documents if you have them", placement: "documents" }
       ],
       assistant: [
-        "This is a demo helper only. CMP can organise documents, but it is not giving a verified AML decision here.",
+        "CMP can help organise the document trail here, but it is not giving a verified AML decision.",
         "If you only need document organisation, keep the focus tight."
       ]
     },
@@ -276,6 +296,9 @@
         { key: "rent_reliable", type: "choice", label: "Is the tenant currently paying reliably?", options: ["yes", "mostly", "no", "not_sure"], optionLabels: { yes: "Yes", mostly: "Mostly", no: "No", not_sure: "Not sure" } },
         { key: "arrears_recent", type: "choice", label: "Have there been recent arrears or late payments?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
         { key: "wider_check", type: "choice", label: "Do you want wider compliance checked too?", options: ["yes", "no", "later"], optionLabels: { yes: "Yes", no: "No, keep it focused", later: "Maybe later" } }
+      ],
+      optionalEvidence: [
+        { key: "rent_guarantee_upload", type: "upload", label: "Upload an existing cover document or rent record if you have one" }
       ],
       assistant: [
         "Rent guarantee is a side service here. CMP should not turn it into a giant compliance push unless you choose that.",
@@ -303,6 +326,9 @@
         { key: "insurance_state", type: "choice", label: "What is the current insurance situation?", options: ["fully_insured", "basic_cover", "not_insured", "not_sure"], optionLabels: { fully_insured: "Fully insured", basic_cover: "Basic cover only", not_insured: "Not insured", not_sure: "I'm not sure" } },
         { key: "known_risks", type: "text", label: "Are there any known risks or concerns? (optional)" }
       ],
+      optionalEvidence: [
+        { key: "insurance_upload", type: "upload", label: "Upload a policy document if you have it" }
+      ],
       assistant: [
         "This page is about insurance. Related compliance can stay secondary unless you choose otherwise.",
         "You can continue without every detail and come back later."
@@ -327,6 +353,9 @@
       ],
       questions: [
         { key: "mortgage_state", type: "choice", label: "What is the current mortgage situation?", options: ["have_mortgage", "need_mortgage", "refinance", "not_sure"], optionLabels: { have_mortgage: "I already have a mortgage in place", need_mortgage: "I need a mortgage", refinance: "I want to refinance", not_sure: "I'm not sure" } }
+      ],
+      optionalEvidence: [
+        { key: "mortgage_offer_upload", type: "upload", label: "Upload a mortgage illustration or offer if you have one" }
       ],
       assistant: [
         "This calculator is only an estimate. CMP is not giving regulated mortgage advice here.",
@@ -678,7 +707,7 @@
           <div class="section-heading">
             <span class="eyebrow">What do you need help with today?</span>
             <h2>Start with the service you actually came for.</h2>
-            <p>CMP should feel like the current website Nick already knows: clear services first, deeper checks only when they are helpful.</p>
+            <p>Start with one service, keep the journey focused, and only widen into a broader property check if it helps.</p>
           </div>
           <div class="service-grid public-service-grid">
             ${renderServiceCards()}
@@ -732,8 +761,8 @@
         <section class="page-section">
           <div class="section-heading">
             <span class="eyebrow">Latest compliance updates</span>
-            <h2>Preview of a future landlord compliance updates area.</h2>
-            <p>These placeholder articles show how CMP could explain changes, reminders, and practical steps in plain English.</p>
+            <h2>Latest compliance updates</h2>
+            <p>These example articles show how CMP could explain changes, reminders, and practical next steps in plain English.</p>
           </div>
           <div class="news-grid">
             ${NEWS_ARTICLES.slice(0, 3).map((article) => renderArticleCard(article)).join("")}
@@ -773,8 +802,8 @@
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.excerpt)}</p>
         <div class="news-card-footer">
-          <span class="quiet-pill">Preview article</span>
-          <button class="mini-button" type="button" data-open-article="${escapeHtml(article.id)}">Read preview</button>
+          <span class="quiet-pill">Example article</span>
+          <button class="mini-button" type="button" data-open-article="${escapeHtml(article.id)}">Read article</button>
         </div>
       </article>
     `;
@@ -789,7 +818,7 @@
           <div>
             <span class="eyebrow">Services overview</span>
             <h1>Start with the right service, then choose how deep CMP should go.</h1>
-            <p>The public journey now mirrors the Wix structure: services first, questions second, add property third, then My Properties before the dashboard.</p>
+            <p>Choose one service, answer a few simple questions, then add the property and open the right dashboard from My Properties.</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property first</a>
               <a class="button secondary" href="my-properties.html">Go to My Properties</a>
@@ -819,13 +848,25 @@
     return DEFAULT_FOCUS_OPTIONS;
   }
 
+  function journeyQuestionsForService(service) {
+    return (service.questions || []).filter((question) => question.placement !== "documents");
+  }
+
+  function optionalEvidenceQuestionsForService(service) {
+    return [
+      ...(service.questions || []).filter((question) => question.placement === "documents"),
+      ...(service.optionalEvidence || [])
+    ];
+  }
+
   function serviceProgress(draft, service) {
-    let total = 3 + service.questions.length;
+    const questions = journeyQuestionsForService(service);
+    let total = 3 + questions.length;
     let answered = 0;
     if (draft.intent) answered += 1;
     if (draft.focusMode) answered += 1;
     if (draft.isTenanted) answered += 1;
-    answered += service.questions.filter((question) => hasAnswer(draft, question.key)).length;
+    answered += questions.filter((question) => hasAnswer(draft, question.key)).length;
     return { total, answered, percent: Math.round((answered / total) * 100) };
   }
 
@@ -893,13 +934,30 @@
           <label>${escapeHtml(question.label)}</label>
           <label class="upload-mini-zone">
             <input type="file" hidden data-question-upload="${escapeHtml(question.key)}">
-            <span>${draft[question.key] ? "Change file" : "Choose file"}</span>
-            <small>${draft[question.key] ? `File selected in prototype mode: ${draft[question.key]}` : "Optional. In the final version this would be stored securely."}</small>
+            <span>${draft[question.key] ? "Change document" : "Choose document"}</span>
+            <small>${draft[question.key] ? `Selected for this demo: ${draft[question.key]}` : "Optional. In the final version, this would be stored securely."}</small>
           </label>
         </div>
       `;
     }
     return "";
+  }
+
+  function renderOptionalEvidenceBlock(service, draft, stepNumber) {
+    const documentQuestions = optionalEvidenceQuestionsForService(service);
+    if (!documentQuestions.length) return "";
+    return `
+      <section class="question-panel optional-evidence-panel">
+        <div class="question-panel-heading">
+          <span class="section-kicker">Step ${stepNumber}</span>
+          <h3>Optional documents and dates</h3>
+        </div>
+        <p class="question-panel-copy">Have this document handy? You can add it now, or skip and come back later.</p>
+        <div class="question-stack-inner">
+          ${documentQuestions.map((question) => renderQuestionField(question, draft)).join("")}
+        </div>
+      </section>
+    `;
   }
 
   function renderServicePage() {
@@ -915,6 +973,7 @@
 
     document.title = `${service.title} | ComplyMyProperty`;
     const progress = serviceProgress(state.serviceDraft, service);
+    const journeyQuestions = journeyQuestionsForService(service);
     app.innerHTML = `
       ${baseHeader("services")}
       <main class="public-main">
@@ -981,16 +1040,17 @@
                 <h3>Service-specific questions</h3>
               </div>
               <div class="question-stack-inner">
-                ${service.questions.map((question) => renderQuestionField(question, state.serviceDraft)).join("")}
+                ${journeyQuestions.map((question) => renderQuestionField(question, state.serviceDraft)).join("")}
               </div>
             </section>
 
             ${service.calculator ? renderMortgageCalculator(state.serviceDraft) : ""}
+            ${renderOptionalEvidenceBlock(service, state.serviceDraft, service.calculator ? 6 : 5)}
 
             <section class="helper-card">
               <span class="service-grid-eyebrow">Reassurance</span>
               <h3>Not sure? You can continue and come back later.</h3>
-              <p>You stay in control of how much you want to check. CMP will carry your answers into Add Property and keep the next step obvious.</p>
+              <p>You stay in control of how much you want to check. CMP will carry these answers into Add Property and keep the next step obvious.</p>
             </section>
 
             <div class="service-journey-actions">
@@ -1061,7 +1121,7 @@
           <article><span>Loan to value</span><strong>${estimate.ltv.toFixed(1)}%</strong></article>
           <article><span>Rent coverage</span><strong>${estimate.rentCoverage ? `${estimate.rentCoverage.toFixed(0)}%` : "Add rent"}</strong></article>
         </div>
-        <small>This is only an estimate for demo planning. It is not regulated mortgage advice.</small>
+        <small>This is only an estimate for this prototype preview. It is not regulated mortgage advice.</small>
       </section>
     `;
   }
@@ -1157,7 +1217,7 @@
       service_focus: draft.focusMode || "",
       isTenanted: draft.isTenanted || "unsure"
     };
-    service.questions.forEach((question) => {
+    [...(service.questions || []), ...(service.optionalEvidence || [])].forEach((question) => {
       if (hasAnswer(draft, question.key)) {
         answers[question.key] = draft[question.key];
       }
@@ -1210,7 +1270,7 @@
           issue: issueDate,
           expiry: expiryDate,
           certificate: template.rating ? `EPC-${normalizePostcode(postcode)}-${index + 1}` : "",
-          source: template.rating ? "Demo EPC preview" : "Demo property preview"
+          source: template.rating ? "Example EPC preview" : "Example property preview"
         }
       };
     });
@@ -1225,7 +1285,7 @@
         key,
         title: value,
         date: "",
-        source: "Prototype public-page upload"
+        source: "Selected from the public journey"
       });
     });
     return docs;
@@ -1238,7 +1298,7 @@
         type: "system",
         category: service.entryService === "eviction" ? "eviction" : service.entryService === "mould" ? "mould_damp" : service.entryService,
         title: `${service.title} journey started`,
-        description: `Started from the public ${service.title} page with ${draft.focusMode || "service_only"} focus.`,
+        description: `Started from the public ${service.title} page with ${focusLabel(draft.focusMode || "service_only")} selected.`,
         eventDate: new Date().toISOString().slice(0, 10),
         dueDate: null,
         source: "system",
@@ -1282,7 +1342,7 @@
         issue: selection.epc?.issue || "",
         expiry: selection.epc?.expiry || "",
         certificate: selection.epc?.certificate || "",
-        source: selection.epc?.source || "Demo EPC preview"
+        source: selection.epc?.source || "Example EPC preview"
       },
       gas: {
         issue: answers.last_gas_check || "",
@@ -1696,8 +1756,8 @@
         <section class="page-hero public-page-hero">
           <div>
             <span class="eyebrow">Latest compliance updates</span>
-            <h1>Preview how CMP could publish regular landlord compliance updates.</h1>
-            <p>This is a placeholder editorial area for EPCs, licensing, Gas Safety, possession preparation, mould responsibilities, and practical landlord reminders.</p>
+            <h1>Latest compliance updates</h1>
+            <p>This is an editorial preview area for EPCs, licensing, Gas Safety, possession preparation, mould responsibilities, and practical landlord reminders.</p>
           </div>
           <img src="assets/cmp-evidence-ai.png" alt="Editorial updates and landlord guidance">
         </section>
@@ -1753,7 +1813,7 @@
     });
     app.querySelectorAll("[data-open-article]").forEach((button) => {
       button.addEventListener("click", () => {
-        flash("Preview article only. A fuller updates area can be layered on later.", "info");
+        flash("Example article only. A fuller updates area can be layered on later.", "info");
         renderPage();
       });
     });
