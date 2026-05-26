@@ -42,13 +42,17 @@ function renderJourney(id) {
 
 function wireJourneyEntryPoints() {
   document.querySelectorAll("[data-journey-entry-service]").forEach((element) => {
-    element.addEventListener("click", () => {
+    element.addEventListener("click", (event) => {
       if (!window.CMPJourney?.setEntry) return;
       window.CMPJourney.setEntry({
         entryService: element.dataset.journeyEntryService || "full_compliance",
         focusMode: element.dataset.journeyFocusMode || "full_compliance",
         sourceRoute: `${window.location.pathname.split("/").pop() || "index.html"}${window.location.hash}`
       });
+      if (window.CMP_DEMO_MODE !== false && element.tagName === "A") {
+        event.preventDefault();
+        window.location.href = "dashboard.html";
+      }
     });
   });
 }

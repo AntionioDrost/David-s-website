@@ -1,4 +1,9 @@
 (function () {
+  if (typeof window.CMP_DEMO_MODE === "undefined") {
+    // Prototype default: keep demo mode enabled unless a future build turns it off explicitly.
+    window.CMP_DEMO_MODE = true;
+  }
+
   const STORAGE_PREFIX = "cmp_journey_context::";
   const GUEST_KEY = `${STORAGE_PREFIX}guest`;
   const VALID_ENTRY_SERVICES = new Set([

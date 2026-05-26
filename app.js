@@ -59,7 +59,55 @@ const EPC_TOKEN_STORAGE = "cmp_epc_bearer_token";
 const POSTCODES_IO_BASE = "https://api.postcodes.io";
 const EPC_API_BASE = "https://api.get-energy-performance-data.communities.gov.uk/api/domestic";
 const DOCUMENT_AI_MODEL = "gpt-4o-mini";
+const DEMO_MODE = window.CMP_DEMO_MODE !== false;
+const DEMO_STUDIO_STORAGE = "cmp_demo_scenario";
 let workspaceSaveTimer = null;
+
+const DEMO_SCENARIOS = {
+  demo_property: {
+    label: "Demo property",
+    entryService: "full_compliance",
+    focusMode: "full_compliance",
+    postcode: "B14 7RZ",
+    title: "General landlord demo"
+  },
+  epc_only: {
+    label: "EPC journey",
+    entryService: "epc",
+    focusMode: "service_only",
+    postcode: "B29 6HH",
+    title: "EPC-first demo"
+  },
+  full_compliance: {
+    label: "Full compliance",
+    entryService: "full_compliance",
+    focusMode: "full_compliance",
+    postcode: "B37 7BA",
+    title: "Full property check demo"
+  },
+  eviction: {
+    label: "Eviction evidence",
+    entryService: "eviction",
+    focusMode: "full_compliance",
+    postcode: "CV1 3BJ",
+    title: "Possession evidence pack demo"
+  },
+  mould: {
+    label: "Mould case",
+    entryService: "mould",
+    focusMode: "related_checks",
+    postcode: "B16 8TL",
+    title: "Mould and repair timeline demo"
+  }
+};
+
+const DEMO_ADDRESS_TEMPLATES = [
+  { houseNumber: "18", roadName: "Willow Brook Drive", city: "Birmingham", type: "Semi-detached house", bedrooms: 3, storeys: 2, rating: "C", currentScore: 72, potential: "B", potentialScore: 83, hasGas: true, fixedCombustion: true },
+  { houseNumber: "Flat 3", roadName: "Cedar Court", city: "Birmingham", type: "Flat", bedrooms: 2, storeys: 1, rating: "D", currentScore: 61, potential: "C", potentialScore: 74, hasGas: true, fixedCombustion: false },
+  { houseNumber: "44", roadName: "Maple Avenue", city: "Birmingham", type: "Terraced house", bedrooms: 3, storeys: 2, rating: "", currentScore: null, potential: "", potentialScore: null, hasGas: true, fixedCombustion: true },
+  { houseNumber: "2", roadName: "Oakfield Mews", city: "Birmingham", type: "Maisonette", bedrooms: 1, storeys: 1, rating: "B", currentScore: 82, potential: "A", potentialScore: 91, hasGas: false, fixedCombustion: false },
+  { houseNumber: "91", roadName: "Station Road", city: "Birmingham", type: "Detached house", bedrooms: 4, storeys: 2, rating: "E", currentScore: 49, potential: "C", potentialScore: 69, hasGas: true, fixedCombustion: true }
+];
 
 const journeys = [
   {
@@ -3319,10 +3367,10 @@ function questionIsAnswered(question, value) {
 function questionOptionLabel(question, value) {
   if (!hasMeaningfulValue(value)) return "";
   if (question.type === "toggle") {
-    return value === true ? "Yes" : value === false ? "No" : value === "na" ? "Not applicable" : "Unsure";
+    return value === true ? "Yes" : value === false ? "No" : value === "na" ? "Not applicable" : "Not sure at this point";
   }
   if (question.type === "toggle_az") {
-    return value === "yes" ? "Yes" : value === "no" ? "No" : value === "na" ? "Not applicable" : "Unsure";
+    return value === "yes" ? "Yes" : value === "no" ? "No" : value === "na" ? "Not applicable" : "Not sure at this point";
   }
   return String(value);
 }
@@ -3567,6 +3615,9 @@ function syncSetupStateAfterWorkspaceLoad() {
 }
 
 async function getSupabaseSession() {
+  if (DEMO_MODE) {
+    return { client: null, user: null };
+  }
   const client = window.CMPAuth?.getClient?.();
   if (!client) return { client: null, user: null };
 
@@ -3634,7 +3685,7 @@ async function loadPersistedWorkspace() {
   if (!client || !user) {
     loadJourneyContextForSession(null);
     loadLocalWorkspace();
-    state.saveStatus = "Saved locally";
+    state.saveStatus = DEMO_MODE ? "Demo mode · saved in this browser" : "Saved locally";
     state.saveTone = "local";
     return;
   }
@@ -3727,7 +3778,7 @@ async function saveWorkspace(propertyId = state.activePropertyId) {
 
   saveWorkspaceLocally(propertyId, user?.id || null);
   if (!client || !user) {
-    setSaveStatus("Saved in this browser", "local");
+    setSaveStatus(DEMO_MODE ? "Demo change saved in this browser" : "Saved in this browser", "local");
     return;
   }
 
@@ -3895,6 +3946,99 @@ function cityFromPostcodeMeta(postcodeMeta) {
     postcodeMeta?.country
   ].find(Boolean);
   return titleCase(String(value || "").toLowerCase());
+}
+
+function demoScenario() {
+  return safeJsonParse(localStorage.getItem(DEMO_STUDIO_STORAGE), null);
+}
+
+function saveDemoScenarioKey(key) {
+  if (!DEMO_MODE) return;
+  if (key && DEMO_SCENARIOS[key]) {
+    localStorage.setItem(DEMO_STUDIO_STORAGE, JSON.stringify(key));
+  } else {
+    localStorage.removeItem(DEMO_STUDIO_STORAGE);
+  }
+}
+
+function demoScenarioKeyForJourney() {
+  const presetKey = journeyPresetKey();
+  if (presetKey === "epc_only" || presetKey === "epc_related") return "epc_only";
+  if (presetKey === "eviction") return "eviction";
+  if (presetKey === "mould") return "mould";
+  return "full_compliance";
+}
+
+function demoPostcodeMeta(postcode) {
+  return {
+    postcode: formatPostcode(postcode),
+    post_town: "Birmingham",
+    admin_district: "Birmingham",
+    region: "West Midlands",
+    country: "England",
+    latitude: 52.4862,
+    longitude: -1.8904
+  };
+}
+
+function epcDemoExpiry(issueDate, rating) {
+  if (!issueDate) return "";
+  const explicitYears = rating === "E" ? 9 : 10;
+  return addYears(issueDate, explicitYears)?.toISOString().slice(0, 10) || "";
+}
+
+function demoAddressMatches(postcode, postcodeMeta = demoPostcodeMeta(postcode)) {
+  const normalizedPostcode = formatPostcode(postcodeMeta?.postcode || postcode);
+  return DEMO_ADDRESS_TEMPLATES.map((template, index) => {
+    const issueDate = template.rating ? `20${16 + index}-0${(index % 4) + 1}-1${index}`.slice(0, 10) : "";
+    const expiryDate = template.rating ? epcDemoExpiry(issueDate, template.rating) : "";
+    const address = `${template.houseNumber} ${template.roadName}, ${normalizedPostcode}, ${template.city}`;
+    const match = {
+      id: `demo-${normalizePostcode(normalizedPostcode)}-${index + 1}`,
+      address,
+      shortName: `${template.houseNumber} ${template.roadName}`,
+      houseNumber: template.houseNumber,
+      roadName: template.roadName,
+      city: template.city,
+      postcode: normalizedPostcode,
+      type: template.type,
+      bedrooms: template.bedrooms,
+      storeys: template.storeys,
+      hasGas: template.hasGas,
+      fixedCombustion: template.fixedCombustion,
+      source: template.rating ? "Demo EPC profile" : "Demo address profile",
+      uprn: `100000000${index + 1}`,
+      latitude: postcodeMeta?.latitude,
+      longitude: postcodeMeta?.longitude,
+      epc: {
+        rating: template.rating || "",
+        currentScore: template.currentScore,
+        issue: issueDate,
+        inspectionDate: issueDate,
+        expiry: expiryDate,
+        certificate: template.rating ? `DEMO-EPC-${normalizePostcode(normalizedPostcode)}-${index + 1}` : "",
+        floorArea: template.bedrooms ? `${70 + index * 11} sq m` : "",
+        potential: template.potential || "",
+        potentialScore: template.potentialScore,
+        builtForm: template.type.includes("Flat") ? "Mid-floor flat" : "End-terrace",
+        localAuthority: "Birmingham",
+        heating: template.hasGas ? "Mains gas boiler" : "Electric heating",
+        walls: index % 2 === 0 ? "Cavity wall, insulated" : "Solid brick, partial insulation",
+        roof: "Pitched roof with insulation",
+        windows: "Fully double glazed",
+        source: template.rating ? "Demo EPC import" : "Demo property profile",
+        status: template.rating
+          ? epcStatus({ rating: template.rating, issue: issueDate, certificate: `DEMO-EPC-${normalizePostcode(normalizedPostcode)}-${index + 1}`, expiry: expiryDate })
+          : "unknown",
+        raw: {
+          demo: true,
+          postcode: normalizedPostcode
+        }
+      }
+    };
+    match.identity = identityFromMatch(match);
+    return match;
+  });
 }
 
 function splitStreetLine(value) {
@@ -4259,8 +4403,24 @@ async function searchRealPropertyData() {
   renderAll();
 
   try {
-    const postcodeMeta = await lookupPostcode(postcode);
+    let postcodeMeta;
+    try {
+      postcodeMeta = await lookupPostcode(postcode);
+    } catch (error) {
+      if (!DEMO_MODE) throw error;
+      postcodeMeta = demoPostcodeMeta(postcode);
+      state.setup.message = "Demo mode is using a realistic postcode fallback for this preview.";
+    }
     state.setup.postcodeMeta = postcodeMeta;
+
+    if (DEMO_MODE && !hasEpcCredentials()) {
+      state.setup.addressMatches = demoAddressMatches(postcode, postcodeMeta);
+      state.setup.selectedAddressId = state.setup.addressMatches[0].id;
+      state.setup.searchDone = true;
+      state.setup.apiStatus = "ready";
+      state.setup.message = "Demo mode loaded a realistic address list and EPC preview for this postcode.";
+      return;
+    }
 
     if (!hasEpcCredentials()) {
       state.setup.addressMatches = [
@@ -4278,9 +4438,11 @@ async function searchRealPropertyData() {
     const rows = await searchEpcByPostcode(postcode);
     state.setup.addressMatches = rows.map((row) => epcMatchFromRow(row, postcodeMeta));
     if (!state.setup.addressMatches.length) {
-      state.setup.addressMatches = [
-        postcodeFallbackMatch(postcodeMeta, "No domestic EPC record was returned for this postcode, so CMP started with the verified postcode instead.")
-      ];
+      state.setup.addressMatches = DEMO_MODE
+        ? demoAddressMatches(postcode, postcodeMeta)
+        : [
+          postcodeFallbackMatch(postcodeMeta, "No domestic EPC record was returned for this postcode, so CMP started with the verified postcode instead.")
+        ];
     }
     if (state.setup.addressMatches.length) {
       state.setup.selectedAddressId = state.setup.addressMatches[0].id;
@@ -4289,8 +4451,19 @@ async function searchRealPropertyData() {
     state.setup.apiStatus = "ready";
     state.setup.message = rows.length
       ? "Addresses found. CMP selected the first match so you can continue immediately."
-      : "Postcode found. CMP could not pull a live EPC address list here, so it created a verified postcode match you can use straight away.";
+      : DEMO_MODE
+        ? "Live EPC results were unavailable, so demo address cards were loaded instead."
+        : "Postcode found. CMP could not pull a live EPC address list here, so it created a verified postcode match you can use straight away.";
   } catch (error) {
+    if (DEMO_MODE) {
+      const fallbackMeta = state.setup.postcodeMeta || demoPostcodeMeta(postcode);
+      state.setup.addressMatches = demoAddressMatches(postcode, fallbackMeta);
+      state.setup.selectedAddressId = state.setup.addressMatches[0].id;
+      state.setup.searchDone = true;
+      state.setup.apiStatus = "ready";
+      state.setup.message = "Demo mode kept the journey moving with simulated address and EPC data.";
+      return;
+    }
     if (state.setup.postcodeMeta) {
       state.setup.addressMatches = [
         postcodeFallbackMatch(state.setup.postcodeMeta, "The live EPC register was not reachable from this browser, so CMP created a verified postcode match instead.")
@@ -4465,6 +4638,174 @@ function completeOnboarding() {
   localStorage.setItem(ONBOARDING_STORAGE, new Date().toISOString());
 }
 
+function seedDemoScenarioProperty(property, scenarioKey = demoScenarioKeyForJourney()) {
+  if (!property || !DEMO_MODE) return;
+  const answers = getAzAnswers(property.id);
+  const todayIso = new Date().toISOString().slice(0, 10);
+  const lastMonth = addMonths(todayIso, -1)?.toISOString().slice(0, 10) || todayIso;
+  const sixMonthsAgo = addMonths(todayIso, -6)?.toISOString().slice(0, 10) || todayIso;
+  const threeMonthsAgo = addMonths(todayIso, -3)?.toISOString().slice(0, 10) || todayIso;
+
+  Object.assign(answers, {
+    notice_evidence: "unknown",
+    tenant_communications: "unknown",
+    mould_report: "unknown",
+    repair_history: "unknown",
+    mould_communications: "unknown"
+  });
+
+  property.tenancy.currentlyTenanted = true;
+  property.alarms.smokeEachStorey = true;
+  property.alarms.coAlarm = property.fixedCombustion === true ? true : property.alarms.coAlarm;
+  property.alarms.testedAtStart = null;
+  property.inspections.last = sixMonthsAgo;
+
+  switch (scenarioKey) {
+    case "epc_only":
+      property.tenancy.currentlyTenanted = null;
+      property.inspections.last = "";
+      property.hasGas = property.hasGas ?? null;
+      property.deposit.taken = null;
+      property.tenancy.agreement = null;
+      setTimelineEvent(property, `demo:${property.id}:epc-note`, true, {
+        type: "system",
+        category: "epc",
+        title: "Demo EPC import",
+        description: "CMP imported the EPC details and left wider checks neutral until you decide to continue.",
+        eventDate: todayIso,
+        source: "system",
+        status: "completed"
+      });
+      break;
+    case "eviction":
+      property.tenancy.currentlyTenanted = true;
+      property.tenancy.agreement = true;
+      property.tenancy.epcServed = true;
+      property.tenancy.gasServed = property.hasGas === true ? null : "na";
+      property.deposit.taken = true;
+      property.deposit.protected = true;
+      property.deposit.prescribedInfo = null;
+      answers.tenant_communications = "yes";
+      setTimelineEvent(property, `demo:${property.id}:tenancy-started`, true, {
+        type: "evidence",
+        category: "tenancy",
+        title: "Tenancy agreement recorded",
+        description: "The tenancy agreement is recorded, but CMP still needs the supporting file upload.",
+        eventDate: sixMonthsAgo,
+        source: "journey_answer",
+        status: "completed"
+      });
+      setTimelineEvent(property, `demo:${property.id}:communications`, true, {
+        type: "communication",
+        category: "tenant_communication",
+        title: "Tenant communication logged",
+        description: "A communication trail is recorded for this property. Add emails or letters to strengthen the pack.",
+        eventDate: lastMonth,
+        source: "manual",
+        status: "review_needed"
+      });
+      break;
+    case "mould":
+      property.tenancy.currentlyTenanted = true;
+      property.inspections.last = threeMonthsAgo;
+      answers.mould_report = "yes";
+      answers.repair_history = "yes";
+      answers.mould_communications = "yes";
+      answers.tenant_communications = "yes";
+      upsertEvidenceItem(property, "mould_damp", (item) => item.linkedQuestionId === "demo_mould_report", {
+        id: `demo:${property.id}:mould-report`,
+        title: "Damp and mould report",
+        source: "manual",
+        date: threeMonthsAgo,
+        status: "review_needed",
+        notes: "Demo mode: tenant reported mould in the front bedroom."
+      });
+      upsertEvidenceItem(property, "repairs", (item) => item.linkedQuestionId === "demo_repair_visit", {
+        id: `demo:${property.id}:repair-visit`,
+        title: "Repair visit note",
+        source: "manual",
+        date: lastMonth,
+        status: "review_needed",
+        notes: "Demo mode: extractor fan replacement was scheduled, but follow-up evidence is still missing."
+      });
+      setTimelineEvent(property, `demo:${property.id}:mould-reported`, true, {
+        type: "note",
+        category: "mould_damp",
+        title: "Mould issue reported",
+        description: "The issue has been logged. Add photos, inspection notes, or follow-up actions to complete the case history.",
+        eventDate: threeMonthsAgo,
+        source: "manual",
+        status: "warning"
+      });
+      break;
+    default:
+      property.tenancy.currentlyTenanted = true;
+      property.tenancy.agreement = true;
+      property.deposit.taken = true;
+      property.deposit.protected = null;
+      property.deposit.prescribedInfo = null;
+      property.alarms.testedAtStart = true;
+      setTimelineEvent(property, `demo:${property.id}:inspection`, true, {
+        type: "inspection",
+        category: "inspection",
+        title: "Inspection note added",
+        description: "Demo mode imported one recent inspection to make the dashboard feel alive.",
+        eventDate: sixMonthsAgo,
+        source: "manual",
+        status: "completed"
+      });
+      break;
+  }
+
+  syncPropertyEvidence(property);
+  syncPropertyTimeline(property);
+  refreshGuidedProgressState(property.id);
+}
+
+function loadDemoScenario(scenarioKey = "demo_property") {
+  if (!DEMO_MODE) return;
+  const scenario = DEMO_SCENARIOS[scenarioKey] || DEMO_SCENARIOS.demo_property;
+  resetWorkspaceState();
+  writeWorkspaceStorage(null, {});
+  state.setup.isOpen = false;
+  state.setup.createdPropertyId = "";
+  state.setup.message = "";
+  state.scans = [];
+  state.azChecklist = {};
+
+  saveDemoScenarioKey(scenarioKey);
+  persistJourneyContext({
+    entryService: scenario.entryService,
+    focusMode: scenario.focusMode,
+    selectedPropertyId: null,
+    answeredQuestions: {},
+    sourceRoute: "demo-studio"
+  }, { replace: true });
+
+  const matches = demoAddressMatches(scenario.postcode, demoPostcodeMeta(scenario.postcode));
+  const property = buildPropertyFromAddress(matches[0]);
+  properties.unshift(property);
+  applyJourneySelection(property.id);
+  completeOnboarding();
+  seedDemoScenarioProperty(property, scenarioKey);
+  saveWorkspaceLocally(property.id, null);
+  setSaveStatus(`${scenario.title} loaded`, "saved");
+  applyJourneyNavigation({ forcePanel: true, forceStep: true });
+  renderAll();
+}
+
+function resetDemoStudio() {
+  if (!DEMO_MODE) return;
+  resetWorkspaceState();
+  writeWorkspaceStorage(null, {});
+  saveDemoScenarioKey(null);
+  window.CMPJourney?.clear?.();
+  localStorage.removeItem(ONBOARDING_STORAGE);
+  resetPropertySetup(true);
+  setSaveStatus("Demo reset", "idle");
+  renderAll();
+}
+
 function openExistingProperty(property, message = "") {
   applyJourneySelection(property.id);
   state.setup.isOpen = false;
@@ -4517,6 +4858,9 @@ function createPropertyFromMatch(match) {
   }
 
   const property = buildPropertyFromAddress(match);
+  if (DEMO_MODE) {
+    seedDemoScenarioProperty(property, demoScenarioKeyForJourney());
+  }
   properties.unshift(property);
   applyJourneySelection(property.id);
   state.setup.isChecking = false;
@@ -4524,15 +4868,42 @@ function createPropertyFromMatch(match) {
   state.setup.pendingPropertyId = null;
   state.setup.mode = "create";
   state.setup.createdPropertyId = property.id;
-  state.setup.message = "Property added. CMP opened the guided setup.";
+  state.setup.message = match.epc?.rating
+    ? "Property added. EPC information found."
+    : "Property added. The dashboard is ready, and the remaining checks can be guided step by step.";
   completeOnboarding();
   applyJourneyNavigation({ forcePanel: true, forceStep: true });
   queueWorkspaceSave(property.id);
+  setSaveStatus(state.setup.message, "local");
   renderAll();
   window.setTimeout(() => {
     document.querySelector("#guided-check")
       ?.scrollIntoView({ behavior: "smooth", block: "start" });
   }, 0);
+}
+
+function beginPropertyImportFlow(match, { isRefreshMode = false } = {}) {
+  state.setup.isChecking = true;
+  state.setup.message = isRefreshMode ? "Checking EPC records..." : "Checking EPC records...";
+  renderAll();
+
+  window.setTimeout(() => {
+    state.setup.message = isRefreshMode ? "Importing property details..." : "Importing property details...";
+    renderAll();
+  }, 350);
+
+  window.setTimeout(() => {
+    state.setup.message = isRefreshMode ? "Updating the dashboard..." : "Building your dashboard...";
+    renderAll();
+  }, 800);
+
+  window.setTimeout(() => {
+    if (isRefreshMode && state.setup.pendingPropertyId) {
+      refreshExistingPropertyFromMatch(state.setup.pendingPropertyId, match);
+      return;
+    }
+    createPropertyFromMatch(match);
+  }, DEMO_MODE ? 1250 : 1000);
 }
 
 function renderPropertySetup() {
@@ -4559,10 +4930,10 @@ function renderPropertySetup() {
   panel.innerHTML = `
     <div class="setup-copy">
       <span class="section-kicker">${escapeHtml(modulePlan.journeyLabel)}</span>
-      <h2 id="propertySetupTitle">${isRefreshMode ? "Choose the EPC record to refresh." : "Add a property in under a minute."}</h2>
+      <h2 id="propertySetupTitle">${isRefreshMode ? "Choose the EPC record to refresh." : "Add your property"}</h2>
       <p>${isRefreshMode
         ? "CMP matched this postcode but needs you to confirm which EPC record belongs to the selected property before refreshing anything."
-        : `${escapeHtml(modulePlan.journeyIntro)} Postcodes.io validates the postcode. The official EPC search supplies the address options and certificate data for setup.`}</p>
+        : "Enter a postcode and choose the right address. CMP will look for EPC information automatically and build the dashboard around the journey you started from."}</p>
       <div class="setup-steps" aria-label="Property setup steps">
         <span class="is-complete"><i data-lucide="search"></i> Postcode</span>
         <span class="${matches.length ? "is-complete" : state.setup.isSearching ? "is-active" : ""}"><i data-lucide="map-pin"></i> Address</span>
@@ -4579,7 +4950,7 @@ function renderPropertySetup() {
           ${state.setup.isSearching ? "Searching..." : isRefreshMode ? "Find EPC records" : "Find address"}
         </button>
       </div>
-      <small>Postcodes.io validates the postcode only. Address options and EPC data come from the Energy Performance Data domestic search API.</small>
+      <small>${DEMO_MODE ? "Demo mode will keep this flow moving, even if live EPC data is unavailable." : "Postcodes.io validates the postcode only. Address options and EPC data come from the Energy Performance Data domestic search API."}</small>
       <details class="epc-access" ${hasEpcCredentials() ? "" : "open"}>
         <summary>Energy Performance Data API access</summary>
         <div class="epc-access-grid">
@@ -4588,7 +4959,7 @@ function renderPropertySetup() {
             <input id="epcBearerToken" type="password" value="${escapeHtml(epcBearerToken)}" placeholder="GOV.UK One Login API bearer token">
           </label>
         </div>
-        <small>Prototype only: the token is stored in this browser for testing. A production build should move this request behind a secure server function.</small>
+        <small>${DEMO_MODE ? "Optional in demo mode: if the live token is missing, CMP falls back to realistic simulated EPC data." : "Prototype only: the token is stored in this browser for testing. A production build should move this request behind a secure server function."}</small>
       </details>
     </form>
 
@@ -4605,9 +4976,9 @@ function renderPropertySetup() {
               <button class="address-option${match.id === state.setup.selectedAddressId ? " is-selected" : ""}" type="button" data-address-id="${escapeHtml(match.id)}">
                 <span>
                   <strong>${escapeHtml(match.address)}</strong>
-                  <small>${escapeHtml(match.type || "Property type not returned")} · EPC ${escapeHtml(match.epc.rating || "not recorded")}${hasMeaningfulValue(match.epc.currentScore) ? ` (${escapeHtml(match.epc.currentScore)})` : ""} · ${escapeHtml(match.epc.status === "expired" ? "expired" : match.epc.status === "expiring_soon" ? "expiring soon" : match.epc.status === "ok" ? "found" : "needs review")} · ${escapeHtml(match.source)}</small>
+                  <small>${escapeHtml(match.type || "Property type not returned")} · ${escapeHtml(match.epc.rating ? "EPC match found" : "EPC needs checking")} · ${escapeHtml(match.source)}</small>
                 </span>
-                <i data-lucide="${match.id === state.setup.selectedAddressId ? "check-circle-2" : "circle"}"></i>
+                <span class="address-option-action">${match.id === state.setup.selectedAddressId ? "Selected" : "Use this property"}</span>
               </button>
             `).join("")}
           </div>
@@ -4639,11 +5010,11 @@ function renderPropertySetup() {
 
     <div class="setup-result${activeMatch ? " is-found" : ""}">
       <div>
-        <strong>${state.setup.isChecking ? (isRefreshMode ? "Refreshing EPC data..." : "Checking property records...") : activeMatch && !hasManualAddress ? "Complete the address" : state.setup.createdPropertyId ? "Property found. Setup started." : "What happens next?"}</strong>
+        <strong>${state.setup.isChecking ? (isRefreshMode ? "Refreshing EPC data..." : "Checking EPC records...") : activeMatch && !hasManualAddress ? "Complete the address" : state.setup.createdPropertyId ? "Property added" : "What happens next?"}</strong>
         <span>${state.setup.isChecking
           ? isRefreshMode
             ? "CMP is applying the selected EPC record to the existing property."
-            : "CMP is turning the selected EPC register record into a starter compliance workspace."
+            : "CMP is importing the property details and building the dashboard."
           : activeMatch && !hasManualAddress
             ? "Add the missing house number and road name first."
             : state.setup.createdPropertyId
@@ -4654,7 +5025,7 @@ function renderPropertySetup() {
       </div>
       <button class="secondary-button" type="button" id="continueSetupButton" ${canCreateProperty || state.setup.createdPropertyId ? "" : "disabled"}>
         <i data-lucide="${state.setup.createdPropertyId ? "arrow-down" : "sparkles"}"></i>
-        ${state.setup.createdPropertyId ? "Open guided check" : isRefreshMode ? "Use this EPC record" : "Use this property"}
+        ${state.setup.createdPropertyId ? "Open property dashboard" : isRefreshMode ? "Import this EPC record" : "Import this property"}
       </button>
     </div>
   `;
@@ -4706,7 +5077,7 @@ function renderPropertySetup() {
       if (resultTitle && resultCopy) {
         resultTitle.textContent = complete ? "What happens next?" : "Complete the address";
         resultCopy.textContent = complete
-          ? `After you choose an EPC address, CMP opens the ${modulePlan.journeyTitle} view for this property.`
+          ? `After you choose an address, CMP imports the key details and opens the ${modulePlan.journeyTitle} view for this property.`
           : "Add the missing house number and road name first.";
       }
     });
@@ -4740,15 +5111,7 @@ function renderPropertySetup() {
         return;
       }
     }
-    state.setup.isChecking = true;
-    renderAll();
-    window.setTimeout(() => {
-      if (isRefreshMode && state.setup.pendingPropertyId) {
-        refreshExistingPropertyFromMatch(state.setup.pendingPropertyId, match);
-        return;
-      }
-      createPropertyFromMatch(match);
-    }, 900);
+    beginPropertyImportFlow(match, { isRefreshMode });
   });
 }
 
@@ -4881,6 +5244,256 @@ function propertyCompletionSummary(property, evaluation) {
   };
 }
 
+const SECTION_EVALUATION_KEYS = {
+  property_basics: ["tenancy"],
+  epc: ["epc"],
+  gas: ["gas"],
+  eicr: ["eicr"],
+  alarms: ["alarms"],
+  tenancy_deposit: ["tenancy", "deposit"],
+  licensing: ["licensing"],
+  inspections: ["inspections"],
+  eviction_evidence: ["possession", "deposit", "tenancy"],
+  mould_damp: ["inspections"],
+  evidence_pack: ["epc", "gas", "eicr", "tenancy", "deposit", "licensing", "inspections"]
+};
+
+function recommendationTypeLabel(type) {
+  return {
+    book_service: "Book",
+    upload_evidence: "Upload",
+    answer_question: "Check",
+    review_document: "Review",
+    set_reminder: "Track",
+    add_timeline_note: "Add note",
+    continue_journey: "Continue"
+  }[type] || "Next";
+}
+
+function sectionStatusSummary(section, property, evaluation, progress) {
+  const sectionProgress = progress.sectionSummaries.find((item) => item.id === section.id) || {
+    answeredQuestions: 0,
+    totalQuestions: 0,
+    percent: 0,
+    complete: false
+  };
+  const relatedItems = (evaluation?.items || []).filter((item) => (SECTION_EVALUATION_KEYS[section.id] || []).includes(item.key));
+
+  if (section.id === "epc" && property?.epc?.rating) {
+    const expired = property.epc?.expiry && daysUntil(property.epc.expiry) < 0;
+    return {
+      tone: expired ? "critical" : "info",
+      badge: expired ? "Expired" : "Imported",
+      detail: property.epc?.expiry
+        ? `EPC ${property.epc.rating} recorded · expires ${formatDate(property.epc.expiry)}`
+        : `EPC ${property.epc.rating} imported from register data`,
+      cta: sectionProgress.complete ? "Review" : "Continue"
+    };
+  }
+
+  if (relatedItems.some((item) => ["critical", "expired"].includes(item.status))) {
+    return {
+      tone: "critical",
+      badge: "Known issue",
+      detail: relatedItems.find((item) => ["critical", "expired"].includes(item.status))?.summary || "A known problem needs attention here.",
+      cta: "Review"
+    };
+  }
+
+  if (relatedItems.some((item) => ["missing", "warning", "expiring_soon", "review_needed"].includes(item.status))) {
+    const item = relatedItems.find((entry) => ["missing", "warning", "expiring_soon", "review_needed"].includes(entry.status));
+    return {
+      tone: item.status === "missing" ? "missing" : "warning",
+      badge: item.status === "missing" ? "Needs evidence" : item.status === "review_needed" ? "Review needed" : "Needs attention",
+      detail: item.summary,
+      cta: sectionProgress.answeredQuestions ? "Continue" : "Start"
+    };
+  }
+
+  if (sectionProgress.complete) {
+    return {
+      tone: "ok",
+      badge: "Done",
+      detail: "This section has enough recorded answers for the current journey.",
+      cta: "Review"
+    };
+  }
+
+  if (sectionProgress.answeredQuestions > 0) {
+    return {
+      tone: "warning",
+      badge: "In progress",
+      detail: `${sectionProgress.answeredQuestions} of ${sectionProgress.totalQuestions} questions answered so far.`,
+      cta: "Continue"
+    };
+  }
+
+  return {
+    tone: "unknown",
+    badge: "Not checked yet",
+    detail: "Start here when you are ready. Unknown answers stay neutral until confirmed.",
+    cta: "Start"
+  };
+}
+
+function renderOverviewState(targetId, rows, emptyTitle, emptyCopy) {
+  const target = document.querySelector(targetId);
+  if (!target) return;
+  if (!rows.length) {
+    target.innerHTML = `
+      <article class="overview-row empty">
+        <span class="status-dot unknown"></span>
+        <div>
+          <strong>${escapeHtml(emptyTitle)}</strong>
+          <p>${escapeHtml(emptyCopy)}</p>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  target.innerHTML = rows.map((row) => `
+    <article class="overview-row${row.cta ? " has-action" : ""}">
+      <span class="status-dot ${escapeHtml(row.tone || "unknown")}"></span>
+      <div>
+        <strong>${escapeHtml(row.title)}</strong>
+        <p>${escapeHtml(row.detail)}</p>
+      </div>
+      ${row.cta
+        ? `<button class="mini-button" type="button" data-recommendation-action="${escapeHtml(row.cta.id)}">${escapeHtml(row.cta.label)}</button>`
+        : row.badge
+          ? `<span class="status-pill ${escapeHtml(row.tone || "unknown")}">${escapeHtml(row.badge)}</span>`
+          : ""}
+    </article>
+  `).join("");
+}
+
+function renderTrackerPreview(property, sections, progress, evaluation) {
+  const target = document.querySelector("#trackerPreview");
+  if (!target) return;
+  if (!property || !sections.length) {
+    target.innerHTML = `
+      <article class="tracker-card empty">
+        <span class="tracker-step">1</span>
+        <div>
+          <strong>Start with a property</strong>
+          <p>Add a property above and CMP will turn this area into a simple step-by-step tracker.</p>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  target.innerHTML = sections.map((section, index) => {
+    const sectionProgress = progress.sectionSummaries.find((item) => item.id === section.id) || { answeredQuestions: 0, totalQuestions: 0 };
+    const summary = sectionStatusSummary(section, property, evaluation, progress);
+    return `
+      <article class="tracker-card tracker-card-${escapeHtml(summary.tone)}">
+        <span class="tracker-step">${index + 1}</span>
+        <div class="tracker-copy">
+          <div class="tracker-topline">
+            <h3>${escapeHtml(section.title)}</h3>
+            <span class="status-pill ${escapeHtml(summary.tone)}">${escapeHtml(summary.badge)}</span>
+          </div>
+          <p>${escapeHtml(summary.detail || section.intro)}</p>
+          <small>${sectionProgress.answeredQuestions}/${sectionProgress.totalQuestions || 0} answered</small>
+        </div>
+        <button class="service-button" type="button" data-jump-guided="${escapeHtml(section.id)}">${escapeHtml(summary.cta)}</button>
+      </article>
+    `;
+  }).join("");
+
+  target.querySelectorAll("[data-jump-guided]").forEach((button) => {
+    button.addEventListener("click", () => jumpToGuidedSection(button.dataset.jumpGuided, "check"));
+  });
+}
+
+function renderOverviewSnapshots(property, evaluation, modulePlan, recommendations, progress) {
+  syncPropertyEvidence(property);
+  const evidenceCount = allEvidenceItems(property, { includeIrrelevant: false }).length;
+  const known = [];
+  const missing = [];
+  const next = [];
+
+  if (property.epc?.rating) {
+    known.push({
+      tone: "info",
+      title: `EPC ${property.epc.rating} imported`,
+      detail: property.epc.expiry ? `Recorded from register data · expires ${formatDate(property.epc.expiry)}` : "Recorded from register data"
+    });
+  }
+  if (property.type || hasMeaningfulValue(property.bedrooms) || hasMeaningfulValue(property.storeys)) {
+    known.push({
+      tone: "ok",
+      title: property.type || "Property profile started",
+      detail: [
+        hasMeaningfulValue(property.bedrooms) ? `${property.bedrooms} bedrooms` : "",
+        hasMeaningfulValue(property.storeys) ? `${property.storeys} storeys` : "",
+        property.tenancy?.currentlyTenanted === true ? "Currently tenanted" : property.tenancy?.currentlyTenanted === false ? "Not currently tenanted" : ""
+      ].filter(Boolean).join(" · ") || "CMP has started the property profile."
+    });
+  }
+  if (evidenceCount) {
+    known.push({
+      tone: "ok",
+      title: `${evidenceCount} evidence item${evidenceCount === 1 ? "" : "s"} added`,
+      detail: "Imported data, uploaded files, and confirmed answers all appear here."
+    });
+  }
+  if (progress.completedSections) {
+    known.push({
+      tone: "ok",
+      title: `${progress.completedSections} section${progress.completedSections === 1 ? "" : "s"} completed`,
+      detail: `${progress.answeredQuestions} useful answers recorded so far.`
+    });
+  }
+
+  evaluation.items
+    .filter((item) => ["setup_needed", "unknown", "missing", "review_needed", "expired", "expiring_soon"].includes(item.status))
+    .slice(0, 4)
+    .forEach((item) => {
+      missing.push({
+        tone: statusTone(item.status),
+        title: item.title,
+        detail: item.summary,
+        badge: statusLabel(item.status)
+      });
+    });
+
+  recommendations.slice(0, 3).forEach((recommendation) => {
+    next.push({
+      tone: recommendationStatusTone(recommendation.urgency),
+      title: recommendation.title,
+      detail: `${recommendation.reason} · ${recommendationTypeLabel(recommendation.type)}`,
+      cta: {
+        id: recommendation.id,
+        label: recommendation.ctaLabel
+      }
+    });
+  });
+
+  renderOverviewState(
+    "#knownSnapshot",
+    known,
+    "Nothing confirmed yet",
+    "Imported property details and completed answers will appear here."
+  );
+  renderOverviewState(
+    "#missingSnapshot",
+    missing,
+    "Nothing urgent is showing yet",
+    "Unknown answers stay calm here until the property needs a clearer answer or some proof."
+  );
+  renderOverviewState(
+    "#actionSnapshot",
+    next,
+    modulePlan.primaryFocus === "eviction" ? "Start the evidence pack" : "Start with the guided check",
+    modulePlan.primaryFocus === "eviction"
+      ? "Add the first notice, communication, or proof item and CMP will build the timeline."
+      : "CMP will narrow the next step once you answer a few simple questions."
+  );
+}
+
 function renderCompletionBanner(property, evaluation) {
   const banner = document.querySelector("#completionBanner");
   if (!banner) return;
@@ -4927,6 +5540,7 @@ function renderDashboard() {
   const plan = dashboardModulePlan(property);
   if (!property) {
     state.currentRecommendations = [];
+    renderCompletionBanner(null, null);
     document.querySelector("#dashboardHeaderKicker").textContent = plan.journeyLabel;
     document.querySelector("#propertyTitle").textContent = "No properties added yet";
     document.querySelector("#propertySubtitle").textContent = plan.journeyIntro;
@@ -4960,6 +5574,10 @@ function renderDashboard() {
     document.querySelector("#assistantCopy").textContent = "Add a property listing to unlock document scans, evidence packs, reminders, and journey-led recommendations.";
     document.querySelector("#scanResults").innerHTML = `<article class="scan-result"><strong>No property selected</strong><span>Add a property before uploading evidence.</span></article>`;
     document.querySelector("#serviceList").innerHTML = `<article class="service-item"><strong>Start with your first property</strong><span>CMP will suggest certificates and services after the address has been added.</span></article>`;
+    renderOverviewState("#knownSnapshot", [], "Nothing confirmed yet", "Imported property details and completed answers will appear here.");
+    renderOverviewState("#missingSnapshot", [], "No checks started yet", "CMP will list the unanswered or evidence-light areas once a property is added.");
+    renderOverviewState("#actionSnapshot", [], "Add a property first", "Use the postcode search or load a demo journey from the sidebar.");
+    renderTrackerPreview(null, [], { sectionSummaries: [], answeredQuestions: 0, totalQuestions: 0, completedSections: 0, totalSections: 0 }, null);
     renderActionCentre(null, []);
     document.querySelector("#pullEpcButton").disabled = true;
     document.querySelector("#startGuidedCheck").disabled = true;
@@ -4969,6 +5587,7 @@ function renderDashboard() {
   document.querySelector("#pullEpcButton").disabled = false;
   document.querySelector("#startGuidedCheck").disabled = false;
   const evaluation = evaluateProperty(property);
+  renderCompletionBanner(property, evaluation);
   const assessment = evaluation.assessment;
   const actions = sortedActions(evaluation.items);
   const modulePlan = dashboardModulePlan(property, evaluation);
@@ -5062,6 +5681,10 @@ function renderDashboard() {
 
   document.querySelector("#lastUpdated").textContent = `Checked ${formatDate(today)}`;
   document.querySelector("#complianceGrid").innerHTML = evaluation.items.map((item) => renderComplianceCard(item, recommendations)).join("");
+  const sections = visibleGuidedSections(property);
+  const progress = guidedProgress(sections, property);
+  renderOverviewSnapshots(property, evaluation, modulePlan, recommendations, progress);
+  renderTrackerPreview(property, sections.filter((section) => section.id !== "summary").slice(0, 6), progress, evaluation);
   renderEvidenceGrid(property, evaluation.items, modulePlan);
   renderTimeline(property, modulePlan);
   renderAssistant(property, evaluation, actions, modulePlan);
@@ -5230,7 +5853,7 @@ function renderAssistant(property, evaluation, actions, modulePlan = dashboardMo
 }
 
 function renderServices(recommendations, assessment, modulePlan) {
-  const candidates = recommendations.slice(0, 4);
+  const candidates = recommendations.slice(0, 3);
 
   if (!candidates.length) {
     document.querySelector("#serviceList").innerHTML = `<article class="service-item"><strong>${assessment.mode === "setup" ? "Complete setup first" : "No urgent next action"}</strong><span>${assessment.mode === "setup" ? "CMP will suggest the next checks once the key property facts are confirmed." : "Based on the information added so far, CMP has no urgent action for this journey."}</span></article>`;
@@ -5241,12 +5864,15 @@ function renderServices(recommendations, assessment, modulePlan) {
     <article class="service-item">
       <header>
         <strong>${escapeHtml(item.title)}</strong>
-        <span class="status-pill ${recommendationStatusTone(item.urgency)}">${escapeHtml(titleCase(item.urgency))}</span>
+        <div class="service-item-tags">
+          <span class="quiet-pill">${escapeHtml(recommendationTypeLabel(item.type))}</span>
+          <span class="status-pill ${recommendationStatusTone(item.urgency)}">${escapeHtml(titleCase(item.urgency))}</span>
+        </div>
       </header>
       <span>${escapeHtml(item.reason)}</span>
       <span>${escapeHtml(
         item.type === "book_service"
-          ? "Prototype only: this saves a service interest, not a confirmed booking."
+          ? "Prototype only: this saves service interest for the final version. It does not place a real booking."
           : item.type === "upload_evidence"
             ? "CMP will open the relevant upload flow for this property."
             : item.type === "review_document"
@@ -5255,7 +5881,7 @@ function renderServices(recommendations, assessment, modulePlan) {
                 ? "CMP will save this follow-up in the action centre."
                 : item.type === "add_timeline_note"
                   ? "CMP will reopen the relevant guided section for this timeline."
-                  : "CMP will continue the current guided journey."
+                  : "CMP will continue the current guided journey in baby steps."
       )}</span>
       <button class="service-button" type="button" data-recommendation-action="${escapeHtml(item.id)}">${escapeHtml(item.ctaLabel)}</button>
     </article>
@@ -5299,12 +5925,12 @@ function summarizeAzAnswers(property = activeProperty(), sections = visibleGuide
 
 function suggestAzPrimaryAction(summary) {
   if (summary.issues) {
-    return `${summary.issues} known issue${summary.issues === 1 ? "" : "s"} still need attention before this property picture feels complete.`;
+    return `${summary.issues} known item${summary.issues === 1 ? "" : "s"} still needs attention. CMP can keep the next step calm and obvious.`;
   }
   if (summary.unknown) {
-    return `${summary.unknown} check${summary.unknown === 1 ? "" : "s"} still need evidence or a landlord answer.`;
+    return `${summary.unknown} part${summary.unknown === 1 ? "" : "s"} of the property still needs a landlord answer or some proof.`;
   }
-  return "Property check in a good place. Keep renewals and document evidence updated.";
+  return "Here’s what we know so far. Keep the evidence and renewal dates up to date.";
 }
 
 function setAzAnswer(checkId, answer) {
@@ -5421,6 +6047,7 @@ function renderAzChecker() {
   document.querySelector("#azChecklist").innerHTML = sections.map((section) => {
     const sectionProgress = progress.sectionSummaries.find((item) => item.id === section.id);
     const modeLabel = section.mode === "required" ? "Required" : section.mode === "related" ? "Related" : "Optional";
+    const sectionState = sectionStatusSummary(section, property, evaluation, progress);
     return `
       <article class="az-section-card${section.id === currentSectionId ? " is-current" : ""}">
         <header class="az-section-header">
@@ -5429,8 +6056,9 @@ function renderAzChecker() {
             <h4>${escapeHtml(section.title)}</h4>
             <span>${sectionProgress?.answeredQuestions || 0}/${sectionProgress?.totalQuestions || 0} answered · ${modeLabel}</span>
           </div>
+          <span class="status-pill ${escapeHtml(sectionState.tone)}">${escapeHtml(sectionState.badge)}</span>
         </header>
-        <p class="section-copy">${escapeHtml(section.intro)}</p>
+        <p class="section-copy">${escapeHtml(sectionState.detail || section.intro)}</p>
         <div class="az-question-list az-question-summary-list">
           ${section.questions.slice(0, 4).map((question) => {
             const snapshot = guidedQuestionSnapshot(question, property, getAzAnswers(property.id));
@@ -5448,7 +6076,7 @@ function renderAzChecker() {
         </div>
         <div class="az-section-actions">
           <span class="quiet-pill">${sectionProgress?.percent || 0}% complete</span>
-          <button class="service-button" type="button" data-jump-guided="${escapeHtml(section.id)}">${section.id === currentSectionId ? "Continue" : "Open section"}</button>
+          <button class="service-button" type="button" data-jump-guided="${escapeHtml(section.id)}">${escapeHtml(sectionState.cta || (section.id === currentSectionId ? "Continue" : "Open section"))}</button>
         </div>
       </article>
     `;
@@ -5540,7 +6168,7 @@ function renderWizard() {
   refreshGuidedProgressState(property.id);
   const step = sections[state.activeStep];
   const progress = guidedProgress(sections, property);
-  document.querySelector("#stepCount").textContent = `Section ${state.activeStep + 1} of ${sections.length} · ${progress.completedSections}/${progress.totalSections} completed`;
+  document.querySelector("#stepCount").textContent = `Step ${state.activeStep + 1} of ${sections.length} · ${progress.completedSections}/${progress.totalSections} sections complete`;
   document.querySelector("#wizardTabs").innerHTML = sections.map((item, index) => {
     const sectionProgress = progress.sectionSummaries.find((section) => section.id === item.id);
     return `
@@ -5701,7 +6329,7 @@ function renderGuidedQuestion(section, question, property) {
     const evidence = latestEvidence(property, category);
     const statusCopy = evidence
       ? evidenceSummaryCopy(evidence, evidence.status)
-      : (question.hint || "Upload the document if you have it.");
+      : (question.hint || "Upload it if you have it, or come back to this later.");
     return `
       <div class="question">
         <button
@@ -5726,7 +6354,7 @@ function renderGuidedQuestion(section, question, property) {
     const options = [
       { value: "yes", label: "Yes" },
       { value: "no", label: "No" },
-      { value: "unknown", label: "Unsure" },
+      { value: "unknown", label: "Not sure at this point" },
       ...(question.allowNa ? [{ value: "na", label: "N/A" }] : [])
     ];
     return `
@@ -5746,7 +6374,7 @@ function renderGuidedQuestion(section, question, property) {
             `).join("")}
           </div>
         </div>
-        <small>${escapeHtml(selected === "unknown" ? (question.hint || "Not answered yet.") : selected === "na" ? "Marked as not applicable." : "Known answer recorded.")}</small>
+        <small>${escapeHtml(selected === "unknown" ? (question.hint || "No problem — mark this to double-check later.") : selected === "na" ? "Marked as not applicable." : "Known answer recorded.")}</small>
       </div>
     `;
   }
@@ -5808,7 +6436,7 @@ function renderGuidedSummarySection(property, sections, progress) {
   return `
     <span class="section-kicker">${escapeHtml(modulePlan.journeyLabel)}</span>
     <h3>${escapeHtml(modulePlan.journeyTitle)}</h3>
-    <p class="section-copy">${escapeHtml(evaluation.assessment.summaryText)}</p>
+    <p class="section-copy">Here’s what we know so far. Unknown answers stay neutral, and you can change any answer later.</p>
     <div class="wizard-summary-grid">
       <article class="intel-stat">
         <span>Completed checks</span>
@@ -5831,6 +6459,7 @@ function renderGuidedSummarySection(property, sections, progress) {
         <span>${knownExpired ? `${knownExpired} expired` : "No known expired items"}${upcoming ? ` · ${upcoming} coming up` : ""}</span>
       </article>
     </div>
+    <h4 class="wizard-summary-heading">Possible next steps</h4>
     <div class="priority-list">
       ${(summaryActions.length ? summaryActions : evaluation.items.filter((item) => item.status === "ok").slice(0, 3)).map((item) => `
         <article class="priority-item">
@@ -5873,6 +6502,7 @@ function renderGuidedSummarySection(property, sections, progress) {
         `).join("")}
       </div>
     ` : ""}
+    <p class="wizard-summary-note">No problem if you are not sure about everything yet. CMP can keep those items in a follow-up list instead of treating them as failures.</p>
     <p class="compliance-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</p>
   `;
 }
@@ -5884,7 +6514,7 @@ function wizardContent(section, property, sections, progress) {
     : `
       <span class="section-kicker">${escapeHtml(section.mode === "required" ? "Current priority" : section.mode === "related" ? "Related check" : "Optional check")}</span>
       <h3>${escapeHtml(section.title)}</h3>
-      <p class="section-copy">${escapeHtml(section.intro)}</p>
+      <p class="section-copy">${escapeHtml(section.intro)} No problem if you need to skip and come back later.</p>
       <div class="question-grid">
         ${section.questions.map((question) => renderGuidedQuestion(section, question, property)).join("")}
       </div>
@@ -5962,12 +6592,12 @@ function choiceValueForState(value) {
   return null;
 }
 
-function toggleQuestion(label, field, checked, { allowNa = false, hint = "Not answered yet." } = {}) {
+function toggleQuestion(label, field, checked, { allowNa = false, hint = "No problem — mark this to double-check later." } = {}) {
   const selected = choiceStateForValue(checked);
   const options = [
     { value: "yes", label: "Yes" },
     { value: "no", label: "No" },
-    { value: "unknown", label: "Unsure" },
+    { value: "unknown", label: "Not sure at this point" },
     ...(allowNa ? [{ value: "na", label: "N/A" }] : [])
   ];
   return `
@@ -6066,6 +6696,14 @@ function updateAzField(field, value, rerender = true) {
   if (rerender) renderAll();
 }
 
+function showUploadFeedback(message, tone = "saved") {
+  const feedback = document.querySelector("#uploadFeedback");
+  if (!feedback) return;
+  feedback.hidden = false;
+  feedback.dataset.tone = tone;
+  feedback.textContent = message;
+}
+
 function setPath(object, path, value) {
   const parts = path.split(".");
   let current = object;
@@ -6084,11 +6722,17 @@ function openUploadModal(trigger = null) {
   const label = document.querySelector("#uploadLabelText");
   const hint = document.querySelector("#uploadHintText");
   const input = document.querySelector("#documentUpload");
+  const feedback = document.querySelector("#uploadFeedback");
   if (title) title.textContent = state.uploadContext.label;
   if (intro) intro.textContent = state.uploadContext.prompt;
   if (label) label.textContent = state.uploadContext.label;
   if (hint) hint.textContent = "PDF, image, or text files · files are analysed in this browser for prototype testing.";
   if (input) input.value = "";
+  if (feedback) {
+    feedback.hidden = true;
+    feedback.textContent = "";
+    delete feedback.dataset.tone;
+  }
   refreshIcons();
 }
 
@@ -6616,12 +7260,18 @@ function handleFiles(files) {
     window.alert("Add a property listing before uploading evidence.");
     return;
   }
+  if (!files?.length) return;
   const context = state.uploadContext || {
     category: "other",
     label: "Property evidence",
     prompt: "Upload documents for this property",
     source: "dashboard"
   };
+  showUploadFeedback(
+    `${files.length} file${files.length === 1 ? "" : "s"} selected in prototype mode. CMP is updating the evidence area and timeline now.`,
+    "saved"
+  );
+  setSaveStatus("Prototype upload analysed", "local");
   Array.from(files).forEach((file) => {
     const reader = new FileReader();
     reader.onload = async () => {
@@ -6650,7 +7300,11 @@ function handleFiles(files) {
       enrichScanWithAi(file, "", scan);
     }
   });
-  closeUploadModal();
+  window.setTimeout(() => {
+    closeUploadModal();
+    const input = document.querySelector("#documentUpload");
+    if (input) input.value = "";
+  }, 1100);
 }
 
 async function enrichScanWithAi(file, content, scan) {
@@ -6842,8 +7496,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelector("#documentUpload").addEventListener("change", (event) => {
     handleFiles(event.target.files);
-    closeUploadModal();
-    event.target.value = "";
   });
 
   document.querySelector("#azDocumentDump")?.addEventListener("change", (event) => {
@@ -6854,4 +7506,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.querySelector("#saveAiSettings")?.addEventListener("click", saveAiPreferences);
   document.querySelector("#clearAiKey")?.addEventListener("click", clearAiKey);
+
+  document.querySelector("#demoActions")?.querySelectorAll("[data-demo-scenario]").forEach((button) => {
+    button.addEventListener("click", () => loadDemoScenario(button.dataset.demoScenario));
+  });
+  document.querySelector("#demoActions")?.querySelector("[data-demo-reset]")?.addEventListener("click", () => resetDemoStudio());
+  if (!DEMO_MODE) {
+    document.querySelector(".demo-studio")?.setAttribute("hidden", "hidden");
+  }
 });
