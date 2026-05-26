@@ -4,119 +4,16 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>CMP Services | ComplyMyProperty</title>
-    <meta name="description" content="Book property compliance services in context: EPCs, Gas Safety, EICR, inspections, licensing checks, and possession evidence packs.">
+    <meta name="description" content="Explore CMP landlord services, then choose how focused you want the journey to be before adding a property.">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="landing.css">
   </head>
-  <body>
-    <header class="site-nav">
-      <a class="brand" href="index.html" aria-label="ComplyMyProperty home">
-        <span class="brand-mark">CMP</span>
-        <span><strong>ComplyMyProperty</strong><small>Compliance OS for UK landlords</small></span>
-      </a>
-      <nav class="nav-links" aria-label="Main navigation">
-        <a href="index.html#platform">Platform</a>
-        <a href="services.html">Services</a>
-        <a href="pricing.html">Pricing</a>
-        <a href="index.html#faq">FAQ</a>
-        <a href="contact.html">Contact</a>
-      </nav>
-      <a class="nav-cta" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance"><i data-lucide="log-in"></i>Log in</a>
-    </header>
-
-    <main>
-      <section class="page-hero">
-        <div>
-          <span class="eyebrow">Compliance services</span>
-          <h1>Book the right service from the property risk.</h1>
-          <p>
-            CMP should recommend services only when the property record shows a need:
-            missing evidence, expiring certificates, licensing uncertainty, or possession risk.
-          </p>
-          <div class="hero-actions">
-            <a class="button primary" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">Log in to check</a>
-            <a class="button secondary" href="contact.html">Talk to CMP</a>
-          </div>
-        </div>
-        <img src="assets/cmp-hero-property.png" alt="Rental property with compliance dashboard interface">
-      </section>
-
-      <section class="page-section">
-        <div class="section-heading">
-          <span class="eyebrow">Core services</span>
-          <h2>Designed to connect bookings with evidence.</h2>
-        </div>
-        <div class="service-grid">
-          <article id="epc">
-            <span>EPC</span>
-            <h3>Book an EPC</h3>
-            <p>For missing, expired, poor-rated, or unverified EPC records.</p>
-            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="epc" data-journey-focus-mode="service_only">Start EPC check</a>
-          </article>
-          <article id="gas">
-            <span>Gas Safety</span>
-            <h3>Renew Gas Safety</h3>
-            <p>For properties with gas appliances and certificates due soon or missing.</p>
-            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="gas" data-journey-focus-mode="service_only">Start Gas Safety check</a>
-          </article>
-          <article id="eicr">
-            <span>EICR</span>
-            <h3>Book EICR</h3>
-            <p>For electrical certificates that are missing, expired, or require remedial proof.</p>
-            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="eicr" data-journey-focus-mode="service_only">Start EICR check</a>
-          </article>
-          <article>
-            <span>Inspection</span>
-            <h3>Property inspection</h3>
-            <p>For condition checks, alarm evidence, and renewal-ready property notes.</p>
-            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="inspection" data-journey-focus-mode="service_only">Start inspection journey</a>
-          </article>
-          <article>
-            <span>Licensing</span>
-            <h3>Licensing check</h3>
-            <p>For HMO, selective, or additional licensing uncertainty.</p>
-            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="licensing" data-journey-focus-mode="service_only">Start licensing check</a>
-          </article>
-          <article id="possession">
-            <span>Possession</span>
-            <h3>Evidence pack review</h3>
-            <p>For landlords preparing a notice or wanting a stronger evidence position.</p>
-            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="eviction" data-journey-focus-mode="full_compliance">Start possession prep</a>
-          </article>
-          <article>
-            <span>Deposit</span>
-            <h3>Deposit evidence review</h3>
-            <p>For protection certificate, prescribed information, and proof-of-service gaps.</p>
-            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="evidence_pack" data-journey-focus-mode="full_compliance">Start evidence pack</a>
-          </article>
-          <article>
-            <span>Portfolio</span>
-            <h3>Portfolio audit</h3>
-            <p>For landlords who need a renewal and risk view across multiple properties.</p>
-            <a href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">Start portfolio review</a>
-          </article>
-        </div>
-      </section>
-
-      <section class="final-cta">
-        <div>
-          <span class="eyebrow">Better than a menu</span>
-          <h2>Let the property dashboard decide what service should happen next.</h2>
-        </div>
-        <a class="button primary" href="auth.html?redirect=dashboard.html" data-journey-entry-service="full_compliance" data-journey-focus-mode="full_compliance">Log in to dashboard</a>
-      </section>
-    </main>
-
-    <footer class="site-footer">
-      <div><strong>COMPLYMYPROPERTY</strong><p>Property compliance operating system for UK landlords.</p></div>
-      <div><span>Explore</span><a href="index.html">Home</a><a href="pricing.html">Pricing</a><a href="contact.html">Contact</a></div>
-      <div><span>Contact</span><a href="mailto:compliance@complymyproperty.com">compliance@complymyproperty.com</a><a href="tel:01217708814">0121 770 8814</a></div>
-    </footer>
-
+  <body data-public-page="services">
+    <div id="publicSite"></div>
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
     <script src="journey-context.js"></script>
-    <script src="landing.js"></script>
+    <script src="public-pages.js"></script>
   </body>
 </html>
