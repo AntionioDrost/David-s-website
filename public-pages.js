@@ -388,7 +388,8 @@
       matches: [],
       message: "",
       stage: "",
-      selectedId: ""
+      selectedId: "",
+      prefillHandled: false
     }
   };
 
@@ -508,6 +509,24 @@
     return config ? config.title : titleCase(key);
   }
 
+  function focusLabel(value) {
+    const labels = {
+      service_only: "Just this service",
+      related_checks: "This service, then related checks",
+      full_compliance: "Full property check"
+    };
+    return labels[value] || titleCase(value);
+  }
+
+  function tenancyLabel(value) {
+    const labels = {
+      yes: "Tenanted",
+      no: "Not tenanted",
+      unsure: "Not sure yet"
+    };
+    return labels[value] || "Not sure yet";
+  }
+
   function navigationPrimaryHref() {
     return DEMO_MODE ? "my-properties.html" : "auth.html?redirect=my-properties.html";
   }
@@ -565,7 +584,7 @@
     if (page === "add-property") {
       return [
         "Enter the postcode first. CMP will help you choose the right address and import a property preview.",
-        "If live data is unavailable, demo mode keeps the flow moving with realistic address and EPC results."
+        "If live data is unavailable, CMP can still keep the journey moving with a realistic address and EPC preview."
       ];
     }
     if (page === "my-properties") {
@@ -576,7 +595,7 @@
     }
     if (page === "news") {
       return [
-        "This updates area is a demo concept for regular landlord compliance news and plain-English reminders.",
+        "This updates area is a preview of how CMP could publish regular landlord compliance news and plain-English reminders.",
         "It is editorial placeholder content, not live legal publishing."
       ];
     }
@@ -678,7 +697,7 @@
               <input id="homePostcodeInput" type="text" name="postcode" placeholder="B37 7BA" autocomplete="postal-code">
               <button class="button primary" type="submit">Find address</button>
             </div>
-            <small>We will look for EPC information automatically and use realistic demo data if live results are unavailable.</small>
+            <small>We will look for EPC information automatically and keep the journey moving with a realistic property preview if live results are unavailable.</small>
           </form>
         </section>
 
@@ -700,7 +719,7 @@
             <span class="eyebrow">A-Z compliance checker</span>
             <h2>Build your compliance picture step by step.</h2>
             <p>Landlords should be able to say “Not sure at this point”, keep moving, and come back later. Booking comes after CMP understands what they actually need.</p>
-            <a class="button secondary" href="epcs.html">Preview the calmer journey style</a>
+            <a class="button secondary" href="epcs.html">Preview the A-Z checker style</a>
           </div>
           <div class="checker-preview">
             <article><strong>Property basics</strong><span>Done</span><p>Start with the property and tenancy basics.</p></article>
@@ -713,14 +732,14 @@
         <section class="page-section">
           <div class="section-heading">
             <span class="eyebrow">Latest compliance updates</span>
-            <h2>Editorial placeholder for daily landlord compliance news.</h2>
-            <p>These demo articles show how CMP could explain changes, reminders, and practical steps in plain English.</p>
+            <h2>Preview of a future landlord compliance updates area.</h2>
+            <p>These placeholder articles show how CMP could explain changes, reminders, and practical steps in plain English.</p>
           </div>
           <div class="news-grid">
             ${NEWS_ARTICLES.slice(0, 3).map((article) => renderArticleCard(article)).join("")}
           </div>
           <div class="section-actions">
-            <a class="button secondary" href="news.html">See all demo updates</a>
+            <a class="button secondary" href="news.html">See updates preview</a>
           </div>
         </section>
 
@@ -754,7 +773,7 @@
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.excerpt)}</p>
         <div class="news-card-footer">
-          <span class="quiet-pill">Demo update</span>
+          <span class="quiet-pill">Preview article</span>
           <button class="mini-button" type="button" data-open-article="${escapeHtml(article.id)}">Read preview</button>
         </div>
       </article>
@@ -906,11 +925,11 @@
             <p>${escapeHtml(service.heroCopy)}</p>
             <div class="hero-actions">
               <a class="button primary" href="#journeyStart">Start this journey</a>
-              <a class="button secondary" href="add-property.html">Skip to Add Property</a>
+              <button class="button secondary" type="button" data-skip-service>Skip to Add Property</button>
             </div>
             <div class="hero-metrics">
               <span><strong>${progress.answered}/${progress.total}</strong> setup choices recorded</span>
-              <span><strong>${titleCase(state.serviceDraft.focusMode || "service_only")}</strong> focus selected</span>
+              <span><strong>${escapeHtml(focusLabel(state.serviceDraft.focusMode || "service_only"))}</strong> selected</span>
             </div>
           </div>
           <img src="assets/cmp-hero-property.png" alt="${escapeHtml(service.title)} landlord journey preview">
@@ -920,7 +939,7 @@
           <div class="section-heading">
             <span class="eyebrow">${escapeHtml(service.title)} journey</span>
             <h2>Choose how focused you want us to be.</h2>
-            <p>You stay in control. Keep this service-only, widen it gently, or turn it into a broader property check.</p>
+            <p>You stay in control. Just this service is a valid path. Related checks and a wider property review are optional.</p>
           </div>
 
           <div class="journey-progress-bar" aria-label="Journey setup progress">
@@ -976,7 +995,7 @@
 
             <div class="service-journey-actions">
               <button class="button primary" type="button" data-continue-service>Continue to Add Property</button>
-              <a class="button secondary" href="my-properties.html">Go to My Properties instead</a>
+              <button class="button secondary" type="button" data-service-properties>Go to My Properties instead</button>
             </div>
           </div>
         </section>
@@ -1048,6 +1067,17 @@
   }
 
   function wireServicePage(service) {
+    const persistServiceJourney = () => {
+      const answeredQuestions = buildJourneyAnswers(service, state.serviceDraft);
+      window.CMPJourney?.setEntry?.({
+        entryService: service.entryService,
+        focusMode: state.serviceDraft.focusMode || (service.entryService === "eviction" ? "full_compliance" : "service_only"),
+        isTenanted: state.serviceDraft.isTenanted && state.serviceDraft.isTenanted !== "unsure" ? state.serviceDraft.isTenanted : "unsure",
+        answeredQuestions,
+        sourceRoute: `${window.location.pathname.split("/").pop() || service.route}`
+      });
+    };
+
     app.querySelectorAll("[data-intent]").forEach((button) => {
       button.addEventListener("click", () => {
         state.serviceDraft.intent = button.dataset.intent;
@@ -1105,16 +1135,19 @@
       });
     });
     app.querySelector("[data-continue-service]")?.addEventListener("click", () => {
-      const answeredQuestions = buildJourneyAnswers(service, state.serviceDraft);
-      window.CMPJourney?.setEntry?.({
-        entryService: service.entryService,
-        focusMode: state.serviceDraft.focusMode || (service.entryService === "eviction" ? "full_compliance" : "service_only"),
-        isTenanted: state.serviceDraft.isTenanted && state.serviceDraft.isTenanted !== "unsure" ? state.serviceDraft.isTenanted : "unsure",
-        answeredQuestions,
-        sourceRoute: `${window.location.pathname.split("/").pop() || service.route}`
-      });
+      persistServiceJourney();
       flash(`${service.title} journey saved. Next: choose the property.`, "info");
       window.location.href = "add-property.html";
+    });
+    app.querySelector("[data-skip-service]")?.addEventListener("click", () => {
+      persistServiceJourney();
+      flash(`${service.title} journey saved. You can choose the property now.`, "info");
+      window.location.href = "add-property.html";
+    });
+    app.querySelector("[data-service-properties]")?.addEventListener("click", () => {
+      persistServiceJourney();
+      flash(`${service.title} journey saved. You can pick up from My Properties whenever you're ready.`, "info");
+      window.location.href = "my-properties.html";
     });
   }
 
@@ -1359,7 +1392,7 @@
       };
     }
     return {
-      tone: "unknown",
+      tone: "neutral",
       label: "Setup started"
     };
   }
@@ -1395,8 +1428,8 @@
             <p>Enter a postcode and choose the right address. CMP will look for EPC information automatically and carry your ${escapeHtml(service.title)} journey forward.</p>
             <div class="hero-metrics">
               <span><strong>Journey</strong> ${escapeHtml(service.title)}</span>
-              <span><strong>Focus</strong> ${escapeHtml(titleCase(context.focusMode || "service_only"))}</span>
-              <span><strong>Tenancy</strong> ${escapeHtml(context.isTenanted ? titleCase(context.isTenanted) : "Not sure yet")}</span>
+              <span><strong>Focus</strong> ${escapeHtml(focusLabel(context.focusMode || "service_only"))}</span>
+              <span><strong>Tenancy</strong> ${escapeHtml(tenancyLabel(context.isTenanted || "unsure"))}</span>
             </div>
           </div>
           <img src="assets/cmp-hero-property.png" alt="Choose a property address by postcode">
@@ -1417,7 +1450,7 @@
                   <input id="addPropertyPostcode" type="text" value="${escapeHtml(state.addProperty.postcode)}" placeholder="B37 7BA" autocomplete="postal-code">
                   <button class="button primary" type="submit" ${state.addProperty.isSearching ? "disabled" : ""}>${state.addProperty.isSearching ? "Checking..." : "Find address"}</button>
                 </div>
-                <small>We'll look for EPC information automatically. Demo mode uses realistic fallback data if live services are unavailable.</small>
+                <small>We'll look for EPC information automatically. If live records are unavailable, CMP will still show a realistic property preview.</small>
               </form>
             </section>
 
@@ -1450,30 +1483,7 @@
       event.preventDefault();
       const input = document.getElementById("addPropertyPostcode");
       const postcode = input?.value?.trim() || "";
-      state.addProperty.postcode = postcode;
-      state.addProperty.isSearching = true;
-      state.addProperty.message = "Checking postcode...";
-      state.addProperty.stage = "Looking for the right address";
-      renderAddPropertyPage();
-      let meta;
-      try {
-        meta = await lookupPostcode(postcode);
-        state.addProperty.message = "Postcode recognised. Loading realistic address options.";
-      } catch (error) {
-        if (!DEMO_MODE) {
-          state.addProperty.isSearching = false;
-          state.addProperty.message = error.message;
-          state.addProperty.stage = "Postcode needs checking";
-          renderAddPropertyPage();
-          return;
-        }
-        meta = demoPostcodeMeta(postcode);
-        state.addProperty.message = "Demo mode is keeping the journey moving with a realistic postcode fallback.";
-      }
-      state.addProperty.matches = generateAddressMatches(postcode, meta);
-      state.addProperty.isSearching = false;
-      state.addProperty.stage = "Choose the right address";
-      renderAddPropertyPage();
+      await searchAddresses(postcode);
     });
 
     app.querySelectorAll("[data-use-address]").forEach((button) => {
@@ -1508,6 +1518,11 @@
         window.location.href = "my-properties.html";
       });
     });
+
+    if (state.addProperty.postcode && !state.addProperty.matches.length && !state.addProperty.isSearching && !state.addProperty.prefillHandled) {
+      state.addProperty.prefillHandled = true;
+      void searchAddresses(state.addProperty.postcode, { quiet: true });
+    }
   }
 
   function renderAddressResults() {
@@ -1515,7 +1530,7 @@
       return `
         <div class="empty-state-card">
           <strong>No address selected yet</strong>
-          <p>Enter a postcode first. In demo mode, CMP will create realistic address cards even if live EPC data is unavailable.</p>
+          <p>Enter a postcode first. If live records are unavailable, CMP will still show realistic address choices so you can continue.</p>
         </div>
       `;
     }
@@ -1539,6 +1554,42 @@
     return new Promise((resolve) => window.setTimeout(resolve, ms));
   }
 
+  async function searchAddresses(postcode, options = {}) {
+    state.addProperty.postcode = postcode;
+    if (!normalizePostcode(postcode)) {
+      state.addProperty.isSearching = false;
+      state.addProperty.message = "Enter a postcode to see the available addresses.";
+      state.addProperty.stage = "Enter postcode";
+      renderAddPropertyPage();
+      return;
+    }
+    state.addProperty.isSearching = true;
+    state.addProperty.message = "Checking postcode...";
+    state.addProperty.stage = "Looking for the right address";
+    renderAddPropertyPage();
+    let meta;
+    try {
+      meta = await lookupPostcode(postcode);
+      state.addProperty.message = "Postcode recognised. Loading realistic address options.";
+    } catch (error) {
+      if (!DEMO_MODE) {
+        state.addProperty.isSearching = false;
+        state.addProperty.message = error.message;
+        state.addProperty.stage = "Postcode needs checking";
+        renderAddPropertyPage();
+        return;
+      }
+      meta = demoPostcodeMeta(postcode);
+      state.addProperty.message = options.quiet
+        ? "Loading realistic address options."
+        : "Live records were not available, so CMP is showing a realistic property preview instead.";
+    }
+    state.addProperty.matches = generateAddressMatches(postcode, meta);
+    state.addProperty.isSearching = false;
+    state.addProperty.stage = "Choose the right address";
+    renderAddPropertyPage();
+  }
+
   function renderMyPropertiesPage() {
     document.title = "My Properties | ComplyMyProperty";
     const properties = propertyEntries();
@@ -1552,7 +1603,7 @@
             <p>This sits between Add Property and the dashboard, just like the Wix journey. It keeps the landlord in control of which property they open next.</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property</a>
-              <button class="button secondary" type="button" data-load-demo-property>Load demo property</button>
+              <button class="button secondary" type="button" data-load-demo-property>Try example property</button>
             </div>
           </div>
           <img src="assets/cmp-dashboard-preview.png" alt="My Properties view and property dashboard preview">
@@ -1563,8 +1614,8 @@
         <section class="page-section">
           <div class="section-heading">
             <span class="eyebrow">Property list</span>
-            <h2>${properties.length ? "Your properties" : "No properties added yet"}</h2>
-            <p>${properties.length ? "Each card carries the journey label, a basic status, and the next obvious action." : "Add your first property to start checking compliance."}</p>
+            <h2>${properties.length ? "Your properties" : "Start by adding your first property"}</h2>
+            <p>${properties.length ? "Each card carries the journey label, a basic status, and the next obvious action." : "Add a property, or use the example property to preview how the dashboard opens from this page."}</p>
           </div>
           ${properties.length ? `
             <div class="property-card-grid">
@@ -1593,7 +1644,7 @@
               <p>Add your first property to start checking compliance, tracking evidence, and opening the right dashboard.</p>
               <div class="hero-actions">
                 <a class="button primary" href="add-property.html">Add property</a>
-                <button class="button secondary" type="button" data-load-demo-property>Load demo property</button>
+                <button class="button secondary" type="button" data-load-demo-property>Try example property</button>
               </div>
             </div>
           `}
@@ -1627,7 +1678,7 @@
           const property = buildPropertyFromSelection(defaultSelection);
           saveWorkspaceEntry(property, currentJourney().answeredQuestions);
         }
-        flash("Demo property loaded. You can open the dashboard now.", "success");
+        flash("Example property loaded. You can open the dashboard now.", "success");
         renderMyPropertiesPage();
       });
     });
@@ -1645,8 +1696,8 @@
         <section class="page-hero public-page-hero">
           <div>
             <span class="eyebrow">Latest compliance updates</span>
-            <h1>Demo editorial space for daily landlord compliance news.</h1>
-            <p>This is a prototype concept for clear, regular updates about EPCs, licensing, Gas Safety, possession preparation, mould responsibilities, and practical landlord reminders.</p>
+            <h1>Preview how CMP could publish regular landlord compliance updates.</h1>
+            <p>This is a placeholder editorial area for EPCs, licensing, Gas Safety, possession preparation, mould responsibilities, and practical landlord reminders.</p>
           </div>
           <img src="assets/cmp-evidence-ai.png" alt="Editorial updates and landlord guidance">
         </section>
@@ -1702,7 +1753,7 @@
     });
     app.querySelectorAll("[data-open-article]").forEach((button) => {
       button.addEventListener("click", () => {
-        flash("Demo editorial preview only. A full article system can be layered on later.", "info");
+        flash("Preview article only. A fuller updates area can be layered on later.", "info");
         renderPage();
       });
     });

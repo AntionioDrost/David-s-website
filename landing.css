@@ -2031,7 +2031,7 @@ svg {
 
 @media (max-width: 760px) {
   .public-main {
-    width: min(100% - 24px, 1180px);
+    width: min(1180px, calc(100% - 24px));
     padding-bottom: 96px;
   }
 
@@ -2092,5 +2092,240 @@ svg {
   .assistant-fab,
   .assistant-drawer {
     width: 100%;
+  }
+}
+
+/* Public-page QA and polish overrides */
+
+.home-hero {
+  position: relative;
+  min-height: auto;
+  overflow: hidden;
+}
+
+.home-hero .hero-overlay {
+  display: none;
+}
+
+.home-hero .hero-image {
+  position: relative;
+  inset: auto;
+  z-index: 0;
+  display: block;
+  order: 2;
+  width: 100%;
+  min-height: 360px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 24px;
+  object-fit: cover;
+  object-position: center;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.08);
+}
+
+.home-hero .hero-content {
+  position: relative;
+  z-index: 1;
+  order: 1;
+  width: 100%;
+  align-content: center;
+}
+
+.home-hero h1 {
+  max-width: 10.4ch;
+  font-size: clamp(3rem, 6.2vw, 5.3rem);
+  line-height: 0.95;
+  text-wrap: balance;
+  overflow-wrap: normal;
+}
+
+.home-hero p {
+  width: 100%;
+  max-width: 34rem;
+  margin-top: 0;
+}
+
+.assistant-drawer-list article {
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 12px 14px;
+  border-radius: 14px;
+  background: rgba(244, 247, 251, 0.95);
+  color: var(--ink-soft);
+}
+
+.filter-chip.is-active,
+.filter-chip.is-selected {
+  background: rgba(0, 113, 227, 0.12);
+  color: #0a5db3;
+  border-color: rgba(0, 113, 227, 0.18);
+}
+
+.status-pill.unknown,
+.status-pill.neutral {
+  background: rgba(100, 116, 139, 0.12);
+  color: #475569;
+}
+
+.nav-link-secondary {
+  white-space: nowrap;
+}
+
+.news-card-footer .mini-button,
+.service-grid-link {
+  white-space: nowrap;
+}
+
+@media (max-width: 1040px) {
+  .site-nav {
+    align-items: flex-start;
+  }
+
+  .nav-links {
+    display: flex;
+    flex-wrap: nowrap;
+    width: 100%;
+    order: 3;
+    overflow-x: auto;
+    padding: 0 0 2px;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    scrollbar-width: none;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-links a {
+    flex: 0 0 auto;
+    border: 1px solid var(--line);
+    background: rgba(255, 255, 255, 0.96);
+  }
+
+  .nav-actions {
+    order: 2;
+  }
+}
+
+@media (max-width: 680px) {
+  .site-nav {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+    align-items: start;
+    overflow: hidden;
+  }
+
+  .brand small {
+    display: block;
+  }
+
+  .nav-cta {
+    display: inline-flex;
+  }
+
+  .nav-links {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+    overflow: visible;
+    padding: 0;
+  }
+
+  .nav-links a {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .nav-actions {
+    width: 100%;
+    display: grid;
+    gap: 12px;
+  }
+
+  .nav-link-secondary,
+  .nav-cta {
+    width: 100%;
+  }
+
+  .nav-links,
+  .nav-actions,
+  .brand,
+  .public-main,
+  .page-section,
+  .page-hero,
+  .split-section,
+  .how-section,
+  .service-journey-shell,
+  .question-panel,
+  .postcode-card,
+  .empty-state-card,
+  .property-summary-card,
+  .news-card,
+  .helper-card,
+  .public-trust-band,
+  .checker-preview,
+  .site-footer {
+    max-width: 100%;
+    min-width: 0;
+  }
+
+  .public-main {
+    width: calc(100% - 24px);
+  }
+
+  .page-section,
+  .page-hero,
+  .split-section,
+  .how-section,
+  .service-journey-shell {
+    width: 100%;
+    margin-left: 0;
+    margin-right: 0;
+  }
+
+  .home-hero {
+    padding: 18px;
+    gap: 18px;
+  }
+
+  .home-hero h1,
+  .public-page-hero h1 {
+    max-width: none;
+    font-size: clamp(2.2rem, 12vw, 3.3rem);
+    line-height: 1;
+    text-wrap: initial;
+    overflow-wrap: anywhere;
+  }
+
+  .home-hero .hero-image,
+  .public-page-hero img {
+    min-height: 220px;
+    max-width: 100%;
+  }
+
+  .question-panel-heading {
+    align-items: flex-start;
+  }
+
+  .site-footer,
+  .site-footer a,
+  .site-footer p {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .postcode-row .button,
+  .hero-actions .button,
+  .service-journey-actions .button {
+    width: 100%;
+  }
+
+  .footer-note {
+    font-size: 0.82rem;
   }
 }
