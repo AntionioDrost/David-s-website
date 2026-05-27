@@ -741,14 +741,12 @@
           }).join("")}
         </div>
       </div>
-      <main class="public-main">
+      <main class="public-main homepage-main">
         <section class="hero home-hero">
-          <img class="hero-image" src="assets/cmp-hero-property.png" alt="Traditional UK rental property with a calm compliance overlay">
-          <div class="hero-overlay" aria-hidden="true"></div>
-          <div class="hero-content">
+          <div class="hero-content home-hero-copy">
             <span class="eyebrow">Landlord compliance made simple</span>
-            <h1>The compliance operating system for UK landlords.</h1>
-            <p>The safest place for private landlords to automate and organise property compliance with no subscription fee.</p>
+            <h1>The safest place for private landlords to automate property compliance with no subscription fee.</h1>
+            <p>Start with one service, check a property, or build a wider compliance picture at your own pace.</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Check your property</a>
               <a class="button secondary" href="services.html">View services</a>
@@ -760,12 +758,15 @@
               <span><strong>Build</strong> your A-Z compliance picture later</span>
             </div>
           </div>
+          <div class="home-hero-media">
+            <img class="hero-image" src="assets/cmp-hero-property.png" alt="Traditional UK rental property with a calm compliance overlay">
+          </div>
         </section>
 
         <section class="page-section">
-          <div class="section-heading">
+          <div class="section-heading home-centered-heading">
             <span class="eyebrow">What do you need help with today?</span>
-            <h2>Start with the service you actually came for.</h2>
+            <h2>What do you need help with today?</h2>
             <p>Choose one service, keep the journey focused, and only widen into a broader property check if it helps.</p>
           </div>
           <div class="service-selector-grid">
@@ -773,16 +774,16 @@
           </div>
         </section>
 
-        <section class="split-section public-split-section home-story-section">
-          <div class="section-copy">
+        <section class="page-section home-story-section">
+          <div class="section-heading home-centered-heading">
             <span class="eyebrow">The one stop shop for Property Compliance</span>
             <h2>The one stop shop for Property Compliance</h2>
             <p>Start with one service, one property, or one problem. CMP keeps the journey clear and builds around the real situation.</p>
-            <div class="home-story-list">
-              <article><strong>Service-led start</strong><p>Choose EPCs, Gas Safety, EICR, licensing, inspections, possession prep, mould, or another service.</p></article>
-              <article><strong>Property-led next step</strong><p>Add the postcode, choose the address, and let CMP build the next screen around that property.</p></article>
-              <article><strong>Evidence-led follow-up</strong><p>Bring in documents, notes, and timelines only when they help.</p></article>
-            </div>
+          </div>
+          <div class="home-story-list">
+            <article><strong>Service-led start</strong><p>Choose EPCs, Gas Safety, EICR, licensing, inspections, possession prep, mould, or another service.</p></article>
+            <article><strong>Property-led next step</strong><p>Add the postcode, choose the address, and let CMP build the next screen around that property.</p></article>
+            <article><strong>Evidence-led follow-up</strong><p>Bring in documents, notes, and timelines only when they help.</p></article>
           </div>
           <div class="helper-card home-highlight-card">
             <span class="service-grid-eyebrow">Choose how focused you want us to be</span>
@@ -792,8 +793,8 @@
           </div>
         </section>
 
-        <section class="split-section public-split-section home-postcode-section">
-          <div class="section-copy">
+        <section class="page-section home-postcode-section">
+          <div class="section-heading home-centered-heading">
             <span class="eyebrow">Property checker</span>
             <h2>Enter your postcode here to check compliance:</h2>
             <p>Enter a postcode, choose the right address, and CMP will carry the journey into Add Property without creating a generic listing.</p>
@@ -809,7 +810,7 @@
         </section>
 
         <section class="page-section home-support-section">
-          <div class="section-heading">
+          <div class="section-heading home-centered-heading">
             <span class="eyebrow">What happens next</span>
             <h2>We don’t just make you compliant. We prepare you for what happens next.</h2>
             <p>Use property facts, certificates, timelines, and evidence to stay ready for renewals, tenancy changes, inspections, and possession prep.</p>
@@ -833,11 +834,13 @@
           </div>
         </section>
 
-        <section class="split-section public-split-section home-honest-section">
-          <div class="section-copy">
+        <section class="page-section home-honest-section">
+          <div class="section-heading home-centered-heading">
             <span class="eyebrow">A-Z compliance checker</span>
             <h2>You can be honest with us — we build around your real situation.</h2>
             <p>Landlords should be able to say “Not sure at this point”, keep moving, and come back later. Unsure answers become a checklist, not a failure.</p>
+          </div>
+          <div class="section-actions home-centered-actions">
             <a class="button secondary" href="epcs.html">Preview the A-Z checker style</a>
           </div>
           <div class="checker-preview">
@@ -849,7 +852,7 @@
         </section>
 
         <section class="page-section">
-          <div class="section-heading">
+          <div class="section-heading home-centered-heading">
             <span class="eyebrow">Our Main Services</span>
             <h2>Our Main Services. Take a look at some of the services we offer.</h2>
             <p>Start with the service that matters now, then widen the journey only if it helps.</p>
@@ -860,7 +863,7 @@
         </section>
 
         <section class="page-section">
-          <div class="section-heading">
+          <div class="section-heading home-centered-heading">
             <span class="eyebrow">The latest</span>
             <h2>The latest. Take a look at what everyone’s talking about right now.</h2>
             <p>Example articles showing how CMP could explain compliance changes, reminders, and practical next steps in plain English.</p>
@@ -874,7 +877,7 @@
         </section>
 
         <section class="how-section home-how-section">
-          <div class="section-heading">
+          <div class="section-heading home-centered-heading">
             <span class="eyebrow">How ComplyMyProperty works</span>
             <h2>From Postcode to Fully Compliant</h2>
             <p>Start with the reason you arrived, then let CMP build the next step around the property.</p>
@@ -890,12 +893,12 @@
         </section>
 
         <section class="final-cta public-trust-band">
-          <div>
+          <div class="home-centered-heading">
             <span class="eyebrow">Trust and support</span>
             <h2>Real people. Smart tech. No guesswork.</h2>
             <p>CMP helps organise property compliance information, highlight missing checks and evidence, and point landlords to the next practical step. It is not legal advice.</p>
           </div>
-          <div class="home-trust-actions">
+          <div class="home-trust-actions home-centered-actions">
             <a class="button primary" href="services.html">Explore services</a>
             <a class="button secondary" href="my-properties.html">Go to My Properties</a>
           </div>
