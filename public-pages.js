@@ -1498,12 +1498,17 @@
         ${renderFlashBanner()}
 
         <section class="page-section">
-          <div class="question-stack">
+          <div class="add-property-stepper" aria-label="Add property steps">
+            ${renderAddPropertyStepper()}
+          </div>
+
+          <div class="question-stack add-property-flow">
             <section class="question-panel">
               <div class="question-panel-heading">
                 <span class="section-kicker">Step 1</span>
                 <h3>Enter postcode</h3>
               </div>
+              <p class="question-panel-copy">Start with the property postcode. CMP will try to find EPC records and address matches automatically.</p>
               <form class="postcode-card" id="addPropertySearchForm">
                 <label for="addPropertyPostcode">Property postcode</label>
                 <div class="postcode-row">
@@ -1519,6 +1524,7 @@
                 <span class="section-kicker">Step 2</span>
                 <h3>Select address</h3>
               </div>
+              <p class="question-panel-copy">Choose the right property card below. CMP will carry the selected address into your property record.</p>
               ${renderAddressResults()}
             </section>
 
@@ -1527,6 +1533,7 @@
                 <span class="section-kicker">Step 3</span>
                 <h3>Import property details</h3>
               </div>
+              <p class="question-panel-copy">Once you confirm the address, CMP will build an EPC preview, create the property entry, and prepare My Properties.</p>
               <div class="helper-card compact">
                 <h3>${escapeHtml(state.addProperty.stage || "Choose the address, then CMP will do the rest.")}</h3>
                 <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will import the EPC preview, create the property record, and send you to My Properties.")}</p>
@@ -1585,6 +1592,38 @@
     }
   }
 
+  function renderAddPropertyStepper() {
+    const selected = Boolean(state.addProperty.selectedId);
+    const imported = selected && state.addProperty.stage === "Building your dashboard...";
+    const steps = [
+      {
+        title: "Enter postcode",
+        detail: "Start with the property address search.",
+        state: state.addProperty.postcode ? "done" : "current"
+      },
+      {
+        title: "Choose address",
+        detail: "Pick the correct property card.",
+        state: selected ? "done" : state.addProperty.matches.length ? "current" : "upcoming"
+      },
+      {
+        title: "Preview import",
+        detail: "CMP checks EPC data and creates the property.",
+        state: imported ? "current" : selected ? "current" : "upcoming"
+      }
+    ];
+
+    return steps.map((step, index) => `
+      <article class="step-pill step-pill-${escapeHtml(step.state)}" aria-current="${step.state === "current" ? "step" : "false"}">
+        <span class="step-pill-index">${index + 1}</span>
+        <div>
+          <strong>${escapeHtml(step.title)}</strong>
+          <small>${escapeHtml(step.detail)}</small>
+        </div>
+      </article>
+    `).join("");
+  }
+
   function renderAddressResults() {
     if (!state.addProperty.matches.length) {
       return `
@@ -1601,9 +1640,9 @@
             <div>
               <strong>${escapeHtml(match.address)}</strong>
               <p>${escapeHtml(match.postcode)} · ${escapeHtml(match.type || "Property type to confirm")}</p>
-              <small>${escapeHtml(match.epc?.rating ? "EPC match found" : "EPC needs checking")}</small>
+              <small>${escapeHtml(match.epc?.source === "Example EPC preview" ? "Example EPC data ready" : match.epc?.rating ? "EPC match found" : "EPC needs checking")}</small>
             </div>
-            <button class="button primary" type="button" data-use-address="${escapeHtml(match.id)}">Use this property</button>
+            <button class="button primary" type="button" data-use-address="${escapeHtml(match.id)}">${state.addProperty.selectedId === match.id ? "Selected" : "Use this property"}</button>
           </article>
         `).join("")}
       </div>

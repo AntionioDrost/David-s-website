@@ -1727,6 +1727,78 @@ svg {
   gap: 16px;
 }
 
+.add-property-flow {
+  width: min(980px, 100%);
+  margin: 0 auto;
+}
+
+.add-property-stepper {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  width: min(980px, 100%);
+  margin: 0 auto 18px;
+}
+
+.step-pill {
+  display: grid;
+  grid-template-columns: 38px minmax(0, 1fr);
+  gap: 12px;
+  align-items: center;
+  padding: 14px 16px;
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
+}
+
+.step-pill-index {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.06);
+  color: var(--ink-soft);
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.step-pill strong {
+  display: block;
+  color: var(--navy);
+  font-size: 0.9rem;
+  line-height: 1.25;
+}
+
+.step-pill small {
+  display: block;
+  margin-top: 3px;
+  color: var(--muted);
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.step-pill-current {
+  border-color: rgba(0, 113, 227, 0.2);
+  background: linear-gradient(180deg, rgba(244, 249, 255, 0.98), rgba(255, 255, 255, 0.98));
+}
+
+.step-pill-current .step-pill-index {
+  background: rgba(0, 113, 227, 0.1);
+  color: var(--blue-deep);
+}
+
+.step-pill-done {
+  border-color: rgba(47, 189, 101, 0.18);
+  background: linear-gradient(180deg, rgba(243, 251, 246, 0.98), rgba(255, 255, 255, 0.98));
+}
+
+.step-pill-done .step-pill-index {
+  background: rgba(47, 189, 101, 0.12);
+  color: #1f7a45;
+}
+
 .service-journey-shell {
   padding: clamp(22px, 4vw, 32px);
 }
@@ -1765,7 +1837,8 @@ svg {
 .question-panel-copy {
   margin: -2px 0 0;
   color: var(--muted);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
+  line-height: 1.5;
 }
 
 .section-kicker {
@@ -1867,6 +1940,11 @@ svg {
     #fff;
 }
 
+.optional-evidence-panel .section-kicker {
+  background: rgba(123, 58, 237, 0.12);
+  color: #6d28d9;
+}
+
 .optional-evidence-panel .question-card label {
   color: var(--ink-soft);
 }
@@ -1946,10 +2024,11 @@ svg {
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 16px;
   align-items: center;
-  padding: 16px 18px;
+  padding: 18px 20px;
   border: 1px solid rgba(15, 23, 42, 0.1);
-  border-radius: 18px;
-  background: #fff;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 12px 24px rgba(15, 23, 42, 0.04);
 }
 
 .address-card strong {
@@ -1961,11 +2040,13 @@ svg {
 .address-card p,
 .address-card small {
   margin-top: 4px;
+  line-height: 1.45;
 }
 
 .address-card.is-selected {
   border-color: rgba(0, 113, 227, 0.35);
   background: rgba(232, 243, 255, 0.9);
+  box-shadow: 0 16px 30px rgba(15, 77, 158, 0.08);
 }
 
 .empty-state-card {
@@ -2262,6 +2343,10 @@ svg {
   .nav-actions {
     order: 2;
   }
+
+  .add-property-stepper {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 680px) {
@@ -2283,7 +2368,7 @@ svg {
 
   .nav-links {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: 1fr;
     gap: 8px;
     overflow: visible;
     padding: 0;
@@ -2352,8 +2437,8 @@ svg {
     max-width: none;
     font-size: clamp(2.05rem, 10vw, 2.95rem);
     line-height: 1.02;
-    text-wrap: initial;
-    overflow-wrap: anywhere;
+    text-wrap: balance;
+    overflow-wrap: normal;
   }
 
   .home-hero .hero-image,
@@ -2380,6 +2465,7 @@ svg {
     width: 100%;
   }
 
+  .step-pill,
   .address-card {
     grid-template-columns: 1fr;
     align-items: start;

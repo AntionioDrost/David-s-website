@@ -2699,10 +2699,10 @@ svg {
 .service-item span,
 .latest-fact small,
 .az-question span {
-  display: -webkit-box;
-  overflow: hidden;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 1;
+  display: block;
+  overflow: visible;
+  -webkit-box-orient: initial;
+  -webkit-line-clamp: unset;
 }
 
 .setup-copy p,
@@ -4396,6 +4396,404 @@ body[data-dashboard-focus="mould"] .priority-panel::before {
   }
 
   .choice-group {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Final dashboard and A-Z presentation repair */
+
+.os-shell {
+  grid-template-columns: minmax(228px, 252px) minmax(0, 1fr);
+  width: min(1440px, 100%);
+}
+
+.workspace,
+.workspace > section,
+.workspace > article,
+.detail-panel,
+.overview-card,
+.service-panel,
+.assistant-panel,
+.scan-panel {
+  min-width: 0;
+}
+
+.workspace-header h1,
+.score-copy h2,
+.panel-heading h2,
+.section-heading h2,
+.overview-row strong,
+.tracker-card h3,
+.priority-item h3,
+.timeline-item h3,
+.service-item strong,
+.action-centre-card strong,
+.action-centre-item strong,
+.az-section-header h4,
+.az-question strong,
+.az-hero-card h3,
+.document-dump-card h3,
+.question > label,
+.question .toggle-row > span,
+.wizard-summary-heading {
+  word-break: normal;
+  overflow-wrap: normal;
+  hyphens: none;
+  text-wrap: pretty;
+}
+
+.workspace-header p,
+.panel-helper,
+.priority-item p,
+.timeline-item p,
+.section-copy,
+.overview-row p,
+.tracker-copy p,
+.hero-status-card p,
+.assistant-panel p,
+.service-item span,
+.scan-result span,
+.compliance-card p,
+.evidence-card p,
+.question small,
+.wizard-summary-note,
+.latest-fact small,
+.az-question span {
+  word-break: normal;
+  overflow-wrap: break-word;
+  text-wrap: pretty;
+}
+
+.workspace-header h1 {
+  overflow-wrap: normal;
+}
+
+.dashboard-grid {
+  grid-template-columns: repeat(2, minmax(350px, 1fr));
+  gap: 18px;
+}
+
+.score-panel,
+.priority-panel,
+.guided-check,
+.az-checker,
+.evidence-section,
+.activity-section,
+.assistant-panel,
+.scan-panel,
+.service-panel {
+  border-radius: 24px;
+}
+
+.overview-grid {
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.overview-card-actions {
+  grid-column: 1 / -1;
+}
+
+.overview-row {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+}
+
+.overview-row.has-action .mini-button,
+.overview-row.has-action .status-pill {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 4px;
+}
+
+.tracker-preview-grid {
+  grid-template-columns: repeat(2, minmax(300px, 1fr));
+}
+
+.tracker-card {
+  min-width: 0;
+}
+
+.detail-tabs {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.detail-tab {
+  min-width: 0;
+}
+
+.guided-check {
+  background: linear-gradient(180deg, rgba(243, 247, 255, 0.98), rgba(255, 255, 255, 0.98));
+}
+
+.guided-check .section-heading,
+.az-checker .section-heading,
+.guided-progress-shell,
+.wizard-shell,
+.az-command,
+.az-layout {
+  max-width: 1180px;
+  margin-inline: auto;
+}
+
+.guided-progress-shell {
+  margin-top: 14px;
+}
+
+.wizard-shell {
+  grid-template-columns: minmax(248px, 280px) minmax(0, 1fr);
+  gap: 18px;
+  padding: 14px;
+  border-radius: 28px;
+}
+
+.wizard-tabs {
+  grid-template-columns: repeat(auto-fit, minmax(176px, 1fr));
+  gap: 12px;
+}
+
+.wizard-tab {
+  min-height: 64px;
+  align-content: start;
+}
+
+.wizard-form {
+  max-width: 980px;
+  width: 100%;
+  margin-inline: auto;
+  gap: 20px;
+  padding: 24px;
+}
+
+.question-grid {
+  gap: 16px;
+}
+
+.question,
+.question-confirmed {
+  border-radius: 20px;
+}
+
+.question > label,
+.question .toggle-row > span,
+.question-confirmed strong {
+  font-size: 0.96rem;
+  line-height: 1.38;
+}
+
+.question-confirmed small {
+  font-size: 0.78rem;
+}
+
+.choice-group {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(168px, 1fr));
+  gap: 10px;
+}
+
+.choice-button {
+  min-height: 48px;
+  padding: 10px 14px;
+  border-radius: 16px;
+  white-space: normal;
+  line-height: 1.3;
+}
+
+.wizard-actions {
+  gap: 12px;
+}
+
+.az-checker {
+  background: linear-gradient(180deg, rgba(247, 249, 255, 0.98), rgba(255, 255, 255, 0.98));
+}
+
+.az-command {
+  grid-template-columns: minmax(0, 1.06fr) minmax(340px, 0.94fr);
+  gap: 16px;
+}
+
+.az-layout {
+  grid-template-columns: minmax(0, 1.14fr) minmax(320px, 0.86fr);
+  gap: 16px;
+}
+
+.az-hero-card {
+  min-height: 0;
+  padding: 22px;
+}
+
+.az-meter {
+  padding: 14px;
+}
+
+.az-section-card,
+.document-dump-card,
+.latest-facts-card,
+.az-document-result {
+  box-shadow: 0 12px 26px rgba(21, 28, 36, 0.05);
+}
+
+.az-section-card {
+  padding: 14px;
+}
+
+.az-question {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.az-answer-group {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.az-answer {
+  width: 100%;
+  min-height: 44px;
+}
+
+.compliance-grid,
+.evidence-grid {
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.support-grid {
+  grid-template-columns: repeat(2, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.service-panel {
+  grid-column: 1 / -1;
+}
+
+.service-list,
+.action-centre {
+  grid-template-columns: repeat(2, minmax(300px, 1fr));
+  gap: 12px;
+}
+
+.service-item,
+.action-centre-card,
+.action-centre-item {
+  padding: 14px;
+}
+
+.service-item {
+  display: grid;
+  gap: 12px;
+}
+
+.action-centre-card header,
+.service-item header {
+  align-items: start;
+}
+
+.service-item button,
+.action-centre-item-actions .secondary-button,
+.action-centre-item-actions .mini-button {
+  justify-self: start;
+}
+
+.timeline {
+  gap: 12px;
+}
+
+@media (max-width: 1280px) {
+  .os-shell {
+    grid-template-columns: minmax(214px, 236px) minmax(0, 1fr);
+    width: min(1360px, 100%);
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 1080px) {
+  .os-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sidebar {
+    position: static;
+    max-height: none;
+    overflow: visible;
+  }
+
+  .wizard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .wizard-tabs {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .overview-grid,
+  .tracker-preview-grid,
+  .compliance-grid,
+  .evidence-grid,
+  .support-grid,
+  .service-list,
+  .action-centre,
+  .az-command,
+  .az-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .service-panel {
+    grid-column: auto;
+  }
+}
+
+@media (max-width: 980px) {
+  .section-heading > div,
+  .az-checker h2,
+  .section-copy,
+  .az-hero-card h3,
+  .document-dump-zone span {
+    max-width: 100%;
+    overflow-wrap: normal;
+    text-wrap: pretty;
+  }
+}
+
+@media (max-width: 720px) {
+  .workspace-header,
+  .score-panel,
+  .priority-panel,
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .score-ring {
+    margin-inline: auto;
+  }
+
+  .header-actions .primary-button,
+  .header-actions .secondary-button {
+    width: 100%;
+  }
+
+  .intelligence-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .wizard-form,
+  .guided-progress-shell,
+  .az-command,
+  .az-layout {
+    max-width: 100%;
+  }
+
+  .question-confirmed,
+  .question-confirmed-actions {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .choice-group,
+  .az-answer-group {
     grid-template-columns: 1fr;
   }
 }
