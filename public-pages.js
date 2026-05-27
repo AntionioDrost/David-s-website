@@ -381,11 +381,11 @@
   ];
 
   const NEWS_ARTICLES = [
-    { id: "epc-rules", category: "EPC", title: "EPC rules are changing — what landlords should prepare for", excerpt: "Use postcode, certificate dates, and the current rating to keep the next EPC decision practical.", demo: true },
-    { id: "gas-renewal", category: "Gas Safety", title: "Gas Safety reminders: what to check before renewal", excerpt: "A calm reminder flow is often more useful than a scary dashboard warning.", demo: true },
-    { id: "licensing-postcode", category: "Licensing", title: "Selective licensing: why postcode matters", excerpt: "Landlords usually want to know if licensing even applies before they chase paperwork.", demo: true },
-    { id: "possession-prep", category: "Possession", title: "Possession preparation: documents landlords should organise early", excerpt: "Evidence packs work better when the timeline and communication trail are started before they feel urgent.", demo: true },
-    { id: "mould-history", category: "Mould & Damp", title: "Mould and damp: why timelines and repair records matter", excerpt: "This is often less about one certificate and more about a clear inspection and repair history.", demo: true }
+    { id: "epc-rules", category: "EPC", title: "EPC rules are changing — what landlords should prepare for", excerpt: "Use postcode, certificate dates, and the current rating to keep the next EPC decision practical.", published: "May 2026", readTime: "4 min read", demo: true },
+    { id: "gas-renewal", category: "Gas Safety", title: "Gas Safety reminders: what to check before renewal", excerpt: "A calm reminder flow is often more useful than a scary dashboard warning.", published: "May 2026", readTime: "3 min read", demo: true },
+    { id: "licensing-postcode", category: "Licensing", title: "Selective licensing: why postcode matters", excerpt: "Landlords usually want to know if licensing even applies before they chase paperwork.", published: "April 2026", readTime: "4 min read", demo: true },
+    { id: "possession-prep", category: "Possession", title: "Possession preparation: documents landlords should organise early", excerpt: "Evidence packs work better when the timeline and communication trail are started before they feel urgent.", published: "April 2026", readTime: "5 min read", demo: true },
+    { id: "mould-history", category: "Mould & Damp", title: "Mould and damp: why timelines and repair records matter", excerpt: "This is often less about one certificate and more about a clear inspection and repair history.", published: "March 2026", readTime: "4 min read", demo: true }
   ];
 
   const DEFAULT_FOCUS_OPTIONS = [
@@ -665,7 +665,6 @@
           <small class="footer-note">Privacy, terms and data protection pages will be added in the final build.</small>
           <small class="footer-note">Social profile links can be connected before launch.</small>
           <small class="footer-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</small>
-          <small class="footer-note">Regulatory and legal pages can be added once the live public site structure is final.</small>
         </div>
       </footer>
     `;
@@ -1104,12 +1103,12 @@
       <article class="news-card">
         <div class="news-card-meta">
           <span class="service-grid-eyebrow">${escapeHtml(article.category)}</span>
-          <span class="quiet-pill">Preview update</span>
+          <span class="quiet-pill">${escapeHtml(article.readTime || "Preview update")}</span>
         </div>
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.excerpt)}</p>
         <div class="news-card-footer">
-          <span class="news-card-note">Plain-English landlord update</span>
+          <span class="news-card-note">${escapeHtml(article.published || "Editorial preview")} · Plain-English landlord update</span>
           <button class="mini-button" type="button" data-open-article="${escapeHtml(article.id)}">Read article</button>
         </div>
       </article>
@@ -1296,6 +1295,7 @@
             <div class="hero-metrics">
               <span><strong>${progress.answered}/${progress.total}</strong> setup choices recorded</span>
               <span><strong>${escapeHtml(focusLabel(state.serviceDraft.focusMode || "service_only"))}</strong> selected</span>
+              <span><strong>Optional</strong> documents can be added later</span>
             </div>
           </div>
           <img src="assets/cmp-hero-property.png" alt="${escapeHtml(service.title)} landlord journey preview">
@@ -1428,7 +1428,7 @@
           <article><span>Loan to value</span><strong>${estimate.ltv.toFixed(1)}%</strong></article>
           <article><span>Rent coverage</span><strong>${estimate.rentCoverage ? `${estimate.rentCoverage.toFixed(0)}%` : "Add rent"}</strong></article>
         </div>
-        <small>This is only an estimate for this prototype preview. It is not regulated mortgage advice.</small>
+        <small>Estimate only. It is not regulated mortgage advice.</small>
       </section>
     `;
   }
@@ -2034,7 +2034,8 @@
                       <span class="quiet-pill">${escapeHtml(journeyLabelForProperty(property))}</span>
                     </div>
                     <h3>${escapeHtml(property.address)}</h3>
-                    <p>${escapeHtml(nextActionForProperty(property))}</p>
+                    <span class="property-summary-label">Next action</span>
+                    <p class="property-summary-lead">${escapeHtml(nextActionForProperty(property))}</p>
                     <div class="property-summary-meta">
                       <span>${escapeHtml(property.type || "Property type to confirm")}</span>
                       <span>${escapeHtml(property.epc?.rating ? `EPC ${property.epc.rating}` : "No EPC rating recorded yet")}</span>
@@ -2128,6 +2129,74 @@
     });
   }
 
+  function renderContactPage() {
+    document.title = "Contact CMP | ComplyMyProperty";
+    app.innerHTML = `
+      ${baseHeader("contact")}
+      <main class="public-main">
+        <section class="page-hero public-page-hero contact-page-hero">
+          <div>
+            <span class="eyebrow">Contact CMP</span>
+            <h1>Need a certificate, check, or evidence pack?</h1>
+            <p>Use this page when a landlord wants direct support now. CMP can still keep the journey calm, service-led, and property-led before anything becomes a bigger workflow.</p>
+            <div class="hero-actions">
+              <a class="button primary" href="mailto:compliance@complymyproperty.com">Email CMP</a>
+              <a class="button secondary" href="tel:01217708814">Call 0121 770 8814</a>
+            </div>
+            <div class="hero-metrics">
+              <span>Support-led</span>
+              <span>Property-first</span>
+              <span>Evidence-aware</span>
+            </div>
+          </div>
+          <img src="assets/cmp-evidence-ai.png" alt="ComplyMyProperty support and evidence overview">
+        </section>
+
+        <section class="page-section">
+          <div class="section-heading">
+            <span class="eyebrow">Support routes</span>
+            <h2>Choose the fastest way to get the right help.</h2>
+            <p>These routes stay practical. You can ask for a certificate, a property check, or help organising the evidence before the next step.</p>
+          </div>
+          <div class="contact-grid">
+            <article class="contact-card">
+              <span class="service-grid-eyebrow">General support</span>
+              <h3>General compliance enquiries</h3>
+              <p>For property checks, evidence packs, renewal questions, and landlord compliance support.</p>
+              <a href="mailto:compliance@complymyproperty.com">compliance@complymyproperty.com</a>
+            </article>
+            <article class="contact-card">
+              <span class="service-grid-eyebrow">Certificates</span>
+              <h3>EPC enquiries</h3>
+              <p>For EPC bookings, poor ratings, expiry questions, and certificate follow-up.</p>
+              <a href="mailto:epc@complymyproperty.com">epc@complymyproperty.com</a>
+            </article>
+            <article class="contact-card">
+              <span class="service-grid-eyebrow">Safety checks</span>
+              <h3>Gas Safety enquiries</h3>
+              <p>For Gas Safety Certificate renewals, missing proof, and certificate evidence.</p>
+              <a href="mailto:gassafety@complymyproperty.com">gassafety@complymyproperty.com</a>
+            </article>
+          </div>
+        </section>
+
+        <section class="final-cta public-trust-band">
+          <div class="home-centered-heading">
+            <span class="eyebrow">Prefer to self-check first?</span>
+            <h2>Start with the property and let CMP organise the next step.</h2>
+            <p>You can still use the public journey first, then return for support once the property facts, evidence, and open checks are in one place.</p>
+          </div>
+          <div class="home-trust-actions home-centered-actions">
+            <a class="button primary" href="add-property.html">Check your property</a>
+            <a class="button secondary" href="services.html">Explore services</a>
+          </div>
+        </section>
+      </main>
+      ${baseFooter()}
+      ${assistantWidget()}
+    `;
+  }
+
   function renderFlashBanner() {
     const notice = readFlash();
     if (!notice) return "";
@@ -2152,6 +2221,8 @@
       renderMyPropertiesPage();
     } else if (page === "news") {
       renderNewsPage();
+    } else if (page === "contact") {
+      renderContactPage();
     }
 
     app.querySelectorAll("[data-toggle-assistant]").forEach((button) => {

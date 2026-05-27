@@ -508,7 +508,7 @@ const GUIDED_JOURNEY_SECTIONS = [
       { id: "epc_expiry", type: "display", field: "epc.expiry", label: "EPC expiry", sourceLabel: "EPC register", emptyText: "No EPC expiry recorded yet.", formatter: "date" },
       { id: "epc_certificate", type: "display", field: "epc.certificate", label: "Certificate reference", sourceLabel: "EPC register", emptyText: "No certificate reference recorded yet." },
       { id: "epc_follow_up", type: "select_az", answerKey: "epc_follow_up", label: "What do you want to do with the EPC?", options: ["", "Keep current EPC", "Review EPC expiry", "Arrange EPC renewal"], hint: "This helps CMP keep the summary focused on your next step." },
-      { id: "epc_upload", type: "upload", evidenceKey: "epc", uploadCategory: "epc", label: "Upload EPC certificate", hint: "Prototype only: uploads and scan results stay in this browser/session flow." }
+      { id: "epc_upload", type: "upload", evidenceKey: "epc", uploadCategory: "epc", label: "Upload EPC certificate", hint: "Selected for this demo. In the final version, uploads and scan results would be stored securely." }
     ]
   },
   {
@@ -846,7 +846,7 @@ const GUIDED_JOURNEY_SECTIONS = [
       licensing: 40
     },
     questions: [
-      { id: "evidence_upload", type: "upload", evidenceKey: "all", uploadCategory: "other", label: "Upload property documents", hint: "Prototype only: this uses filename/text heuristics, not production OCR." },
+      { id: "evidence_upload", type: "upload", evidenceKey: "all", uploadCategory: "other", label: "Upload property documents", hint: "This preview classifies documents using basic filename and text hints. Production OCR is not connected here." },
       { id: "evidence_overview", type: "evidence_overview", label: "Evidence gaps" }
     ]
   },
@@ -6030,7 +6030,7 @@ function renderServices(recommendations, assessment, modulePlan) {
       <span>${escapeHtml(item.reason)}</span>
       <span>${escapeHtml(
         item.type === "book_service"
-          ? "Prototype only: this saves service interest for the final version. It does not place a real booking."
+          ? "Selected for this demo. CMP records service interest here, but it does not place a live booking."
           : item.type === "upload_evidence"
             ? "CMP will open the relevant upload flow for this property."
             : item.type === "review_document"
@@ -6403,7 +6403,7 @@ function renderGuidedEvidenceOverview(property) {
           <label>Evidence overview</label>
           <strong>No urgent evidence gaps are showing right now.</strong>
         </div>
-        <small>Uploads and scan previews in this prototype are still preview-only.</small>
+        <small>Uploads and scan previews are shown here for the demo and can be refined later.</small>
       </div>
     `;
   }

@@ -4797,3 +4797,230 @@ body[data-dashboard-focus="mould"] .priority-panel::before {
     grid-template-columns: 1fr;
   }
 }
+
+/* Final full-site dashboard polish */
+
+.workspace-header {
+  padding: clamp(22px, 2.4vw, 30px);
+}
+
+.workspace-header h1 {
+  max-width: 720px;
+  font-size: clamp(1.42rem, 2.1vw, 2.08rem);
+}
+
+.workspace-header p {
+  max-width: 60ch;
+  font-size: 0.93rem;
+  line-height: 1.6;
+}
+
+.dashboard-grid {
+  grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+  gap: 20px;
+}
+
+.overview-grid,
+.tracker-preview-grid,
+.compliance-grid,
+.evidence-grid,
+.support-grid,
+.service-list,
+.action-centre,
+.az-command,
+.az-layout {
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: 16px;
+}
+
+.wizard-shell {
+  grid-template-columns: minmax(252px, 290px) minmax(0, 1fr);
+}
+
+.wizard-tabs {
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+}
+
+.wizard-form {
+  min-height: 560px;
+}
+
+.wizard-form .empty-panel,
+.az-checker .empty-panel {
+  min-height: 220px;
+  align-content: start;
+  padding: 18px;
+  border: 1px dashed rgba(22, 50, 74, 0.14);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(246, 249, 253, 0.98));
+}
+
+.question {
+  gap: 10px;
+}
+
+.question-confirmed {
+  padding: 14px 16px;
+  border-radius: 18px;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(246, 249, 253, 0.98));
+}
+
+.choice-group {
+  grid-template-columns: repeat(auto-fit, minmax(172px, 1fr));
+}
+
+.choice-button {
+  min-height: 50px;
+  padding: 10px 14px;
+  font-size: 0.82rem;
+}
+
+.choice-button.is-active[data-choice-value="yes"] {
+  box-shadow: 0 10px 18px rgba(47, 189, 101, 0.12);
+}
+
+.choice-button.is-active[data-choice-value="unknown"] {
+  box-shadow: 0 10px 18px rgba(0, 113, 227, 0.12);
+}
+
+.document-dump-zone {
+  min-height: 164px;
+  padding: 22px 20px;
+}
+
+.document-dump-zone span {
+  max-width: 460px;
+}
+
+.az-section-card,
+.latest-facts-card,
+.document-dump-card,
+.az-hero-card {
+  border-radius: 22px;
+}
+
+.az-answer-group {
+  grid-template-columns: repeat(auto-fit, minmax(132px, 1fr));
+}
+
+.az-answer {
+  width: 100%;
+  min-height: 44px;
+  border-radius: 14px;
+}
+
+.priority-item,
+.timeline-item {
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+}
+
+.priority-item > .status-pill,
+.priority-item > .service-button,
+.timeline-item > .timeline-meta {
+  grid-column: 2;
+  justify-self: start;
+  margin-top: 2px;
+}
+
+.timeline-meta {
+  justify-items: start;
+  align-items: start;
+}
+
+.evidence-card,
+.compliance-card,
+.service-item,
+.action-centre-card,
+.action-centre-item {
+  min-height: 0;
+}
+
+.service-item,
+.action-centre-card,
+.action-centre-item,
+.timeline-item,
+.evidence-card,
+.compliance-card {
+  box-shadow: 0 12px 22px rgba(22, 32, 43, 0.04);
+}
+
+.service-item {
+  gap: 10px;
+}
+
+.service-item header,
+.action-centre-card header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: start;
+}
+
+.action-centre-item-actions {
+  align-items: flex-start;
+}
+
+.scan-drop {
+  min-height: 140px;
+  padding: 18px;
+}
+
+.footer {
+  grid-template-columns: minmax(260px, 1.1fr) minmax(220px, 0.72fr) minmax(220px, 0.86fr);
+  gap: 24px 30px;
+  margin: 6px auto 34px;
+  padding: 30px 0 40px;
+}
+
+.footer > div {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.footer p {
+  max-width: 28ch;
+  font-size: 0.9rem;
+  line-height: 1.58;
+}
+
+.footer a {
+  font-size: 0.9rem;
+  line-height: 1.55;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 1080px) {
+  .wizard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .footer > div:first-child {
+    grid-column: 1 / -1;
+  }
+}
+
+@media (max-width: 720px) {
+  .dashboard-grid,
+  .overview-grid,
+  .tracker-preview-grid,
+  .compliance-grid,
+  .evidence-grid,
+  .support-grid,
+  .service-list,
+  .action-centre,
+  .az-command,
+  .az-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .footer {
+    grid-template-columns: 1fr;
+  }
+}
