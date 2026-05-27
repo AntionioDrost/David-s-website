@@ -2101,7 +2101,7 @@ svg {
 .assistant-fab-shell {
   position: fixed;
   right: 18px;
-  bottom: 18px;
+  bottom: 22px;
   z-index: 50;
   display: grid;
   justify-items: end;
@@ -2775,6 +2775,229 @@ svg {
   object-position: center;
 }
 
+.hero-texture-stage {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(28, 140, 223, 0.24), transparent 28%),
+    radial-gradient(circle at 82% 22%, rgba(255, 175, 69, 0.18), transparent 24%),
+    radial-gradient(circle at 72% 70%, rgba(118, 92, 255, 0.18), transparent 28%),
+    linear-gradient(145deg, rgba(247, 250, 255, 0.96), rgba(226, 237, 248, 0.88) 42%, rgba(240, 246, 251, 0.94));
+}
+
+.hero-texture-stage::before,
+.hero-texture-stage::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  pointer-events: none;
+}
+
+.hero-texture-stage::before {
+  background-image:
+    linear-gradient(rgba(24, 58, 90, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(24, 58, 90, 0.04) 1px, transparent 1px);
+  background-size: 28px 28px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.24), rgba(0, 0, 0, 0.08));
+}
+
+.hero-texture-stage::after {
+  background:
+    linear-gradient(140deg, rgba(255, 255, 255, 0.22), transparent 46%),
+    linear-gradient(320deg, rgba(255, 255, 255, 0.18), transparent 38%);
+}
+
+.hero-texture-grid {
+  position: absolute;
+  inset: 11% 13%;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 30px;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.38);
+  backdrop-filter: blur(8px);
+}
+
+.hero-texture-glow {
+  position: absolute;
+  border-radius: 999px;
+  filter: blur(28px);
+  opacity: 0.88;
+}
+
+.hero-texture-glow-one {
+  top: 7%;
+  left: 6%;
+  width: 34%;
+  height: 26%;
+  background: radial-gradient(circle, rgba(31, 139, 219, 0.56), transparent 72%);
+}
+
+.hero-texture-glow-two {
+  right: 8%;
+  bottom: 10%;
+  width: 38%;
+  height: 28%;
+  background: radial-gradient(circle, rgba(122, 90, 255, 0.34), transparent 74%);
+}
+
+.hero-texture-glow-three {
+  right: 18%;
+  top: 14%;
+  width: 22%;
+  height: 20%;
+  background: radial-gradient(circle, rgba(255, 176, 78, 0.36), transparent 72%);
+}
+
+.hero-texture-window {
+  position: absolute;
+  overflow: hidden;
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 22px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.4), rgba(255, 255, 255, 0.14)),
+    rgba(255, 255, 255, 0.12);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.42),
+    0 18px 34px rgba(15, 30, 52, 0.12);
+  backdrop-filter: blur(16px) saturate(160%);
+}
+
+.hero-texture-window strong {
+  color: var(--navy);
+  font-size: 1.02rem;
+  line-height: 1.24;
+  letter-spacing: -0.02em;
+}
+
+.hero-texture-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(18, 145, 220, 0.12);
+  color: #0d5e9f;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.hero-texture-chip-soft {
+  background: rgba(109, 40, 217, 0.12);
+  color: #6d28d9;
+}
+
+.hero-texture-window-main {
+  top: 15%;
+  left: 13%;
+  width: 48%;
+}
+
+.hero-texture-window-side {
+  top: 22%;
+  right: 12%;
+  width: 24%;
+  min-height: 154px;
+  align-content: center;
+}
+
+.hero-texture-window-footer {
+  right: 18%;
+  bottom: 15%;
+  width: 34%;
+  grid-template-columns: 48px minmax(0, 1fr);
+  align-items: center;
+}
+
+.hero-texture-bars {
+  display: grid;
+  gap: 9px;
+}
+
+.hero-texture-bars span,
+.hero-texture-lines span {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(18, 145, 220, 0.9), rgba(102, 191, 255, 0.26));
+}
+
+.hero-texture-bars span:nth-child(2) {
+  width: 82%;
+}
+
+.hero-texture-bars span:nth-child(3) {
+  width: 66%;
+  background: linear-gradient(90deg, rgba(88, 182, 63, 0.82), rgba(88, 182, 63, 0.12));
+}
+
+.hero-texture-orbital {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 82px;
+}
+
+.hero-texture-orbital::before {
+  position: absolute;
+  width: 68px;
+  height: 68px;
+  border: 1px solid rgba(24, 58, 90, 0.12);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.82), rgba(255, 255, 255, 0.18));
+  content: "";
+}
+
+.hero-texture-orbital span {
+  position: absolute;
+  width: 12px;
+  height: 12px;
+  border-radius: 999px;
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.08);
+}
+
+.hero-texture-orbital span:nth-child(1) {
+  top: 10px;
+  background: #1291dc;
+}
+
+.hero-texture-orbital span:nth-child(2) {
+  right: 26px;
+  bottom: 18px;
+  background: #58b63f;
+}
+
+.hero-texture-orbital span:nth-child(3) {
+  left: 24px;
+  bottom: 20px;
+  background: #f99629;
+}
+
+.hero-texture-signal {
+  width: 44px;
+  height: 44px;
+  border-radius: 16px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255, 255, 255, 0.64), transparent 40%),
+    linear-gradient(145deg, rgba(18, 145, 220, 0.96), rgba(118, 92, 255, 0.86));
+  box-shadow: 0 16px 24px rgba(18, 145, 220, 0.18);
+}
+
+.hero-texture-lines {
+  display: grid;
+  gap: 8px;
+}
+
+.hero-texture-lines span:last-child {
+  width: 72%;
+  background: linear-gradient(90deg, rgba(118, 92, 255, 0.86), rgba(118, 92, 255, 0.12));
+}
+
 .home-floating-card {
   position: absolute;
   display: grid;
@@ -3324,11 +3547,127 @@ svg {
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.home-journey-preview-stage img {
-  width: 100%;
+.home-journey-preview-art {
+  position: relative;
+  overflow: hidden;
+  min-height: 280px;
   border-radius: 18px;
   border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at 22% 20%, rgba(52, 170, 255, 0.26), transparent 28%),
+    radial-gradient(circle at 78% 22%, rgba(255, 171, 70, 0.2), transparent 20%),
+    radial-gradient(circle at 70% 72%, rgba(124, 92, 255, 0.22), transparent 24%),
+    linear-gradient(160deg, rgba(19, 34, 55, 0.96), rgba(8, 19, 32, 0.98));
   box-shadow: 0 18px 36px rgba(2, 8, 15, 0.3);
+}
+
+.home-journey-preview-art::before {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
+  background-size: 26px 26px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.08));
+  content: "";
+}
+
+.journey-preview-panel {
+  position: absolute;
+  overflow: hidden;
+  display: grid;
+  gap: 10px;
+  padding: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.18), rgba(255, 255, 255, 0.08)),
+    rgba(255, 255, 255, 0.06);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 18px 34px rgba(0, 0, 0, 0.24);
+  backdrop-filter: blur(14px);
+}
+
+.journey-preview-panel-main {
+  top: 18px;
+  left: 18px;
+  width: 52%;
+}
+
+.journey-preview-panel-side {
+  top: 64px;
+  right: 18px;
+  width: 34%;
+}
+
+.journey-preview-panel-bottom {
+  left: 22%;
+  right: 18px;
+  bottom: 20px;
+}
+
+.journey-preview-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-self: start;
+  min-height: 26px;
+  padding: 0 10px;
+  border-radius: 999px;
+  background: rgba(66, 183, 255, 0.16);
+  color: #d2ecff;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.journey-preview-chip-purple {
+  background: rgba(139, 92, 246, 0.18);
+}
+
+.journey-preview-chip-green {
+  background: rgba(88, 182, 63, 0.18);
+}
+
+.journey-preview-chart {
+  display: grid;
+  gap: 10px;
+}
+
+.journey-preview-chart span,
+.journey-preview-list span {
+  display: block;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(102, 191, 255, 0.92), rgba(102, 191, 255, 0.16));
+}
+
+.journey-preview-chart span:nth-child(2) {
+  width: 74%;
+}
+
+.journey-preview-chart span:nth-child(3) {
+  width: 58%;
+}
+
+.journey-preview-list {
+  display: grid;
+  gap: 8px;
+}
+
+.journey-preview-list span:nth-child(2) {
+  width: 78%;
+}
+
+.journey-preview-list span:nth-child(3) {
+  width: 62%;
+}
+
+.journey-preview-progress {
+  height: 12px;
+  border-radius: 999px;
+  background:
+    linear-gradient(90deg, rgba(88, 182, 63, 0.92), rgba(102, 191, 255, 0.96) 58%, rgba(255, 167, 76, 0.72));
+  box-shadow: 0 0 18px rgba(88, 182, 63, 0.2);
 }
 
 .home-journey-preview-pill {
@@ -3451,13 +3790,37 @@ svg {
 }
 
 .site-footer {
-  grid-template-columns: minmax(240px, 1.1fr) repeat(4, minmax(160px, 0.7fr));
+  grid-template-columns: minmax(250px, 1.18fr) repeat(4, minmax(168px, 0.78fr));
+  grid-template-areas: "brand services company support follow";
+  gap: 26px 34px;
+  padding-bottom: 94px;
 }
 
 .site-footer-section {
   display: grid;
   align-content: start;
-  gap: 8px;
+  gap: 10px;
+  min-width: 0;
+}
+
+.footer-brand-section {
+  grid-area: brand;
+}
+
+.footer-services-section {
+  grid-area: services;
+}
+
+.footer-company-section {
+  grid-area: company;
+}
+
+.footer-support-section {
+  grid-area: support;
+}
+
+.footer-follow-section {
+  grid-area: follow;
 }
 
 .footer-brand-section {
@@ -3478,6 +3841,57 @@ svg {
 
 .footer-brand-lockup p {
   margin-top: 4px;
+}
+
+.site-footer strong,
+.site-footer > .site-footer-section > span {
+  color: var(--ink);
+  font-size: 0.83rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.site-footer a {
+  display: block;
+  margin-top: 0;
+  color: var(--ink-soft);
+  font-size: 0.92rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+.site-footer a:hover {
+  color: var(--ink);
+}
+
+.site-footer p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+.site-footer .footer-note {
+  color: #64748b;
+  font-size: 0.78rem;
+  font-weight: 500;
+  line-height: 1.65;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.footer-social-links {
+  display: grid;
+  gap: 8px;
+}
+
+.footer-social-links span {
+  color: var(--ink-soft);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
 }
 
 .footer-trust-pills {
@@ -3530,7 +3944,11 @@ svg {
   }
 
   .site-footer {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-areas:
+      "brand services company"
+      "brand support follow";
+    gap: 22px 26px;
   }
 
   .service-selector-grid {
@@ -3574,6 +3992,18 @@ svg {
   }
 }
 
+@media (max-width: 920px) {
+  .site-footer {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "brand brand"
+      "services company"
+      "support follow";
+    gap: 22px 24px;
+    padding-bottom: 102px;
+  }
+}
+
 @media (max-width: 760px) {
   .home-service-rail-wrap,
   .public-main {
@@ -3610,6 +4040,21 @@ svg {
   .home-floating-card-side,
   .home-floating-card-proof {
     display: none;
+  }
+
+  .hero-texture-window-side,
+  .hero-texture-window-footer {
+    display: none;
+  }
+
+  .hero-texture-grid {
+    inset: 10% 8%;
+  }
+
+  .hero-texture-window-main {
+    top: 18px;
+    left: 18px;
+    width: min(250px, calc(100% - 36px));
   }
 
   .home-hero .hero-image {
@@ -3662,6 +4107,18 @@ svg {
 
   .home-journey-preview {
     margin-top: 4px;
+  }
+
+  .home-journey-preview-art {
+    min-height: 240px;
+  }
+
+  .journey-preview-panel-main {
+    width: 58%;
+  }
+
+  .journey-preview-panel-side {
+    width: 38%;
   }
 
   .home-journey-actions {
@@ -3754,6 +4211,15 @@ svg {
     min-height: 260px;
   }
 
+  .hero-texture-window-main {
+    width: min(220px, calc(100% - 32px));
+    padding: 14px;
+  }
+
+  .hero-texture-window strong {
+    font-size: 0.95rem;
+  }
+
   .service-selector-card {
     grid-template-columns: 1fr;
     align-items: start;
@@ -3765,5 +4231,17 @@ svg {
 
   .site-footer {
     grid-template-columns: 1fr;
+    grid-template-areas:
+      "brand"
+      "services"
+      "company"
+      "support"
+      "follow";
+    gap: 18px;
+    padding-bottom: 118px;
+  }
+
+  .footer-social-links {
+    gap: 6px;
   }
 }

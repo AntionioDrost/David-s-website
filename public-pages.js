@@ -635,7 +635,7 @@
             <span>Guided checks</span>
           </div>
         </div>
-        <div class="site-footer-section">
+        <div class="site-footer-section footer-services-section">
           <span>Services</span>
           <a href="epcs.html">EPC's</a>
           <a href="gas-safety.html">Gas Safety</a>
@@ -644,7 +644,7 @@
           <a href="selective-licensing.html">Selective Licensing</a>
           <a href="property-inspections.html">Property Inspections</a>
         </div>
-        <div class="site-footer-section">
+        <div class="site-footer-section footer-company-section">
           <span>Company</span>
           <a href="index.html">Homepage</a>
           <a href="services.html">All services</a>
@@ -652,19 +652,22 @@
           <a href="news.html">Compliance updates</a>
           <a href="contact.html">Contact</a>
         </div>
-        <div class="site-footer-section">
+        <div class="site-footer-section footer-support-section">
           <span>Support</span>
           <a href="mailto:compliance@complymyproperty.com">compliance@complymyproperty.com</a>
           <a href="tel:01217708814">0121 770 8814</a>
-          <small class="footer-note">Data protection, privacy and terms pages can be added in the final site build.</small>
+          <small class="footer-note">Privacy, terms and data protection pages will be added in the final build.</small>
           <small class="footer-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</small>
         </div>
-        <div class="site-footer-section">
+        <div class="site-footer-section footer-follow-section">
           <span>Follow</span>
-          <small class="footer-note">LinkedIn placeholder</small>
-          <small class="footer-note">Facebook placeholder</small>
-          <small class="footer-note">Instagram placeholder</small>
-          <small class="footer-note">Privacy, terms, and regulatory links can be added in the final site build.</small>
+          <div class="footer-social-links" aria-label="Social links preview">
+            <span>LinkedIn</span>
+            <span>Facebook</span>
+            <span>Instagram</span>
+          </div>
+          <small class="footer-note">Social profile links and company pages can be connected in the final build.</small>
+          <small class="footer-note">Regulatory and legal pages can be added once the live public site structure is final.</small>
         </div>
       </footer>
     `;
@@ -803,7 +806,36 @@
           </div>
           <div class="home-hero-media">
             <div class="home-hero-visual">
-              <img class="hero-image" src="assets/cmp-hero-property.png" alt="Traditional UK rental property with a calm compliance overlay">
+              <div class="hero-image hero-texture-stage" aria-hidden="true">
+                <div class="hero-texture-grid"></div>
+                <div class="hero-texture-glow hero-texture-glow-one"></div>
+                <div class="hero-texture-glow hero-texture-glow-two"></div>
+                <div class="hero-texture-glow hero-texture-glow-three"></div>
+                <div class="hero-texture-window hero-texture-window-main">
+                  <span class="hero-texture-chip">Property data</span>
+                  <strong>Property intelligence preview</strong>
+                  <div class="hero-texture-bars">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+                <div class="hero-texture-window hero-texture-window-side">
+                  <span class="hero-texture-chip hero-texture-chip-soft">Evidence ready</span>
+                  <div class="hero-texture-orbital">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+                <div class="hero-texture-window hero-texture-window-footer">
+                  <div class="hero-texture-signal"></div>
+                  <div class="hero-texture-lines">
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
               <article class="home-floating-card home-floating-card-main">
                 <span class="service-grid-eyebrow">Property overview</span>
                 <strong>66 Station Road, Marston Green</strong>
@@ -973,7 +1005,28 @@
                   <p>Recommendations appear after CMP understands the property, the gaps, and the evidence you have added.</p>
                 </div>
                 <div class="home-journey-preview-stage">
-                  <img src="assets/cmp-dashboard-preview.png" alt="ComplyMyProperty dashboard preview">
+                  <div class="home-journey-preview-art" aria-hidden="true">
+                    <div class="journey-preview-panel journey-preview-panel-main">
+                      <span class="journey-preview-chip">Imported</span>
+                      <div class="journey-preview-chart">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                    </div>
+                    <div class="journey-preview-panel journey-preview-panel-side">
+                      <span class="journey-preview-chip journey-preview-chip-purple">Evidence</span>
+                      <div class="journey-preview-list">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                      </div>
+                    </div>
+                    <div class="journey-preview-panel journey-preview-panel-bottom">
+                      <span class="journey-preview-chip journey-preview-chip-green">Next step</span>
+                      <div class="journey-preview-progress"></div>
+                    </div>
+                  </div>
                   <span class="home-journey-preview-pill preview-pill-top">Next action ready</span>
                   <span class="home-journey-preview-pill preview-pill-left">Evidence added</span>
                   <span class="home-journey-preview-pill preview-pill-bottom">Renewals tracked</span>
