@@ -589,21 +589,41 @@
   function baseFooter() {
     return `
       <footer class="site-footer">
-        <div>
+        <div class="site-footer-section">
           <strong>COMPLYMYPROPERTY</strong>
-          <p>The safest place for private landlords to organise property compliance with no subscription fee.</p>
+          <p>The compliance operating system for UK landlords.</p>
+          <small class="footer-note">The safest place for private landlords to organise property compliance with no subscription fee.</small>
         </div>
-        <div>
-          <span>Explore</span>
-          <a href="services.html">Services</a>
+        <div class="site-footer-section">
+          <span>Services</span>
+          <a href="epcs.html">EPC's</a>
+          <a href="gas-safety.html">Gas Safety</a>
+          <a href="eicr.html">EICR</a>
+          <a href="evictions-possession.html">Evictions & Possession</a>
+          <a href="selective-licensing.html">Selective Licensing</a>
+          <a href="property-inspections.html">Property Inspections</a>
+        </div>
+        <div class="site-footer-section">
+          <span>Company</span>
+          <a href="index.html">Homepage</a>
+          <a href="services.html">All services</a>
           <a href="my-properties.html">My Properties</a>
           <a href="news.html">Compliance updates</a>
+          <a href="contact.html">Contact</a>
         </div>
-        <div>
+        <div class="site-footer-section">
           <span>Support</span>
           <a href="mailto:compliance@complymyproperty.com">compliance@complymyproperty.com</a>
           <a href="tel:01217708814">0121 770 8814</a>
+          <small class="footer-note">Data protection, privacy and terms pages can be added in the final site build.</small>
           <small class="footer-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</small>
+        </div>
+        <div class="site-footer-section">
+          <span>Follow</span>
+          <small class="footer-note">LinkedIn placeholder</small>
+          <small class="footer-note">Facebook placeholder</small>
+          <small class="footer-note">Instagram placeholder</small>
+          <small class="footer-note">Privacy, terms, and regulatory links can be added in the final site build.</small>
         </div>
       </footer>
     `;
@@ -665,9 +685,39 @@
     `;
   }
 
-  function renderServiceCards(keys = SERVICE_ORDER) {
+  function serviceSelectorCopy(key) {
+    const copy = {
+      epc: "Check ratings, expiry, and what to do next.",
+      eviction: "Organise evidence and possession-related records.",
+      gas: "Start with gas appliances and certificate status.",
+      mortgage: "Estimate payments and lender-readiness basics.",
+      insurance: "Review policy position and property risks.",
+      possession_preparation: "Build a calmer evidence pack around the scenario.",
+      rent_guarantee: "Protect rental income and track arrears signals.",
+      mould: "Record reports, repairs, and communication history.",
+      licensing: "Check if licensing applies before chasing paperwork.",
+      eicr: "Review the electrical report and inspection dates.",
+      inspection: "Track condition, access, and inspection notes.",
+      aml: "Organise ID and proof-of-address documents."
+    };
+    return copy[key] || SERVICE_CONFIG[key]?.description || "";
+  }
+
+  function renderServiceCards(keys = SERVICE_ORDER, variant = "full") {
     return keys.map((key) => {
       const service = SERVICE_CONFIG[key];
+      if (variant === "selector") {
+        return `
+          <article class="service-selector-card">
+            <div>
+              <span class="service-grid-eyebrow">${escapeHtml(service.eyebrow)}</span>
+              <h3>${escapeHtml(service.title)}</h3>
+              <p>${escapeHtml(serviceSelectorCopy(key))}</p>
+            </div>
+            <a class="service-selector-link" href="${escapeHtml(service.route)}">Start</a>
+          </article>
+        `;
+      }
       return `
         <article class="service-grid-card">
           <span class="service-grid-eyebrow">${escapeHtml(service.eyebrow)}</span>
@@ -683,6 +733,14 @@
     document.title = "ComplyMyProperty | Landlord compliance made simple";
     app.innerHTML = `
       ${baseHeader("home")}
+      <div class="home-service-rail-wrap">
+        <div class="home-service-rail" aria-label="Homepage service links">
+          ${SERVICE_ORDER.map((key) => {
+            const service = SERVICE_CONFIG[key];
+            return `<a href="${escapeHtml(service.route)}">${escapeHtml(service.title)}</a>`;
+          }).join("")}
+        </div>
+      </div>
       <main class="public-main">
         <section class="hero home-hero">
           <img class="hero-image" src="assets/cmp-hero-property.png" alt="Traditional UK rental property with a calm compliance overlay">
@@ -690,10 +748,11 @@
           <div class="hero-content">
             <span class="eyebrow">Landlord compliance made simple</span>
             <h1>The compliance operating system for UK landlords.</h1>
-            <p>The safest place for private landlords to organise property compliance with no subscription fee.</p>
+            <p>The safest place for private landlords to automate and organise property compliance with no subscription fee.</p>
             <div class="hero-actions">
-              <a class="button primary" href="services.html">What do you need help with today?</a>
-              <a class="button secondary" href="add-property.html">Check a property</a>
+              <a class="button primary" href="add-property.html">Check your property</a>
+              <a class="button secondary" href="services.html">View services</a>
+              <a class="button tertiary" href="${escapeHtml(navigationPrimaryHref())}">${DEMO_MODE ? "My Properties" : "Log in"}</a>
             </div>
             <div class="hero-metrics">
               <span><strong>Choose</strong> a single service or a full check</span>
@@ -707,18 +766,37 @@
           <div class="section-heading">
             <span class="eyebrow">What do you need help with today?</span>
             <h2>Start with the service you actually came for.</h2>
-            <p>Start with one service, keep the journey focused, and only widen into a broader property check if it helps.</p>
+            <p>Choose one service, keep the journey focused, and only widen into a broader property check if it helps.</p>
           </div>
-          <div class="service-grid public-service-grid">
-            ${renderServiceCards()}
+          <div class="service-selector-grid">
+            ${renderServiceCards(SERVICE_ORDER, "selector")}
           </div>
         </section>
 
-        <section class="split-section public-split-section">
+        <section class="split-section public-split-section home-story-section">
           <div class="section-copy">
-            <span class="eyebrow">Quick property checker</span>
-            <h2>Want to start with the property instead?</h2>
-            <p>Enter a postcode, choose the right address, and CMP will build the next step around that property.</p>
+            <span class="eyebrow">The one stop shop for Property Compliance</span>
+            <h2>The one stop shop for Property Compliance</h2>
+            <p>Start with one service, one property, or one problem. CMP keeps the journey clear and builds around the real situation.</p>
+            <div class="home-story-list">
+              <article><strong>Service-led start</strong><p>Choose EPCs, Gas Safety, EICR, licensing, inspections, possession prep, mould, or another service.</p></article>
+              <article><strong>Property-led next step</strong><p>Add the postcode, choose the address, and let CMP build the next screen around that property.</p></article>
+              <article><strong>Evidence-led follow-up</strong><p>Bring in documents, notes, and timelines only when they help.</p></article>
+            </div>
+          </div>
+          <div class="helper-card home-highlight-card">
+            <span class="service-grid-eyebrow">Choose how focused you want us to be</span>
+            <h3>Keep it EPC-only, Gas-only, EICR-only, or widen it later.</h3>
+            <p>Landlords stay in control of how deep CMP goes. If you only came for one service, that remains a valid path.</p>
+            <a class="button secondary" href="services.html">View all service journeys</a>
+          </div>
+        </section>
+
+        <section class="split-section public-split-section home-postcode-section">
+          <div class="section-copy">
+            <span class="eyebrow">Property checker</span>
+            <h2>Enter your postcode here to check compliance:</h2>
+            <p>Enter a postcode, choose the right address, and CMP will carry the journey into Add Property without creating a generic listing.</p>
           </div>
           <form class="postcode-card" id="homePostcodeForm">
             <label for="homePostcodeInput">Property postcode</label>
@@ -730,55 +808,97 @@
           </form>
         </section>
 
-        <section class="how-section">
+        <section class="page-section home-support-section">
           <div class="section-heading">
-            <span class="eyebrow">How ComplyMyProperty works</span>
-            <h2>Start with the reason you arrived, then add the property.</h2>
+            <span class="eyebrow">What happens next</span>
+            <h2>We don’t just make you compliant. We prepare you for what happens next.</h2>
+            <p>Use property facts, certificates, timelines, and evidence to stay ready for renewals, tenancy changes, inspections, and possession prep.</p>
           </div>
-          <div class="steps">
-            <article><span>01</span><h3>Choose a service</h3><p>EPC, Gas Safety, EICR, inspections, licensing, possession preparation, mould, and more.</p></article>
-            <article><span>02</span><h3>Choose the depth</h3><p>Keep it focused, widen to related checks, or turn it into a full property review.</p></article>
-            <article><span>03</span><h3>Add the property</h3><p>Use postcode and address selection so the property title is clear from the start.</p></article>
-            <article><span>04</span><h3>Build the picture</h3><p>Use the A-Z checker, uploads, and the property dashboard only when they are useful.</p></article>
+          <div class="home-support-grid">
+            <article class="service-grid-card">
+              <span class="service-grid-eyebrow">Evidence</span>
+              <h3>Keep certificates, reports, and notices in one place.</h3>
+              <p>CMP helps organise what is already known and what still needs checking.</p>
+            </article>
+            <article class="service-grid-card">
+              <span class="service-grid-eyebrow">Timeline</span>
+              <h3>Build a property history that stays useful later.</h3>
+              <p>Repairs, inspections, communications, and renewals can sit alongside the main compliance checks.</p>
+            </article>
+            <article class="service-grid-card">
+              <span class="service-grid-eyebrow">Next steps</span>
+              <h3>Only book or upload when CMP understands why.</h3>
+              <p>Unknowns stay calm. Stronger actions appear only when something has actually been identified.</p>
+            </article>
           </div>
         </section>
 
-        <section class="split-section public-split-section">
+        <section class="split-section public-split-section home-honest-section">
           <div class="section-copy">
             <span class="eyebrow">A-Z compliance checker</span>
-            <h2>Build your compliance picture step by step.</h2>
-            <p>Landlords should be able to say “Not sure at this point”, keep moving, and come back later. Booking comes after CMP understands what they actually need.</p>
+            <h2>You can be honest with us — we build around your real situation.</h2>
+            <p>Landlords should be able to say “Not sure at this point”, keep moving, and come back later. Unsure answers become a checklist, not a failure.</p>
             <a class="button secondary" href="epcs.html">Preview the A-Z checker style</a>
           </div>
           <div class="checker-preview">
-            <article><strong>Property basics</strong><span>Done</span><p>Start with the property and tenancy basics.</p></article>
-            <article><strong>EPC</strong><span>Imported</span><p>Use register data if it exists and avoid asking twice.</p></article>
-            <article><strong>Gas Safety</strong><span>Not checked yet</span><p>Ask whether gas applies before pushing a certificate booking.</p></article>
-            <article><strong>Evidence</strong><span>Needs evidence</span><p>Uploads, notes, and timelines can come later without blocking the journey.</p></article>
+            <article><strong>Property basics</strong><span>Done</span><p>Start with the address, tenancy status, and a few clear basics.</p></article>
+            <article><strong>EPC</strong><span>Imported</span><p>Use register data if it exists and avoid asking the same question twice.</p></article>
+            <article><strong>Gas Safety</strong><span>Not checked yet</span><p>Check whether gas applies before deciding what the next step should be.</p></article>
+            <article><strong>Evidence</strong><span>Needs evidence</span><p>Upload documents later if you have them. CMP can still keep moving.</p></article>
           </div>
         </section>
 
         <section class="page-section">
           <div class="section-heading">
-            <span class="eyebrow">Latest compliance updates</span>
-            <h2>Latest compliance updates</h2>
-            <p>These example articles show how CMP could explain changes, reminders, and practical next steps in plain English.</p>
+            <span class="eyebrow">Our Main Services</span>
+            <h2>Our Main Services. Take a look at some of the services we offer.</h2>
+            <p>Start with the service that matters now, then widen the journey only if it helps.</p>
+          </div>
+          <div class="service-grid public-service-grid">
+            ${renderServiceCards(["epc", "gas", "eicr", "eviction", "licensing", "inspection"])}
+          </div>
+        </section>
+
+        <section class="page-section">
+          <div class="section-heading">
+            <span class="eyebrow">The latest</span>
+            <h2>The latest. Take a look at what everyone’s talking about right now.</h2>
+            <p>Example articles showing how CMP could explain compliance changes, reminders, and practical next steps in plain English.</p>
           </div>
           <div class="news-grid">
-            ${NEWS_ARTICLES.slice(0, 3).map((article) => renderArticleCard(article)).join("")}
+            ${NEWS_ARTICLES.slice(0, 4).map((article) => renderArticleCard(article)).join("")}
           </div>
           <div class="section-actions">
             <a class="button secondary" href="news.html">See updates preview</a>
           </div>
         </section>
 
+        <section class="how-section home-how-section">
+          <div class="section-heading">
+            <span class="eyebrow">How ComplyMyProperty works</span>
+            <h2>From Postcode to Fully Compliant</h2>
+            <p>Start with the reason you arrived, then let CMP build the next step around the property.</p>
+          </div>
+          <div class="steps">
+            <article><span>01</span><h3>Choose what you need help with</h3><p>Start with EPCs, Gas Safety, EICR, inspections, possession preparation, or another service.</p></article>
+            <article><span>02</span><h3>Choose how focused you want us to be</h3><p>Keep it to one service, widen to related checks, or ask for the full property picture.</p></article>
+            <article><span>03</span><h3>Add the property</h3><p>Use postcode and address selection so the property title is clear from the start.</p></article>
+            <article><span>04</span><h3>CMP checks what is already known</h3><p>Imported EPC data and saved answers reduce duplicated questions.</p></article>
+            <article><span>05</span><h3>Answer simple questions</h3><p>The A-Z checker lets landlords answer honestly, skip, and come back later.</p></article>
+            <article><span>06</span><h3>Review next steps</h3><p>Upload evidence, continue the check, or save service interest only when it is useful.</p></article>
+          </div>
+        </section>
+
         <section class="final-cta public-trust-band">
           <div>
-            <span class="eyebrow">Trust and control</span>
-            <h2>Traditional, clear, and landlord-friendly.</h2>
-            <p>CMP should feel official and easy to navigate. You stay in control of how focused the journey is, what you answer now, and what can wait until later.</p>
+            <span class="eyebrow">Trust and support</span>
+            <h2>Real people. Smart tech. No guesswork.</h2>
+            <p>CMP helps organise property compliance information, highlight missing checks and evidence, and point landlords to the next practical step. It is not legal advice.</p>
           </div>
-          <a class="button primary" href="my-properties.html">Go to My Properties</a>
+          <div class="home-trust-actions">
+            <a class="button primary" href="services.html">Explore services</a>
+            <a class="button secondary" href="my-properties.html">Go to My Properties</a>
+          </div>
         </section>
       </main>
       ${baseFooter()}
