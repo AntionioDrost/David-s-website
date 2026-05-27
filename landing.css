@@ -2673,6 +2673,8 @@ svg {
 }
 
 .home-hero {
+  position: relative;
+  overflow: hidden;
   grid-template-columns: 1fr;
   justify-items: center;
   gap: clamp(24px, 4vw, 34px);
@@ -2685,6 +2687,17 @@ svg {
     linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(245, 249, 253, 0.97));
   box-shadow: var(--home-shadow);
   text-align: center;
+}
+
+.home-hero::before {
+  position: absolute;
+  inset: auto auto -48px -32px;
+  width: 240px;
+  height: 220px;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(118, 92, 255, 0.12), transparent 68%);
+  content: "";
+  pointer-events: none;
 }
 
 .home-hero h1 {
@@ -3104,7 +3117,9 @@ svg {
 .service-selector-card:focus-within {
   transform: translateY(-2px);
   border-color: rgba(19, 58, 90, 0.16);
-  box-shadow: 0 22px 42px rgba(15, 30, 52, 0.08);
+  box-shadow:
+    0 22px 42px rgba(15, 30, 52, 0.08),
+    0 0 0 1px rgba(18, 145, 220, 0.06);
 }
 
 .service-selector-card h3 {
@@ -3217,6 +3232,7 @@ svg {
   border-radius: 28px;
   background:
     radial-gradient(circle at top, rgba(18, 145, 220, 0.08), transparent 36%),
+    radial-gradient(circle at 88% 20%, rgba(118, 92, 255, 0.08), transparent 24%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(246, 249, 252, 0.98));
   box-shadow: var(--home-shadow);
   text-align: center;
@@ -3281,6 +3297,7 @@ svg {
   text-align: center;
   background:
     radial-gradient(circle at top, rgba(88, 182, 63, 0.09), transparent 34%),
+    radial-gradient(circle at 80% 18%, rgba(18, 145, 220, 0.08), transparent 26%),
     linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(247, 250, 253, 0.98));
 }
 
@@ -3815,10 +3832,21 @@ svg {
 }
 
 .site-footer {
-  grid-template-columns: minmax(260px, 1.18fr) minmax(150px, 0.7fr) minmax(150px, 0.7fr) minmax(180px, 0.82fr) minmax(180px, 0.82fr);
-  grid-template-areas: "brand services company support follow";
+  position: relative;
+  grid-template-columns: minmax(280px, 1.24fr) minmax(150px, 0.72fr) minmax(150px, 0.72fr) minmax(260px, 0.98fr);
+  grid-template-areas: "brand services company support";
   gap: 28px 36px;
   padding-bottom: 118px;
+}
+
+.site-footer::before {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, rgba(18, 145, 220, 0), rgba(18, 145, 220, 0.24), rgba(118, 92, 255, 0.18), rgba(18, 145, 220, 0));
+  content: "";
 }
 
 .site-footer-section {
@@ -3842,10 +3870,6 @@ svg {
 
 .footer-support-section {
   grid-area: support;
-}
-
-.footer-follow-section {
-  grid-area: follow;
 }
 
 .footer-brand-section {
@@ -3872,6 +3896,16 @@ svg {
 .site-footer > .site-footer-section > span {
   color: var(--ink);
   font-size: 0.83rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.footer-subheading {
+  display: block;
+  margin-top: 6px;
+  color: var(--ink);
+  font-size: 0.76rem;
   font-weight: 800;
   letter-spacing: 0.06em;
   text-transform: uppercase;
@@ -3909,20 +3943,24 @@ svg {
 
 .footer-social-links {
   display: grid;
-  gap: 8px;
+  gap: 7px;
 }
 
-.footer-social-links span {
+.footer-social-links a {
   color: var(--ink-soft);
-  font-size: 0.9rem;
+  font-size: 0.88rem;
   font-weight: 600;
   letter-spacing: 0;
   text-transform: none;
+  text-decoration: none;
 }
 
-.footer-follow-section .footer-note,
+.footer-social-links a:hover {
+  color: var(--ink);
+}
+
 .footer-support-section .footer-note {
-  max-width: 28ch;
+  max-width: 30ch;
 }
 
 .footer-trust-pills {
@@ -4003,7 +4041,7 @@ svg {
     grid-template-areas:
       "brand brand"
       "services company"
-      "support follow";
+      "support support";
     gap: 22px 28px;
     padding-bottom: 120px;
   }
@@ -4035,7 +4073,6 @@ svg {
     gap: 20px 24px;
   }
 
-  .footer-follow-section .footer-note,
   .footer-support-section .footer-note {
     max-width: none;
   }
@@ -4144,18 +4181,6 @@ svg {
 
   .home-journey-preview {
     margin-top: 4px;
-  }
-
-  .home-journey-preview-art {
-    min-height: 240px;
-  }
-
-  .journey-preview-panel-main {
-    width: 58%;
-  }
-
-  .journey-preview-panel-side {
-    width: 38%;
   }
 
   .home-journey-preview-art {
@@ -4297,5 +4322,11 @@ svg {
   .assistant-fab-shell {
     right: 12px;
     bottom: 16px;
+  }
+
+  .assistant-fab {
+    min-height: 42px;
+    padding: 0 14px;
+    font-size: 0.82rem;
   }
 }

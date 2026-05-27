@@ -656,17 +656,15 @@
           <span>Support</span>
           <a href="mailto:compliance@complymyproperty.com">compliance@complymyproperty.com</a>
           <a href="tel:01217708814">0121 770 8814</a>
-          <small class="footer-note">Privacy, terms and data protection pages will be added in the final build.</small>
-          <small class="footer-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</small>
-        </div>
-        <div class="site-footer-section footer-follow-section">
-          <span>Follow</span>
+          <span class="footer-subheading">Follow</span>
           <div class="footer-social-links" aria-label="Social links preview">
-            <span>LinkedIn</span>
-            <span>Facebook</span>
-            <span>Instagram</span>
+            <a href="#footer" aria-disabled="true">LinkedIn</a>
+            <a href="#footer" aria-disabled="true">Facebook</a>
+            <a href="#footer" aria-disabled="true">Instagram</a>
           </div>
-          <small class="footer-note">Social profile links and company pages can be connected in the final build.</small>
+          <small class="footer-note">Privacy, terms and data protection pages will be added in the final build.</small>
+          <small class="footer-note">Social profile links can be connected before launch.</small>
+          <small class="footer-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</small>
           <small class="footer-note">Regulatory and legal pages can be added once the live public site structure is final.</small>
         </div>
       </footer>
