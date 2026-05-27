@@ -560,6 +560,21 @@
     return DEMO_MODE ? "my-properties.html" : "auth.html?redirect=my-properties.html";
   }
 
+  function cmpShieldMarkSvg() {
+    return `
+      <svg viewBox="0 0 72 72" aria-hidden="true" focusable="false">
+        <path fill="#183a5a" d="M36 4 58.5 13.2v18.7c0 16.3-9.1 28.7-22.5 35.4C22.7 60.6 13.5 48.2 13.5 31.9V13.2Z"/>
+        <path fill="#fff" d="M36 8.7 54.1 16v15.2c0 13.5-7.3 24.1-18.1 30-10.8-5.9-18.1-16.5-18.1-30V16Z"/>
+        <path fill="#183a5a" d="M25.1 33.4v-9.3L36 15.8l10.9 8.3v9.3l-10.9 8.4z"/>
+        <path fill="#183a5a" d="M29.8 34.6h12.4v11.7H29.8z"/>
+        <path fill="#fff" d="M35.2 35.3h1.6V46h-1.6z"/>
+        <path fill="#fff" d="M29.7 39.8h12.5v1.6H29.7z"/>
+        <path fill="#58b63f" d="m26.8 42.4 6.6 6.1L54.9 25l5.1 4.8L33.6 58.1 21.8 47.2z"/>
+        <path fill="#1291dc" d="m46.3 61.4 4.2-4.7L63 34.3c-.7 8.2-2.7 15.1-6.4 20.8-3 4.5-6.5 7.6-10.3 9.5z"/>
+      </svg>
+    `;
+  }
+
   function baseHeader(active = "") {
     const homeVariant = active === "home";
     const links = homeVariant
@@ -580,8 +595,8 @@
     return `
       <header class="site-nav${homeVariant ? " homepage-nav" : ""}">
         <a class="brand" href="index.html" aria-label="ComplyMyProperty home">
-          <span class="brand-mark">CMP</span>
-          <span>
+          <span class="brand-mark brand-mark-shield">${cmpShieldMarkSvg()}</span>
+          <span class="brand-copy">
             <strong>ComplyMyProperty</strong>
             <small>Landlord compliance made simple</small>
           </span>
@@ -605,10 +620,20 @@
   function baseFooter() {
     return `
       <footer class="site-footer">
-        <div class="site-footer-section">
-          <strong>COMPLYMYPROPERTY</strong>
-          <p>The compliance operating system for UK landlords.</p>
+        <div class="site-footer-section footer-brand-section">
+          <div class="footer-brand-lockup">
+            <span class="brand-mark brand-mark-shield footer-brand-mark">${cmpShieldMarkSvg()}</span>
+            <div>
+              <strong>COMPLYMYPROPERTY</strong>
+              <p>The compliance operating system for UK landlords.</p>
+            </div>
+          </div>
           <small class="footer-note">The safest place for private landlords to organise property compliance with no subscription fee.</small>
+          <div class="footer-trust-pills">
+            <span>No subscription</span>
+            <span>Property-led</span>
+            <span>Guided checks</span>
+          </div>
         </div>
         <div class="site-footer-section">
           <span>Services</span>
@@ -750,6 +775,7 @@
     app.innerHTML = `
       ${baseHeader("home")}
       <div class="home-service-rail-wrap">
+        <div class="home-service-rail-label">Browse services</div>
         <div class="home-service-rail" aria-label="Homepage service links">
           ${SERVICE_ORDER.map((key) => {
             const service = SERVICE_CONFIG[key];
@@ -768,14 +794,34 @@
               <a class="button secondary" href="services.html">View services</a>
               <a class="button tertiary" href="${escapeHtml(navigationPrimaryHref())}">${DEMO_MODE ? "My Properties" : "Log in"}</a>
             </div>
-            <div class="hero-metrics">
-              <span><strong>Choose</strong> a single service or a full check</span>
-              <span><strong>Add</strong> a property by postcode</span>
-              <span><strong>Build</strong> your A-Z compliance picture later</span>
+            <div class="hero-metrics home-hero-metrics">
+              <span>No subscription</span>
+              <span>Property-led</span>
+              <span>Guided checks</span>
+              <span>Evidence ready</span>
             </div>
           </div>
           <div class="home-hero-media">
-            <img class="hero-image" src="assets/cmp-hero-property.png" alt="Traditional UK rental property with a calm compliance overlay">
+            <div class="home-hero-visual">
+              <img class="hero-image" src="assets/cmp-hero-property.png" alt="Traditional UK rental property with a calm compliance overlay">
+              <article class="home-floating-card home-floating-card-main">
+                <span class="service-grid-eyebrow">Property overview</span>
+                <strong>66 Station Road, Marston Green</strong>
+                <p>EPC, evidence and next checks brought into one calm workflow.</p>
+                <div class="home-floating-card-row">
+                  <span class="status-pill info">EPC imported</span>
+                  <span class="status-pill good">2 checks confirmed</span>
+                </div>
+              </article>
+              <article class="home-floating-card home-floating-card-side">
+                <span class="status-pill neutral">Guided checks</span>
+                <p>Answer what you know now and come back later for the rest.</p>
+              </article>
+              <article class="home-floating-card home-floating-card-proof">
+                <span class="status-pill good">Evidence ready</span>
+                <p>Documents, notes and timelines stay tied to the property.</p>
+              </article>
+            </div>
           </div>
         </section>
 
@@ -898,6 +944,44 @@
             <h2>From Postcode to Fully Compliant</h2>
             <p>Start with the reason you arrived, then let CMP build the next step around the property.</p>
           </div>
+          <div class="home-workflow-panel">
+            <div class="home-workflow-track" aria-hidden="true">
+              <article class="home-workflow-stage">
+                <span>1</span>
+                <strong>Enter postcode</strong>
+                <small>Find property</small>
+              </article>
+              <article class="home-workflow-stage">
+                <span>2</span>
+                <strong>Known facts</strong>
+                <small>EPC and property data</small>
+              </article>
+              <article class="home-workflow-stage">
+                <span>3</span>
+                <strong>Guided checks</strong>
+                <small>Answer what you know</small>
+              </article>
+              <article class="home-workflow-stage">
+                <span>4</span>
+                <strong>Action plan</strong>
+                <small>Evidence and next steps</small>
+              </article>
+            </div>
+            <div class="home-workflow-support">
+              <article>
+                <span class="service-grid-eyebrow">Data pulled automatically</span>
+                <strong>EPC, property facts, and saved answers reduce duplicated questions.</strong>
+              </article>
+              <article>
+                <span class="service-grid-eyebrow">Compliance intelligence</span>
+                <strong>CMP turns certificates, timelines, and evidence gaps into calmer next actions.</strong>
+              </article>
+              <article>
+                <span class="service-grid-eyebrow">Services only when useful</span>
+                <strong>Booking and upload prompts appear after CMP understands what the property needs.</strong>
+              </article>
+            </div>
+          </div>
           <div class="steps">
             <article><span>01</span><h3>Choose what you need help with</h3><p>Start with EPCs, Gas Safety, EICR, inspections, possession preparation, or another service.</p></article>
             <article><span>02</span><h3>Choose how focused you want us to be</h3><p>Keep it to one service, widen to related checks, or ask for the full property picture.</p></article>
@@ -937,11 +1021,14 @@
   function renderArticleCard(article) {
     return `
       <article class="news-card">
-        <span class="service-grid-eyebrow">${escapeHtml(article.category)}</span>
+        <div class="news-card-meta">
+          <span class="service-grid-eyebrow">${escapeHtml(article.category)}</span>
+          <span class="quiet-pill">Preview update</span>
+        </div>
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.excerpt)}</p>
         <div class="news-card-footer">
-          <span class="quiet-pill">Example article</span>
+          <span class="news-card-note">Plain-English landlord update</span>
           <button class="mini-button" type="button" data-open-article="${escapeHtml(article.id)}">Read article</button>
         </div>
       </article>
