@@ -561,8 +561,24 @@
   }
 
   function baseHeader(active = "") {
+    const homeVariant = active === "home";
+    const links = homeVariant
+      ? [
+          { href: "services.html", label: "Services", key: "services" },
+          { href: "add-property.html", label: "Add Property", key: "add-property" },
+          { href: "news.html", label: "Updates", key: "news" },
+          { href: "contact.html", label: "Contact", key: "contact" }
+        ]
+      : [
+          { href: "index.html", label: "Home", key: "home" },
+          { href: "services.html", label: "Services", key: "services" },
+          { href: "add-property.html", label: "Add Property", key: "add-property" },
+          { href: "my-properties.html", label: "My Properties", key: "my-properties" },
+          { href: "news.html", label: "Updates", key: "news" },
+          { href: "contact.html", label: "Contact", key: "contact" }
+        ];
     return `
-      <header class="site-nav">
+      <header class="site-nav${homeVariant ? " homepage-nav" : ""}">
         <a class="brand" href="index.html" aria-label="ComplyMyProperty home">
           <span class="brand-mark">CMP</span>
           <span>
@@ -571,15 +587,15 @@
           </span>
         </a>
         <nav class="nav-links" aria-label="Main navigation">
-          <a href="index.html"${active === "home" ? ' aria-current="page"' : ""}>Home</a>
-          <a href="services.html"${active === "services" ? ' aria-current="page"' : ""}>Services</a>
-          <a href="add-property.html"${active === "add-property" ? ' aria-current="page"' : ""}>Add Property</a>
-          <a href="my-properties.html"${active === "my-properties" ? ' aria-current="page"' : ""}>My Properties</a>
-          <a href="news.html"${active === "news" ? ' aria-current="page"' : ""}>Updates</a>
-          <a href="contact.html">Contact</a>
+          ${links
+            .map(
+              (link) =>
+                `<a href="${link.href}"${active === link.key ? ' aria-current="page"' : ""}>${link.label}</a>`
+            )
+            .join("")}
         </nav>
         <div class="nav-actions">
-          <a class="nav-link-secondary" href="dashboard.html#guided-check">A-Z checker</a>
+          ${homeVariant ? "" : `<a class="nav-link-secondary" href="dashboard.html#guided-check">A-Z checker</a>`}
           <a class="nav-cta" href="${navigationPrimaryHref()}"><i data-lucide="layout-dashboard"></i>${DEMO_MODE ? "My Properties" : "Log in"}</a>
         </div>
       </header>
