@@ -938,57 +938,87 @@
           </div>
         </section>
 
-        <section class="how-section home-how-section">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">How ComplyMyProperty works</span>
-            <h2>From Postcode to Fully Compliant</h2>
-            <p>Start with the reason you arrived, then let CMP build the next step around the property.</p>
-          </div>
-          <div class="home-workflow-panel">
-            <div class="home-workflow-track" aria-hidden="true">
-              <article class="home-workflow-stage">
-                <span>1</span>
-                <strong>Enter postcode</strong>
-                <small>Find property</small>
+        <section class="page-section home-journey-section" id="compliance-journey">
+          <div class="home-journey-shell">
+            <div class="section-heading home-centered-heading home-journey-heading">
+              <span class="eyebrow">How ComplyMyProperty works</span>
+              <h2>From postcode to fully compliant</h2>
+              <p>CMP turns a postcode, a few answers and your documents into a clear property compliance picture.</p>
+            </div>
+            <div class="home-journey-chip-row">
+              <span>Start small.</span>
+              <span>Stay in control.</span>
+              <span>Not sure? Come back later.</span>
+              <span>No legal advice — just clearer next steps.</span>
+            </div>
+            <div class="home-journey-flow">
+              <article class="home-journey-card journey-step-1 is-left">
+                <span class="home-journey-step-index">01</span>
+                <span class="status-pill info">Property-led</span>
+                <h3>Start with a postcode</h3>
+                <p>Find the right property and begin with the basics.</p>
               </article>
-              <article class="home-workflow-stage">
-                <span>2</span>
-                <strong>Known facts</strong>
-                <small>EPC and property data</small>
+
+              <article class="home-journey-card journey-step-2 is-right">
+                <span class="home-journey-step-index">02</span>
+                <span class="status-pill info">EPC imported</span>
+                <h3>Import what CMP can</h3>
+                <p>EPC and property data help pre-fill the first checks.</p>
               </article>
-              <article class="home-workflow-stage">
-                <span>3</span>
-                <strong>Guided checks</strong>
-                <small>Answer what you know</small>
+
+              <article class="home-journey-preview">
+                <div class="home-journey-preview-copy">
+                  <span class="service-grid-eyebrow">Compliance OS preview</span>
+                  <strong>One property. Clear next steps. Everything together.</strong>
+                  <p>Recommendations appear after CMP understands the property, the gaps, and the evidence you have added.</p>
+                </div>
+                <div class="home-journey-preview-stage">
+                  <img src="assets/cmp-dashboard-preview.png" alt="ComplyMyProperty dashboard preview">
+                  <span class="home-journey-preview-pill preview-pill-top">Next action ready</span>
+                  <span class="home-journey-preview-pill preview-pill-left">Evidence added</span>
+                  <span class="home-journey-preview-pill preview-pill-bottom">Renewals tracked</span>
+                </div>
               </article>
-              <article class="home-workflow-stage">
-                <span>4</span>
-                <strong>Action plan</strong>
-                <small>Evidence and next steps</small>
+
+              <article class="home-journey-card journey-step-3 is-left">
+                <span class="home-journey-step-index">03</span>
+                <span class="status-pill neutral">Not sure saved</span>
+                <h3>Answer calmly</h3>
+                <p>Use the A-Z check. Choose ‘not sure’ whenever you need to.</p>
+              </article>
+
+              <article class="home-journey-card journey-step-4 is-right">
+                <span class="home-journey-step-index">04</span>
+                <span class="status-pill evidence">Evidence later</span>
+                <h3>Add evidence</h3>
+                <p>Upload certificates, notices, reports or photos if you have them.</p>
+              </article>
+
+              <article class="home-journey-card journey-step-5 is-left">
+                <span class="home-journey-step-index">05</span>
+                <span class="status-pill attention">Next action ready</span>
+                <h3>See what matters next</h3>
+                <p>CMP highlights gaps, renewals and useful next actions.</p>
+              </article>
+
+              <article class="home-journey-card journey-step-6 is-right">
+                <span class="home-journey-step-index">06</span>
+                <span class="status-pill good">Dashboard ready</span>
+                <h3>Keep everything together</h3>
+                <p>Your property dashboard becomes the place to track documents, actions and reminders.</p>
               </article>
             </div>
-            <div class="home-workflow-support">
-              <article>
-                <span class="service-grid-eyebrow">Data pulled automatically</span>
-                <strong>EPC, property facts, and saved answers reduce duplicated questions.</strong>
-              </article>
-              <article>
-                <span class="service-grid-eyebrow">Compliance intelligence</span>
-                <strong>CMP turns certificates, timelines, and evidence gaps into calmer next actions.</strong>
-              </article>
-              <article>
-                <span class="service-grid-eyebrow">Services only when useful</span>
-                <strong>Booking and upload prompts appear after CMP understands what the property needs.</strong>
-              </article>
+            <div class="home-journey-footer">
+              <div class="home-journey-footer-copy">
+                <p>Start with one service, widen only when it helps, and let the property dashboard become the compliance file.</p>
+                <small>No legal advice — just clearer information and next steps.</small>
+              </div>
+              <div class="home-journey-actions">
+                <a class="button primary" href="add-property.html">Start with your postcode</a>
+                <a class="button secondary" href="services.html">Explore services</a>
+                <a class="button secondary" href="my-properties.html">Build your A-Z check</a>
+              </div>
             </div>
-          </div>
-          <div class="steps">
-            <article><span>01</span><h3>Choose what you need help with</h3><p>Start with EPCs, Gas Safety, EICR, inspections, possession preparation, or another service.</p></article>
-            <article><span>02</span><h3>Choose how focused you want us to be</h3><p>Keep it to one service, widen to related checks, or ask for the full property picture.</p></article>
-            <article><span>03</span><h3>Add the property</h3><p>Use postcode and address selection so the property title is clear from the start.</p></article>
-            <article><span>04</span><h3>CMP checks what is already known</h3><p>Imported EPC data and saved answers reduce duplicated questions.</p></article>
-            <article><span>05</span><h3>Answer simple questions</h3><p>The A-Z checker lets landlords answer honestly, skip, and come back later.</p></article>
-            <article><span>06</span><h3>Review next steps</h3><p>Upload evidence, continue the check, or save service interest only when it is useful.</p></article>
           </div>
         </section>
 

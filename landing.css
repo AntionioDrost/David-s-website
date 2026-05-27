@@ -1641,6 +1641,11 @@ svg {
   color: #475569;
 }
 
+.status-pill.evidence {
+  background: rgba(139, 92, 246, 0.14);
+  color: #6d28d9;
+}
+
 .public-service-grid,
 .property-card-grid,
 .news-grid,
@@ -3078,106 +3083,371 @@ svg {
   line-height: 1.5;
 }
 
-.home-how-section {
-  gap: 24px;
+.home-journey-section {
+  gap: 0;
+  scroll-margin-top: 104px;
 }
 
-.home-workflow-panel {
+.home-journey-shell {
+  position: relative;
+  overflow: hidden;
   display: grid;
-  gap: 16px;
-  width: min(1140px, 100%);
-  padding: 24px;
-  border: 1px solid var(--home-border);
-  border-radius: 28px;
+  gap: 22px;
+  padding: clamp(30px, 5vw, 46px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 34px;
   background:
-    radial-gradient(circle at top left, rgba(18, 145, 220, 0.08), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(246, 249, 252, 0.98));
-  box-shadow: var(--home-shadow);
+    linear-gradient(180deg, rgba(7, 14, 24, 0.98), rgba(10, 20, 33, 0.98) 44%, rgba(8, 17, 28, 0.98)),
+    #0a1320;
+  box-shadow: 0 34px 76px rgba(6, 12, 20, 0.24);
+  isolation: isolate;
 }
 
-.home-workflow-track {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 14px;
+.home-journey-shell::before,
+.home-journey-shell::after {
+  position: absolute;
+  inset: auto;
+  content: "";
+  pointer-events: none;
 }
 
-.home-workflow-stage {
+.home-journey-shell::before {
+  top: -10%;
+  left: -8%;
+  width: 46%;
+  height: 56%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(31, 125, 214, 0.34), rgba(31, 125, 214, 0.08) 46%, transparent 72%);
+  filter: blur(26px);
+  opacity: 0.92;
+}
+
+.home-journey-shell::after {
+  right: -10%;
+  bottom: -14%;
+  width: 44%;
+  height: 52%;
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(249, 150, 41, 0.18), rgba(126, 92, 255, 0.18) 42%, transparent 74%);
+  filter: blur(34px);
+  opacity: 0.88;
+}
+
+.home-journey-shell > * {
+  position: relative;
+  z-index: 1;
+}
+
+.home-journey-shell .service-grid-eyebrow {
+  color: rgba(206, 224, 245, 0.72);
+}
+
+.home-journey-heading {
+  width: min(760px, 100%);
+}
+
+.home-journey-heading .eyebrow {
+  color: #8fc0ff;
+}
+
+.home-journey-heading h2,
+.home-journey-heading p {
+  color: #f8fbff;
+}
+
+.home-journey-heading p {
+  max-width: 40rem;
+  color: rgba(224, 232, 245, 0.76);
+}
+
+.home-journey-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 10px;
+}
+
+.home-journey-chip-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(241, 246, 252, 0.88);
+  font-size: 0.82rem;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+}
+
+.home-journey-flow {
   position: relative;
   display: grid;
-  gap: 8px;
-  padding: 18px 16px 16px;
-  border: 1px solid rgba(19, 46, 72, 0.08);
-  border-radius: 22px;
-  background: rgba(255, 255, 255, 0.96);
-  text-align: left;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 360px) minmax(0, 1fr);
+  grid-template-areas:
+    "step1 preview step2"
+    "step3 preview step4"
+    "step5 preview step6";
+  gap: 18px 34px;
+  align-items: center;
+  padding: 18px 0;
 }
 
-.home-workflow-stage:not(:last-child)::after {
+.home-journey-flow::before {
   position: absolute;
-  top: 34px;
-  right: -14px;
-  width: 14px;
-  height: 2px;
-  background: rgba(19, 58, 90, 0.18);
+  top: 6%;
+  bottom: 6%;
+  left: 50%;
+  width: 4px;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background:
+    linear-gradient(180deg, rgba(70, 180, 255, 0.04), rgba(70, 180, 255, 0.92) 16%, rgba(126, 92, 255, 0.82) 46%, rgba(249, 150, 41, 0.78) 72%, rgba(70, 180, 255, 0.2));
+  box-shadow:
+    0 0 24px rgba(32, 145, 227, 0.34),
+    0 0 48px rgba(126, 92, 255, 0.2);
   content: "";
 }
 
-.home-workflow-stage span {
-  display: inline-grid;
-  width: 34px;
-  height: 34px;
-  place-items: center;
-  border-radius: 999px;
-  background: rgba(18, 145, 220, 0.11);
-  color: var(--cmp-blue);
-  font-size: 0.82rem;
-  font-weight: 800;
-}
-
-.home-workflow-stage strong {
-  color: var(--navy);
-  font-size: 0.96rem;
-  line-height: 1.28;
-}
-
-.home-workflow-stage small {
-  color: var(--muted);
-  font-size: 0.82rem;
-  line-height: 1.45;
-}
-
-.home-workflow-support {
+.home-journey-card,
+.home-journey-preview {
+  position: relative;
+  overflow: hidden;
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 14px;
+  gap: 10px;
+  min-width: 0;
+  padding: 20px 20px 18px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 24px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.13), rgba(255, 255, 255, 0.07)),
+    rgba(255, 255, 255, 0.05);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 20px 40px rgba(4, 9, 16, 0.22);
+  backdrop-filter: blur(16px) saturate(135%);
 }
 
-.home-workflow-support article {
+.home-journey-card::before,
+.home-journey-card::after {
+  position: absolute;
+  top: 50%;
+  content: "";
+}
+
+.home-journey-card::before {
+  width: 22px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(143, 192, 255, 0.72), rgba(143, 192, 255, 0.16));
+}
+
+.home-journey-card::after {
+  width: 14px;
+  height: 14px;
+  margin-top: -7px;
+  border: 2px solid rgba(191, 225, 255, 0.88);
+  border-radius: 999px;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.96), rgba(86, 198, 255, 0.4));
+  box-shadow: 0 0 18px rgba(76, 174, 255, 0.42);
+}
+
+.home-journey-card.is-left::before {
+  right: -22px;
+}
+
+.home-journey-card.is-left::after {
+  right: -30px;
+}
+
+.home-journey-card.is-right::before {
+  left: -22px;
+  background: linear-gradient(90deg, rgba(143, 192, 255, 0.16), rgba(143, 192, 255, 0.72));
+}
+
+.home-journey-card.is-right::after {
+  left: -30px;
+}
+
+.home-journey-card h3,
+.home-journey-preview strong {
+  color: #f7fbff;
+  font-size: 1.02rem;
+  line-height: 1.32;
+}
+
+.home-journey-card p,
+.home-journey-preview p {
+  color: rgba(219, 230, 244, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.58;
+}
+
+.home-journey-step-index {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  color: #f8fbff;
+  font-size: 0.8rem;
+  font-weight: 800;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+}
+
+.journey-step-1 { grid-area: step1; }
+.journey-step-2 { grid-area: step2; }
+.journey-step-3 { grid-area: step3; }
+.journey-step-4 { grid-area: step4; }
+.journey-step-5 { grid-area: step5; }
+.journey-step-6 { grid-area: step6; }
+
+.home-journey-preview {
+  grid-area: preview;
+  gap: 16px;
+  padding: 20px;
+}
+
+.home-journey-preview-copy {
   display: grid;
   gap: 8px;
-  padding: 18px;
-  border: 1px solid rgba(19, 46, 72, 0.08);
+}
+
+.home-journey-preview-stage {
+  position: relative;
+  padding: 18px 18px 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 22px;
-  background: rgba(255, 255, 255, 0.93);
-  box-shadow: 0 12px 24px rgba(15, 30, 52, 0.04);
+  background: rgba(255, 255, 255, 0.06);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-.home-workflow-support article strong {
-  color: var(--navy);
-  font-size: 0.94rem;
-  line-height: 1.45;
+.home-journey-preview-stage img {
+  width: 100%;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 18px 36px rgba(2, 8, 15, 0.3);
 }
 
-.home-how-section .steps {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+.home-journey-preview-pill {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 11px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.11);
+  color: #f8fbff;
+  font-size: 0.76rem;
+  font-weight: 800;
+  backdrop-filter: blur(12px);
 }
 
-.home-how-section .steps article {
-  min-height: 0;
-  border: 1px solid var(--home-border);
-  border-radius: 22px;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.99), rgba(247, 250, 253, 0.97));
-  box-shadow: var(--home-shadow-soft);
+.preview-pill-top {
+  top: 8px;
+  right: 16px;
+}
+
+.preview-pill-left {
+  left: 10px;
+  bottom: 18px;
+}
+
+.preview-pill-bottom {
+  right: 12px;
+  bottom: 10px;
+}
+
+.home-journey-footer {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 20px;
+  align-items: center;
+  padding-top: 6px;
+}
+
+.home-journey-footer-copy {
+  display: grid;
+  gap: 8px;
+}
+
+.home-journey-footer-copy p {
+  color: #f8fbff;
+  font-size: 0.98rem;
+  line-height: 1.62;
+}
+
+.home-journey-footer-copy small {
+  color: rgba(220, 230, 242, 0.68);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+.home-journey-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.home-journey-actions .button.secondary {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.08);
+  color: #f7fbff;
+}
+
+.home-journey-actions .button.secondary:hover,
+.home-journey-actions .button.secondary:focus-visible {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .home-journey-shell::before {
+    animation: homeAuroraLeft 18s ease-in-out infinite alternate;
+  }
+
+  .home-journey-shell::after {
+    animation: homeAuroraRight 22s ease-in-out infinite alternate;
+  }
+
+  .home-journey-card,
+  .home-journey-preview {
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+
+  .home-journey-card:hover,
+  .home-journey-preview:hover {
+    transform: translateY(-3px);
+    border-color: rgba(255, 255, 255, 0.22);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.16),
+      0 28px 52px rgba(4, 9, 16, 0.3);
+  }
+}
+
+@keyframes homeAuroraLeft {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.82;
+  }
+  to {
+    transform: translate3d(4%, 6%, 0) scale(1.08);
+    opacity: 1;
+  }
+}
+
+@keyframes homeAuroraRight {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+    opacity: 0.76;
+  }
+  to {
+    transform: translate3d(-4%, -4%, 0) scale(1.06);
+    opacity: 0.94;
+  }
 }
 
 .site-footer {
@@ -3234,13 +3504,9 @@ svg {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .home-workflow-track,
-  .home-workflow-support {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .home-workflow-stage::after {
-    display: none;
+  .home-journey-flow {
+    grid-template-columns: minmax(0, 1fr) minmax(260px, 320px) minmax(0, 1fr);
+    gap: 16px 24px;
   }
 }
 
@@ -3277,6 +3543,37 @@ svg {
   }
 }
 
+@media (max-width: 980px) {
+  .home-journey-flow {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+      "preview preview"
+      "step1 step2"
+      "step3 step4"
+      "step5 step6";
+    gap: 16px 18px;
+  }
+
+  .home-journey-flow::before {
+    top: 42%;
+    bottom: 6%;
+  }
+
+  .home-journey-preview {
+    max-width: none;
+  }
+
+  .home-journey-footer {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    text-align: center;
+  }
+
+  .home-journey-actions {
+    justify-content: center;
+  }
+}
+
 @media (max-width: 760px) {
   .home-service-rail-wrap,
   .public-main {
@@ -3286,10 +3583,8 @@ svg {
   .service-selector-grid,
   .home-story-list,
   .home-support-grid,
-  .home-how-section .steps,
   .homepage-main .news-grid,
-  .home-workflow-track,
-  .home-workflow-support {
+  .home-journey-flow {
     grid-template-columns: 1fr;
   }
 
@@ -3323,6 +3618,70 @@ svg {
 
   .home-floating-card {
     position: static;
+    width: 100%;
+  }
+
+  .home-journey-shell {
+    padding: 26px 18px;
+    border-radius: 28px;
+  }
+
+  .home-journey-flow {
+    grid-template-areas:
+      "step1"
+      "step2"
+      "step3"
+      "step4"
+      "step5"
+      "step6"
+      "preview";
+    gap: 14px;
+  }
+
+  .home-journey-flow::before {
+    display: none;
+  }
+
+  .home-journey-card {
+    padding-left: 52px;
+  }
+
+  .home-journey-card::before {
+    top: -14px;
+    left: 18px;
+    width: 2px;
+    height: calc(100% + 28px);
+    background: linear-gradient(180deg, rgba(84, 179, 255, 0.2), rgba(84, 179, 255, 0.9), rgba(248, 154, 44, 0.68));
+  }
+
+  .home-journey-card::after {
+    top: 24px;
+    left: 11px;
+    margin-top: 0;
+  }
+
+  .home-journey-preview {
+    margin-top: 4px;
+  }
+
+  .home-journey-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .home-journey-actions .button {
+    width: 100%;
+  }
+
+  .home-postcode-section .postcode-row input {
+    flex: 0 0 auto;
+    width: 100%;
+    max-width: none;
+    min-height: 50px;
+  }
+
+  .home-postcode-section .postcode-row .button {
     width: 100%;
   }
 }
