@@ -380,6 +380,21 @@
     "aml"
   ];
 
+  const SERVICE_VISUALS = {
+    epc: { icon: "house", tone: "blue" },
+    eviction: { icon: "scale", tone: "purple" },
+    gas: { icon: "flame", tone: "green" },
+    mortgage: { icon: "landmark", tone: "cyan" },
+    insurance: { icon: "shield", tone: "blue" },
+    possession_preparation: { icon: "folder-open", tone: "purple" },
+    rent_guarantee: { icon: "banknote", tone: "green" },
+    mould: { icon: "droplets", tone: "amber" },
+    licensing: { icon: "building-2", tone: "violet" },
+    eicr: { icon: "zap", tone: "amber" },
+    inspection: { icon: "clipboard-list", tone: "cyan" },
+    aml: { icon: "id-card", tone: "blue" }
+  };
+
   const NEWS_ARTICLES = [
     { id: "epc-rules", category: "EPC", title: "EPC rules are changing — what landlords should prepare for", excerpt: "Use postcode, certificate dates, and the current rating to keep the next EPC decision practical.", published: "May 2026", readTime: "4 min read", demo: true },
     { id: "gas-renewal", category: "Gas Safety", title: "Gas Safety reminders: what to check before renewal", excerpt: "A calm reminder flow is often more useful than a scary dashboard warning.", published: "May 2026", readTime: "3 min read", demo: true },
@@ -433,6 +448,19 @@
 
   function titleCase(value) {
     return String(value || "").replace(/[_-]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+  }
+
+  function serviceVisual(key) {
+    return SERVICE_VISUALS[key] || { icon: "circle", tone: "blue" };
+  }
+
+  function serviceIconMarkup(key, variant = "card") {
+    const visual = serviceVisual(key);
+    return `
+      <span class="service-icon-badge tone-${escapeHtml(visual.tone)} service-icon-${escapeHtml(variant)}" aria-hidden="true">
+        <i data-lucide="${escapeHtml(visual.icon)}"></i>
+      </span>
+    `;
   }
 
   function normalizePostcode(value) {
@@ -747,12 +775,18 @@
   function renderServiceCards(keys = SERVICE_ORDER, variant = "full") {
     return keys.map((key) => {
       const service = SERVICE_CONFIG[key];
+      const visual = serviceVisual(key);
       if (variant === "selector") {
         return `
-          <article class="service-selector-card">
+          <article class="service-selector-card tone-${escapeHtml(visual.tone)}">
+            <div class="service-card-head">
+              ${serviceIconMarkup(key, "selector")}
+              <div class="service-card-copy">
+                <span class="service-grid-eyebrow">${escapeHtml(service.eyebrow)}</span>
+                <h3>${escapeHtml(service.title)}</h3>
+              </div>
+            </div>
             <div>
-              <span class="service-grid-eyebrow">${escapeHtml(service.eyebrow)}</span>
-              <h3>${escapeHtml(service.title)}</h3>
               <p>${escapeHtml(serviceSelectorCopy(key))}</p>
             </div>
             <a class="service-selector-link" href="${escapeHtml(service.route)}">Start</a>
@@ -760,9 +794,14 @@
         `;
       }
       return `
-        <article class="service-grid-card">
-          <span class="service-grid-eyebrow">${escapeHtml(service.eyebrow)}</span>
-          <h3>${escapeHtml(service.title)}</h3>
+        <article class="service-grid-card tone-${escapeHtml(visual.tone)}">
+          <div class="service-card-head">
+            ${serviceIconMarkup(key, "grid")}
+            <div class="service-card-copy">
+              <span class="service-grid-eyebrow">${escapeHtml(service.eyebrow)}</span>
+              <h3>${escapeHtml(service.title)}</h3>
+            </div>
+          </div>
           <p>${escapeHtml(service.description)}</p>
           <a class="service-grid-link" href="${escapeHtml(service.route)}">${escapeHtml(service.cardCta)}</a>
         </article>
@@ -779,7 +818,7 @@
         <div class="home-service-rail" aria-label="Homepage service links">
           ${SERVICE_ORDER.map((key) => {
             const service = SERVICE_CONFIG[key];
-            return `<a href="${escapeHtml(service.route)}">${escapeHtml(service.title)}</a>`;
+            return `<a href="${escapeHtml(service.route)}">${serviceIconMarkup(key, "rail")}<span>${escapeHtml(service.title)}</span></a>`;
           }).join("")}
         </div>
       </div>
@@ -1285,7 +1324,7 @@
       <main class="public-main">
         <section class="page-hero public-page-hero">
           <div>
-            <span class="eyebrow">${escapeHtml(service.eyebrow)}</span>
+            <span class="eyebrow service-hero-eyebrow">${serviceIconMarkup(serviceKey, "hero")}${escapeHtml(service.eyebrow)}</span>
             <h1>${escapeHtml(service.heroTitle)}</h1>
             <p>${escapeHtml(service.heroCopy)}</p>
             <div class="hero-actions">
