@@ -401,7 +401,14 @@
     addProperty: "assets/generated/add-property-flow.svg",
     propertyPortfolio: "assets/generated/property-portfolio.svg",
     evidenceStack: "assets/generated/evidence-stack.svg",
-    supportTrust: "assets/generated/compliance-support.svg"
+    supportTrust: "assets/generated/compliance-support.svg",
+    homeHero: "assets/generated/homepage-hero-property-os.jpg",
+    homeAurora: "assets/generated/homepage-aurora-dashboard.jpg",
+    homeEvidence: "assets/generated/homepage-evidence-desk.jpg",
+    homePortfolio: "assets/generated/homepage-property-portfolio.jpg",
+    homeDashboard: "assets/cmp-dashboard-preview.png",
+    homeHeroWide: "assets/generated/homepage-hero-wide.jpg",
+    homeGuidedWide: "assets/generated/homepage-guided-wide.jpg"
   };
 
   const NEWS_ARTICLES = [
@@ -852,62 +859,8 @@
 
   function renderHomepageFlagshipVisual() {
     return `
-      <div class="home-flagship-shell" aria-hidden="true">
-        <div class="home-flagship-sidebar">
-          <span class="home-flagship-kicker">Property file</span>
-          <strong>Property OS</strong>
-          <div class="home-flagship-nav">
-            <span>Overview</span>
-            <span>Checks</span>
-            <span>Evidence</span>
-            <span>Timeline</span>
-          </div>
-        </div>
-        <div class="home-flagship-main">
-          <div class="home-flagship-topbar">
-            <span class="home-flagship-dot"></span>
-            <span class="home-flagship-dot"></span>
-            <span class="home-flagship-dot"></span>
-            <div class="home-flagship-breadcrumb">66 Station Road / Marston Green / Compliance picture</div>
-          </div>
-          <div class="home-flagship-grid">
-            <article class="home-flagship-card home-flagship-card-score">
-              <span class="home-flagship-pill">Next action</span>
-              <strong>Renewal picture ready</strong>
-              <div class="home-flagship-gauge">
-                <div class="home-flagship-gauge-ring"></div>
-                <span>82%</span>
-              </div>
-            </article>
-            <article class="home-flagship-card home-flagship-card-file">
-              <span class="home-flagship-pill home-flagship-pill-blue">Imported</span>
-              <strong>EPC, tenure and core property facts</strong>
-              <div class="home-flagship-bars">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </article>
-            <article class="home-flagship-card home-flagship-card-checklist">
-              <span class="home-flagship-pill home-flagship-pill-purple">Guided check</span>
-              <strong>Answer what you know now</strong>
-              <div class="home-flagship-checks">
-                <span>Property basics saved</span>
-                <span>EICR to review</span>
-                <span>Not sure saved safely</span>
-              </div>
-            </article>
-            <article class="home-flagship-card home-flagship-card-evidence">
-              <span class="home-flagship-pill home-flagship-pill-green">Evidence ready</span>
-              <strong>Documents, notes and timeline in one place</strong>
-              <div class="home-flagship-docs">
-                <span></span>
-                <span></span>
-                <span></span>
-              </div>
-            </article>
-          </div>
-        </div>
+      <div class="home-hero-image-stage">
+        <img src="${PUBLIC_VISUALS.homeHeroWide}" alt="ComplyMyProperty property compliance operating system preview">
         <article class="home-flagship-float home-flagship-float-left">
           <span class="status-pill info">EPC imported</span>
           <strong>Property intelligence starts here.</strong>
@@ -1034,8 +987,8 @@
         <section class="hero home-hero">
           <div class="hero-content home-hero-copy">
             <span class="eyebrow">Landlord compliance made simple</span>
-            <h1>The safest place for private landlords to automate property compliance with no subscription fee.</h1>
-            <p>Start with one service, check a property, or build a wider compliance picture at your own pace.</p>
+            <h1>The safest place to automate property compliance.</h1>
+            <p>Built for private landlords. No subscription fee. Start with one service, check a property, or build a wider compliance picture at your own pace.</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Check your property</a>
               <a class="button secondary" href="services.html">View services</a>
@@ -1072,16 +1025,29 @@
             <h2>The one stop shop for Property Compliance</h2>
             <p>Start with one service, one property, or one problem. CMP keeps the journey clear and builds around the real situation.</p>
           </div>
-          <div class="home-story-list">
-            <article><strong>Service-led start</strong><p>Choose EPCs, Gas Safety, EICR, licensing, inspections, possession prep, mould, or another service.</p></article>
-            <article><strong>Property-led next step</strong><p>Add the postcode, choose the address, and let CMP build the next screen around that property.</p></article>
-            <article><strong>Evidence-led follow-up</strong><p>Bring in documents, notes, and timelines only when they help.</p></article>
-          </div>
-          <div class="helper-card home-highlight-card">
-            <span class="service-grid-eyebrow">Choose how focused you want us to be</span>
-            <h3>Keep it EPC-only, Gas-only, EICR-only, or widen it later.</h3>
-            <p>Landlords stay in control of how deep CMP goes. If you only came for one service, that remains a valid path.</p>
-            <a class="button secondary" href="services.html">View all service journeys</a>
+          <div class="home-editorial-grid">
+            <article class="home-editorial-card home-editorial-card-light home-editorial-card-large">
+              <div class="home-editorial-copy">
+                <span class="service-grid-eyebrow">Add a property</span>
+                <h3>Add a property. CMP builds the picture around it.</h3>
+                <p>Start with a postcode, choose the right address, and let CMP prepare the property file before you widen the checks.</p>
+                <a class="button secondary" href="add-property.html">Start with your postcode</a>
+              </div>
+              <div class="home-editorial-image">
+                <img src="${PUBLIC_VISUALS.homePortfolio}" alt="Property compliance portfolio preview">
+              </div>
+            </article>
+            <article class="home-editorial-card home-editorial-card-dark">
+              <div class="home-editorial-copy">
+                <span class="service-grid-eyebrow">Guided checks</span>
+                <h3>Answer what you know. Save what you don’t.</h3>
+                <p>Keep the journey focused on one service, then widen only when the property context makes it useful.</p>
+                <a class="button tertiary light" href="services.html">View all service journeys</a>
+              </div>
+              <div class="home-editorial-image home-editorial-image-dark">
+                <img src="${PUBLIC_VISUALS.homeAurora}" alt="Cinematic compliance dashboard preview">
+              </div>
+            </article>
           </div>
         </section>
 
@@ -1107,21 +1073,26 @@
             <h2>We don’t just make you compliant. We prepare you for what happens next.</h2>
             <p>Use property facts, certificates, timelines, and evidence to stay ready for renewals, tenancy changes, inspections, and possession prep.</p>
           </div>
-          <div class="home-support-grid">
-            <article class="service-grid-card">
-              <span class="service-grid-eyebrow">Evidence</span>
-              <h3>Keep certificates, reports, and notices in one place.</h3>
-              <p>CMP helps organise what is already known and what still needs checking.</p>
+          <div class="home-editorial-grid home-editorial-grid-support">
+            <article class="home-editorial-card home-editorial-card-light">
+              <div class="home-editorial-copy">
+                <span class="service-grid-eyebrow">Evidence</span>
+                <h3>Keep documents, dates and reminders together.</h3>
+                <p>CMP helps organise what is already known, what still needs checking, and what should happen next.</p>
+              </div>
+              <div class="home-editorial-image">
+                <img src="${PUBLIC_VISUALS.homeEvidence}" alt="Property evidence and document workflow">
+              </div>
             </article>
-            <article class="service-grid-card">
-              <span class="service-grid-eyebrow">Timeline</span>
-              <h3>Build a property history that stays useful later.</h3>
-              <p>Repairs, inspections, communications, and renewals can sit alongside the main compliance checks.</p>
-            </article>
-            <article class="service-grid-card">
-              <span class="service-grid-eyebrow">Next steps</span>
-              <h3>Only book or upload when CMP understands why.</h3>
-              <p>Unknowns stay calm. Stronger actions appear only when something has actually been identified.</p>
+            <article class="home-editorial-card home-editorial-card-light">
+              <div class="home-editorial-copy">
+                <span class="service-grid-eyebrow">Next steps</span>
+                <h3>See the property picture before you take action.</h3>
+                <p>Recommendations, timelines and renewal prompts appear after CMP understands the property and the evidence around it.</p>
+              </div>
+              <div class="home-editorial-image">
+                <img src="${PUBLIC_VISUALS.homeDashboard}" alt="ComplyMyProperty dashboard overview">
+              </div>
             </article>
           </div>
         </section>
@@ -1132,14 +1103,18 @@
             <h2>You can be honest with us — we build around your real situation.</h2>
             <p>Landlords should be able to say “Not sure at this point”, keep moving, and come back later. Unsure answers become a checklist, not a failure.</p>
           </div>
-          <div class="section-actions home-centered-actions">
-            <a class="button secondary" href="epcs.html">Preview the A-Z checker style</a>
-          </div>
-          <div class="checker-preview">
-            <article><strong>Property basics</strong><span>Done</span><p>Start with the address, tenancy status, and a few clear basics.</p></article>
-            <article><strong>EPC</strong><span>Imported</span><p>Use register data if it exists and avoid asking the same question twice.</p></article>
-            <article><strong>Gas Safety</strong><span>Not checked yet</span><p>Check whether gas applies before deciding what the next step should be.</p></article>
-            <article><strong>Evidence</strong><span>Needs evidence</span><p>Upload documents later if you have them. CMP can still keep moving.</p></article>
+          <div class="home-guided-feature">
+            <div class="home-guided-feature-copy">
+              <span class="service-grid-eyebrow">Guided compliance checker</span>
+              <h3>Guided checks. Answer what you know, skip what you don’t.</h3>
+              <p>Start with the address, save the basics, and let unsure answers become a calm checklist rather than a failure state.</p>
+              <div class="section-actions">
+                <a class="button secondary" href="epcs.html">Preview the A-Z checker style</a>
+              </div>
+            </div>
+            <div class="home-guided-feature-image">
+              <img src="${PUBLIC_VISUALS.homeGuidedWide}" alt="Guided property compliance workflow preview">
+            </div>
           </div>
         </section>
 
@@ -1203,28 +1178,7 @@
                   <p>Recommendations appear after CMP understands the property, the gaps, and the evidence you have added.</p>
                 </div>
                 <div class="home-journey-preview-stage">
-                  <div class="home-journey-preview-art" aria-hidden="true">
-                    <div class="journey-preview-panel journey-preview-panel-main">
-                      <span class="journey-preview-chip">Imported</span>
-                      <div class="journey-preview-chart">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                      </div>
-                    </div>
-                    <div class="journey-preview-panel journey-preview-panel-side">
-                      <span class="journey-preview-chip journey-preview-chip-purple">Evidence</span>
-                      <div class="journey-preview-list">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                      </div>
-                    </div>
-                    <div class="journey-preview-panel journey-preview-panel-bottom">
-                      <span class="journey-preview-chip journey-preview-chip-green">Next step</span>
-                      <div class="journey-preview-progress"></div>
-                    </div>
-                  </div>
+                  <img src="${PUBLIC_VISUALS.homeAurora}" alt="Premium compliance journey dashboard preview">
                   <span class="home-journey-preview-pill preview-pill-top">Next action ready</span>
                   <span class="home-journey-preview-pill preview-pill-left">Evidence added</span>
                   <span class="home-journey-preview-pill preview-pill-bottom">Renewals tracked</span>
