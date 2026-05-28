@@ -395,6 +395,15 @@
     aml: { icon: "id-card", tone: "blue" }
   };
 
+  const PUBLIC_VISUALS = {
+    serviceGallery: "assets/generated/property-os-preview.svg",
+    serviceJourney: "assets/generated/service-journey-preview.svg",
+    addProperty: "assets/generated/add-property-flow.svg",
+    propertyPortfolio: "assets/generated/property-portfolio.svg",
+    evidenceStack: "assets/generated/evidence-stack.svg",
+    supportTrust: "assets/generated/compliance-support.svg"
+  };
+
   const NEWS_ARTICLES = [
     { id: "epc-rules", category: "EPC", title: "EPC rules are changing — what landlords should prepare for", excerpt: "Use postcode, certificate dates, and the current rating to keep the next EPC decision practical.", published: "May 2026", readTime: "4 min read", demo: true },
     { id: "gas-renewal", category: "Gas Safety", title: "Gas Safety reminders: what to check before renewal", excerpt: "A calm reminder flow is often more useful than a scary dashboard warning.", published: "May 2026", readTime: "3 min read", demo: true },
@@ -681,18 +690,26 @@
           <a href="contact.html">Contact</a>
         </div>
         <div class="site-footer-section footer-support-section">
-          <span>Support</span>
-          <a href="mailto:compliance@complymyproperty.com">compliance@complymyproperty.com</a>
-          <a href="tel:01217708814">0121 770 8814</a>
-          <span class="footer-subheading">Follow</span>
-          <div class="footer-social-links" aria-label="Social links preview">
-            <a href="#footer" aria-disabled="true">LinkedIn</a>
-            <a href="#footer" aria-disabled="true">Facebook</a>
-            <a href="#footer" aria-disabled="true">Instagram</a>
+          <div class="footer-support-columns">
+            <div class="footer-support-group">
+              <span>Support</span>
+              <a href="mailto:compliance@complymyproperty.com">compliance@complymyproperty.com</a>
+              <a href="tel:01217708814">0121 770 8814</a>
+            </div>
+            <div class="footer-support-group footer-follow-group">
+              <span class="footer-subheading">Follow</span>
+              <div class="footer-social-links" aria-label="Social links preview">
+                <a href="#footer" aria-disabled="true">LinkedIn</a>
+                <a href="#footer" aria-disabled="true">Facebook</a>
+                <a href="#footer" aria-disabled="true">Instagram</a>
+              </div>
+            </div>
           </div>
-          <small class="footer-note">Privacy, terms and data protection pages will be added in the final build.</small>
-          <small class="footer-note">Social profile links can be connected before launch.</small>
-          <small class="footer-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</small>
+          <div class="footer-legal-notes">
+            <small class="footer-note">Privacy, terms and data protection pages will be added in the final build.</small>
+            <small class="footer-note">Social profile links can be connected before launch.</small>
+            <small class="footer-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</small>
+          </div>
         </div>
       </footer>
     `;
@@ -1169,7 +1186,9 @@
               <a class="button secondary" href="my-properties.html">Go to My Properties</a>
             </div>
           </div>
-          <img src="assets/cmp-dashboard-preview.png" alt="ComplyMyProperty service-led dashboard preview">
+          <div class="page-hero-visual page-hero-visual-gallery">
+            <img src="${PUBLIC_VISUALS.serviceGallery}" alt="ComplyMyProperty service-led dashboard preview">
+          </div>
         </section>
         <section class="page-section">
           <div class="service-grid public-service-grid">
@@ -1337,7 +1356,9 @@
               <span><strong>Optional</strong> documents can be added later</span>
             </div>
           </div>
-          <img src="assets/cmp-hero-property.png" alt="${escapeHtml(service.title)} landlord journey preview">
+          <div class="page-hero-visual page-hero-visual-service">
+            <img src="${PUBLIC_VISUALS.serviceJourney}" alt="${escapeHtml(service.title)} landlord journey preview">
+          </div>
         </section>
 
         <section class="page-section service-journey-shell" id="journeyStart">
@@ -1838,7 +1859,9 @@
               <span><strong>Tenancy</strong> ${escapeHtml(tenancyLabel(context.isTenanted || "unsure"))}</span>
             </div>
           </div>
-          <img src="assets/cmp-hero-property.png" alt="Choose a property address by postcode">
+          <div class="page-hero-visual page-hero-visual-add-property">
+            <img src="${PUBLIC_VISUALS.addProperty}" alt="Choose a property address by postcode">
+          </div>
         </section>
 
         ${renderFlashBanner()}
@@ -2051,7 +2074,9 @@
               <button class="button secondary" type="button" data-load-demo-property>Try example property</button>
             </div>
           </div>
-          <img src="assets/cmp-dashboard-preview.png" alt="My Properties view and property dashboard preview">
+          <div class="page-hero-visual page-hero-visual-portfolio">
+            <img src="${PUBLIC_VISUALS.propertyPortfolio}" alt="My Properties view and property dashboard preview">
+          </div>
         </section>
 
         ${renderFlashBanner()}
@@ -2145,7 +2170,9 @@
             <h1>Latest compliance updates</h1>
             <p>This is an editorial preview area for EPCs, licensing, Gas Safety, possession preparation, mould responsibilities, and practical landlord reminders.</p>
           </div>
-          <img src="assets/cmp-evidence-ai.png" alt="Editorial updates and landlord guidance">
+          <div class="page-hero-visual page-hero-visual-news">
+            <img src="${PUBLIC_VISUALS.evidenceStack}" alt="Editorial updates and landlord guidance">
+          </div>
         </section>
         <section class="page-section">
           <div class="filter-row">
@@ -2188,7 +2215,9 @@
               <span>Evidence-aware</span>
             </div>
           </div>
-          <img src="assets/cmp-evidence-ai.png" alt="ComplyMyProperty support and evidence overview">
+          <div class="page-hero-visual page-hero-visual-contact">
+            <img src="${PUBLIC_VISUALS.supportTrust}" alt="ComplyMyProperty support and evidence overview">
+          </div>
         </section>
 
         <section class="page-section">
