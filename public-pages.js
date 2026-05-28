@@ -803,6 +803,7 @@
                 <h3>${escapeHtml(service.title)}</h3>
               </div>
             </div>
+            ${serviceCardPreviewMarkup(key, "selector")}
             <div>
               <p>${escapeHtml(serviceSelectorCopy(key))}</p>
             </div>
@@ -819,11 +820,201 @@
               <h3>${escapeHtml(service.title)}</h3>
             </div>
           </div>
+          ${serviceCardPreviewMarkup(key)}
           <p>${escapeHtml(service.description)}</p>
           <a class="service-grid-link" href="${escapeHtml(service.route)}">${escapeHtml(service.cardCta)}</a>
         </article>
       `;
     }).join("");
+  }
+
+  function serviceCardPreviewMarkup(key, variant = "full") {
+    const visual = serviceVisual(key);
+    const compact = variant === "selector";
+    return `
+      <div class="service-card-preview service-card-preview-${escapeHtml(variant)} tone-${escapeHtml(visual.tone)}" aria-hidden="true">
+        <div class="service-card-preview-window">
+          <span class="service-card-preview-chip">${escapeHtml(compact ? "Preview" : SERVICE_CONFIG[key].title)}</span>
+          <div class="service-card-preview-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <div class="service-card-preview-orbit">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderHomepageFlagshipVisual() {
+    return `
+      <div class="home-flagship-shell" aria-hidden="true">
+        <div class="home-flagship-sidebar">
+          <span class="home-flagship-kicker">Property file</span>
+          <strong>Property OS</strong>
+          <div class="home-flagship-nav">
+            <span>Overview</span>
+            <span>Checks</span>
+            <span>Evidence</span>
+            <span>Timeline</span>
+          </div>
+        </div>
+        <div class="home-flagship-main">
+          <div class="home-flagship-topbar">
+            <span class="home-flagship-dot"></span>
+            <span class="home-flagship-dot"></span>
+            <span class="home-flagship-dot"></span>
+            <div class="home-flagship-breadcrumb">66 Station Road / Marston Green / Compliance picture</div>
+          </div>
+          <div class="home-flagship-grid">
+            <article class="home-flagship-card home-flagship-card-score">
+              <span class="home-flagship-pill">Next action</span>
+              <strong>Renewal picture ready</strong>
+              <div class="home-flagship-gauge">
+                <div class="home-flagship-gauge-ring"></div>
+                <span>82%</span>
+              </div>
+            </article>
+            <article class="home-flagship-card home-flagship-card-file">
+              <span class="home-flagship-pill home-flagship-pill-blue">Imported</span>
+              <strong>EPC, tenure and core property facts</strong>
+              <div class="home-flagship-bars">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </article>
+            <article class="home-flagship-card home-flagship-card-checklist">
+              <span class="home-flagship-pill home-flagship-pill-purple">Guided check</span>
+              <strong>Answer what you know now</strong>
+              <div class="home-flagship-checks">
+                <span>Property basics saved</span>
+                <span>EICR to review</span>
+                <span>Not sure saved safely</span>
+              </div>
+            </article>
+            <article class="home-flagship-card home-flagship-card-evidence">
+              <span class="home-flagship-pill home-flagship-pill-green">Evidence ready</span>
+              <strong>Documents, notes and timeline in one place</strong>
+              <div class="home-flagship-docs">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+            </article>
+          </div>
+        </div>
+        <article class="home-flagship-float home-flagship-float-left">
+          <span class="status-pill info">EPC imported</span>
+          <strong>Property intelligence starts here.</strong>
+        </article>
+        <article class="home-flagship-float home-flagship-float-right">
+          <span class="status-pill good">A-Z guided</span>
+          <strong>One calm next step at a time.</strong>
+        </article>
+      </div>
+    `;
+  }
+
+  function renderServiceHeroStage(key) {
+    const service = SERVICE_CONFIG[key];
+    const visual = serviceVisual(key);
+    return `
+      <div class="service-hero-stage tone-${escapeHtml(visual.tone)}" aria-hidden="true">
+        <div class="service-hero-stage-header">
+          <span class="service-stage-badge">${escapeHtml(service.title)}</span>
+          <strong>${escapeHtml(service.promise)}</strong>
+        </div>
+        <div class="service-hero-stage-grid">
+          <div class="service-hero-stage-card service-hero-stage-card-main">
+            <span class="service-stage-mini service-stage-mini-blue">Focused</span>
+            <div class="service-stage-lines">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+          <div class="service-hero-stage-card service-hero-stage-card-side">
+            <span class="service-stage-mini service-stage-mini-purple">Optional later</span>
+            <div class="service-stage-checks">
+              <span>Just this service</span>
+              <span>Related checks</span>
+              <span>Full picture</span>
+            </div>
+          </div>
+          <div class="service-hero-stage-card service-hero-stage-card-bottom">
+            <span class="service-stage-mini service-stage-mini-green">Upload if ready</span>
+            <div class="service-stage-docstack">
+              <span></span>
+              <span></span>
+              <span></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderAddPropertyHeroStage() {
+    return `
+      <div class="add-property-stage-art" aria-hidden="true">
+        <div class="add-property-stage-panel add-property-stage-search">
+          <span class="service-stage-mini service-stage-mini-blue">Postcode</span>
+          <strong>B37 7BA</strong>
+          <div class="add-property-stage-search-row">
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <div class="add-property-stage-panel add-property-stage-choice">
+          <span class="service-stage-mini">Choose address</span>
+          <div class="add-property-stage-cards">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+        <div class="add-property-stage-panel add-property-stage-import">
+          <span class="service-stage-mini service-stage-mini-green">Import preview</span>
+          <div class="add-property-stage-bars">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderMyPropertiesHeroStage() {
+    return `
+      <div class="portfolio-stage-art" aria-hidden="true">
+        <article class="portfolio-stage-card portfolio-stage-card-main">
+          <span class="service-stage-mini service-stage-mini-blue">Property file</span>
+          <strong>66 Station Road</strong>
+          <div class="portfolio-stage-meta">
+            <span>EPC B</span>
+            <span>2 checks confirmed</span>
+          </div>
+        </article>
+        <article class="portfolio-stage-card portfolio-stage-card-side">
+          <span class="service-stage-mini service-stage-mini-purple">Evidence</span>
+          <div class="portfolio-stage-lines">
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+        </article>
+        <article class="portfolio-stage-card portfolio-stage-card-bottom">
+          <span class="service-stage-mini service-stage-mini-green">Next step</span>
+          <div class="portfolio-stage-progress"></div>
+        </article>
+      </div>
+    `;
   }
 
   function renderHomepage() {
@@ -859,53 +1050,7 @@
           </div>
           <div class="home-hero-media">
             <div class="home-hero-visual">
-              <div class="hero-image hero-texture-stage" aria-hidden="true">
-                <div class="hero-texture-grid"></div>
-                <div class="hero-texture-glow hero-texture-glow-one"></div>
-                <div class="hero-texture-glow hero-texture-glow-two"></div>
-                <div class="hero-texture-glow hero-texture-glow-three"></div>
-                <div class="hero-texture-window hero-texture-window-main">
-                  <span class="hero-texture-chip">Property data</span>
-                  <strong>Property intelligence preview</strong>
-                  <div class="hero-texture-bars">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-                <div class="hero-texture-window hero-texture-window-side">
-                  <span class="hero-texture-chip hero-texture-chip-soft">Evidence ready</span>
-                  <div class="hero-texture-orbital">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-                <div class="hero-texture-window hero-texture-window-footer">
-                  <div class="hero-texture-signal"></div>
-                  <div class="hero-texture-lines">
-                    <span></span>
-                    <span></span>
-                  </div>
-                </div>
-              </div>
-              <article class="home-floating-card home-floating-card-main">
-                <span class="service-grid-eyebrow">Property overview</span>
-                <strong>66 Station Road, Marston Green</strong>
-                <p>EPC, evidence and next checks brought into one calm workflow.</p>
-                <div class="home-floating-card-row">
-                  <span class="status-pill info">EPC imported</span>
-                  <span class="status-pill good">2 checks confirmed</span>
-                </div>
-              </article>
-              <article class="home-floating-card home-floating-card-side">
-                <span class="status-pill neutral">Guided checks</span>
-                <p>Answer what you know now and come back later for the rest.</p>
-              </article>
-              <article class="home-floating-card home-floating-card-proof">
-                <span class="status-pill good">Evidence ready</span>
-                <p>Documents, notes and timelines stay tied to the property.</p>
-              </article>
+              ${renderHomepageFlagshipVisual()}
             </div>
           </div>
         </section>
@@ -1004,7 +1149,7 @@
             <h2>Our Main Services. Take a look at some of the services we offer.</h2>
             <p>Start with the service that matters now, then widen the journey only if it helps.</p>
           </div>
-          <div class="service-grid public-service-grid">
+          <div class="service-grid public-service-grid public-service-grid-showcase">
             ${renderServiceCards(["epc", "gas", "eicr", "eviction", "licensing", "inspection"])}
           </div>
         </section>
@@ -1357,7 +1502,7 @@
             </div>
           </div>
           <div class="page-hero-visual page-hero-visual-service">
-            <img src="${PUBLIC_VISUALS.serviceJourney}" alt="${escapeHtml(service.title)} landlord journey preview">
+            ${renderServiceHeroStage(serviceKey)}
           </div>
         </section>
 
@@ -1860,7 +2005,7 @@
             </div>
           </div>
           <div class="page-hero-visual page-hero-visual-add-property">
-            <img src="${PUBLIC_VISUALS.addProperty}" alt="Choose a property address by postcode">
+            ${renderAddPropertyHeroStage()}
           </div>
         </section>
 
@@ -2007,9 +2152,18 @@
         ${state.addProperty.matches.map((match) => `
           <article class="address-card${state.addProperty.selectedId === match.id ? " is-selected" : ""}">
             <div>
+              <div class="address-card-top">
+                <span class="quiet-pill">${escapeHtml(match.postcode)}</span>
+                <span class="status-pill ${escapeHtml(match.epc?.rating ? "info" : "neutral")}">${escapeHtml(match.epc?.rating ? `EPC ${match.epc.rating}` : "Preview import")}</span>
+              </div>
               <strong>${escapeHtml(match.address)}</strong>
               <p>${escapeHtml(match.postcode)} · ${escapeHtml(match.type || "Property type to confirm")}</p>
               <small>${escapeHtml(match.epc?.source === "Example EPC preview" ? "Example EPC data ready" : match.epc?.rating ? "EPC match found" : "EPC needs checking")}</small>
+              <div class="address-card-preview" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </div>
             <button class="button primary" type="button" data-use-address="${escapeHtml(match.id)}">${state.addProperty.selectedId === match.id ? "Selected" : "Use this property"}</button>
           </article>
@@ -2075,7 +2229,7 @@
             </div>
           </div>
           <div class="page-hero-visual page-hero-visual-portfolio">
-            <img src="${PUBLIC_VISUALS.propertyPortfolio}" alt="My Properties view and property dashboard preview">
+            ${renderMyPropertiesHeroStage()}
           </div>
         </section>
 
@@ -2096,6 +2250,16 @@
                     <div class="property-summary-top">
                       <span class="status-pill ${escapeHtml(status.tone)}">${escapeHtml(status.label)}</span>
                       <span class="quiet-pill">${escapeHtml(journeyLabelForProperty(property))}</span>
+                    </div>
+                    <div class="property-summary-visual" aria-hidden="true">
+                      <div class="property-summary-visual-window">
+                        <span class="property-summary-visual-chip">Property file</span>
+                        <div class="property-summary-visual-lines">
+                          <span></span>
+                          <span></span>
+                          <span></span>
+                        </div>
+                      </div>
                     </div>
                     <h3>${escapeHtml(property.address)}</h3>
                     <span class="property-summary-label">Next action</span>
