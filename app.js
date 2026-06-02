@@ -5310,7 +5310,7 @@ function heroStatusState(evaluation, modulePlan) {
   if (evaluation.assessment.criticalCount > 0 || evaluation.risk === "High") {
     return {
       tone: "critical",
-      label: "Known urgent issue",
+      label: "Needs attention",
       heading: recommendation?.title || "A known issue needs attention",
       copy: recommendation?.reason || evaluation.assessment.summaryText
     };
@@ -5318,14 +5318,14 @@ function heroStatusState(evaluation, modulePlan) {
   if (evaluation.assessment.warningCount > 0 || evaluation.risk === "Medium") {
     return {
       tone: "warning",
-      label: "Needs attention",
+      label: "Review required",
       heading: recommendation?.title || modulePlan.priorityTitle,
       copy: recommendation?.reason || evaluation.assessment.summaryText
     };
   }
   return {
     tone: "ok",
-    label: "Property record active",
+    label: "Up to date",
     heading: recommendation?.title || "Keep the property record up to date",
     copy: recommendation?.reason || "CMP has enough information to keep this journey moving without turning every unknown into a warning."
   };
@@ -5344,13 +5344,8 @@ function primaryButtonIcon(recommendation) {
 function setDashboardPrimaryButton(recommendation = null) {
   const button = document.querySelector("#startGuidedCheck");
   if (!button) return;
-  if (recommendation?.id) {
-    button.dataset.recommendationAction = recommendation.id;
-    button.innerHTML = `<i data-lucide="${primaryButtonIcon(recommendation)}"></i>${escapeHtml(recommendation.ctaLabel)}`;
-    return;
-  }
   delete button.dataset.recommendationAction;
-  button.innerHTML = `<i data-lucide="sparkles"></i>Continue check`;
+  button.innerHTML = `<i data-lucide="sparkles"></i>Open guided check`;
 }
 
 function propertyCompletionSummary(property, evaluation) {
@@ -5376,6 +5371,23 @@ const SECTION_EVALUATION_KEYS = {
   mould_damp: ["inspections"],
   evidence_pack: ["epc", "gas", "eicr", "tenancy", "deposit", "licensing", "inspections"]
 };
+
+const OVERVIEW_CORE_GROUPS = [
+  { id: "epc", title: "EPC", icon: "leaf", keys: ["epc"], sectionId: "epc", guidedPanel: "check" },
+  { id: "gas", title: "Gas Safety", icon: "flame", keys: ["gas"], sectionId: "gas", guidedPanel: "check" },
+  { id: "eicr", title: "Electrical Safety", icon: "zap", keys: ["eicr"], sectionId: "eicr", guidedPanel: "check" },
+  { id: "alarms", title: "Alarms", icon: "bell-ring", keys: ["alarms"], sectionId: "alarms", guidedPanel: "check" },
+  { id: "tenancy_deposit", title: "Tenancy and deposit", icon: "file-badge-2", keys: ["tenancy", "deposit"], sectionId: "tenancy_deposit", guidedPanel: "check" },
+  { id: "licensing", title: "Licensing", icon: "badge-check", keys: ["licensing"], sectionId: "licensing", guidedPanel: "check" },
+  { id: "inspections", title: "Inspections and maintenance", icon: "clipboard-list", keys: ["inspections"], sectionId: "inspections", guidedPanel: "check" }
+];
+
+const OVERVIEW_SPECIALIST_GROUPS = [
+  { id: "mould_damp", title: "Mould and damp", icon: "droplets", sectionId: "mould_damp", guidedPanel: "check" },
+  { id: "eviction_evidence", title: "Possession preparation", icon: "scale", sectionId: "eviction_evidence", guidedPanel: "check" },
+  { id: "evidence_pack", title: "Additional evidence", icon: "folder-check", sectionId: "evidence_pack", guidedPanel: "evidence" },
+  { id: "rent", title: "Rent increases", icon: "calendar-clock", keys: ["rent"], guidedPanel: "requirements" }
+];
 
 function recommendationTypeLabel(type) {
   return {
@@ -5487,172 +5499,291 @@ function renderOverviewState(targetId, rows, emptyTitle, emptyCopy) {
   `).join("");
 }
 
-function renderTrackerPreview(property, sections, progress, evaluation) {
-  const target = document.querySelector("#trackerPreview");
-  if (!target) return;
-  if (!property || !sections.length) {
-    target.innerHTML = `
-      <article class="tracker-card empty">
-        <span class="tracker-step">1</span>
-        <div>
-          <strong>Start with a property</strong>
-          <p>Add a property above and CMP will turn this area into a simple step-by-step tracker.</p>
+function overviewGroupStatus(items = []) {
+  const relevantItems = items.filter((item) => item.status !== "not_applicable");
+  if (!relevantItems.length) return { status: "not_applicable", item: items[0] || null };
+  const ranked = [...relevantItems].sort((left, right) => statusRank(left.status) - statusRank(right.status));
+  const worst = ranked[0];
+  if (relevantItems.some((item) => ["expired", "critical"].includes(item.status))) return { status: worst.status, item: worst };
+  if (relevantItems.some((item) => ["missing", "warning", "expiring_soon", "review_needed"].includes(item.status))) return { status: worst.status, item: worst };
+  if (relevantItems.some((item) => isSetupStatus(item.status))) return { status: "setup_needed", item: relevantItems.find((item) => isSetupStatus(item.status)) || worst };
+  return { status: "ok", item: worst };
+}
+
+function overviewGroupSummary(group, items = []) {
+  if (!items.length) return "CMP has not checked this area yet.";
+  const { status, item } = overviewGroupStatus(items);
+  const relevantItems = items.filter((entry) => entry.status !== "not_applicable");
+  const confirmed = items.filter((entry) => ["ok", "not_applicable"].includes(entry.status)).length;
+  if (status === "ok") {
+    return relevantItems.length > 1
+      ? `${confirmed} of ${items.length} checks are recorded for this area.`
+      : item.summary;
+  }
+  if (status === "not_applicable") {
+    return "This area is not required for the current property setup.";
+  }
+  if (status === "setup_needed") {
+    const unknown = relevantItems.filter((entry) => isSetupStatus(entry.status)).length;
+    return items.length > 1
+      ? `${unknown} detail${unknown === 1 ? "" : "s"} still need confirming.`
+      : item.summary;
+  }
+  return item?.summary || "This area needs attention.";
+}
+
+function overviewReviewButton(label, attrs = "") {
+  return `<button class="mini-button" type="button" ${attrs}>${escapeHtml(label)}</button>`;
+}
+
+function renderOverviewCheckCard(group, items = [], options = {}) {
+  const { status, item } = overviewGroupStatus(items);
+  const summary = overviewGroupSummary(group, items);
+  const statusCopy = statusLabel(status);
+  const button = group.sectionId
+    ? overviewReviewButton("Review", `data-jump-guided="${escapeHtml(group.sectionId)}" data-guided-panel="${escapeHtml(group.guidedPanel || "check")}"`)
+    : group.panelTarget
+      ? overviewReviewButton("Review", `data-dashboard-panel-link="${escapeHtml(group.panelTarget)}"`)
+      : "";
+  return `
+    <article class="overview-check-card overview-check-card-${escapeHtml(statusTone(status))}${options.quiet ? " is-quiet" : ""}">
+      <div class="card-top">
+        <span class="card-icon"><i data-lucide="${escapeHtml(group.icon || item?.icon || "shield-check")}"></i></span>
+        <span class="status-pill ${escapeHtml(statusTone(status))}">${escapeHtml(statusCopy)}</span>
+      </div>
+      <div class="overview-card-copy">
+        <h3>${escapeHtml(group.title)}</h3>
+        <p>${escapeHtml(summary)}</p>
+      </div>
+      <div class="overview-card-footer">
+        ${button}
+      </div>
+    </article>
+  `;
+}
+
+function overviewPriorityPrimaryLabel(recommendation = null) {
+  if (!recommendation) return "Open guided check";
+  if (recommendation.serviceKey === "epc") return "Review EPC";
+  if (recommendation.serviceKey === "gas") return "Review Gas Safety";
+  if (recommendation.serviceKey === "eicr") return "Review Electrical Safety";
+  if (recommendation.type === "upload_evidence") return "Review evidence";
+  if (recommendation.type === "review_document") return "Review document";
+  if (recommendation.type === "answer_question") return "Review check";
+  return "Review";
+}
+
+function overviewPriorityContent(property, recommendation, evaluation) {
+  if (!property || !evaluation) {
+    return {
+      heading: "Add a property to begin",
+      copy: "Start with a postcode and CMP will open the right next step for this property.",
+      supportingTitle: "First step",
+      supportingCopy: "Enter a postcode, choose the correct address, and let CMP build the record.",
+      primaryLabel: "Open guided check"
+    };
+  }
+
+  if (recommendation?.serviceKey === "epc" && property.epc?.expiry && daysUntil(property.epc.expiry) < 0) {
+    return {
+      heading: "Review your EPC",
+      copy: `Your imported EPC appears to have expired on ${formatDate(property.epc.expiry)}. Confirm whether a newer certificate exists or start the renewal process.`,
+      supportingTitle: "Imported register result",
+      supportingCopy: property.epc.rating ? `Current rating ${property.epc.rating} is still attached to this property record.` : "CMP imported an EPC result for this property.",
+      primaryLabel: "Review EPC"
+    };
+  }
+
+  if (recommendation) {
+    return {
+      heading: recommendation.title,
+      copy: recommendation.reason,
+      supportingTitle: recommendationTypeLabel(recommendation.type),
+      supportingCopy: "Keep this as the next focused action. Everything else can wait until after you review it.",
+      primaryLabel: overviewPriorityPrimaryLabel(recommendation)
+    };
+  }
+
+  return {
+    heading: evaluation.assessment.summaryTitle,
+    copy: evaluation.assessment.summaryText,
+    supportingTitle: "Next step",
+    supportingCopy: "Open the guided check and confirm the next missing answer.",
+    primaryLabel: "Open guided check"
+  };
+}
+
+function renderPriorityAction(property, evaluation, recommendations = []) {
+  const priorityRecommendation = recommendations[0] || null;
+  const content = overviewPriorityContent(property, priorityRecommendation, evaluation);
+  document.querySelector("#priorityHeading").textContent = content.heading;
+  document.querySelector("#priorityHelper").textContent = content.copy;
+  document.querySelector("#priorityList").innerHTML = `
+    <article class="priority-item priority-item-feature">
+      <span class="status-dot ${escapeHtml(priorityRecommendation ? recommendationStatusTone(priorityRecommendation.urgency) : statusTone(evaluation?.assessment?.mode === "setup" ? "setup_needed" : "ok"))}"></span>
+      <div class="priority-item-copy">
+        <h3>${escapeHtml(content.supportingTitle)}</h3>
+        <p>${escapeHtml(content.supportingCopy)}</p>
+      </div>
+      <div class="priority-item-actions">
+        ${priorityRecommendation?.id
+          ? `<button class="service-button" type="button" data-recommendation-action="${escapeHtml(priorityRecommendation.id)}">${escapeHtml(content.primaryLabel)}</button>`
+          : `<button class="service-button" type="button" data-dashboard-panel-link="check">${escapeHtml(content.primaryLabel)}</button>`}
+        <button class="secondary-button" type="button" data-dashboard-panel-link="requirements">View all checks</button>
+      </div>
+    </article>
+  `;
+  return priorityRecommendation?.id || "";
+}
+
+function renderSnapshotSection(property, evaluation) {
+  syncPropertyEvidence(property);
+  const assessment = evaluation.assessment;
+  const evidenceCount = allEvidenceItems(property, { includeIrrelevant: false }).length;
+  const confirmedCount = evaluation.items.filter((item) => ["ok", "not_applicable"].includes(item.status)).length;
+  const reviewCount = evaluation.items.filter((item) => ["warning", "missing", "expiring_soon", "review_needed"].includes(item.status)).length;
+  const urgentCount = evaluation.items.filter((item) => ["critical", "expired"].includes(item.status)).length;
+  document.querySelector("#snapshotProgressMeta").textContent = `${assessment.knownRequiredChecks}/${assessment.totalRequiredChecks} core checks recorded`;
+  document.querySelector("#snapshotProgressFill").style.width = `${assessment.setupProgress}%`;
+  document.querySelector("#snapshotStats").innerHTML = [
+    { label: "Setup progress", value: `${assessment.setupProgress}%`, detail: assessment.mode === "setup" ? "Complete the key setup first" : "Core setup is in place" },
+    { label: "Confirmed checks", value: String(confirmedCount), detail: "Recorded or imported" },
+    { label: "Needs review", value: String(reviewCount), detail: "Known but not fully clear yet" },
+    { label: "Urgent issues", value: String(urgentCount), detail: urgentCount ? "Act on these first" : "Nothing urgent showing" },
+    { label: "Evidence items", value: String(evidenceCount), detail: evidenceCount ? "Files and answers stored" : "No files added yet" }
+  ].map((stat) => `
+    <article class="snapshot-stat">
+      <span>${escapeHtml(stat.label)}</span>
+      <strong>${escapeHtml(stat.value)}</strong>
+      <small>${escapeHtml(stat.detail)}</small>
+    </article>
+  `).join("");
+}
+
+function renderCoreChecks(property, evaluation) {
+  const target = document.querySelector("#coreChecksGrid");
+  const itemsByKey = new Map(evaluation.items.map((item) => [item.key, item]));
+  target.innerHTML = OVERVIEW_CORE_GROUPS.map((group) => {
+    const items = group.keys.map((key) => itemsByKey.get(key)).filter(Boolean);
+    return renderOverviewCheckCard(group, items);
+  }).join("");
+}
+
+function renderSpecialistChecks(property, evaluation, sections, progress, modulePlan) {
+  const target = document.querySelector("#additionalChecksGrid");
+  const itemsByKey = new Map(evaluation.items.map((item) => [item.key, item]));
+  const cards = OVERVIEW_SPECIALIST_GROUPS.map((group) => {
+    if (group.keys?.length) {
+      const items = group.keys.map((key) => itemsByKey.get(key)).filter(Boolean);
+      return renderOverviewCheckCard(group, items, { quiet: true });
+    }
+    const section = sections.find((entry) => entry.id === group.sectionId);
+    if (!section) return "";
+    const summary = sectionStatusSummary(section, property, evaluation, progress);
+    return `
+      <article class="overview-check-card overview-check-card-${escapeHtml(summary.tone)} is-quiet">
+        <div class="card-top">
+          <span class="card-icon"><i data-lucide="${escapeHtml(group.icon)}"></i></span>
+          <span class="status-pill ${escapeHtml(summary.tone)}">${escapeHtml(summary.badge)}</span>
+        </div>
+        <div class="overview-card-copy">
+          <h3>${escapeHtml(group.title)}</h3>
+          <p>${escapeHtml(summary.detail)}</p>
+        </div>
+        <div class="overview-card-footer">
+          ${group.guidedPanel === "evidence"
+            ? overviewReviewButton("Review", `data-dashboard-panel-link="evidence"`)
+            : overviewReviewButton("Review", `data-jump-guided="${escapeHtml(group.sectionId)}" data-guided-panel="${escapeHtml(group.guidedPanel || "check")}"`)}
         </div>
       </article>
     `;
+  }).filter(Boolean);
+
+  document.querySelector("#specialistCount").textContent = `${cards.length} area${cards.length === 1 ? "" : "s"}`;
+  document.querySelector("#specialistSummary").textContent = ["eviction", "mould", "evidence_pack"].includes(modulePlan.primaryFocus)
+    ? "This journey makes these areas more relevant right now."
+    : "Open this when you need the wider property picture.";
+  document.querySelector("#additionalChecksPanel").open = ["eviction", "mould", "evidence_pack"].includes(modulePlan.primaryFocus);
+  target.innerHTML = cards.length
+    ? cards.join("")
+    : `<div class="empty-panel"><strong>No specialist checks are active</strong><span>Nothing extra is showing for this property right now.</span></div>`;
+}
+
+function renderEvidenceActivityPreview(property, evaluation, modulePlan) {
+  syncPropertyEvidence(property);
+  const evidenceCount = allEvidenceItems(property, { includeIrrelevant: false }).length;
+  const latestEvents = timelineSummaryItems(property, modulePlan).slice(0, 3);
+  const gaps = evidenceSummaryItems(property, modulePlan, evaluation).filter((item) => ["missing", "expired", "expiring_soon", "review_needed", "setup_needed"].includes(item.status)).slice(0, 2);
+  document.querySelector("#evidencePreviewCount").textContent = `${evidenceCount} item${evidenceCount === 1 ? "" : "s"}`;
+  document.querySelector("#activityPreviewList").innerHTML = latestEvents.length
+    ? latestEvents.map((item) => `
+      <article class="activity-preview-row">
+        <span class="status-dot ${escapeHtml(statusTone(item.status))}"></span>
+        <div>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.detail)}</p>
+        </div>
+      </article>
+    `).join("")
+    : `<div class="empty-panel"><strong>No recent activity yet</strong><span>Timeline events appear here as documents, answers, and renewals are recorded.</span></div>`;
+  document.querySelector("#evidencePreviewHelper").textContent = gaps.length
+    ? `Still useful to review: ${gaps.map((item) => item.title).join(", ")}.`
+    : evidenceCount
+      ? "No obvious evidence gaps are showing right now."
+      : "Add documents when you have them. You do not need every certificate before starting.";
+}
+
+function renderOverviewServicesPreview(recommendations = [], hiddenRecommendationId = "") {
+  const list = recommendations.filter((item) => item.id !== hiddenRecommendationId).slice(0, 3);
+  const target = document.querySelector("#overviewServiceList");
+  if (!list.length) {
+    target.innerHTML = `<article class="service-item"><strong>No extra actions are showing</strong><span>CMP will keep the next useful service or evidence action here once something needs attention.</span></article>`;
     return;
   }
 
-  target.innerHTML = sections.map((section, index) => {
-    const sectionProgress = progress.sectionSummaries.find((item) => item.id === section.id) || { answeredQuestions: 0, totalQuestions: 0 };
-    const summary = sectionStatusSummary(section, property, evaluation, progress);
-    return `
-      <article class="tracker-card tracker-card-${escapeHtml(summary.tone)}">
-        <span class="tracker-step">${index + 1}</span>
-          <div class="tracker-copy">
-            <div class="tracker-topline">
-              <h3>${escapeHtml(section.title)}</h3>
-              <span class="status-pill ${escapeHtml(summary.tone)}">${escapeHtml(summary.badge)}</span>
-            </div>
-            <p>${escapeHtml(summary.detail || section.intro)}</p>
-            <small>${sectionProgress.answeredQuestions}/${sectionProgress.totalQuestions || 0} recorded${sectionProgress.complete ? " · nice, that’s saved" : ""}</small>
-          </div>
-        <button class="service-button" type="button" data-jump-guided="${escapeHtml(section.id)}">${escapeHtml(summary.cta)}</button>
-      </article>
-    `;
-  }).join("");
-
-  target.querySelectorAll("[data-jump-guided]").forEach((button) => {
-    button.addEventListener("click", () => jumpToGuidedSection(button.dataset.jumpGuided, "check"));
-  });
+  target.innerHTML = list.map((item) => `
+    <article class="service-item overview-service-item">
+      <header>
+        <strong>${escapeHtml(item.title)}</strong>
+        <div class="service-item-tags">
+          <span class="status-pill ${escapeHtml(recommendationStatusTone(item.urgency))}">${escapeHtml(recommendationTypeLabel(item.type))}</span>
+        </div>
+      </header>
+      <span>${escapeHtml(item.reason)}</span>
+      <button class="mini-button" type="button" data-recommendation-action="${escapeHtml(item.id)}">Review</button>
+    </article>
+  `).join("");
 }
 
-function renderOverviewSnapshots(property, evaluation, modulePlan, recommendations, progress) {
-  syncPropertyEvidence(property);
-  const evidenceCount = allEvidenceItems(property, { includeIrrelevant: false }).length;
-  const known = [];
-  const missing = [];
-  const next = [];
-
-  if (property.epc?.rating) {
-    known.push({
-      tone: "info",
-      title: `EPC ${property.epc.rating} imported`,
-      detail: property.epc.expiry ? `Recorded from register data · expires ${formatDate(property.epc.expiry)}` : "Recorded from register data"
-    });
-  }
-  if (property.type || hasMeaningfulValue(property.bedrooms) || hasMeaningfulValue(property.storeys)) {
-    known.push({
-      tone: "ok",
-      title: property.type || "Property profile started",
-      detail: [
-        hasMeaningfulValue(property.bedrooms) ? `${property.bedrooms} bedrooms` : "",
-        hasMeaningfulValue(property.storeys) ? `${property.storeys} storeys` : "",
-        property.tenancy?.currentlyTenanted === true ? "Currently tenanted" : property.tenancy?.currentlyTenanted === false ? "Not currently tenanted" : ""
-      ].filter(Boolean).join(" · ") || "CMP has started the property profile."
-    });
-  }
-  if (evidenceCount) {
-    known.push({
-      tone: "ok",
-      title: `${evidenceCount} evidence item${evidenceCount === 1 ? "" : "s"} added`,
-      detail: "Imported data, uploaded files, and confirmed answers all appear here."
-    });
-  }
-  if (progress.completedSections) {
-    known.push({
-      tone: "ok",
-      title: `${progress.completedSections} section${progress.completedSections === 1 ? "" : "s"} completed`,
-      detail: `${progress.answeredQuestions} useful answers recorded so far.`
-    });
-  }
-
-  evaluation.items
-    .filter((item) => ["setup_needed", "unknown", "missing", "review_needed", "expired", "expiring_soon"].includes(item.status))
-    .slice(0, 4)
-    .forEach((item) => {
-      missing.push({
-        tone: statusTone(item.status),
-        title: item.title,
-        detail: item.summary,
-        badge: statusLabel(item.status)
-      });
-    });
-
-  recommendations.slice(0, 3).forEach((recommendation) => {
-    next.push({
-      tone: recommendationStatusTone(recommendation.urgency),
-      title: recommendation.title,
-      detail: recommendation.reason,
-      badge: recommendationTypeLabel(recommendation.type),
-      cta: {
-        id: recommendation.id,
-        label: recommendation.ctaLabel
-      }
+function bindOverviewButtons(root = document) {
+  root.querySelectorAll("[data-open-setup]").forEach((button) => {
+    if (button.dataset.listenerBound === "true") return;
+    button.dataset.listenerBound = "true";
+    button.addEventListener("click", () => {
+      document.querySelector("#addPropertyButton")?.click();
+      document.querySelector("#propertySetup")?.scrollIntoView({ behavior: "smooth", block: "start" });
     });
   });
 
-  renderOverviewState(
-    "#knownSnapshot",
-    known,
-    "Nothing confirmed yet",
-    "Imported property details and completed answers will appear here."
-  );
-  renderOverviewState(
-    "#missingSnapshot",
-    missing,
-    "Nothing urgent is showing yet",
-    "Unknown answers stay calm here until the property needs a clearer answer or some proof."
-  );
-  renderOverviewState(
-    "#actionSnapshot",
-    next,
-    modulePlan.primaryFocus === "eviction" ? "Start the evidence pack" : "Start with the guided check",
-    modulePlan.primaryFocus === "eviction"
-      ? "Add the first notice, communication, or proof item and CMP will build the timeline."
-      : "CMP will narrow the next step once you answer a few simple questions."
-  );
+  root.querySelectorAll("[data-dashboard-panel-link]").forEach((button) => {
+    if (button.dataset.listenerBound === "true") return;
+    button.dataset.listenerBound = "true";
+    button.addEventListener("click", () => showDashboardPanel(button.dataset.dashboardPanelLink));
+  });
+
+  root.querySelectorAll("[data-jump-guided]").forEach((button) => {
+    if (button.dataset.listenerBound === "true") return;
+    button.dataset.listenerBound = "true";
+    button.addEventListener("click", () => jumpToGuidedSection(button.dataset.jumpGuided, button.dataset.guidedPanel || "check"));
+  });
 }
 
 function renderCompletionBanner(property, evaluation) {
   const banner = document.querySelector("#completionBanner");
   if (!banner) return;
 
-  if (!property) {
-    banner.hidden = true;
-    banner.innerHTML = "";
-    return;
-  }
-
-  const summary = propertyCompletionSummary(property, evaluation);
-  if (!summary.total) {
-    banner.hidden = false;
-    banner.dataset.tone = "complete";
-    banner.innerHTML = `
-      <span class="completion-icon"><i data-lucide="check"></i></span>
-      <div>
-        <strong>Property looks complete</strong>
-        <span>Keep documents and renewal dates updated.</span>
-      </div>
-      <button class="secondary-button" type="button" data-dashboard-tab="evidence">Review evidence</button>
-    `;
-    return;
-  }
-
-  banner.hidden = false;
-  banner.dataset.tone = "warning";
-  banner.innerHTML = `
-    <span class="completion-icon"><i data-lucide="alert-circle"></i></span>
-    <div>
-      <strong>${summary.total} item${summary.total === 1 ? "" : "s"} left to complete this property</strong>
-      <span>${escapeHtml(summary.labels.join(", ") || "Add the missing compliance details.")}</span>
-    </div>
-    <button class="primary-button" type="button" data-dashboard-tab="az">Finish setup</button>
-  `;
-
-  banner.querySelectorAll("[data-dashboard-tab]").forEach((button) => {
-    button.addEventListener("click", () => showDashboardPanel(button.dataset.dashboardTab));
-  });
+  banner.hidden = true;
+  banner.innerHTML = "";
 }
 
 function renderDashboard() {
@@ -5662,56 +5793,76 @@ function renderDashboard() {
     state.currentRecommendations = [];
     renderCompletionBanner(null, null);
     document.body.dataset.dashboardFocus = plan.primaryFocus || "full_compliance";
-    document.querySelector("#dashboardHeaderKicker").textContent = plan.journeyLabel;
-    document.querySelector("#propertyTitle").textContent = "No properties added yet";
-    document.querySelector("#propertySubtitle").textContent = plan.journeyIntro;
+  document.querySelector("#dashboardHeaderKicker").textContent = plan.journeyLabel;
+  document.querySelector("#propertyTitle").textContent = "No properties added yet";
+  document.querySelector("#propertySubtitle").textContent = "Add a postcode and address to create the first property record.";
     document.querySelector("#heroMetaChips").innerHTML = heroMetaChips(null, plan, null);
     document.querySelector("#propertyReassurance").textContent = heroReassuranceCopy(null, plan, null);
-    document.querySelector("#heroStatusPill").className = "status-pill unknown";
-    document.querySelector("#heroStatusPill").textContent = "No property yet";
-    document.querySelector("#heroActionHeading").textContent = "Add a property to begin";
-    document.querySelector("#heroActionCopy").textContent = "Start with a postcode and address. CMP will then open the right next step for this journey.";
-    document.querySelector("#scoreValue").textContent = "—";
-    document.querySelector("#riskLabel").textContent = "Setup";
-    document.querySelector("#scoreRing").style.setProperty("--score", 0);
-    document.querySelector("#scoreRing").style.setProperty("--ring-color", "var(--blue)");
-    document.querySelector("#scoreHeadline").textContent = "Setup in progress";
-    document.querySelector("#scoreNarrative").textContent = "Use the postcode search above to create the first property record. CMP will then adapt the next steps to the journey you started from.";
-    document.querySelector("#priorityHeading").textContent = plan.priorityTitle;
+  document.querySelector("#heroStatusPill").className = "status-pill unknown";
+  document.querySelector("#heroStatusPill").textContent = "No property yet";
+  document.querySelector("#heroActionHeading").textContent = "Add a property to begin";
+  document.querySelector("#heroActionCopy").textContent = "Start with a postcode and address. CMP will then show one clear next step for this journey.";
+    document.querySelector("#priorityHeading").textContent = "Add a property to begin";
     document.querySelector("#priorityHelper").textContent = "Enter a postcode, choose the address, then let CMP open the right dashboard modules for that property.";
+    document.querySelector("#snapshotProgressMeta").textContent = "0/0 core checks recorded";
+    document.querySelector("#snapshotProgressFill").style.width = "0%";
+    document.querySelector("#snapshotStats").innerHTML = [
+      { label: "Setup progress", value: "0%", detail: "Waiting for the first property" },
+      { label: "Confirmed checks", value: "0", detail: "Nothing imported yet" },
+      { label: "Needs review", value: "0", detail: "No checks started" },
+      { label: "Urgent issues", value: "0", detail: "Nothing showing" },
+      { label: "Evidence items", value: "0", detail: "No files added yet" }
+    ].map((stat) => `
+      <article class="snapshot-stat">
+        <span>${stat.label}</span>
+        <strong>${stat.value}</strong>
+        <small>${stat.detail}</small>
+      </article>
+    `).join("");
+    document.querySelector("#overviewChecksHeading").textContent = "Review the key areas for this property";
     document.querySelector("#requirementsHeading").textContent = "Only open the detail when you need it";
     document.querySelector("#guidedHeading").textContent = "Answer what you know. CMP organises the rest.";
     document.querySelector("#evidenceHeading").textContent = "What proof is stored, and what is missing";
     document.querySelector("#timelineHeading").textContent = "Recent compliance activity";
     document.querySelector("#serviceHeading").textContent = "Recommended next steps";
     document.querySelector("#scanHeading").textContent = "Upload evidence for this property";
-    document.querySelector("#priorityList").innerHTML = `<article class="priority-item empty-state"><span class="status-dot info"></span><div><h3>First step</h3><p>Enter a postcode, choose the address, then let CMP start the property setup.</p></div></article>`;
-    document.querySelector("#intelligenceStrip").innerHTML = ["Setup", "What CMP knows", "Still to check", "Evidence"].map((label) => `
-      <article class="intel-stat">
-        <span>${label}</span>
-        <strong>0</strong>
-        <span>Waiting</span>
+    document.querySelector("#priorityList").innerHTML = `
+      <article class="priority-item priority-item-feature empty-state">
+        <span class="status-dot info"></span>
+        <div class="priority-item-copy">
+          <h3>First step</h3>
+          <p>Enter a postcode, choose the address, and let CMP build the first property record.</p>
+        </div>
+        <div class="priority-item-actions">
+          <button class="service-button" type="button" data-open-setup="true">Add property</button>
+        </div>
       </article>
-    `).join("");
+    `;
     document.querySelector("#lastUpdated").textContent = "";
     document.querySelector("#complianceGrid").innerHTML = `<div class="empty-panel"><strong>No compliance map yet</strong><span>Add a property first and CMP will generate the property-specific requirements.</span></div>`;
+    document.querySelector("#coreChecksGrid").innerHTML = `<div class="empty-panel"><strong>No core checks yet</strong><span>The property overview appears here once a property is added.</span></div>`;
+    document.querySelector("#specialistSummary").textContent = "Open this when you need the wider property picture.";
+    document.querySelector("#specialistCount").textContent = "0 areas";
+    document.querySelector("#additionalChecksPanel").open = false;
+    document.querySelector("#additionalChecksGrid").innerHTML = `<div class="empty-panel"><strong>No specialist checks yet</strong><span>Journey-specific checks appear after a property is added.</span></div>`;
+    document.querySelector("#evidencePreviewCount").textContent = "0 items";
+    document.querySelector("#activityPreviewList").innerHTML = `<div class="empty-panel"><strong>No recent activity yet</strong><span>Timeline events appear once the property record exists.</span></div>`;
+    document.querySelector("#evidencePreviewHelper").textContent = "Add documents when you have them. You do not need every certificate before starting.";
+    document.querySelector("#overviewServiceList").innerHTML = `<article class="service-item"><strong>No extra actions are showing</strong><span>CMP will suggest next steps once a property has been added.</span></article>`;
     document.querySelector("#evidenceGrid").innerHTML = `<div class="empty-panel"><strong>No evidence pack yet</strong><span>Add a property before uploading certificates, reports, or tenancy documents.</span></div>`;
     document.querySelector("#timeline").innerHTML = `<div class="empty-panel"><strong>No property timeline yet</strong><span>Recent compliance activity appears once a property has been added.</span></div>`;
     document.querySelector("#assistantHeadline").textContent = plan.assistantHeadline;
     document.querySelector("#assistantCopy").textContent = "Add a property listing to unlock document scans, evidence packs, reminders, and journey-led recommendations.";
     document.querySelector("#scanResults").innerHTML = `<article class="scan-result"><strong>No property selected</strong><span>Add a property before uploading evidence.</span></article>`;
     document.querySelector("#serviceList").innerHTML = `<article class="service-item"><strong>Start with your first property</strong><span>CMP will suggest certificates and services after the address has been added.</span></article>`;
-    renderOverviewState("#knownSnapshot", [], "Nothing confirmed yet", "Imported property details and completed answers will appear here.");
-    renderOverviewState("#missingSnapshot", [], "No checks started yet", "CMP will list the unanswered or evidence-light areas once a property is added.");
-    renderOverviewState("#actionSnapshot", [], "Add a property first", "Use the postcode search or load an example journey from the sidebar.");
-    renderTrackerPreview(null, [], { sectionSummaries: [], answeredQuestions: 0, totalQuestions: 0, completedSections: 0, totalSections: 0 }, null);
     renderActionCentre(null, []);
     document.querySelector("#guidedProgressNarrative").textContent = "You can answer what you know and come back later.";
     document.querySelector("#guidedProgressHelper").textContent = "Not sure at this point is always a safe option.";
     document.querySelector("#guidedProgressFill").style.width = "0%";
-    document.querySelector("#pullEpcButton").disabled = true;
-    document.querySelector("#startGuidedCheck").disabled = true;
+  document.querySelector("#pullEpcButton").disabled = true;
+  document.querySelector("#startGuidedCheck").disabled = true;
     setDashboardPrimaryButton(null);
+    bindOverviewButtons();
     return;
   }
 
@@ -5726,11 +5877,12 @@ function renderDashboard() {
   const recommendations = defaultRecommendationList(property, evaluation, modulePlan);
   state.currentRecommendations = recommendations;
   const heroState = heroStatusState(evaluation, modulePlan);
-  const ring = document.querySelector("#scoreRing");
-  const ringColor = assessment.mode === "score"
-    ? evaluation.risk === "High" ? "var(--red)" : evaluation.risk === "Medium" ? "var(--amber)" : "var(--green)"
-    : "var(--blue)";
-  const subtitleParts = [modulePlan.journeyIntro, modulePlan.metadata.join(" · ")].filter(Boolean);
+  const tenancyState = property.tenancy?.currentlyTenanted === true
+    ? "Currently tenanted"
+    : property.tenancy?.currentlyTenanted === false
+      ? "Not currently tenanted"
+      : "Tenancy not confirmed";
+  const subtitleParts = [...modulePlan.metadata, tenancyState].filter(Boolean);
 
   document.querySelector("#dashboardHeaderKicker").textContent = modulePlan.journeyLabel;
   document.querySelector("#propertyTitle").textContent = property.address;
@@ -5739,24 +5891,11 @@ function renderDashboard() {
   document.querySelector("#propertyReassurance").textContent = heroReassuranceCopy(property, modulePlan, assessment);
   document.querySelector("#heroStatusPill").className = `status-pill ${heroState.tone}`;
   document.querySelector("#heroStatusPill").textContent = heroState.label;
-  document.querySelector("#heroActionHeading").textContent = heroState.heading;
-  document.querySelector("#heroActionCopy").textContent = heroState.copy;
-  document.querySelector("#scoreValue").textContent = assessment.mode === "score"
-    ? `${evaluation.score}%`
-    : `${assessment.knownRequiredChecks}/${assessment.totalRequiredChecks}`;
-  document.querySelector("#riskLabel").textContent = assessment.mode === "score" ? `${evaluation.risk} risk` : "Setup progress";
-  ring.style.setProperty("--score", assessment.mode === "score" ? evaluation.score : assessment.setupProgress);
-  ring.style.setProperty("--ring-color", ringColor);
-
-  const topAction = modulePlan.primaryActionsAll[0] || actions[0];
-  document.querySelector("#scoreHeadline").textContent = assessment.mode === "setup" ? "Setup in progress" : assessment.summaryTitle;
-  document.querySelector("#scoreNarrative").textContent = assessment.mode === "setup"
-    ? `${assessment.summaryText} Based on what you’ve added so far, CMP is keeping the next checks calm and focused on this journey.`
-    : topAction
-      ? `${assessment.summaryText} Next priority: ${topAction.action}`
-      : "CMP has no urgent actions for this property. Keep the record, evidence, and renewals moving at a steady pace.";
-  document.querySelector("#priorityHeading").textContent = modulePlan.priorityTitle;
-  document.querySelector("#priorityHelper").textContent = modulePlan.priorityHelper;
+  document.querySelector("#heroActionHeading").textContent = heroState.label;
+  document.querySelector("#heroActionCopy").textContent = `${assessment.knownRequiredChecks}/${assessment.totalRequiredChecks} core checks recorded. Use the priority action below for the next step.`;
+  document.querySelector("#overviewChecksHeading").textContent = modulePlan.primaryFocus === "full_compliance"
+    ? "Review the key areas for this property"
+    : "Review the checks that matter for this journey";
   document.querySelector("#requirementsHeading").textContent = modulePlan.primaryFocus === "evidence_pack" ? "Evidence gaps that still matter" : "Only open the detail when you need it";
   document.querySelector("#guidedHeading").textContent = modulePlan.primaryFocus === "full_compliance"
     ? "Answer what you know. CMP organises the rest."
@@ -5784,51 +5923,10 @@ function renderDashboard() {
     ? "Upload the document pack here"
     : modulePlan.primaryFocus === "eviction"
       ? "Upload notices, communications, and proof"
-      : modulePlan.primaryFocus === "mould"
-        ? "Upload reports, photos, or repair notes"
-        : "Upload evidence for this property";
-  setDashboardPrimaryButton(recommendations[0] || null);
-
-  document.querySelector("#priorityList").innerHTML = (recommendations.length ? recommendations.slice(0, 1) : modulePlan.primaryActionsAll.slice(0, 1)).map((item) => `
-    <article class="priority-item">
-      <span class="status-dot ${item.reason ? recommendationStatusTone(item.urgency) : statusTone(item.status)}"></span>
-      <div>
-        <h3>${escapeHtml(item.title)}</h3>
-        <p>${escapeHtml(item.reason || item.action)}</p>
-      </div>
-      ${item.id
-        ? `<button class="service-button" type="button" data-recommendation-action="${escapeHtml(item.id)}">${escapeHtml(item.ctaLabel)}</button>`
-        : `<span class="status-pill ${statusTone(item.status)}">${statusLabel(item.status)}</span>`}
-    </article>
-  `).join("");
-
-  const missingEvidence = evaluation.items.filter((item) => item.status === "missing").length;
-  const expiringSoon = evaluation.items.filter((item) => item.status === "expiring_soon").length;
-  const setupNeeded = assessment.unknownCount;
-  const critical = assessment.criticalCount;
-  const confirmed = evaluation.items.filter((item) => item.status === "ok" || item.status === "not_applicable").length;
-  document.querySelector("#intelligenceStrip").innerHTML = `
-    <article class="intel-stat">
-      <span>${assessment.mode === "score" ? "Compliance score" : "Setup progress"}</span>
-      <strong>${assessment.mode === "score" ? `${evaluation.score}%` : `${assessment.knownRequiredChecks}/${assessment.totalRequiredChecks}`}</strong>
-      <span>${assessment.mode === "score" ? "Based on the information added so far" : "Complete the key property checks first"}</span>
-    </article>
-    <article class="intel-stat">
-      <span>What CMP knows</span>
-      <strong>${confirmed}</strong>
-      <span>Confirmed or imported checks for this property</span>
-    </article>
-    <article class="intel-stat">
-      <span>Still to check</span>
-      <strong>${setupNeeded}</strong>
-      <span>Unknown answers stay neutral until confirmed</span>
-    </article>
-    <article class="intel-stat">
-      <span>${critical ? "Known issues" : "Evidence & renewals"}</span>
-      <strong>${critical || missingEvidence + expiringSoon}</strong>
-      <span>${critical ? "Known issues that need attention" : "Known missing or expiring proof"}</span>
-    </article>
-  `;
+        : modulePlan.primaryFocus === "mould"
+          ? "Upload reports, photos, or repair notes"
+          : "Upload evidence for this property";
+  setDashboardPrimaryButton(null);
 
   document.querySelector("#lastUpdated").textContent = `Checked ${formatDate(today)}`;
   document.querySelector("#complianceGrid").innerHTML = evaluation.items.map((item) => renderComplianceCard(item, recommendations)).join("");
@@ -5841,14 +5939,19 @@ function renderDashboard() {
     ? `${progress.remainingQuestions} answer${progress.remainingQuestions === 1 ? "" : "s"} can still be double-checked later.`
     : "Nice, that’s recorded. You can still edit any answer later.";
   document.querySelector("#guidedProgressFill").style.width = `${progress.percent}%`;
-  renderOverviewSnapshots(property, evaluation, modulePlan, recommendations, progress);
-  renderTrackerPreview(property, sections.filter((section) => section.id !== "summary").slice(0, 6), progress, evaluation);
+  const hiddenRecommendationId = renderPriorityAction(property, evaluation, recommendations);
+  renderSnapshotSection(property, evaluation);
+  renderCoreChecks(property, evaluation);
+  renderSpecialistChecks(property, evaluation, sections, progress, modulePlan);
+  renderEvidenceActivityPreview(property, evaluation, modulePlan);
+  renderOverviewServicesPreview(recommendations, hiddenRecommendationId);
   renderEvidenceGrid(property, evaluation.items, modulePlan);
   renderTimeline(property, modulePlan);
   renderAssistant(property, evaluation, actions, modulePlan);
   renderServices(recommendations, assessment, modulePlan);
   renderActionCentre(property, recommendations);
   renderScanResults(modulePlan);
+  bindOverviewButtons();
   document.querySelectorAll("[data-recommendation-action]").forEach((button) => {
     button.addEventListener("click", () => executeRecommendationAction(button.dataset.recommendationAction));
   });

@@ -37,11 +37,10 @@
 
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="index.html">Home</a>
-        <a href="#dashboard">Dashboard</a>
+        <a href="#dashboard">Overview</a>
         <a href="#guided-check">Guided check</a>
-        <a href="#az-checker">Tracker</a>
-        <a href="#evidence-pack">Evidence pack</a>
-        <a href="#services">Services</a>
+        <a href="#evidence-pack">Evidence &amp; history</a>
+        <a href="#services">Services &amp; actions</a>
       </nav>
 
       <div class="topbar-actions">
@@ -105,92 +104,108 @@
                 <span class="status-pill info" id="heroStatusPill">Setup in progress</span>
                 <strong id="heroActionHeading">Start with the next step</strong>
                 <p id="heroActionCopy">CMP will guide the next useful action for this property.</p>
-              </div>
-              <div class="header-actions">
-                <button class="secondary-button" type="button" id="pullEpcButton">
-                  <i data-lucide="cloud-download"></i>
-                  Refresh EPC
-                </button>
-                <button class="primary-button" type="button" id="startGuidedCheck">
-                  <i data-lucide="sparkles"></i>
-                  Continue check
-                </button>
+                <div class="hero-status-actions">
+                  <button class="primary-button" type="button" id="startGuidedCheck">
+                    <i data-lucide="sparkles"></i>
+                    Open guided check
+                  </button>
+                  <button class="quiet-button" type="button" id="pullEpcButton">
+                    <i data-lucide="cloud-download"></i>
+                    Refresh EPC
+                  </button>
+                </div>
               </div>
             </div>
           </div>
 
           <section class="completion-banner" id="completionBanner" hidden></section>
 
-          <div class="dashboard-grid">
-            <section class="score-panel">
-              <div class="score-ring" id="scoreRing" aria-label="Compliance score">
-                <span id="scoreValue">0%</span>
-                <small id="riskLabel">Risk</small>
-              </div>
-              <div class="score-copy">
-                <h2 id="scoreHeadline">CMP is checking the property.</h2>
-                <p id="scoreNarrative"></p>
-                <p class="compliance-note" id="complianceDisclaimer">CMP helps organise and highlight property compliance information, but it is not legal advice.</p>
-              </div>
-            </section>
-
-            <section class="priority-panel">
-              <div class="panel-heading">
-                <span class="section-kicker">Start here</span>
-                <h2 id="priorityHeading">One clear next step</h2>
-              </div>
-              <p class="panel-helper" id="priorityHelper">CMP should make the next action obvious.</p>
-              <div class="priority-list" id="priorityList"></div>
-            </section>
-          </div>
-
-          <section class="intelligence-strip" id="intelligenceStrip"></section>
-
-          <section class="overview-grid" id="overviewGrid" aria-label="Property overview">
-            <article class="overview-card overview-card-known">
-              <div class="panel-heading">
-                <span class="section-kicker">What we already know</span>
-                <h2>Imported and confirmed</h2>
-              </div>
-              <div class="overview-list" id="knownSnapshot"></div>
-            </article>
-
-            <article class="overview-card overview-card-missing">
-              <div class="panel-heading">
-                <span class="section-kicker">What still needs checking</span>
-                <h2>Missing, unknown, or review needed</h2>
-              </div>
-              <div class="overview-list" id="missingSnapshot"></div>
-            </article>
-
-            <article class="overview-card overview-card-actions">
-              <div class="panel-heading">
-                <span class="section-kicker">Recommended next steps</span>
-                <h2>Keep it manageable</h2>
-              </div>
-              <div class="overview-list" id="actionSnapshot"></div>
-            </article>
+          <section class="priority-panel overview-priority-panel">
+            <div class="panel-heading">
+              <span class="section-kicker">Priority action</span>
+              <h2 id="priorityHeading">One clear next step</h2>
+            </div>
+            <p class="panel-helper" id="priorityHelper">CMP should make the next action obvious.</p>
+            <div class="priority-list" id="priorityList"></div>
           </section>
 
-          <section class="tracker-preview-panel" aria-labelledby="trackerPreviewHeading">
+          <section class="snapshot-panel" aria-labelledby="snapshotHeading">
+            <div class="section-heading snapshot-heading">
+              <div>
+                <span class="section-kicker">Compliance snapshot</span>
+                <h2 id="snapshotHeading">Keep the overview simple</h2>
+                <p class="section-copy">Use this as the calm summary. The guided flow and evidence views hold the detail.</p>
+              </div>
+              <span class="quiet-pill" id="snapshotProgressMeta"></span>
+            </div>
+            <div class="snapshot-progress-track" aria-hidden="true">
+              <span id="snapshotProgressFill"></span>
+            </div>
+            <div class="snapshot-stats" id="snapshotStats"></div>
+          </section>
+
+          <section class="compliance-section overview-core-section">
             <div class="section-heading">
               <div>
-                <span class="section-kicker">A-Z compliance tracker</span>
-                <h2 id="trackerPreviewHeading">Build your compliance picture one calm step at a time</h2>
-                <p class="section-copy">Each card is a small part of the landlord journey. Start, continue, review, or come back later.</p>
+                <span class="section-kicker">Core checks</span>
+                <h2 id="overviewChecksHeading">Review the key areas for this property</h2>
+                <p class="section-copy">Open each card when you want the detail. The full guided flow stays below.</p>
               </div>
+              <button class="secondary-button" type="button" data-dashboard-panel-link="check">
+                <i data-lucide="sparkles"></i>
+                Open guided check
+              </button>
             </div>
-            <div class="tracker-preview-grid" id="trackerPreview"></div>
+            <div class="compliance-grid overview-checks-grid" id="coreChecksGrid"></div>
+          </section>
+
+          <details class="specialist-panel" id="additionalChecksPanel">
+            <summary>
+              <div class="specialist-summary-copy">
+                <span class="section-kicker">Additional checks</span>
+                <strong id="specialistHeading">Journey-specific and lower-priority areas</strong>
+                <small id="specialistSummary">Open this when you need the wider property picture.</small>
+              </div>
+              <span class="quiet-pill" id="specialistCount"></span>
+            </summary>
+            <div class="compliance-grid specialist-grid" id="additionalChecksGrid"></div>
+          </details>
+
+          <section class="overview-preview-grid" aria-label="Evidence and services overview">
+            <article class="overview-preview-panel">
+              <div class="section-heading">
+                <div>
+                  <span class="section-kicker">Evidence &amp; recent activity</span>
+                  <h2 id="overviewActivityHeading">Keep the property file tidy</h2>
+                </div>
+                <span class="quiet-pill" id="evidencePreviewCount"></span>
+              </div>
+              <div class="activity-preview-list" id="activityPreviewList"></div>
+              <p class="panel-helper" id="evidencePreviewHelper"></p>
+              <button class="secondary-button" type="button" data-dashboard-panel-link="evidence">Open Evidence &amp; history</button>
+            </article>
+
+            <article class="overview-preview-panel overview-preview-panel-services">
+              <div class="section-heading">
+                <div>
+                  <span class="section-kicker">Relevant services</span>
+                  <h2 id="overviewServicesHeading">Only the next useful actions</h2>
+                </div>
+                <span class="quiet-pill">Maximum 3</span>
+              </div>
+              <div class="service-list overview-service-list" id="overviewServiceList"></div>
+              <button class="secondary-button" type="button" data-dashboard-panel-link="services">Open Services &amp; actions</button>
+            </article>
           </section>
 
           <nav class="detail-tabs" aria-label="Dashboard sections">
             <button class="detail-tab" type="button" data-dashboard-tab="requirements">
               <i data-lucide="list-checks"></i>
-              What matters
+              Core checks
             </button>
             <button class="detail-tab is-active" type="button" data-dashboard-tab="check">
               <i data-lucide="sparkles"></i>
-              A-Z check
+              Guided check
             </button>
             <button class="detail-tab" type="button" data-dashboard-tab="az">
               <i data-lucide="list-tree"></i>
@@ -198,11 +213,11 @@
             </button>
             <button class="detail-tab" type="button" data-dashboard-tab="evidence">
               <i data-lucide="folder-check"></i>
-              Evidence & timeline
+              Evidence &amp; history
             </button>
             <button class="detail-tab" type="button" data-dashboard-tab="services">
               <i data-lucide="calendar-plus"></i>
-              Actions
+              Services &amp; actions
             </button>
           </nav>
 
