@@ -19,513 +19,366 @@
   <body class="is-auth-checking">
     <div class="ambient-grid" aria-hidden="true"></div>
 
-    <header class="topbar dashboard-topbar">
-      <div class="dashboard-topbar-start">
-        <button class="icon-button dashboard-shell-toggle" type="button" id="mobileNavToggle" aria-label="Open dashboard menu">
-          <i data-lucide="panel-left-open"></i>
-        </button>
-        <a class="brand" href="index.html" aria-label="CMP home">
-          <span class="brand-mark brand-mark-shield" aria-hidden="true">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
-              <path d="M8 18.5C8 11.0442 14.0442 5 21.5 5H28.25C35.7058 5 41.75 11.0442 41.75 18.5V20.4405C41.75 26.5602 39.0814 32.3755 34.4419 36.3676L24 45L13.5581 36.3676C8.91864 32.3755 6.25 26.5602 6.25 20.4405V18.5H8Z" fill="#102F4B"/>
-              <path d="M14.25 23.25L22 31L35 16.75" stroke="#58B63F" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M21.25 18.25L24.75 14.75L29.25 19.25V27.75H21.25V18.25Z" fill="#F8FBFF"/>
-              <rect x="24" y="18.5" width="2" height="5.5" rx="1" fill="#102F4B"/>
-            </svg>
-          </span>
-          <span class="brand-copy">
-            <strong>ComplyMyProperty</strong>
-            <small>Landlord compliance OS</small>
-          </span>
-        </a>
-      </div>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="CMP home">
+        <span class="brand-mark brand-mark-shield" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+            <path d="M8 18.5C8 11.0442 14.0442 5 21.5 5H28.25C35.7058 5 41.75 11.0442 41.75 18.5V20.4405C41.75 26.5602 39.0814 32.3755 34.4419 36.3676L24 45L13.5581 36.3676C8.91864 32.3755 6.25 26.5602 6.25 20.4405V18.5H8Z" fill="#102F4B"/>
+            <path d="M14.25 23.25L22 31L35 16.75" stroke="#58B63F" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21.25 18.25L24.75 14.75L29.25 19.25V27.75H21.25V18.25Z" fill="#F8FBFF"/>
+            <rect x="24" y="18.5" width="2" height="5.5" rx="1" fill="#102F4B"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>ComplyMyProperty</strong>
+          <small>Landlord compliance OS</small>
+        </span>
+      </a>
 
-      <div class="dashboard-topbar-centre">
-        <span class="workspace-pill" id="workspacePill">Property workspace</span>
-      </div>
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="index.html">Home</a>
+        <a href="#dashboard">Overview</a>
+        <a href="#guided-check">Guided check</a>
+        <a href="#evidence-pack">Evidence &amp; history</a>
+        <a href="#services">Services &amp; actions</a>
+      </nav>
 
       <div class="topbar-actions">
         <span class="session-pill" id="sessionEmail">Checking session</span>
-        <button class="mini-button topbar-add-button" type="button" id="topbarAddPropertyButton">
-          <i data-lucide="plus"></i>
-          Add property
+        <button class="icon-button" type="button" id="signOutButton" aria-label="Sign out">
+          <i data-lucide="log-out"></i>
         </button>
         <button class="icon-button" type="button" data-open-upload data-upload-category="other" data-upload-label="Upload property evidence" data-upload-prompt="Add certificates, notices, photos, or reports for this property." data-upload-source="topbar" aria-label="Upload evidence">
           <i data-lucide="scan-line"></i>
         </button>
-        <button class="icon-button" type="button" id="assistantToggleButton" aria-label="Open Ask CMP">
-          <i data-lucide="message-square-more"></i>
-        </button>
-        <button class="icon-button" type="button" id="signOutButton" aria-label="Sign out">
-          <i data-lucide="log-out"></i>
-        </button>
       </div>
     </header>
 
-    <div class="dashboard-shell-scrim" id="dashboardShellScrim" hidden></div>
-
     <main>
-      <section class="os-shell property-workspace-shell" id="dashboard">
-        <aside class="sidebar app-sidebar" id="appSidebar" aria-label="CMP application">
-          <div class="app-sidebar-scroll">
-            <div class="app-sidebar-brand">
-              <span class="brand-mark brand-mark-shield" aria-hidden="true">
-                <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
-                  <path d="M8 18.5C8 11.0442 14.0442 5 21.5 5H28.25C35.7058 5 41.75 11.0442 41.75 18.5V20.4405C41.75 26.5602 39.0814 32.3755 34.4419 36.3676L24 45L13.5581 36.3676C8.91864 32.3755 6.25 26.5602 6.25 20.4405V18.5H8Z" fill="#102F4B"/>
-                  <path d="M14.25 23.25L22 31L35 16.75" stroke="#58B63F" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M21.25 18.25L24.75 14.75L29.25 19.25V27.75H21.25V18.25Z" fill="#F8FBFF"/>
-                  <rect x="24" y="18.5" width="2" height="5.5" rx="1" fill="#102F4B"/>
-                </svg>
-              </span>
-              <div>
-                <strong>Comply My Property</strong>
-                <span>Compliance workspace</span>
-              </div>
+      <section class="os-shell" id="dashboard">
+        <aside class="sidebar" aria-label="Landlord portfolio">
+          <div class="sidebar-heading">
+            <span>Portfolio</span>
+            <button class="mini-button" type="button" id="addPropertyButton">
+              <i data-lucide="plus"></i>
+              Add property
+            </button>
+          </div>
+
+          <div class="property-list" id="propertyList"></div>
+
+          <div class="journey-card">
+            <span class="section-kicker">Start with intent</span>
+            <h2>What do you need help with?</h2>
+            <div class="journey-list" id="journeyList"></div>
+          </div>
+
+          <div class="demo-studio">
+            <span class="section-kicker">Quick preview</span>
+            <h2>Preview a landlord journey</h2>
+            <p>Use the simulator to test different dashboard states quickly.</p>
+            <div class="demo-actions" id="demoActions">
+              <button class="mini-button" type="button" data-demo-scenario="demo_property">Load example property</button>
+              <button class="mini-button" type="button" data-demo-scenario="epc_only">Preview EPC journey</button>
+              <button class="mini-button" type="button" data-demo-scenario="full_compliance">Preview full compliance</button>
+              <button class="mini-button" type="button" data-demo-scenario="eviction">Preview eviction pack</button>
+              <button class="mini-button" type="button" data-demo-scenario="mould">Preview mould case</button>
+              <button class="mini-button" type="button" data-demo-reset="true">Reset demo</button>
             </div>
-
-            <nav class="app-sidebar-nav" aria-label="CMP workspace navigation">
-              <div class="app-nav-group">
-                <span class="app-nav-label">Portfolio</span>
-                <a class="app-nav-link" href="index.html">
-                  <i data-lucide="house"></i>
-                  <span>Home</span>
-                </a>
-                <button class="app-nav-link" type="button" data-sidebar-scroll="portfolio">
-                  <i data-lucide="buildings"></i>
-                  <span>Properties</span>
-                </button>
-              </div>
-
-              <div class="app-nav-group">
-                <span class="app-nav-label">Compliance</span>
-                <button class="app-nav-link is-active" type="button" data-dashboard-panel-link="overview">
-                  <i data-lucide="layout-dashboard"></i>
-                  <span>Compliance overview</span>
-                </button>
-                <button class="app-nav-link" type="button" data-dashboard-panel-link="documents">
-                  <i data-lucide="folder-check"></i>
-                  <span>Documents</span>
-                </button>
-                <button class="app-nav-link" type="button" data-dashboard-panel-link="compliance">
-                  <i data-lucide="list-checks"></i>
-                  <span>Tasks</span>
-                </button>
-                <button class="app-nav-link" type="button" data-dashboard-panel-link="timeline">
-                  <i data-lucide="history"></i>
-                  <span>Timeline</span>
-                </button>
-              </div>
-
-              <div class="app-nav-group">
-                <span class="app-nav-label">Support</span>
-                <button class="app-nav-link" type="button" id="sidebarAskCmpButton">
-                  <i data-lucide="message-square-more"></i>
-                  <span>Ask CMP</span>
-                </button>
-                <button class="app-nav-link" type="button" data-dashboard-panel-link="services">
-                  <i data-lucide="calendar-plus"></i>
-                  <span>Book a service</span>
-                </button>
-                <a class="app-nav-link is-muted" href="contact.html">
-                  <i data-lucide="graduation-cap"></i>
-                  <span>Learn</span>
-                </a>
-              </div>
-
-              <div class="app-nav-group">
-                <span class="app-nav-label">Account</span>
-                <button class="app-nav-link is-disabled" type="button" aria-disabled="true">
-                  <i data-lucide="settings-2"></i>
-                  <span>Settings</span>
-                </button>
-              </div>
-            </nav>
-
-            <section class="sidebar-portfolio" id="sidebarPortfolio">
-              <div class="sidebar-heading">
-                <span>Portfolio</span>
-                <button class="mini-button" type="button" id="addPropertyButton">
-                  <i data-lucide="plus"></i>
-                  Add property
-                </button>
-              </div>
-              <div class="property-list" id="propertyList"></div>
-            </section>
-
-            <details class="journey-card sidebar-card" open>
-              <summary>
-                <span class="section-kicker">Focus this workspace</span>
-                <strong>What do you need help with?</strong>
-              </summary>
-              <div class="journey-list" id="journeyList"></div>
-            </details>
-
-            <details class="demo-studio sidebar-card">
-              <summary>
-                <span class="section-kicker">Quick preview</span>
-                <strong>Preview a landlord journey</strong>
-              </summary>
-              <p>Use the simulator to test different dashboard states quickly.</p>
-              <div class="demo-actions" id="demoActions">
-                <button class="mini-button" type="button" data-demo-scenario="demo_property">Load example property</button>
-                <button class="mini-button" type="button" data-demo-scenario="epc_only">Preview EPC journey</button>
-                <button class="mini-button" type="button" data-demo-scenario="full_compliance">Preview full compliance</button>
-                <button class="mini-button" type="button" data-demo-scenario="eviction">Preview eviction pack</button>
-                <button class="mini-button" type="button" data-demo-scenario="mould">Preview mould case</button>
-                <button class="mini-button" type="button" data-demo-reset="true">Reset demo</button>
-              </div>
-            </details>
           </div>
         </aside>
 
-        <section class="workspace dashboard-workspace" aria-live="polite">
+        <section class="workspace" aria-live="polite">
           <section class="setup-panel" id="propertySetup" aria-labelledby="propertySetupTitle"></section>
 
-          <div class="workspace-main">
-            <div class="workspace-header property-header">
-              <div class="workspace-header-copy">
-                <span class="section-kicker" id="dashboardHeaderKicker">Property dashboard</span>
-                <h1 id="propertyTitle">Loading property</h1>
-                <p id="propertySubtitle"></p>
-                <div class="journey-badges" id="heroMetaChips"></div>
-                <p class="hero-reassurance" id="propertyReassurance">CMP keeps the next steps calm and focused on this property.</p>
-              </div>
-              <div class="workspace-header-side">
-                <div class="hero-status-card">
-                  <span class="status-pill info" id="heroStatusPill">Setup in progress</span>
-                  <strong id="heroActionHeading">Start with the next step</strong>
-                  <p id="heroActionCopy">CMP will guide the next useful action for this property.</p>
-                  <div class="hero-status-actions">
-                    <button class="primary-button" type="button" id="startGuidedCheck">
-                      <i data-lucide="sparkles"></i>
-                      Continue guided check
-                    </button>
-                    <button class="quiet-button" type="button" id="editPropertyButton">
-                      <i data-lucide="square-pen"></i>
-                      Edit property
-                    </button>
-                    <button class="quiet-button" type="button" id="pullEpcButton">
-                      <i data-lucide="cloud-download"></i>
-                      Refresh EPC
-                    </button>
-                  </div>
+          <div class="workspace-header">
+            <div class="workspace-header-copy">
+              <span class="section-kicker" id="dashboardHeaderKicker">Property dashboard</span>
+              <h1 id="propertyTitle">Loading property</h1>
+              <p id="propertySubtitle"></p>
+              <div class="journey-badges" id="heroMetaChips"></div>
+              <p class="hero-reassurance" id="propertyReassurance">CMP keeps the next steps calm and focused on this property.</p>
+            </div>
+            <div class="workspace-header-side">
+              <div class="hero-status-card">
+                <span class="status-pill info" id="heroStatusPill">Setup in progress</span>
+                <strong id="heroActionHeading">Start with the next step</strong>
+                <p id="heroActionCopy">CMP will guide the next useful action for this property.</p>
+                <div class="hero-status-actions">
+                  <button class="primary-button" type="button" id="startGuidedCheck">
+                    <i data-lucide="sparkles"></i>
+                    Open guided check
+                  </button>
+                  <button class="quiet-button" type="button" id="pullEpcButton">
+                    <i data-lucide="cloud-download"></i>
+                    Refresh EPC
+                  </button>
                 </div>
               </div>
             </div>
+          </div>
 
-            <section class="completion-banner" id="completionBanner" hidden></section>
+          <section class="completion-banner" id="completionBanner" hidden></section>
 
-            <nav class="detail-tabs property-tabs" aria-label="Property sections">
-              <button class="detail-tab is-active" type="button" data-dashboard-tab="overview">
-                <i data-lucide="layout-dashboard"></i>
-                Overview
-              </button>
-              <button class="detail-tab" type="button" data-dashboard-tab="compliance">
-                <i data-lucide="shield-check"></i>
-                Compliance
-              </button>
-              <button class="detail-tab" type="button" data-dashboard-tab="documents">
-                <i data-lucide="folder-check"></i>
-                Documents
-              </button>
-              <button class="detail-tab" type="button" data-dashboard-tab="timeline">
-                <i data-lucide="history"></i>
-                Timeline
-              </button>
-              <button class="detail-tab" type="button" data-dashboard-tab="services">
-                <i data-lucide="calendar-plus"></i>
-                Services
-              </button>
-              <button class="detail-tab" type="button" data-dashboard-tab="details">
-                <i data-lucide="house-plus"></i>
-                Property details
-              </button>
-            </nav>
+          <section class="priority-panel overview-priority-panel">
+            <div class="panel-heading">
+              <span class="section-kicker">Priority action</span>
+              <h2 id="priorityHeading">One clear next step</h2>
+            </div>
+            <p class="panel-helper" id="priorityHelper">CMP should make the next action obvious.</p>
+            <div class="priority-list" id="priorityList"></div>
+          </section>
 
-            <section class="detail-panel dashboard-overview-panel is-active" id="overviewPanel" data-dashboard-panel="overview">
-              <section class="priority-panel overview-priority-panel">
-                <div class="panel-heading">
-                  <span class="section-kicker">Priority action</span>
-                  <h2 id="priorityHeading">One clear next step</h2>
-                </div>
-                <p class="panel-helper" id="priorityHelper">CMP should make the next action obvious.</p>
-                <div class="priority-list" id="priorityList"></div>
-              </section>
-
-              <section class="snapshot-panel" aria-labelledby="snapshotHeading">
-                <div class="section-heading snapshot-heading">
-                  <div>
-                    <span class="section-kicker">Compliance snapshot</span>
-                    <h2 id="snapshotHeading">Keep the overview simple</h2>
-                    <p class="section-copy">Use this as the calm summary. The guided flow and evidence views hold the detail.</p>
-                  </div>
-                  <span class="quiet-pill" id="snapshotProgressMeta"></span>
-                </div>
-                <div class="snapshot-progress-track" aria-hidden="true">
-                  <span id="snapshotProgressFill"></span>
-                </div>
-                <div class="snapshot-stats" id="snapshotStats"></div>
-              </section>
-
-              <section class="compliance-section overview-core-section">
-                <div class="section-heading">
-                  <div>
-                    <span class="section-kicker">Core checks</span>
-                    <h2 id="overviewChecksHeading">Review the key areas for this property</h2>
-                    <p class="section-copy">Open each card when you want the detail. The full guided flow sits inside Compliance.</p>
-                  </div>
-                  <button class="secondary-button" type="button" data-dashboard-panel-link="compliance">
-                    <i data-lucide="sparkles"></i>
-                    Open Compliance
-                  </button>
-                </div>
-                <div class="compliance-grid overview-checks-grid" id="coreChecksGrid"></div>
-              </section>
-
-              <details class="specialist-panel" id="additionalChecksPanel">
-                <summary>
-                  <div class="specialist-summary-copy">
-                    <span class="section-kicker">Additional checks</span>
-                    <strong id="specialistHeading">Journey-specific and lower-priority areas</strong>
-                    <small id="specialistSummary">Open this when you need the wider property picture.</small>
-                  </div>
-                  <span class="quiet-pill" id="specialistCount"></span>
-                </summary>
-                <div class="compliance-grid specialist-grid" id="additionalChecksGrid"></div>
-              </details>
-
-              <section class="overview-preview-grid" aria-label="Evidence and services overview">
-                <article class="overview-preview-panel">
-                  <div class="section-heading">
-                    <div>
-                      <span class="section-kicker">Evidence &amp; recent activity</span>
-                      <h2 id="overviewActivityHeading">Keep the property file tidy</h2>
-                    </div>
-                    <span class="quiet-pill" id="evidencePreviewCount"></span>
-                  </div>
-                  <div class="activity-preview-list" id="activityPreviewList"></div>
-                  <p class="panel-helper" id="evidencePreviewHelper"></p>
-                  <button class="secondary-button" type="button" data-dashboard-panel-link="documents">Open Documents</button>
-                </article>
-
-                <article class="overview-preview-panel overview-preview-panel-services">
-                  <div class="section-heading">
-                    <div>
-                      <span class="section-kicker">Relevant services</span>
-                      <h2 id="overviewServicesHeading">Only the next useful actions</h2>
-                    </div>
-                    <span class="quiet-pill">Maximum 3</span>
-                  </div>
-                  <div class="service-list overview-service-list" id="overviewServiceList"></div>
-                  <button class="secondary-button" type="button" data-dashboard-panel-link="services">Open Services</button>
-                </article>
-              </section>
-            </section>
-
-            <section class="detail-panel dashboard-compliance-panel" id="guided-check" data-dashboard-panel="compliance">
-              <section class="compliance-section compliance-map-panel">
-                <div class="section-heading">
-                  <div>
-                    <span class="section-kicker">Compliance map</span>
-                    <h2 id="requirementsHeading">Only open the detail when you need it</h2>
-                  </div>
-                  <span class="quiet-pill" id="lastUpdated"></span>
-                </div>
-                <div class="compliance-grid" id="complianceGrid"></div>
-              </section>
-
-              <section class="guided-check">
-                <div class="section-heading">
-                  <div>
-                    <span class="section-kicker">Guided check</span>
-                    <h2 id="guidedHeading">Answer one calm question at a time.</h2>
-                  </div>
-                  <div class="step-count" id="stepCount"></div>
-                </div>
-
-                <div class="guided-progress-shell">
-                  <div class="guided-progress-copy">
-                    <strong id="guidedProgressNarrative">You can answer what you know and come back later.</strong>
-                    <span id="guidedProgressHelper">Not sure at this point is always a safe option.</span>
-                  </div>
-                  <div class="guided-progress-track" aria-hidden="true">
-                    <span id="guidedProgressFill"></span>
-                  </div>
-                </div>
-
-                <div class="wizard-shell">
-                  <div class="wizard-tabs" id="wizardTabs"></div>
-                  <form class="wizard-form" id="wizardForm"></form>
-                </div>
-              </section>
-
-              <section class="az-checker" id="az-checker">
-                <div class="section-heading">
-                  <div>
-                    <span class="section-kicker">Review board</span>
-                    <h2>See the whole compliance picture in one place.</h2>
-                    <p class="section-copy">Use the guided interview and document area together. CMP keeps the answers, evidence gaps, and next actions in one place.</p>
-                  </div>
-                  <span class="quiet-pill save-pill" id="azSaveStatus">Not saved yet</span>
-                </div>
-
-                <div class="az-command">
-                  <section class="az-hero-card">
-                    <span class="plastic-token"><i data-lucide="route"></i></span>
-                    <div>
-                      <h3>One guided checklist, one document dump, one live property record.</h3>
-                      <p id="azPrimaryAction">CMP will turn answers and evidence into the next most useful action.</p>
-                    </div>
-                    <div class="az-meter" aria-label="A-Z checker completion">
-                      <strong id="azProgressValue">0%</strong>
-                      <span id="azProgressText">Not started</span>
-                    </div>
-                  </section>
-
-                  <section class="document-dump-card">
-                    <div class="panel-heading">
-                      <span class="section-kicker">Document dump</span>
-                      <h3>Drop everything about this house here</h3>
-                    </div>
-                    <label class="document-dump-zone" for="azDocumentDump">
-                      <i data-lucide="files"></i>
-                      <span>Certificates, tenancy paperwork, notices, reports, licences, deposit proof</span>
-                      <small>Readable files are scanned for document type and key dates in this prototype.</small>
-                    </label>
-                    <input id="azDocumentDump" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx,.csv,.md">
-                    <div class="az-document-results" id="azDocumentResults"></div>
-                  </section>
-                </div>
-
-                <div class="az-layout">
-                  <section class="az-checklist-panel">
-                    <div class="panel-heading">
-                      <span class="section-kicker">Step-by-step compliance path</span>
-                      <h3>One manageable section at a time.</h3>
-                    </div>
-                    <div class="az-checklist" id="azChecklist"></div>
-                  </section>
-
-                  <aside class="az-side-panel">
-                    <section class="latest-facts-card">
-                      <div class="panel-heading">
-                        <span class="section-kicker">Most recent data</span>
-                        <h3>What CMP currently believes</h3>
-                      </div>
-                      <div class="latest-facts" id="azLatestFacts"></div>
-                    </section>
-                  </aside>
-                </div>
-              </section>
-            </section>
-
-            <section class="detail-panel dashboard-documents-panel" id="evidence-pack" data-dashboard-panel="documents">
-              <div class="evidence-section">
-                <div class="section-heading">
-                  <div>
-                    <span class="section-kicker">Property evidence pack</span>
-                    <h2 id="evidenceHeading">What proof is stored, and what is missing</h2>
-                  </div>
-                  <button class="secondary-button" type="button" data-open-upload data-upload-category="other" data-upload-label="Upload property evidence" data-upload-prompt="Add documents for the current evidence pack." data-upload-source="evidence-panel">
-                    <i data-lucide="upload-cloud"></i>
-                    Upload
-                  </button>
-                </div>
-                <div class="documents-empty-state">
-                  <p>Upload certificates, reports, tenancy paperwork, or notices. CMP will organise them against this property and show what still needs checking.</p>
-                </div>
-                <div class="evidence-grid" id="evidenceGrid"></div>
+          <section class="snapshot-panel" aria-labelledby="snapshotHeading">
+            <div class="section-heading snapshot-heading">
+              <div>
+                <span class="section-kicker">Compliance snapshot</span>
+                <h2 id="snapshotHeading">Keep the overview simple</h2>
+                <p class="section-copy">Use this as the calm summary. The guided flow and evidence views hold the detail.</p>
               </div>
-            </section>
+              <span class="quiet-pill" id="snapshotProgressMeta"></span>
+            </div>
+            <div class="snapshot-progress-track" aria-hidden="true">
+              <span id="snapshotProgressFill"></span>
+            </div>
+            <div class="snapshot-stats" id="snapshotStats"></div>
+          </section>
 
-            <section class="detail-panel dashboard-timeline-panel" id="timeline-panel" data-dashboard-panel="timeline">
-              <div class="activity-section">
-                <div class="section-heading">
-                  <div>
-                    <span class="section-kicker">Property timeline</span>
-                    <h2 id="timelineHeading">Recent compliance activity</h2>
-                  </div>
-                </div>
-                <div class="timeline" id="timeline"></div>
+          <section class="compliance-section overview-core-section">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">Core checks</span>
+                <h2 id="overviewChecksHeading">Review the key areas for this property</h2>
+                <p class="section-copy">Open each card when you want the detail. The full guided flow stays below.</p>
               </div>
-            </section>
+              <button class="secondary-button" type="button" data-dashboard-panel-link="check">
+                <i data-lucide="sparkles"></i>
+                Open guided check
+              </button>
+            </div>
+            <div class="compliance-grid overview-checks-grid" id="coreChecksGrid"></div>
+          </section>
 
-            <section class="detail-panel dashboard-services-panel" id="services" data-dashboard-panel="services">
-              <div class="support-grid services-grid">
-                <section class="scan-panel">
-                  <div class="panel-heading">
-                    <span class="section-kicker">Document scan</span>
-                    <h2 id="scanHeading">Drop evidence into the vault</h2>
-                  </div>
-                  <button class="scan-drop" type="button" data-open-upload data-upload-category="other" data-upload-label="Upload property evidence" data-upload-prompt="Add certificates, reports, notices, photos, or tenancy files for prototype analysis." data-upload-source="scan-panel">
-                    <i data-lucide="file-search"></i>
-                    <span>Upload certificates, notices, reports, or tenancy documents</span>
-                  </button>
-                  <div class="scan-results" id="scanResults"></div>
-                </section>
-
-                <section class="service-panel">
-                  <div class="panel-heading">
-                    <span class="section-kicker">Recommended services</span>
-                    <h2 id="serviceHeading">Contextual next actions</h2>
-                  </div>
-                  <div class="action-centre" id="actionCentre"></div>
-                  <div class="service-list" id="serviceList"></div>
-                </section>
+          <details class="specialist-panel" id="additionalChecksPanel">
+            <summary>
+              <div class="specialist-summary-copy">
+                <span class="section-kicker">Additional checks</span>
+                <strong id="specialistHeading">Journey-specific and lower-priority areas</strong>
+                <small id="specialistSummary">Open this when you need the wider property picture.</small>
               </div>
-            </section>
+              <span class="quiet-pill" id="specialistCount"></span>
+            </summary>
+            <div class="compliance-grid specialist-grid" id="additionalChecksGrid"></div>
+          </details>
 
-            <section class="detail-panel dashboard-details-panel" id="property-details" data-dashboard-panel="details">
+          <section class="overview-preview-grid" aria-label="Evidence and services overview">
+            <article class="overview-preview-panel">
               <div class="section-heading">
                 <div>
-                  <span class="section-kicker">Property details</span>
-                  <h2>Property profile and reference data</h2>
-                  <p class="section-copy">Use this tab to review the property record, imported data, and any listing-specific details CMP is holding.</p>
+                  <span class="section-kicker">Evidence &amp; recent activity</span>
+                  <h2 id="overviewActivityHeading">Keep the property file tidy</h2>
+                </div>
+                <span class="quiet-pill" id="evidencePreviewCount"></span>
+              </div>
+              <div class="activity-preview-list" id="activityPreviewList"></div>
+              <p class="panel-helper" id="evidencePreviewHelper"></p>
+              <button class="secondary-button" type="button" data-dashboard-panel-link="evidence">Open Evidence &amp; history</button>
+            </article>
+
+            <article class="overview-preview-panel overview-preview-panel-services">
+              <div class="section-heading">
+                <div>
+                  <span class="section-kicker">Relevant services</span>
+                  <h2 id="overviewServicesHeading">Only the next useful actions</h2>
+                </div>
+                <span class="quiet-pill">Maximum 3</span>
+              </div>
+              <div class="service-list overview-service-list" id="overviewServiceList"></div>
+              <button class="secondary-button" type="button" data-dashboard-panel-link="services">Open Services &amp; actions</button>
+            </article>
+          </section>
+
+          <nav class="detail-tabs" aria-label="Dashboard sections">
+            <button class="detail-tab" type="button" data-dashboard-tab="requirements">
+              <i data-lucide="list-checks"></i>
+              Core checks
+            </button>
+            <button class="detail-tab is-active" type="button" data-dashboard-tab="check">
+              <i data-lucide="sparkles"></i>
+              Guided check
+            </button>
+            <button class="detail-tab" type="button" data-dashboard-tab="az">
+              <i data-lucide="list-tree"></i>
+              Review board
+            </button>
+            <button class="detail-tab" type="button" data-dashboard-tab="evidence">
+              <i data-lucide="folder-check"></i>
+              Evidence &amp; history
+            </button>
+            <button class="detail-tab" type="button" data-dashboard-tab="services">
+              <i data-lucide="calendar-plus"></i>
+              Services &amp; actions
+            </button>
+          </nav>
+
+          <section class="compliance-section detail-panel" data-dashboard-panel="requirements">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">Compliance map</span>
+                <h2 id="requirementsHeading">Only open the detail when you need it</h2>
+              </div>
+              <span class="quiet-pill" id="lastUpdated"></span>
+            </div>
+            <div class="compliance-grid" id="complianceGrid"></div>
+          </section>
+
+          <section class="guided-check detail-panel is-active" id="guided-check" data-dashboard-panel="check">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">A-Z compliance check</span>
+                <h2 id="guidedHeading">Answer one calm question at a time.</h2>
+              </div>
+              <div class="step-count" id="stepCount"></div>
+            </div>
+
+            <div class="guided-progress-shell">
+              <div class="guided-progress-copy">
+                <strong id="guidedProgressNarrative">You can answer what you know and come back later.</strong>
+                <span id="guidedProgressHelper">Not sure at this point is always a safe option.</span>
+              </div>
+              <div class="guided-progress-track" aria-hidden="true">
+                <span id="guidedProgressFill"></span>
+              </div>
+            </div>
+
+            <div class="wizard-shell">
+              <div class="wizard-tabs" id="wizardTabs"></div>
+              <form class="wizard-form" id="wizardForm"></form>
+            </div>
+          </section>
+
+          <section class="az-checker detail-panel" id="az-checker" data-dashboard-panel="az">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker">A-Z review board</span>
+                <h2>See the whole compliance picture in one place.</h2>
+                <p class="section-copy">Use the guided interview and document area together. CMP keeps the answers, evidence gaps, and next actions in one place.</p>
+              </div>
+              <span class="quiet-pill save-pill" id="azSaveStatus">Not saved yet</span>
+            </div>
+
+            <div class="az-command">
+              <section class="az-hero-card">
+                <span class="plastic-token"><i data-lucide="route"></i></span>
+                <div>
+                  <h3>One guided checklist, one document dump, one live property record.</h3>
+                  <p id="azPrimaryAction">CMP will turn answers and evidence into the next most useful action.</p>
+                </div>
+                <div class="az-meter" aria-label="A-Z checker completion">
+                  <strong id="azProgressValue">0%</strong>
+                  <span id="azProgressText">Not started</span>
+                </div>
+              </section>
+
+              <section class="document-dump-card">
+                <div class="panel-heading">
+                  <span class="section-kicker">Document dump</span>
+                  <h3>Drop everything about this house here</h3>
+                </div>
+                <label class="document-dump-zone" for="azDocumentDump">
+                  <i data-lucide="files"></i>
+                  <span>Certificates, tenancy paperwork, notices, reports, licences, deposit proof</span>
+                  <small>Readable files are scanned for document type and key dates in this prototype.</small>
+                </label>
+                <input id="azDocumentDump" type="file" multiple accept=".pdf,.png,.jpg,.jpeg,.txt,.doc,.docx,.csv,.md">
+                <div class="az-document-results" id="azDocumentResults"></div>
+              </section>
+            </div>
+
+            <div class="az-layout">
+              <section class="az-checklist-panel">
+                <div class="panel-heading">
+                  <span class="section-kicker">Step-by-step compliance path</span>
+                  <h3>One manageable section at a time.</h3>
+                </div>
+                <div class="az-checklist" id="azChecklist"></div>
+              </section>
+
+              <aside class="az-side-panel">
+                <section class="latest-facts-card">
+                  <div class="panel-heading">
+                    <span class="section-kicker">Most recent data</span>
+                    <h3>What CMP currently believes</h3>
+                  </div>
+                  <div class="latest-facts" id="azLatestFacts"></div>
+                </section>
+
+              </aside>
+            </div>
+          </section>
+
+          <section class="evidence-workspace detail-panel" id="evidence-pack" data-dashboard-panel="evidence">
+            <div class="evidence-section">
+              <div class="section-heading">
+                <div>
+                  <span class="section-kicker">Property evidence pack</span>
+                  <h2 id="evidenceHeading">What proof is stored, and what is missing</h2>
+                </div>
+                <button class="secondary-button" type="button" data-open-upload data-upload-category="other" data-upload-label="Upload property evidence" data-upload-prompt="Add documents for the current evidence pack." data-upload-source="evidence-panel">
+                  <i data-lucide="upload-cloud"></i>
+                  Upload
+                </button>
+              </div>
+              <div class="evidence-grid" id="evidenceGrid"></div>
+            </div>
+
+            <div class="activity-section">
+              <div class="section-heading">
+                <div>
+                  <span class="section-kicker">Property timeline</span>
+                  <h2 id="timelineHeading">Recent compliance activity</h2>
                 </div>
               </div>
-              <div class="property-details-grid" id="propertyDetailsGrid"></div>
-            </section>
-          </div>
-        </section>
+              <div class="timeline" id="timeline"></div>
+            </div>
+          </section>
 
-        <aside class="assistant-rail" id="assistantRail" aria-label="Ask CMP assistant">
-          <div class="assistant-rail-card">
-            <div class="assistant-rail-header">
-              <span class="section-kicker">Ask CMP</span>
-              <h2 data-assistant-headline>Smart guidance, controlled by you</h2>
-              <p data-assistant-copy>Your property compliance assistant.</p>
+          <section class="support-section detail-panel" id="services" data-dashboard-panel="services">
+            <div class="support-grid">
+              <section class="assistant-panel">
+                <div class="assistant-orb">
+                  <i data-lucide="brain-circuit"></i>
+                </div>
+                <span class="section-kicker">CMP guide</span>
+                <h2 id="assistantHeadline">Smart guidance, controlled by you</h2>
+                <p id="assistantCopy"></p>
+              </section>
+
+              <section class="scan-panel">
+                <div class="panel-heading">
+                  <span class="section-kicker">AI document scan</span>
+                  <h2 id="scanHeading">Drop evidence into the vault</h2>
+                </div>
+                <button class="scan-drop" type="button" data-open-upload data-upload-category="other" data-upload-label="Upload property evidence" data-upload-prompt="Add certificates, reports, notices, photos, or tenancy files for prototype analysis." data-upload-source="scan-panel">
+                  <i data-lucide="file-search"></i>
+                  <span>Upload certificates, notices, reports, or tenancy documents</span>
+                </button>
+                <div class="scan-results" id="scanResults"></div>
+              </section>
+
+              <section class="service-panel">
+                <div class="panel-heading">
+                  <span class="section-kicker">Recommended services</span>
+                  <h2 id="serviceHeading">Contextual bookings</h2>
+                </div>
+                <div class="action-centre" id="actionCentre"></div>
+                <div class="service-list" id="serviceList"></div>
+              </section>
             </div>
-            <label class="assistant-input-shell" for="assistantPromptField">
-              <i data-lucide="message-circle-question"></i>
-              <input id="assistantPromptField" type="text" placeholder="Ask a question about this property..." readonly>
-            </label>
-            <div class="assistant-chip-list">
-              <button class="mini-button" type="button" data-assistant-prompt="priority">What should I fix first?</button>
-              <button class="mini-button" type="button" data-assistant-prompt="status">Explain my current status</button>
-              <button class="mini-button" type="button" data-assistant-prompt="evidence">What evidence am I missing?</button>
-              <button class="mini-button" type="button" data-assistant-prompt="scan">Scan a certificate</button>
-              <button class="mini-button" type="button" data-assistant-prompt="licence">Does this property need a licence?</button>
-            </div>
-            <div class="assistant-response" id="assistantResponse">
-              <strong>Ask CMP</strong>
-              <p>Use the suggested prompts to open the relevant part of this property workspace. Live AI is not connected in this prototype.</p>
-            </div>
-            <section class="assistant-activity">
-              <div class="panel-heading">
-                <span class="section-kicker">Recent activity</span>
-                <h3>This property at a glance</h3>
-              </div>
-              <div class="assistant-activity-list" id="assistantActivity"></div>
-            </section>
-          </div>
-        </aside>
+          </section>
+        </section>
       </section>
     </main>
-
-    <button class="ask-cmp-fab" id="askCmpFab" type="button">
-      <i data-lucide="message-square-more"></i>
-      Ask CMP
-    </button>
 
     <footer class="footer">
       <div class="footer-brand-panel">

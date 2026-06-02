@@ -7,10 +7,7 @@ const state = {
   activePropertyId: null,
   activeJourney: "compliance",
   activeStep: 0,
-  activeDashboardPanel: "overview",
-  navOpen: false,
-  assistantOpen: false,
-  assistantPrompt: "",
+  activeDashboardPanel: "check",
   currentUserId: null,
   journeyContext: null,
   currentRecommendations: [],
@@ -51,25 +48,6 @@ const state = {
   saveStatus: "Not saved yet",
   saveTone: "idle"
 };
-
-const DASHBOARD_PANEL_ALIASES = {
-  dashboard: "overview",
-  overview: "overview",
-  requirements: "compliance",
-  check: "compliance",
-  az: "compliance",
-  compliance: "compliance",
-  evidence: "documents",
-  documents: "documents",
-  timeline: "timeline",
-  services: "services",
-  details: "details",
-  property: "details"
-};
-
-function normalizeDashboardPanel(panel = "") {
-  return DASHBOARD_PANEL_ALIASES[panel] || "overview";
-}
 
 const WORKSPACE_TABLE = "cmp_property_compliance_workspaces";
 const AI_PREF_TABLE = "cmp_ai_preferences";
@@ -1037,11 +1015,8 @@ function contextForDashboardJourney(journeyId, current = ensureJourneyContext())
 function applyJourneyNavigation({ forcePanel = false, forceStep = false } = {}) {
   const preset = journeyPreset();
   state.activeJourney = preset.dashboardJourney;
-  const currentPanel = normalizeDashboardPanel(state.activeDashboardPanel);
-  if (forcePanel || !["overview", "compliance", "documents", "timeline", "services", "details"].includes(currentPanel)) {
-    state.activeDashboardPanel = normalizeDashboardPanel(preset.defaultPanel);
-  } else {
-    state.activeDashboardPanel = currentPanel;
+  if (forcePanel || !preset.visibleModules.includes(state.activeDashboardPanel)) {
+    state.activeDashboardPanel = preset.defaultPanel;
   }
   if (forceStep) {
     state.activeStep = preset.defaultStep;
@@ -3098,7 +3073,7 @@ function uploadCategoryForRecommendation(recommendation, property = activeProper
   return SERVICE_KEY_META[recommendation?.serviceKey]?.uploadCategory || "other";
 }
 
-function jumpToGuidedSection(sectionId, panel = "compliance") {
+function jumpToGuidedSection(sectionId, panel = "check") {
   const property = activeProperty();
   if (!property) return;
   const sections = visibleGuidedSections(property);
@@ -3108,16 +3083,15 @@ function jumpToGuidedSection(sectionId, panel = "compliance") {
     state.activeStep = index;
     setGuidedCurrentSection(sections[index].id, property.id);
   }
-  const normalizedPanel = normalizeDashboardPanel(panel);
-  showDashboardPanel(normalizedPanel, false);
+  showDashboardPanel(panel, false);
   renderAll();
-  document.querySelector(`[data-dashboard-panel="${normalizedPanel}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
+  document.querySelector(panel === "check" ? "#guided-check" : `[data-dashboard-panel="${panel}"]`)?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function openUploadForRecommendation(recommendation) {
   const category = uploadCategoryForRecommendation(recommendation);
   const label = SERVICE_KEY_META[recommendation.serviceKey]?.title || recommendation.title;
-  showDashboardPanel("documents", false);
+  showDashboardPanel("evidence", false);
   openUploadModal({
     currentTarget: {
       dataset: {
@@ -3165,19 +3139,19 @@ function executeRecommendationAction(recommendationId) {
     return;
   }
   if (recommendation.type === "answer_question") {
-    jumpToGuidedSection(recommendation.relatedQuestionId || SERVICE_KEY_META[recommendation.serviceKey]?.sectionId || "property_basics", recommendation.panelTarget || "compliance");
+    jumpToGuidedSection(recommendation.relatedQuestionId || SERVICE_KEY_META[recommendation.serviceKey]?.sectionId || "property_basics", recommendation.panelTarget || "check");
     return;
   }
   if (recommendation.type === "continue_journey") {
-    jumpToGuidedSection(recommendation.relatedQuestionId || SERVICE_KEY_META[recommendation.serviceKey]?.sectionId || journeyPreset().defaultStep, recommendation.panelTarget || "compliance");
+    jumpToGuidedSection(recommendation.relatedQuestionId || SERVICE_KEY_META[recommendation.serviceKey]?.sectionId || journeyPreset().defaultStep, recommendation.panelTarget || "check");
     return;
   }
   if (recommendation.type === "review_document") {
-    showDashboardPanel(recommendation.panelTarget || "documents");
+    showDashboardPanel(recommendation.panelTarget || "evidence");
     return;
   }
   if (recommendation.type === "add_timeline_note") {
-    jumpToGuidedSection(recommendation.relatedQuestionId || SERVICE_KEY_META[recommendation.serviceKey]?.sectionId || "inspections", recommendation.panelTarget || "compliance");
+    jumpToGuidedSection(recommendation.relatedQuestionId || SERVICE_KEY_META[recommendation.serviceKey]?.sectionId || "inspections", recommendation.panelTarget || "check");
     return;
   }
   if (recommendation.type === "set_reminder" || recommendation.type === "book_service") {
@@ -3948,39 +3922,8 @@ function renderAll() {
   renderAzChecker();
   renderUploadModalState();
   syncDashboardPanels();
-  syncDashboardShell();
   renderSaveStatus();
   refreshIcons();
-}
-
-function syncDashboardShell() {
-  document.body.classList.toggle("is-nav-open", state.navOpen);
-  document.body.classList.toggle("is-assistant-open", state.assistantOpen);
-  const scrim = document.querySelector("#dashboardShellScrim");
-  if (scrim) {
-    const visible = state.navOpen || state.assistantOpen;
-    scrim.hidden = !visible;
-    scrim.classList.toggle("is-visible", visible);
-  }
-}
-
-function closeDashboardShell() {
-  state.navOpen = false;
-  state.assistantOpen = false;
-  syncDashboardShell();
-}
-
-function openPropertyForEdit() {
-  const property = activeProperty();
-  if (!property) {
-    addProperty();
-    return;
-  }
-  resetPropertySetup(true);
-  state.setup.postcode = property.postcode || "";
-  state.setup.message = "Review the property address or refresh the imported EPC data if anything has changed.";
-  renderAll();
-  document.querySelector("#propertySetup")?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function normalizePostcode(value) {
@@ -5245,54 +5188,49 @@ function renderJourneyList() {
 function activateJourney(journeyId) {
   persistJourneyContext(contextForDashboardJourney(journeyId));
   applyJourneyNavigation({ forcePanel: true, forceStep: true });
-  state.navOpen = false;
   renderAll();
-  const targetPanel = state.activeJourney === "upload" ? "documents" : normalizeDashboardPanel(state.activeDashboardPanel);
-  document.querySelector(`[data-dashboard-panel="${targetPanel}"]`)
+  document.querySelector(state.activeJourney === "upload" ? '[data-dashboard-panel="evidence"]' : `[data-dashboard-panel="${state.activeDashboardPanel}"]`)
     ?.scrollIntoView({ behavior: "smooth", block: "start" });
 }
 
 function showDashboardPanel(panel, scroll = true) {
-  state.activeDashboardPanel = normalizeDashboardPanel(panel);
-  state.navOpen = false;
-  state.assistantOpen = false;
+  state.activeDashboardPanel = panel;
   syncDashboardPanels();
-  syncDashboardShell();
   if (scroll) {
-    const target = document.querySelector(`[data-dashboard-panel="${state.activeDashboardPanel}"]`);
+    const target = document.querySelector(`[data-dashboard-panel="${panel}"]`);
     target?.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 }
 
 function dashboardPanelFromHash(hash) {
   return {
-    "#dashboard": "overview",
-    "#guided-check": "compliance",
-    "#az-checker": "compliance",
-    "#evidence-pack": "documents",
-    "#timeline-panel": "timeline",
-    "#services": "services",
-    "#property-details": "details"
+    "#dashboard": "requirements",
+    "#guided-check": "check",
+    "#az-checker": "az",
+    "#evidence-pack": "evidence",
+    "#services": "services"
   }[hash] || "";
 }
 
 function syncDashboardPanels() {
-  state.activeDashboardPanel = normalizeDashboardPanel(state.activeDashboardPanel);
+  const plan = dashboardModulePlan();
+  if (plan && !plan.visibleModules.includes(state.activeDashboardPanel)) {
+    state.activeDashboardPanel = plan.defaultPanel;
+  }
+
   document.querySelectorAll("[data-dashboard-tab]").forEach((tab) => {
-    const active = normalizeDashboardPanel(tab.dataset.dashboardTab) === state.activeDashboardPanel;
+    const visible = !plan || plan.visibleModules.includes(tab.dataset.dashboardTab);
+    tab.hidden = !visible;
+    tab.classList.toggle("is-secondary", Boolean(visible && plan.secondaryModules.includes(tab.dataset.dashboardTab)));
+    const active = tab.dataset.dashboardTab === state.activeDashboardPanel;
     tab.classList.toggle("is-active", active);
     tab.setAttribute("aria-selected", String(active));
   });
 
   document.querySelectorAll("[data-dashboard-panel]").forEach((panel) => {
-    const isActive = normalizeDashboardPanel(panel.dataset.dashboardPanel) === state.activeDashboardPanel;
-    panel.hidden = !isActive;
-    panel.classList.toggle("is-active", isActive);
-  });
-
-  document.querySelectorAll(".app-sidebar .app-nav-link[data-dashboard-panel-link]").forEach((link) => {
-    const isActive = normalizeDashboardPanel(link.dataset.dashboardPanelLink) === state.activeDashboardPanel;
-    link.classList.toggle("is-active", isActive);
+    const visible = !plan || plan.visibleModules.includes(panel.dataset.dashboardPanel);
+    panel.hidden = !visible;
+    panel.classList.toggle("is-active", visible && panel.dataset.dashboardPanel === state.activeDashboardPanel);
   });
 }
 
@@ -5435,20 +5373,20 @@ const SECTION_EVALUATION_KEYS = {
 };
 
 const OVERVIEW_CORE_GROUPS = [
-  { id: "epc", title: "EPC", icon: "leaf", keys: ["epc"], sectionId: "epc", guidedPanel: "compliance" },
-  { id: "gas", title: "Gas Safety", icon: "flame", keys: ["gas"], sectionId: "gas", guidedPanel: "compliance" },
-  { id: "eicr", title: "Electrical Safety", icon: "zap", keys: ["eicr"], sectionId: "eicr", guidedPanel: "compliance" },
-  { id: "alarms", title: "Alarms", icon: "bell-ring", keys: ["alarms"], sectionId: "alarms", guidedPanel: "compliance" },
-  { id: "tenancy_deposit", title: "Tenancy and deposit", icon: "file-badge-2", keys: ["tenancy", "deposit"], sectionId: "tenancy_deposit", guidedPanel: "compliance" },
-  { id: "licensing", title: "Licensing", icon: "badge-check", keys: ["licensing"], sectionId: "licensing", guidedPanel: "compliance" },
-  { id: "inspections", title: "Inspections and maintenance", icon: "clipboard-list", keys: ["inspections"], sectionId: "inspections", guidedPanel: "compliance" }
+  { id: "epc", title: "EPC", icon: "leaf", keys: ["epc"], sectionId: "epc", guidedPanel: "check" },
+  { id: "gas", title: "Gas Safety", icon: "flame", keys: ["gas"], sectionId: "gas", guidedPanel: "check" },
+  { id: "eicr", title: "Electrical Safety", icon: "zap", keys: ["eicr"], sectionId: "eicr", guidedPanel: "check" },
+  { id: "alarms", title: "Alarms", icon: "bell-ring", keys: ["alarms"], sectionId: "alarms", guidedPanel: "check" },
+  { id: "tenancy_deposit", title: "Tenancy and deposit", icon: "file-badge-2", keys: ["tenancy", "deposit"], sectionId: "tenancy_deposit", guidedPanel: "check" },
+  { id: "licensing", title: "Licensing", icon: "badge-check", keys: ["licensing"], sectionId: "licensing", guidedPanel: "check" },
+  { id: "inspections", title: "Inspections and maintenance", icon: "clipboard-list", keys: ["inspections"], sectionId: "inspections", guidedPanel: "check" }
 ];
 
 const OVERVIEW_SPECIALIST_GROUPS = [
-  { id: "mould_damp", title: "Mould and damp", icon: "droplets", sectionId: "mould_damp", guidedPanel: "compliance" },
-  { id: "eviction_evidence", title: "Possession preparation", icon: "scale", sectionId: "eviction_evidence", guidedPanel: "compliance" },
-  { id: "evidence_pack", title: "Additional evidence", icon: "folder-check", sectionId: "evidence_pack", guidedPanel: "documents" },
-  { id: "rent", title: "Rent increases", icon: "calendar-clock", keys: ["rent"], guidedPanel: "compliance" }
+  { id: "mould_damp", title: "Mould and damp", icon: "droplets", sectionId: "mould_damp", guidedPanel: "check" },
+  { id: "eviction_evidence", title: "Possession preparation", icon: "scale", sectionId: "eviction_evidence", guidedPanel: "check" },
+  { id: "evidence_pack", title: "Additional evidence", icon: "folder-check", sectionId: "evidence_pack", guidedPanel: "evidence" },
+  { id: "rent", title: "Rent increases", icon: "calendar-clock", keys: ["rent"], guidedPanel: "requirements" }
 ];
 
 function recommendationTypeLabel(type) {
@@ -5690,8 +5628,8 @@ function renderPriorityAction(property, evaluation, recommendations = []) {
       <div class="priority-item-actions">
         ${priorityRecommendation?.id
           ? `<button class="service-button" type="button" data-recommendation-action="${escapeHtml(priorityRecommendation.id)}">${escapeHtml(content.primaryLabel)}</button>`
-          : `<button class="service-button" type="button" data-dashboard-panel-link="compliance">${escapeHtml(content.primaryLabel)}</button>`}
-        <button class="secondary-button" type="button" data-dashboard-panel-link="compliance">View all checks</button>
+          : `<button class="service-button" type="button" data-dashboard-panel-link="check">${escapeHtml(content.primaryLabel)}</button>`}
+        <button class="secondary-button" type="button" data-dashboard-panel-link="requirements">View all checks</button>
       </div>
     </article>
   `;
@@ -5753,9 +5691,9 @@ function renderSpecialistChecks(property, evaluation, sections, progress, module
           <p>${escapeHtml(summary.detail)}</p>
         </div>
         <div class="overview-card-footer">
-          ${group.guidedPanel === "documents"
-            ? overviewReviewButton("Review", `data-dashboard-panel-link="documents"`)
-            : overviewReviewButton("Review", `data-jump-guided="${escapeHtml(group.sectionId)}" data-guided-panel="${escapeHtml(group.guidedPanel || "compliance")}"`)}
+          ${group.guidedPanel === "evidence"
+            ? overviewReviewButton("Review", `data-dashboard-panel-link="evidence"`)
+            : overviewReviewButton("Review", `data-jump-guided="${escapeHtml(group.sectionId)}" data-guided-panel="${escapeHtml(group.guidedPanel || "check")}"`)}
         </div>
       </article>
     `;
@@ -5836,7 +5774,7 @@ function bindOverviewButtons(root = document) {
   root.querySelectorAll("[data-jump-guided]").forEach((button) => {
     if (button.dataset.listenerBound === "true") return;
     button.dataset.listenerBound = "true";
-    button.addEventListener("click", () => jumpToGuidedSection(button.dataset.jumpGuided, button.dataset.guidedPanel || "compliance"));
+    button.addEventListener("click", () => jumpToGuidedSection(button.dataset.jumpGuided, button.dataset.guidedPanel || "check"));
   });
 }
 
@@ -5851,21 +5789,19 @@ function renderCompletionBanner(property, evaluation) {
 function renderDashboard() {
   const property = activeProperty();
   const plan = dashboardModulePlan(property);
-  const workspacePill = document.querySelector("#workspacePill");
   if (!property) {
     state.currentRecommendations = [];
     renderCompletionBanner(null, null);
     document.body.dataset.dashboardFocus = plan.primaryFocus || "full_compliance";
-    if (workspacePill) workspacePill.textContent = "Property workspace";
-    document.querySelector("#dashboardHeaderKicker").textContent = plan.journeyLabel;
-    document.querySelector("#propertyTitle").textContent = "No properties added yet";
-    document.querySelector("#propertySubtitle").textContent = "Add a postcode and address to create the first property record.";
+  document.querySelector("#dashboardHeaderKicker").textContent = plan.journeyLabel;
+  document.querySelector("#propertyTitle").textContent = "No properties added yet";
+  document.querySelector("#propertySubtitle").textContent = "Add a postcode and address to create the first property record.";
     document.querySelector("#heroMetaChips").innerHTML = heroMetaChips(null, plan, null);
     document.querySelector("#propertyReassurance").textContent = heroReassuranceCopy(null, plan, null);
-    document.querySelector("#heroStatusPill").className = "status-pill unknown";
-    document.querySelector("#heroStatusPill").textContent = "No property yet";
-    document.querySelector("#heroActionHeading").textContent = "Add a property to begin";
-    document.querySelector("#heroActionCopy").textContent = "Start with a postcode and address. CMP will then show one clear next step for this journey.";
+  document.querySelector("#heroStatusPill").className = "status-pill unknown";
+  document.querySelector("#heroStatusPill").textContent = "No property yet";
+  document.querySelector("#heroActionHeading").textContent = "Add a property to begin";
+  document.querySelector("#heroActionCopy").textContent = "Start with a postcode and address. CMP will then show one clear next step for this journey.";
     document.querySelector("#priorityHeading").textContent = "Add a property to begin";
     document.querySelector("#priorityHelper").textContent = "Enter a postcode, choose the address, then let CMP open the right dashboard modules for that property.";
     document.querySelector("#snapshotProgressMeta").textContent = "0/0 core checks recorded";
@@ -5915,24 +5851,22 @@ function renderDashboard() {
     document.querySelector("#overviewServiceList").innerHTML = `<article class="service-item"><strong>No extra actions are showing</strong><span>CMP will suggest next steps once a property has been added.</span></article>`;
     document.querySelector("#evidenceGrid").innerHTML = `<div class="empty-panel"><strong>No evidence pack yet</strong><span>Add a property before uploading certificates, reports, or tenancy documents.</span></div>`;
     document.querySelector("#timeline").innerHTML = `<div class="empty-panel"><strong>No property timeline yet</strong><span>Recent compliance activity appears once a property has been added.</span></div>`;
+    document.querySelector("#assistantHeadline").textContent = plan.assistantHeadline;
+    document.querySelector("#assistantCopy").textContent = "Add a property listing to unlock document scans, evidence packs, reminders, and journey-led recommendations.";
     document.querySelector("#scanResults").innerHTML = `<article class="scan-result"><strong>No property selected</strong><span>Add a property before uploading evidence.</span></article>`;
     document.querySelector("#serviceList").innerHTML = `<article class="service-item"><strong>Start with your first property</strong><span>CMP will suggest certificates and services after the address has been added.</span></article>`;
     renderActionCentre(null, []);
-    renderPropertyDetails(null, null);
-    renderAssistant(null, null, [], plan);
     document.querySelector("#guidedProgressNarrative").textContent = "You can answer what you know and come back later.";
     document.querySelector("#guidedProgressHelper").textContent = "Not sure at this point is always a safe option.";
     document.querySelector("#guidedProgressFill").style.width = "0%";
-    document.querySelector("#pullEpcButton").disabled = true;
-    document.querySelector("#editPropertyButton").disabled = true;
-    document.querySelector("#startGuidedCheck").disabled = true;
+  document.querySelector("#pullEpcButton").disabled = true;
+  document.querySelector("#startGuidedCheck").disabled = true;
     setDashboardPrimaryButton(null);
     bindOverviewButtons();
     return;
   }
 
   document.querySelector("#pullEpcButton").disabled = false;
-  document.querySelector("#editPropertyButton").disabled = false;
   document.querySelector("#startGuidedCheck").disabled = false;
   const evaluation = evaluateProperty(property);
   renderCompletionBanner(property, evaluation);
@@ -5950,7 +5884,6 @@ function renderDashboard() {
       : "Tenancy not confirmed";
   const subtitleParts = [...modulePlan.metadata, tenancyState].filter(Boolean);
 
-  if (workspacePill) workspacePill.textContent = property.shortName || "Property workspace";
   document.querySelector("#dashboardHeaderKicker").textContent = modulePlan.journeyLabel;
   document.querySelector("#propertyTitle").textContent = property.address;
   document.querySelector("#propertySubtitle").textContent = subtitleParts.join(" ");
@@ -5958,8 +5891,8 @@ function renderDashboard() {
   document.querySelector("#propertyReassurance").textContent = heroReassuranceCopy(property, modulePlan, assessment);
   document.querySelector("#heroStatusPill").className = `status-pill ${heroState.tone}`;
   document.querySelector("#heroStatusPill").textContent = heroState.label;
-  document.querySelector("#heroActionHeading").textContent = heroState.heading;
-  document.querySelector("#heroActionCopy").textContent = heroState.copy;
+  document.querySelector("#heroActionHeading").textContent = heroState.label;
+  document.querySelector("#heroActionCopy").textContent = `${assessment.knownRequiredChecks}/${assessment.totalRequiredChecks} core checks recorded. Use the priority action below for the next step.`;
   document.querySelector("#overviewChecksHeading").textContent = modulePlan.primaryFocus === "full_compliance"
     ? "Review the key areas for this property"
     : "Review the checks that matter for this journey";
@@ -6015,7 +5948,6 @@ function renderDashboard() {
   renderEvidenceGrid(property, evaluation.items, modulePlan);
   renderTimeline(property, modulePlan);
   renderAssistant(property, evaluation, actions, modulePlan);
-  renderPropertyDetails(property, evaluation);
   renderServices(recommendations, assessment, modulePlan);
   renderActionCentre(property, recommendations);
   renderScanResults(modulePlan);
@@ -6164,196 +6096,21 @@ function renderTimeline(property, modulePlan = dashboardModulePlan(property, eva
 }
 
 function renderAssistant(property, evaluation, actions, modulePlan = dashboardModulePlan(property, evaluation)) {
-  const headlines = document.querySelectorAll("[data-assistant-headline]");
-  const copies = document.querySelectorAll("[data-assistant-copy]");
+  const headline = document.querySelector("#assistantHeadline");
+  const copy = document.querySelector("#assistantCopy");
   const top = actions[0];
-  const name = property?.shortName || "this property";
-  let headlineText = modulePlan.assistantHeadline;
-  let copyText = "";
+  const name = property.shortName;
 
-  if (!property || !evaluation) {
-    headlineText = modulePlan.assistantHeadline;
-    copyText = "Add a property listing to unlock document scans, evidence packs, reminders, and journey-led recommendations.";
-  } else if (evaluation.assessment.mode === "setup") {
-    copyText = `${modulePlan.assistantCopy} ${evaluation.assessment.knownRequiredChecks} of ${evaluation.assessment.totalRequiredChecks} key checks are confirmed for ${name}. You can answer what you know and leave the rest for later.`;
-  } else {
-    copyText = top
-      ? `${modulePlan.assistantCopy} Next useful move for ${name}: ${top.action}`
-      : `${modulePlan.assistantCopy} ${name} has no urgent action showing right now.`;
-  }
+  headline.textContent = modulePlan.assistantHeadline;
 
-  headlines.forEach((element) => {
-    element.textContent = headlineText;
-  });
-  copies.forEach((element) => {
-    element.textContent = copyText;
-  });
-  renderAssistantActivity(property);
-  renderAssistantResponse(property, evaluation);
-}
-
-function renderAssistantActivity(property) {
-  const target = document.querySelector("#assistantActivity");
-  if (!target) return;
-  if (!property) {
-    target.innerHTML = `
-      <article class="assistant-activity-row empty">
-        <strong>No property selected</strong>
-        <span>Add a property to see the latest evidence and compliance activity here.</span>
-      </article>
-    `;
+  if (evaluation.assessment.mode === "setup") {
+    copy.textContent = `${modulePlan.assistantCopy} ${evaluation.assessment.knownRequiredChecks} of ${evaluation.assessment.totalRequiredChecks} key checks are confirmed for ${name}. You can answer what you know and leave the rest for later.`;
     return;
   }
 
-  const events = timelineEventsForDisplay(property).slice(0, 3);
-  if (!events.length) {
-    target.innerHTML = `
-      <article class="assistant-activity-row empty">
-        <strong>No activity yet</strong>
-        <span>CMP will build a recent history here as evidence and answers are added.</span>
-      </article>
-    `;
-    return;
-  }
-
-  target.innerHTML = events.map((item) => `
-    <article class="assistant-activity-row">
-      <span class="status-dot ${escapeHtml(statusTone(item.status))}"></span>
-      <div>
-        <strong>${escapeHtml(item.title)}</strong>
-        <span>${escapeHtml(item.eventDate ? formatDate(item.eventDate) : item.dueDate ? `Due ${formatDate(item.dueDate)}` : "Recent activity")}</span>
-      </div>
-    </article>
-  `).join("");
-}
-
-function assistantResponseForPrompt(prompt, property, evaluation) {
-  const recommendation = state.currentRecommendations[0] || null;
-  const licensingItem = evaluation?.items?.find((item) => item.key === "licensing") || null;
-  const evidenceGaps = property ? evidenceGapSummary(property) : [];
-
-  switch (prompt) {
-    case "priority":
-      return {
-        title: "What should I fix first?",
-        copy: recommendation
-          ? recommendation.reason
-          : "CMP will show the most useful next action here once the property record exists.",
-        action: recommendation ? () => showDashboardPanel(recommendation.panelTarget || "compliance", false) : null
-      };
-    case "status":
-      return {
-        title: "Explain my current status",
-        copy: evaluation
-          ? evaluation.assessment.summaryText
-          : "Start with a postcode and address, then CMP can explain the setup position.",
-        action: evaluation ? () => showDashboardPanel("overview", false) : null
-      };
-    case "evidence":
-      return {
-        title: "What evidence am I missing?",
-        copy: evidenceGaps.length
-          ? `${evidenceGaps.slice(0, 2).join(" and ")} still need attention. Open Documents to add what you have and leave the rest for later.`
-          : "No urgent evidence gaps are showing right now. Documents can still be added later if you find them.",
-        action: () => showDashboardPanel("documents", false)
-      };
-    case "scan":
-      return {
-        title: "Scan a certificate",
-        copy: "This prototype can preview document uploads and place them into the property evidence flow. Open Services to try the upload panel.",
-        action: () => showDashboardPanel("services", false)
-      };
-    case "licence":
-      return {
-        title: "Does this property need a licence?",
-        copy: licensingItem?.summary || "CMP will check local licensing information once the property record is in place.",
-        action: () => showDashboardPanel("compliance", false)
-      };
-    default:
-      return {
-        title: "Ask CMP",
-        copy: "Use the suggested prompts to open the relevant part of this property workspace. Live AI is not connected in this prototype.",
-        action: null
-      };
-  }
-}
-
-function renderAssistantResponse(property, evaluation) {
-  const target = document.querySelector("#assistantResponse");
-  if (!target) return;
-  const response = assistantResponseForPrompt(state.assistantPrompt, property, evaluation);
-  target.innerHTML = `
-    <strong>${escapeHtml(response.title)}</strong>
-    <p>${escapeHtml(response.copy)}</p>
-    ${response.action ? `<button class="mini-button" type="button" data-assistant-response-action="true">Open related area</button>` : ""}
-  `;
-  target.querySelector("[data-assistant-response-action]")?.addEventListener("click", () => {
-    response.action?.();
-  });
-}
-
-function renderPropertyDetails(property, evaluation) {
-  const target = document.querySelector("#propertyDetailsGrid");
-  if (!target) return;
-  if (!property || !evaluation) {
-    target.innerHTML = `
-      <article class="property-detail-card empty-panel">
-        <strong>No property selected</strong>
-        <span>Add a property to review address details, imported EPC data, reference fields, and listing-specific context here.</span>
-      </article>
-    `;
-    return;
-  }
-
-  const rows = [
-    { label: "Address", value: property.address || "Not recorded" },
-    { label: "Postcode", value: property.postcode || "Not recorded" },
-    { label: "Property type", value: property.type || "Not recorded" },
-    { label: "Bedrooms", value: property.bedrooms ? String(property.bedrooms) : "Not recorded" },
-    { label: "Tenancy state", value: property.tenancy?.currentlyTenanted === true ? "Currently tenanted" : property.tenancy?.currentlyTenanted === false ? "Vacant or not tenanted" : "Not confirmed" },
-    { label: "UPRN", value: property.uprn || "Not recorded" },
-    { label: "Floor area", value: property.epc?.floorArea ? `${property.epc.floorArea} m²` : "Not recorded" },
-    { label: "Journey context", value: journeyPreset().journeyTitle }
-  ];
-
-  const epcSummary = property.epc?.rating
-    ? `EPC ${property.epc.rating}${property.epc.expiry ? ` · expires ${formatDate(property.epc.expiry)}` : ""}`
-    : "No EPC imported yet";
-
-  target.innerHTML = `
-    <article class="property-detail-card">
-      <span class="section-kicker">Property profile</span>
-      <div class="property-detail-list">
-        ${rows.map((row) => `
-          <div class="property-detail-row">
-            <span>${escapeHtml(row.label)}</span>
-            <strong>${escapeHtml(row.value)}</strong>
-          </div>
-        `).join("")}
-      </div>
-    </article>
-    <article class="property-detail-card">
-      <span class="section-kicker">Imported data</span>
-      <div class="property-detail-feature">
-        <strong>${escapeHtml(epcSummary)}</strong>
-        <p>${escapeHtml(evaluation.assessment.summaryText)}</p>
-      </div>
-      <div class="property-detail-list">
-        <div class="property-detail-row">
-          <span>Evidence items</span>
-          <strong>${escapeHtml(String(allEvidenceItems(property, { includeIrrelevant: false }).length))}</strong>
-        </div>
-        <div class="property-detail-row">
-          <span>Timeline events</span>
-          <strong>${escapeHtml(String(property.timeline?.length || 0))}</strong>
-        </div>
-        <div class="property-detail-row">
-          <span>Saved service requests</span>
-          <strong>${escapeHtml(String(bookingActionRequests(property).length))}</strong>
-        </div>
-      </div>
-    </article>
-  `;
+  copy.textContent = top
+    ? `${modulePlan.assistantCopy} Next useful move for ${name}: ${top.action}`
+    : `${modulePlan.assistantCopy} ${name} has no urgent action showing right now.`;
 }
 
 function renderServices(recommendations, assessment, modulePlan) {
@@ -7967,7 +7724,7 @@ async function removeProperty(propertyId) {
 
 document.addEventListener("DOMContentLoaded", () => {
   setupFromStorage();
-  state.activeDashboardPanel = normalizeDashboardPanel(dashboardPanelFromHash(window.location.hash) || state.activeDashboardPanel);
+  state.activeDashboardPanel = dashboardPanelFromHash(window.location.hash) || state.activeDashboardPanel;
   renderAll();
   loadPersistedWorkspace()
     .then(() => renderAll())
@@ -7977,54 +7734,16 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
   document.querySelector("#pullEpcButton").addEventListener("click", pullEpcData);
-  document.querySelector("#editPropertyButton")?.addEventListener("click", openPropertyForEdit);
   document.querySelector("#startGuidedCheck").addEventListener("click", () => {
     const recommendationId = document.querySelector("#startGuidedCheck").dataset.recommendationAction;
     if (recommendationId) {
       executeRecommendationAction(recommendationId);
       return;
     }
-    showDashboardPanel("compliance", false);
+    showDashboardPanel("check", false);
     document.querySelector("#guided-check").scrollIntoView({ behavior: "smooth", block: "start" });
   });
   document.querySelector("#addPropertyButton").addEventListener("click", addProperty);
-  document.querySelector("#topbarAddPropertyButton")?.addEventListener("click", addProperty);
-  document.querySelector("#mobileNavToggle")?.addEventListener("click", () => {
-    state.navOpen = !state.navOpen;
-    if (state.navOpen) state.assistantOpen = false;
-    syncDashboardShell();
-  });
-  document.querySelector("#assistantToggleButton")?.addEventListener("click", () => {
-    state.assistantOpen = !state.assistantOpen;
-    if (state.assistantOpen) state.navOpen = false;
-    syncDashboardShell();
-  });
-  document.querySelector("#askCmpFab")?.addEventListener("click", () => {
-    state.assistantOpen = true;
-    state.navOpen = false;
-    syncDashboardShell();
-  });
-  document.querySelector("#sidebarAskCmpButton")?.addEventListener("click", () => {
-    state.assistantOpen = true;
-    state.navOpen = false;
-    syncDashboardShell();
-  });
-  document.querySelector("#dashboardShellScrim")?.addEventListener("click", closeDashboardShell);
-  document.querySelectorAll("[data-sidebar-scroll]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const target = button.dataset.sidebarScroll === "portfolio"
-        ? document.querySelector("#sidebarPortfolio")
-        : null;
-      closeDashboardShell();
-      target?.scrollIntoView({ behavior: "smooth", block: "start" });
-    });
-  });
-  document.querySelectorAll("[data-assistant-prompt]").forEach((button) => {
-    button.addEventListener("click", () => {
-      state.assistantPrompt = button.dataset.assistantPrompt || "";
-      renderAssistantResponse(activeProperty(), activeProperty() ? evaluateProperty(activeProperty()) : null);
-    });
-  });
 
   document.querySelectorAll("[data-dashboard-tab]").forEach((tab) => {
     tab.addEventListener("click", () => showDashboardPanel(tab.dataset.dashboardTab));
