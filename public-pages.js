@@ -1109,7 +1109,7 @@
               <h3>Guided checks. Answer what you know, skip what you don’t.</h3>
               <p>Start with the address, save the basics, and let unsure answers become a calm checklist rather than a failure state.</p>
               <div class="section-actions">
-                <a class="button secondary" href="epcs.html">Preview the A-Z checker style</a>
+                <a class="button secondary" href="az-checker-v2.html">Try the experimental A-Z V2</a>
               </div>
             </div>
             <div class="home-guided-feature-image">
@@ -1221,7 +1221,7 @@
               <div class="home-journey-actions">
                 <a class="button primary" href="add-property.html">Start with your postcode</a>
                 <a class="button secondary" href="services.html">Explore services</a>
-                <a class="button secondary" href="my-properties.html">Build your A-Z check</a>
+                <a class="button secondary" href="az-checker-v2.html">Build your A-Z check</a>
               </div>
             </div>
           </div>
