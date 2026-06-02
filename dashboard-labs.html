@@ -1,0 +1,285 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CMP Labs | Dashboard concept preview</title>
+    <meta
+      name="description"
+      content="CMP Labs is an isolated route for dashboard layout experiments."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <style>
+      :root {
+        color-scheme: light;
+        --cmp-navy: #102f4b;
+        --cmp-blue: #2f6de0;
+        --cmp-green: #58b63f;
+        --cmp-bg: #eef4fb;
+        --cmp-surface: rgba(255, 255, 255, 0.94);
+        --cmp-border: rgba(16, 47, 75, 0.1);
+        --cmp-text-muted: rgba(16, 47, 75, 0.64);
+        --cmp-shadow: 0 22px 50px rgba(15, 38, 74, 0.08);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        margin: 0;
+        min-height: 100%;
+        font-family: "Manrope", system-ui, sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(87, 132, 255, 0.12), transparent 30%),
+          linear-gradient(180deg, #f8fbff 0%, var(--cmp-bg) 100%);
+        color: var(--cmp-navy);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 16px 24px;
+        border-bottom: 1px solid var(--cmp-border);
+        background: rgba(248, 251, 255, 0.88);
+        backdrop-filter: blur(16px);
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .brand-copy strong,
+      .brand-copy small {
+        display: block;
+      }
+
+      .brand-copy strong {
+        font-size: 1rem;
+        line-height: 1.1;
+      }
+
+      .brand-copy small {
+        margin-top: 3px;
+        color: var(--cmp-text-muted);
+        font-size: 0.82rem;
+      }
+
+      .brand-mark {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        overflow: hidden;
+        box-shadow: inset 0 0 0 1px rgba(16, 47, 75, 0.08);
+      }
+
+      .header-actions {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .header-link,
+      .header-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 42px;
+        padding: 0 16px;
+        border-radius: 999px;
+        border: 1px solid var(--cmp-border);
+        background: rgba(255, 255, 255, 0.92);
+        font: inherit;
+        font-weight: 700;
+        color: var(--cmp-navy);
+      }
+
+      .header-button {
+        background: linear-gradient(180deg, #2f6de0, #255ac0);
+        border-color: rgba(47, 109, 224, 0.22);
+        color: #fff;
+      }
+
+      main {
+        display: grid;
+        place-items: center;
+        min-height: calc(100vh - 77px);
+        padding: 40px 20px 72px;
+      }
+
+      .labs-card {
+        width: min(100%, 920px);
+        display: grid;
+        gap: 24px;
+        padding: 36px;
+        border: 1px solid var(--cmp-border);
+        border-radius: 32px;
+        background: var(--cmp-surface);
+        box-shadow: var(--cmp-shadow);
+      }
+
+      .labs-kicker {
+        color: var(--cmp-blue);
+        font-size: 0.78rem;
+        font-weight: 800;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .labs-card h1 {
+        margin: 0;
+        font-size: clamp(2rem, 4vw, 3.5rem);
+        line-height: 0.98;
+        letter-spacing: -0.04em;
+        max-width: 11ch;
+      }
+
+      .labs-card p {
+        margin: 0;
+        max-width: 60ch;
+        color: var(--cmp-text-muted);
+        font-size: 1rem;
+        line-height: 1.65;
+      }
+
+      .labs-grid {
+        display: grid;
+        gap: 16px;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+
+      .labs-panel {
+        padding: 20px;
+        border: 1px solid var(--cmp-border);
+        border-radius: 22px;
+        background: linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(242, 247, 255, 0.92));
+      }
+
+      .labs-panel strong,
+      .labs-panel span {
+        display: block;
+      }
+
+      .labs-panel strong {
+        font-size: 0.98rem;
+      }
+
+      .labs-panel span {
+        margin-top: 8px;
+        color: var(--cmp-text-muted);
+        line-height: 1.55;
+      }
+
+      .labs-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+
+      @media (max-width: 720px) {
+        .topbar {
+          padding: 14px;
+        }
+
+        .brand-copy small {
+          display: none;
+        }
+
+        .header-actions {
+          width: 100%;
+          justify-content: flex-end;
+        }
+
+        main {
+          padding: 24px 14px 48px;
+        }
+
+        .labs-card {
+          padding: 24px;
+          border-radius: 24px;
+        }
+
+        .labs-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .labs-actions {
+          flex-direction: column;
+        }
+
+        .header-link,
+        .header-button {
+          min-height: 40px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="index.html" aria-label="CMP home">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
+            <path d="M8 18.5C8 11.0442 14.0442 5 21.5 5H28.25C35.7058 5 41.75 11.0442 41.75 18.5V20.4405C41.75 26.5602 39.0814 32.3755 34.4419 36.3676L24 45L13.5581 36.3676C8.91864 32.3755 6.25 26.5602 6.25 20.4405V18.5H8Z" fill="#102F4B"/>
+            <path d="M14.25 23.25L22 31L35 16.75" stroke="#58B63F" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M21.25 18.25L24.75 14.75L29.25 19.25V27.75H21.25V18.25Z" fill="#F8FBFF"/>
+            <rect x="24" y="18.5" width="2" height="5.5" rx="1" fill="#102F4B"/>
+          </svg>
+        </span>
+        <span class="brand-copy">
+          <strong>ComplyMyProperty</strong>
+          <small>Landlord compliance OS</small>
+        </span>
+      </a>
+
+      <div class="header-actions">
+        <a class="header-link" href="dashboard.html">Back to dashboard</a>
+        <a class="header-button" href="index.html">Return to homepage</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="labs-card" aria-labelledby="labsTitle">
+        <span class="labs-kicker">CMP Labs</span>
+        <h1 id="labsTitle">Dashboard concept preview</h1>
+        <p>
+          This route is intentionally isolated from the live dashboard workspace. It exists so CMP can explore
+          future dashboard layout ideas in smaller, safer stages without destabilising the working prototype.
+        </p>
+
+        <div class="labs-grid">
+          <article class="labs-panel">
+            <strong>What this route is for</strong>
+            <span>Safe experiments around layout, hierarchy, and interaction models before anything is merged into the main dashboard.</span>
+          </article>
+          <article class="labs-panel">
+            <strong>What stays untouched</strong>
+            <span>The current property dashboard, saved properties, journey context, evidence, timeline, and guided-check behaviour remain on <code>dashboard.html</code>.</span>
+          </article>
+        </div>
+
+        <div class="labs-actions">
+          <a class="header-button" href="dashboard.html">Open the working dashboard</a>
+          <a class="header-link" href="index.html">Back to the main site</a>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>
