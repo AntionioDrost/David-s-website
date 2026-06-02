@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ComplyMyProperty | Compliance A-Z V2</title>
+    <meta
+      name="description"
+      content="An experimental V2 of the ComplyMyProperty A-Z checker. Bright, guided, slide-based, and designed to show one calm next step at a time."
+    >
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="az-checker-v2.css">
+  </head>
+  <body data-theme="intro">
+    <div class="azv2-background" aria-hidden="true">
+      <span class="azv2-glow azv2-glow-a"></span>
+      <span class="azv2-glow azv2-glow-b"></span>
+      <span class="azv2-glow azv2-glow-c"></span>
+      <span class="azv2-noise"></span>
+    </div>
+
+    <header class="azv2-topbar">
+      <a class="azv2-brand" href="index.html" aria-label="Back to ComplyMyProperty">
+        <span class="azv2-brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 72 72" focusable="false">
+            <path fill="#183a5a" d="M36 4 58.5 13.2v18.7c0 16.3-9.1 28.7-22.5 35.4C22.7 60.6 13.5 48.2 13.5 31.9V13.2Z"/>
+            <path fill="#fff" d="M36 8.7 54.1 16v15.2c0 13.5-7.3 24.1-18.1 30-10.8-5.9-18.1-16.5-18.1-30V16Z"/>
+            <path fill="#183a5a" d="M25.1 33.4v-9.3L36 15.8l10.9 8.3v9.3l-10.9 8.4z"/>
+            <path fill="#183a5a" d="M29.8 34.6h12.4v11.7H29.8z"/>
+            <path fill="#fff" d="M35.2 35.3h1.6V46h-1.6z"/>
+            <path fill="#fff" d="M29.7 39.8h12.5v1.6H29.7z"/>
+            <path fill="#58b63f" d="m26.8 42.4 6.6 6.1L54.9 25l5.1 4.8L33.6 58.1 21.8 47.2z"/>
+            <path fill="#1291dc" d="m46.3 61.4 4.2-4.7L63 34.3c-.7 8.2-2.7 15.1-6.4 20.8-3 4.5-6.5 7.6-10.3 9.5z"/>
+          </svg>
+        </span>
+        <span class="azv2-brand-copy">
+          <strong>ComplyMyProperty</strong>
+          <small>Experimental A-Z V2</small>
+        </span>
+      </a>
+
+      <div class="azv2-topbar-actions">
+        <button class="azv2-chip-button" type="button" id="overviewToggle" aria-expanded="false" aria-controls="overviewPanel">
+          Overview
+        </button>
+        <a class="azv2-chip-button is-ghost" href="index.html">Back to site</a>
+      </div>
+    </header>
+
+    <main class="azv2-main">
+      <section class="azv2-intro" id="introScreen">
+        <div class="azv2-intro-copy">
+          <span class="azv2-kicker">Compliance A-Z checker V2</span>
+          <h1>The fast, bright version of property compliance.</h1>
+          <p>One question at a time. Skip anything. Come back later. Start with a postcode and let the property story build around what you already know.</p>
+          <div class="azv2-intro-pills">
+            <span>Slide-based</span>
+            <span>Flexible answers</span>
+            <span>Overview built in</span>
+            <span>Return later</span>
+          </div>
+        </div>
+
+        <div class="azv2-start-card">
+          <div class="azv2-start-card-copy">
+            <span class="azv2-card-label">Start with a postcode</span>
+            <h2>Find the property first.</h2>
+            <p>This V2 preview uses a postcode-first flow so the checker feels like it is building around one real property, not throwing a giant form at you.</p>
+          </div>
+
+          <form id="postcodeLookupForm" class="azv2-postcode-form">
+            <label class="azv2-field">
+              <span>Property postcode</span>
+              <input id="postcodeInput" name="postcode" type="text" placeholder="B37 7BA" autocomplete="postal-code" inputmode="text">
+            </label>
+            <button class="azv2-primary-button" type="submit">Find property</button>
+          </form>
+
+          <div class="azv2-example-postcodes">
+            <span>Try a demo path:</span>
+            <button type="button" data-demo-postcode="B37 7BA">Valid EPC</button>
+            <button type="button" data-demo-postcode="SW1A 1AA">Expired EPC</button>
+            <button type="button" data-demo-postcode="M50 3UB">No EPC found</button>
+          </div>
+
+          <div class="azv2-resume-card" id="resumeCard" hidden></div>
+        </div>
+      </section>
+
+      <section class="azv2-experience" id="experienceShell" hidden>
+        <aside class="azv2-overview-panel" id="overviewPanel">
+          <div class="azv2-overview-header">
+            <span class="azv2-card-label">Overview</span>
+            <h2>One calm path through the property.</h2>
+            <p id="overviewSummary">The checker will build the compliance picture as answers are saved.</p>
+          </div>
+
+          <div class="azv2-property-pill" id="propertyPill"></div>
+          <div class="azv2-progress-block">
+            <div class="azv2-progress-copy">
+              <strong id="progressPercent">0%</strong>
+              <span id="progressText">Nothing saved yet.</span>
+            </div>
+            <div class="azv2-progress-track" aria-hidden="true">
+              <span id="progressBar"></span>
+            </div>
+          </div>
+
+          <nav class="azv2-step-nav" id="stepNav" aria-label="Slide overview"></nav>
+
+          <div class="azv2-overview-footer">
+            <button class="azv2-chip-button is-ghost" type="button" id="saveExitButton">Save and leave</button>
+            <button class="azv2-chip-button" type="button" id="resetCheckerButton">Reset demo</button>
+          </div>
+        </aside>
+
+        <section class="azv2-stage" id="stageShell">
+          <div class="azv2-stage-topbar">
+            <div class="azv2-stage-status">
+              <span class="azv2-step-counter" id="stepCounter">Step 1 of 9</span>
+              <span class="azv2-stage-theme" id="themeLabel">Property found</span>
+            </div>
+            <div class="azv2-stage-actions-top">
+              <button class="azv2-chip-button is-ghost" type="button" id="skipButtonTop">Skip for now</button>
+            </div>
+          </div>
+
+          <article class="azv2-slide-shell" id="slideShell" aria-live="polite"></article>
+
+          <div class="azv2-stage-actions">
+            <button class="azv2-secondary-button" type="button" id="backButton">Back</button>
+            <button class="azv2-secondary-button is-ghost" type="button" id="skipButton">Skip for now</button>
+            <button class="azv2-primary-button" type="button" id="nextButton">Continue</button>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+    <script src="journey-context.js"></script>
+    <script src="az-checker-v2.js"></script>
+  </body>
+</html>
