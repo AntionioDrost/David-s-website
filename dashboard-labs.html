@@ -3,283 +3,334 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CMP Labs | Dashboard concept preview</title>
+    <title>CMP Labs | Property workspace prototype</title>
     <meta
       name="description"
-      content="CMP Labs is an isolated route for dashboard layout experiments."
+      content="An isolated CMP Labs dashboard concept for future property compliance workflows."
     >
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"
-      rel="stylesheet"
-    >
-    <style>
-      :root {
-        color-scheme: light;
-        --cmp-navy: #102f4b;
-        --cmp-blue: #2f6de0;
-        --cmp-green: #58b63f;
-        --cmp-bg: #eef4fb;
-        --cmp-surface: rgba(255, 255, 255, 0.94);
-        --cmp-border: rgba(16, 47, 75, 0.1);
-        --cmp-text-muted: rgba(16, 47, 75, 0.64);
-        --cmp-shadow: 0 22px 50px rgba(15, 38, 74, 0.08);
-      }
-
-      * {
-        box-sizing: border-box;
-      }
-
-      html,
-      body {
-        margin: 0;
-        min-height: 100%;
-        font-family: "Manrope", system-ui, sans-serif;
-        background:
-          radial-gradient(circle at top, rgba(87, 132, 255, 0.12), transparent 30%),
-          linear-gradient(180deg, #f8fbff 0%, var(--cmp-bg) 100%);
-        color: var(--cmp-navy);
-      }
-
-      a {
-        color: inherit;
-        text-decoration: none;
-      }
-
-      .topbar {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        padding: 16px 24px;
-        border-bottom: 1px solid var(--cmp-border);
-        background: rgba(248, 251, 255, 0.88);
-        backdrop-filter: blur(16px);
-      }
-
-      .brand {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-      }
-
-      .brand-copy strong,
-      .brand-copy small {
-        display: block;
-      }
-
-      .brand-copy strong {
-        font-size: 1rem;
-        line-height: 1.1;
-      }
-
-      .brand-copy small {
-        margin-top: 3px;
-        color: var(--cmp-text-muted);
-        font-size: 0.82rem;
-      }
-
-      .brand-mark {
-        width: 44px;
-        height: 44px;
-        border-radius: 14px;
-        overflow: hidden;
-        box-shadow: inset 0 0 0 1px rgba(16, 47, 75, 0.08);
-      }
-
-      .header-actions {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-
-      .header-link,
-      .header-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 42px;
-        padding: 0 16px;
-        border-radius: 999px;
-        border: 1px solid var(--cmp-border);
-        background: rgba(255, 255, 255, 0.92);
-        font: inherit;
-        font-weight: 700;
-        color: var(--cmp-navy);
-      }
-
-      .header-button {
-        background: linear-gradient(180deg, #2f6de0, #255ac0);
-        border-color: rgba(47, 109, 224, 0.22);
-        color: #fff;
-      }
-
-      main {
-        display: grid;
-        place-items: center;
-        min-height: calc(100vh - 77px);
-        padding: 40px 20px 72px;
-      }
-
-      .labs-card {
-        width: min(100%, 920px);
-        display: grid;
-        gap: 24px;
-        padding: 36px;
-        border: 1px solid var(--cmp-border);
-        border-radius: 32px;
-        background: var(--cmp-surface);
-        box-shadow: var(--cmp-shadow);
-      }
-
-      .labs-kicker {
-        color: var(--cmp-blue);
-        font-size: 0.78rem;
-        font-weight: 800;
-        letter-spacing: 0.12em;
-        text-transform: uppercase;
-      }
-
-      .labs-card h1 {
-        margin: 0;
-        font-size: clamp(2rem, 4vw, 3.5rem);
-        line-height: 0.98;
-        letter-spacing: -0.04em;
-        max-width: 11ch;
-      }
-
-      .labs-card p {
-        margin: 0;
-        max-width: 60ch;
-        color: var(--cmp-text-muted);
-        font-size: 1rem;
-        line-height: 1.65;
-      }
-
-      .labs-grid {
-        display: grid;
-        gap: 16px;
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-      }
-
-      .labs-panel {
-        padding: 20px;
-        border: 1px solid var(--cmp-border);
-        border-radius: 22px;
-        background: linear-gradient(180deg, rgba(248, 251, 255, 0.98), rgba(242, 247, 255, 0.92));
-      }
-
-      .labs-panel strong,
-      .labs-panel span {
-        display: block;
-      }
-
-      .labs-panel strong {
-        font-size: 0.98rem;
-      }
-
-      .labs-panel span {
-        margin-top: 8px;
-        color: var(--cmp-text-muted);
-        line-height: 1.55;
-      }
-
-      .labs-actions {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-      }
-
-      @media (max-width: 720px) {
-        .topbar {
-          padding: 14px;
-        }
-
-        .brand-copy small {
-          display: none;
-        }
-
-        .header-actions {
-          width: 100%;
-          justify-content: flex-end;
-        }
-
-        main {
-          padding: 24px 14px 48px;
-        }
-
-        .labs-card {
-          padding: 24px;
-          border-radius: 24px;
-        }
-
-        .labs-grid {
-          grid-template-columns: 1fr;
-        }
-
-        .labs-actions {
-          flex-direction: column;
-        }
-
-        .header-link,
-        .header-button {
-          min-height: 40px;
-        }
-      }
-    </style>
+    <link rel="stylesheet" href="dashboard-labs.css">
+    <script src="dashboard-labs.js" defer></script>
   </head>
   <body>
-    <header class="topbar">
-      <a class="brand" href="index.html" aria-label="CMP home">
-        <span class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
-            <path d="M8 18.5C8 11.0442 14.0442 5 21.5 5H28.25C35.7058 5 41.75 11.0442 41.75 18.5V20.4405C41.75 26.5602 39.0814 32.3755 34.4419 36.3676L24 45L13.5581 36.3676C8.91864 32.3755 6.25 26.5602 6.25 20.4405V18.5H8Z" fill="#102F4B"/>
-            <path d="M14.25 23.25L22 31L35 16.75" stroke="#58B63F" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M21.25 18.25L24.75 14.75L29.25 19.25V27.75H21.25V18.25Z" fill="#F8FBFF"/>
-            <rect x="24" y="18.5" width="2" height="5.5" rx="1" fill="#102F4B"/>
-          </svg>
-        </span>
-        <span class="brand-copy">
-          <strong>ComplyMyProperty</strong>
-          <small>Landlord compliance OS</small>
-        </span>
-      </a>
+    <div class="labs-shell" data-app-shell>
+      <aside class="labs-sidebar" aria-label="Primary navigation" data-mobile-menu>
+        <div class="sidebar-top">
+          <a class="brand-lockup" href="dashboard-labs.html" aria-label="CMP Labs dashboard home">
+            <span class="brand-mark" aria-hidden="true">
+              <svg viewBox="0 0 48 48" role="presentation">
+                <path d="M8.5 18.2C8.5 10.9 14.4 5 21.7 5h5.6c7.3 0 13.2 5.9 13.2 13.2v2c0 6-2.6 11.6-7.1 15.5L24 43.5l-9.4-7.8C10.1 31.8 7.5 26.2 7.5 20.2v-2h1Z" fill="currentColor"/>
+                <path d="m15 23.4 6.7 6.7L33.8 17.8" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.6"/>
+                <path d="m21.7 18.7 3-3 4 4v7.2h-7v-8.2Z" fill="#eff8f2"/>
+              </svg>
+            </span>
+            <span>
+              <strong>ComplyMyProperty</strong>
+              <small>Landlord compliance OS</small>
+            </span>
+          </a>
 
-      <div class="header-actions">
-        <a class="header-link" href="dashboard.html">Back to dashboard</a>
-        <a class="header-button" href="index.html">Return to homepage</a>
+          <nav class="nav-stack">
+            <section class="nav-group" aria-labelledby="navPortfolio">
+              <h2 id="navPortfolio">Portfolio</h2>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="home"></span>
+                Home
+              </a>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="building"></span>
+                Properties
+              </a>
+            </section>
+
+            <section class="nav-group" aria-labelledby="navCompliance">
+              <h2 id="navCompliance">Compliance</h2>
+              <a class="nav-item is-active" href="#" aria-current="page">
+                <span class="nav-icon" data-icon="layout"></span>
+                Overview
+              </a>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="file"></span>
+                Documents
+              </a>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="check"></span>
+                Tasks
+              </a>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="clock"></span>
+                Timeline
+              </a>
+            </section>
+
+            <section class="nav-group" aria-labelledby="navSupport">
+              <h2 id="navSupport">Support</h2>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="message"></span>
+                Ask CMP
+              </a>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="calendar"></span>
+                Book a service
+              </a>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="book"></span>
+                Learn
+              </a>
+            </section>
+
+            <section class="nav-group" aria-labelledby="navAccount">
+              <h2 id="navAccount">Account</h2>
+              <a class="nav-item" href="#">
+                <span class="nav-icon" data-icon="settings"></span>
+                Settings
+              </a>
+            </section>
+          </nav>
+        </div>
+
+        <div class="property-switcher">
+          <div class="switcher-label">Your properties</div>
+          <button class="property-option is-current" type="button" data-toast="57 The Butts is already selected.">
+            <span class="status-dot" aria-hidden="true"></span>
+            <span>
+              <strong>57 The Butts</strong>
+              <small>Coventry, CV1 3BJ</small>
+            </span>
+          </button>
+          <button class="quiet-add" type="button" data-toast="Add property will be designed in a later Labs pass.">
+            <span aria-hidden="true">+</span>
+            Add property
+          </button>
+        </div>
+      </aside>
+
+      <div class="mobile-bar">
+        <button class="icon-button" type="button" aria-label="Open menu" data-menu-open>
+          <span class="nav-icon" data-icon="menu"></span>
+        </button>
+        <a class="mobile-brand" href="dashboard-labs.html">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" role="presentation">
+              <path d="M8.5 18.2C8.5 10.9 14.4 5 21.7 5h5.6c7.3 0 13.2 5.9 13.2 13.2v2c0 6-2.6 11.6-7.1 15.5L24 43.5l-9.4-7.8C10.1 31.8 7.5 26.2 7.5 20.2v-2h1Z" fill="currentColor"/>
+              <path d="m15 23.4 6.7 6.7L33.8 17.8" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.6"/>
+            </svg>
+          </span>
+          <span>ComplyMyProperty</span>
+        </a>
+        <button class="icon-button" type="button" aria-label="Open Ask CMP" data-assistant-open>
+          <span class="nav-icon" data-icon="message"></span>
+        </button>
       </div>
-    </header>
 
-    <main>
-      <section class="labs-card" aria-labelledby="labsTitle">
-        <span class="labs-kicker">CMP Labs</span>
-        <h1 id="labsTitle">Dashboard concept preview</h1>
-        <p>
-          This route is intentionally isolated from the live dashboard workspace. It exists so CMP can explore
-          future dashboard layout ideas in smaller, safer stages without destabilising the working prototype.
-        </p>
+      <div class="drawer-backdrop" data-drawer-close></div>
 
-        <div class="labs-grid">
-          <article class="labs-panel">
-            <strong>What this route is for</strong>
-            <span>Safe experiments around layout, hierarchy, and interaction models before anything is merged into the main dashboard.</span>
-          </article>
-          <article class="labs-panel">
-            <strong>What stays untouched</strong>
-            <span>The current property dashboard, saved properties, journey context, evidence, timeline, and guided-check behaviour remain on <code>dashboard.html</code>.</span>
-          </article>
+      <main class="workspace" aria-labelledby="propertyTitle">
+        <div class="utility-bar">
+          <div>
+            <div class="breadcrumb">Properties / 57 The Butts</div>
+            <span class="prototype-badge">Prototype preview</span>
+          </div>
+          <div class="utility-actions">
+            <button class="secondary-button" type="button" data-toast="Property editing is not enabled in this Labs shell.">Edit property</button>
+            <button class="icon-button" type="button" aria-label="More actions" data-toast="More actions will be added later.">
+              <span class="nav-icon" data-icon="more"></span>
+            </button>
+          </div>
         </div>
 
-        <div class="labs-actions">
-          <a class="header-button" href="dashboard.html">Open the working dashboard</a>
-          <a class="header-link" href="index.html">Back to the main site</a>
+        <header class="property-header">
+          <div>
+            <p class="section-kicker">Property workspace</p>
+            <h1 id="propertyTitle">57 The Butts</h1>
+            <p>Coventry, CV1 3BJ</p>
+          </div>
+          <div class="property-meta" aria-label="Property metadata">
+            <span>Vacant property</span>
+            <span>General compliance check</span>
+            <span>Last reviewed today</span>
+          </div>
+        </header>
+
+        <div class="tab-bar" role="tablist" aria-label="Property workspace tabs">
+          <button class="tab-button is-active" type="button" role="tab" aria-selected="true" data-tab="overview">Overview</button>
+          <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="compliance">Compliance</button>
+          <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="documents">Documents</button>
+          <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="timeline">Timeline</button>
+          <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="services">Services</button>
+          <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="details">Property details</button>
         </div>
-      </section>
-    </main>
+
+        <section class="tab-panel is-active" data-panel="overview" aria-label="Overview">
+          <article class="autopilot-card">
+            <div class="autopilot-copy">
+              <p class="section-kicker">CMP Autopilot</p>
+              <h2>Your property file is taking shape</h2>
+              <p>CMP has confirmed two useful details and identified the clearest next step for this property.</p>
+              <div class="signal-row" aria-label="Property file indicators">
+                <span><strong>2</strong> confirmed</span>
+                <span><strong>1</strong> landlord-confirmed</span>
+                <span><strong>3</strong> need checking</span>
+              </div>
+              <p class="confidence-line">Evidence confidence: building</p>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-toast="Guided check will be wired in a later Labs pass.">Continue guided check</button>
+                <button class="secondary-button" type="button" data-toast="CMP findings preview is static for now.">See what CMP found</button>
+              </div>
+            </div>
+            <div class="autopilot-emblem" aria-hidden="true">
+              <div class="emblem-shield">
+                <svg viewBox="0 0 64 64" role="presentation">
+                  <path d="M32 5 52 13v16.4c0 12.5-8 23.6-20 29.6-12-6-20-17.1-20-29.6V13l20-8Z" fill="currentColor"/>
+                  <path d="m22 31 7 7 14-15" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
+                </svg>
+              </div>
+              <span>Property file</span>
+            </div>
+          </article>
+
+          <article class="next-action-card">
+            <div>
+              <p class="section-kicker">Your next best step</p>
+              <h2>Check whether this property has a current EICR</h2>
+              <p>Electrical safety is the highest-priority unknown area in this property file.</p>
+            </div>
+            <div class="action-controls">
+              <button class="primary-button" type="button" data-toast="Upload flow is a placeholder in this Labs shell.">Upload EICR</button>
+              <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
+              <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+              <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
+            </div>
+          </article>
+
+          <section class="compliance-grid" aria-label="Compliance status summary">
+            <article class="status-tile status-good">
+              <span class="tile-icon" data-icon="zap"></span>
+              <h3>EPC</h3>
+              <p>Confirmed</p>
+              <small>Official record</small>
+            </article>
+            <article class="status-tile status-good">
+              <span class="tile-icon" data-icon="shield"></span>
+              <h3>Gas Safety</h3>
+              <p>Verified</p>
+              <small>Uploaded document</small>
+            </article>
+            <article class="status-tile status-review">
+              <span class="tile-icon" data-icon="alert"></span>
+              <h3>Electrical Safety</h3>
+              <p>Needs checking</p>
+              <small>No EICR evidence</small>
+            </article>
+            <article class="status-tile status-watch">
+              <span class="tile-icon" data-icon="bell"></span>
+              <h3>Alarms</h3>
+              <p>Landlord confirmed</p>
+              <small>Evidence not uploaded</small>
+            </article>
+            <article class="status-tile status-neutral">
+              <span class="tile-icon" data-icon="file"></span>
+              <h3>Deposit and tenancy</h3>
+              <p>Not applicable</p>
+              <small>Property currently vacant</small>
+            </article>
+            <article class="status-tile status-watch">
+              <span class="tile-icon" data-icon="map"></span>
+              <h3>Licensing</h3>
+              <p>Checking postcode</p>
+              <small>Local rules review</small>
+            </article>
+          </section>
+
+          <section class="supporting-row">
+            <article class="small-card">
+              <p class="section-kicker">Since your last visit</p>
+              <h2>2 updates since your last visit</h2>
+              <ul class="activity-list">
+                <li>Gas Safety evidence was verified</li>
+                <li>Electrical Safety is now your highest-priority gap</li>
+              </ul>
+              <button class="text-button" type="button" data-toast="Full activity view will be designed later.">View activity</button>
+            </article>
+            <article class="small-card">
+              <p class="section-kicker">Quick win</p>
+              <h2>A quick win — approximately 2 minutes</h2>
+              <p>Confirm whether smoke and CO alarms have been tested.</p>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-toast="Alarm confirmation is a static Labs interaction.">Complete now</button>
+                <button class="text-button" type="button" data-toast="Reminder preference is not saved in Labs.">Remind me later</button>
+              </div>
+            </article>
+          </section>
+        </section>
+
+        <section class="tab-panel placeholder-panel" data-panel="compliance" hidden>
+          <h2>Compliance</h2>
+          <p>This area will be designed in a later Labs pass.</p>
+        </section>
+        <section class="tab-panel placeholder-panel" data-panel="documents" hidden>
+          <h2>Documents</h2>
+          <p>This area will be designed in a later Labs pass.</p>
+        </section>
+        <section class="tab-panel placeholder-panel" data-panel="timeline" hidden>
+          <h2>Timeline</h2>
+          <p>This area will be designed in a later Labs pass.</p>
+        </section>
+        <section class="tab-panel placeholder-panel" data-panel="services" hidden>
+          <h2>Services</h2>
+          <p>This area will be designed in a later Labs pass.</p>
+        </section>
+        <section class="tab-panel placeholder-panel" data-panel="details" hidden>
+          <h2>Property details</h2>
+          <p>This area will be designed in a later Labs pass.</p>
+        </section>
+      </main>
+
+      <aside class="assistant-rail" aria-label="Ask CMP assistant" data-assistant>
+        <div class="assistant-header">
+          <div>
+            <h2>Ask CMP</h2>
+            <p>Your property compliance assistant</p>
+          </div>
+          <button class="icon-button assistant-close" type="button" aria-label="Close Ask CMP" data-assistant-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+
+        <form class="assistant-input" data-assistant-form>
+          <input type="text" name="question" placeholder="Ask a question about this property..." autocomplete="off">
+          <button class="icon-button" type="submit" aria-label="Send question">
+            <span class="nav-icon" data-icon="send"></span>
+          </button>
+        </form>
+
+        <div class="prompt-stack" aria-label="Suggested prompts">
+          <button type="button" data-prompt="What should I fix first?">What should I fix first?</button>
+          <button type="button" data-prompt="Explain my current status">Explain my current status</button>
+          <button type="button" data-prompt="What evidence am I missing?">What evidence am I missing?</button>
+          <button type="button" data-prompt="Is this property ready to let?">Is this property ready to let?</button>
+        </div>
+
+        <div class="assistant-response" data-assistant-response>
+          <span>Prototype assistant preview</span>
+          <p>Your most useful next step is to check whether you have a current EICR. Your EPC and Gas Safety evidence are already recorded.</p>
+        </div>
+
+        <div class="recent-activity">
+          <h3>Recent activity</h3>
+          <ul>
+            <li>EPC record imported</li>
+            <li>Gas Safety certificate verified</li>
+            <li>EICR gap identified</li>
+          </ul>
+        </div>
+      </aside>
+
+      <button class="assistant-fab" type="button" aria-label="Open Ask CMP" data-assistant-open>
+        <span class="nav-icon" data-icon="message"></span>
+        Ask CMP
+      </button>
+
+      <div class="toast-region" aria-live="polite" aria-atomic="true" data-toast-region></div>
+    </div>
   </body>
 </html>
