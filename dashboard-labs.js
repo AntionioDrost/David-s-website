@@ -11,8 +11,43 @@ const labsState = {
   strength: 42,
   timelineFilter: "all",
   notes: [],
+  propertyEvents: [],
   serviceRequests: [],
   serviceEvents: [],
+  propertyDetails: {
+    propertyType: "Terraced house",
+    bedrooms: "3 bedrooms",
+    occupancy: "Vacant property",
+    goal: "General compliance check"
+  },
+  optionalDetails: {
+    constructionYear: "",
+    heatingType: "",
+    storeys: "",
+    parkingAccess: "",
+    managingAgent: "",
+    emergencyAccess: ""
+  },
+  propertyMemory: {
+    activeRoom: "living",
+    rooms: {
+      kitchen: [],
+      bathroom: [],
+      living: [
+        {
+          title: "Condensation near front window",
+          body: "Check whether condensation is still appearing during the next inspection. Review ventilation and any visible signs of damp.",
+          status: "Review at next inspection",
+          created: "Earlier this week"
+        }
+      ],
+      bedroom1: [],
+      bedroom2: [],
+      bedroom3: [],
+      hallway: [],
+      external: []
+    }
+  },
   scanTimers: []
 };
 
@@ -74,6 +109,40 @@ const servicesPrompts = [
   "Can someone review my property file?",
   "What can CMP help with?"
 ];
+
+const propertyPrompts = [
+  "What details are still missing?",
+  "Where did this information come from?",
+  "Why does CMP need property details?",
+  "What is Property Memory?"
+];
+
+const roomLabels = {
+  kitchen: "Kitchen",
+  bathroom: "Bathroom",
+  living: "Living room",
+  bedroom1: "Bedroom 1",
+  bedroom2: "Bedroom 2",
+  bedroom3: "Bedroom 3",
+  hallway: "Hallway and stairs",
+  external: "External areas"
+};
+
+const occupancyScenarioMap = {
+  "Vacant property": "vacant",
+  "Ready to let": "ready",
+  "Currently tenanted": "tenanted",
+  "New purchase review": "purchase"
+};
+
+const optionalDetailLabels = {
+  constructionYear: "Construction year or approximate age",
+  heatingType: "Heating type",
+  storeys: "Number of storeys",
+  parkingAccess: "Parking or access notes",
+  managingAgent: "Managing agent details",
+  emergencyAccess: "Emergency access notes"
+};
 
 const scenarioContent = {
   vacant: {
@@ -138,7 +207,11 @@ const assistantResponses = {
   "What should I arrange first?": "Electrical Safety is your clearest unresolved evidence area. You can upload an existing EICR or request help arranging an inspection.",
   "Why is this being recommended?": "CMP is recommending EICR support because there is no current Electrical Safety evidence stored against this property.",
   "Can someone review my property file?": "Yes. CMP can record a request for a human review of the evidence and next steps shown in this prototype.",
-  "What can CMP help with?": "CMP can help organise evidence, explain the next priority and record a support request when you want help arranging the next step."
+  "What can CMP help with?": "CMP can help organise evidence, explain the next priority and record a support request when you want help arranging the next step.",
+  "What details are still missing?": "CMP already has the address, postcode, property type, bedroom count and occupancy status. Optional details such as heating type, property age and access notes can be added later.",
+  "Where did this information come from?": "CMP separates matched records, uploaded evidence and landlord-provided details so you can see why each item appears in the property file.",
+  "Why does CMP need property details?": "Property details help CMP ask more relevant questions, organise the right evidence and adapt the workspace to the property situation.",
+  "What is Property Memory?": "Property Memory is a CMP Labs concept for keeping room-by-room observations and follow-up notes connected to the property file."
 };
 
 const postEicrAssistantMessage = "Your EICR has been verified and your property file is stronger. The next useful step is to review your latest inspection record.";
@@ -207,18 +280,19 @@ function renderAssistantActivity() {
     return;
   }
 
-  const baseItems = [
-    "EPC record imported",
-    "Gas Safety certificate verified",
-    labsState.eicrAdded ? "EICR evidence verified" : "EICR gap identified"
-  ];
-  const serviceItems = labsState.serviceEvents
-    .filter((event) => ["service-request", "callback", "message"].includes(event.type))
-    .slice(0, 2)
+  const dynamicItems = [...labsState.serviceEvents, ...labsState.propertyEvents]
+    .filter((event) => event.activityLabel)
+    .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
     .map((event) => event.activityLabel);
+  const baseItems = [
+    labsState.eicrAdded ? "EICR evidence verified" : "EICR gap identified",
+    "Gas Safety certificate verified",
+    "EPC record imported"
+  ];
 
-  list.innerHTML = [...baseItems, ...serviceItems]
+  list.innerHTML = [...dynamicItems, ...baseItems]
     .filter(Boolean)
+    .slice(0, 3)
     .map((item) => `<li>${escapeHtml(item)}</li>`)
     .join("");
 }
@@ -241,7 +315,9 @@ function renderAssistantPrompts() {
         ? timelinePrompts
         : labsState.activeTab === "services"
           ? servicesPrompts
-          : overviewPrompts;
+          : labsState.activeTab === "details"
+            ? propertyPrompts
+            : overviewPrompts;
 
   if (!stack) {
     return;
@@ -293,6 +369,9 @@ function switchTab(target) {
   } else if (target === "services") {
     renderServicesState();
     setAssistantResponse(getAssistantResponse("What should I arrange first?"));
+  } else if (target === "details") {
+    renderPropertyDetailsState();
+    setAssistantResponse(getAssistantResponse("What details are still missing?"));
   }
 }
 
@@ -472,6 +551,14 @@ function scrollToPanel(selector) {
   panel.focus({ preventScroll: true });
 }
 
+function setSelectValue(selector, value) {
+  const select = document.querySelector(selector);
+
+  if (select) {
+    select.value = value;
+  }
+}
+
 function serviceMode() {
   return labsState.eicrAdded ? "inspection" : "eicr";
 }
@@ -514,6 +601,11 @@ function serviceCopy() {
   };
 }
 
+function currentServiceRequest() {
+  const type = serviceCopy().requestType;
+  return labsState.serviceRequests.find((request) => request.type === type && request.status !== "Cancelled");
+}
+
 function renderChoiceList(container, options, name) {
   if (!container) {
     return;
@@ -538,7 +630,10 @@ function renderServicesState() {
   title.textContent = copy.title;
   document.querySelector("[data-service-primary-body]").textContent = copy.body;
   document.querySelector("[data-service-primary-reason]").textContent = copy.reason;
-  document.querySelector("[data-service-primary-action]").textContent = copy.action;
+  const existingRequest = currentServiceRequest();
+  document.querySelector("[data-service-primary-action]").textContent = existingRequest
+    ? (serviceMode() === "eicr" ? "View EICR request" : "View inspection request")
+    : copy.action;
   document.querySelector("[data-service-upload-action]").textContent = copy.upload;
   document.querySelector("[data-service-handled-action]").textContent = copy.handled;
 
@@ -595,6 +690,14 @@ function renderServicesState() {
 
 function openServiceRequestModal() {
   const copy = serviceCopy();
+  const existingRequest = currentServiceRequest();
+
+  if (existingRequest) {
+    scrollToPanel("[data-open-requests-panel]");
+    showToast(`${existingRequest.type} is already recorded for this property.`);
+    return;
+  }
+
   document.querySelector("[data-service-modal-title]").textContent = copy.requestTitle;
   document.querySelector("[data-service-note]").value = "";
   document.querySelector("[data-service-form]").hidden = false;
@@ -606,6 +709,7 @@ function openServiceRequestModal() {
 function addServiceTimelineEvent(event) {
   labsState.serviceEvents.unshift({
     id: `${event.type}-${Date.now()}`,
+    createdAt: Date.now(),
     group: "Today",
     filter: "actions",
     icon: event.icon || "calendar",
@@ -625,6 +729,15 @@ function addServiceTimelineEvent(event) {
 
 function createSupportRequest() {
   const copy = serviceCopy();
+  const existingRequest = currentServiceRequest();
+
+  if (existingRequest) {
+    closeTimelineModals();
+    scrollToPanel("[data-open-requests-panel]");
+    showToast(`${existingRequest.type} is already recorded for this property.`);
+    return;
+  }
+
   const id = `request-${Date.now()}`;
   const request = {
     id,
@@ -844,6 +957,397 @@ function bindServices() {
   });
 }
 
+function addPropertyTimelineEvent(event) {
+  labsState.propertyEvents.unshift({
+    id: `${event.type}-${Date.now()}`,
+    createdAt: Date.now(),
+    group: "Today",
+    filter: "details",
+    icon: event.icon || "home",
+    category: "Property details",
+    title: event.title,
+    body: event.body,
+    badge: event.badge,
+    badgeClass: event.badgeClass || "status-watch-text",
+    activityLabel: event.activityLabel,
+    type: event.type,
+    actions: event.actions || [],
+    details: event.details || null
+  });
+  renderTimelineState();
+  renderAssistantActivity();
+}
+
+function applyScenarioByOccupancy(occupancy) {
+  const scenario = occupancyScenarioMap[occupancy];
+
+  if (!scenario || !scenarioContent[scenario]) {
+    return;
+  }
+
+  document.querySelectorAll("[data-scenario]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.scenario === scenario);
+  });
+
+  const content = scenarioContent[scenario];
+  const title = document.querySelector("[data-scenario-title]");
+  const body = document.querySelector("[data-scenario-body]");
+  const priorities = document.querySelector("[data-scenario-priorities]");
+
+  if (title) {
+    title.textContent = content.title;
+  }
+
+  if (body) {
+    body.textContent = content.body;
+  }
+
+  if (priorities) {
+    priorities.innerHTML = content.priorities.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  }
+}
+
+function renderPropertyDetailsState() {
+  const details = labsState.propertyDetails;
+
+  document.querySelector("[data-profile-property-type]") && (document.querySelector("[data-profile-property-type]").textContent = details.propertyType);
+  document.querySelector("[data-profile-bedrooms]") && (document.querySelector("[data-profile-bedrooms]").textContent = details.bedrooms);
+  document.querySelector("[data-profile-occupancy]") && (document.querySelector("[data-profile-occupancy]").textContent = details.occupancy);
+  document.querySelector("[data-profile-goal]") && (document.querySelector("[data-profile-goal]").textContent = details.goal);
+  document.querySelector("[data-header-occupancy]") && (document.querySelector("[data-header-occupancy]").textContent = details.occupancy);
+  document.querySelector("[data-header-goal]") && (document.querySelector("[data-header-goal]").textContent = details.goal);
+
+  labsDemoProperty.occupancy = details.occupancy;
+  labsDemoProperty.journey = details.goal;
+
+  const eicrCard = document.querySelector("[data-details-eicr-card]");
+  const eicrIcon = document.querySelector("[data-details-eicr-icon]");
+  const eicrStatus = document.querySelector("[data-details-eicr-status]");
+  const eicrSource = document.querySelector("[data-details-eicr-source]");
+  const eicrList = document.querySelector("[data-details-eicr-list]");
+  const eicrAction = document.querySelector("[data-details-eicr-action]");
+
+  if (eicrCard && eicrStatus && eicrSource && eicrList && eicrAction) {
+    eicrCard.classList.toggle("is-verified", labsState.eicrAdded);
+    eicrIcon.dataset.icon = labsState.eicrAdded ? "shield" : "alert";
+    eicrStatus.textContent = labsState.eicrAdded ? "Verified" : "Needs checking";
+    eicrStatus.classList.toggle("status-good-text", labsState.eicrAdded);
+    eicrStatus.classList.toggle("status-review-text", !labsState.eicrAdded);
+    eicrSource.textContent = labsState.eicrAdded ? "Source: uploaded document" : "Source: no EICR evidence stored";
+    eicrList.innerHTML = labsState.eicrAdded
+      ? `
+        <li>Inspection date: 12 May 2026</li>
+        <li>Review date: 11 May 2031</li>
+        <li>Outcome: Satisfactory</li>
+      `
+      : "<li>No current EICR linked to this property file</li>";
+    eicrAction.textContent = labsState.eicrAdded ? "View EICR" : "Upload EICR";
+    eicrAction.toggleAttribute("data-upload-trigger", !labsState.eicrAdded);
+    if (labsState.eicrAdded) {
+      eicrAction.dataset.toast = "EICR viewer is not connected in CMP Labs.";
+    } else {
+      delete eicrAction.dataset.toast;
+    }
+  }
+
+  renderOptionalDetailsState();
+  renderPropertyMemoryState();
+  hydrateIcons();
+}
+
+function openBasicsModal() {
+  const details = labsState.propertyDetails;
+  setSelectValue("[data-basics-property-type]", details.propertyType);
+  setSelectValue("[data-basics-bedrooms]", details.bedrooms);
+  setSelectValue("[data-basics-occupancy]", details.occupancy);
+  setSelectValue("[data-basics-goal]", details.goal);
+  openTimelineModal("[data-basics-modal]");
+}
+
+function savePropertyBasics() {
+  const previous = { ...labsState.propertyDetails };
+  const next = {
+    propertyType: document.querySelector("[data-basics-property-type]")?.value || previous.propertyType,
+    bedrooms: document.querySelector("[data-basics-bedrooms]")?.value || previous.bedrooms,
+    occupancy: document.querySelector("[data-basics-occupancy]")?.value || previous.occupancy,
+    goal: document.querySelector("[data-basics-goal]")?.value || previous.goal
+  };
+
+  const changedRows = Object.entries(next)
+    .filter(([key, value]) => value !== previous[key])
+    .map(([key, value]) => [propertyFieldLabel(key), `${previous[key]} -> ${value}`]);
+
+  labsState.propertyDetails = next;
+  renderPropertyDetailsState();
+  applyScenarioByOccupancy(next.occupancy);
+
+  if (changedRows.length) {
+    addPropertyTimelineEvent({
+      type: "property-update",
+      title: "Property details updated",
+      body: "The property profile was updated in CMP Labs.",
+      badge: "Landlord updated",
+      activityLabel: "Property details updated",
+      details: {
+        title: "Changed fields",
+        rows: [...changedRows, ["Created", "Just now"]],
+        note: "Prototype property update for layout testing."
+      }
+    });
+  }
+
+  closeTimelineModals();
+  showToast("Property details updated");
+}
+
+function propertyFieldLabel(key) {
+  return {
+    propertyType: "Property type",
+    bedrooms: "Bedrooms",
+    occupancy: "Occupancy",
+    goal: "Primary workspace goal"
+  }[key] || key;
+}
+
+function renderOptionalDetailsState() {
+  const count = Object.values(labsState.optionalDetails).filter((value) => value.trim()).length;
+  const countNode = document.querySelector("[data-optional-count]");
+
+  if (countNode) {
+    countNode.textContent = `${count} of 6 added`;
+  }
+
+  Object.keys(optionalDetailLabels).forEach((key) => {
+    const item = document.querySelector(`[data-optional-item="${key}"]`);
+    if (item) {
+      item.classList.toggle("is-complete", Boolean(labsState.optionalDetails[key].trim()));
+    }
+  });
+}
+
+function openOptionalModal() {
+  Object.keys(optionalDetailLabels).forEach((key) => {
+    const field = document.querySelector(`[data-optional-field="${key}"]`);
+    if (field) {
+      field.value = labsState.optionalDetails[key] || "";
+    }
+  });
+  openTimelineModal("[data-optional-modal]");
+}
+
+function saveOptionalDetails() {
+  const next = { ...labsState.optionalDetails };
+
+  Object.keys(optionalDetailLabels).forEach((key) => {
+    next[key] = document.querySelector(`[data-optional-field="${key}"]`)?.value.trim() || "";
+  });
+
+  const addedRows = Object.entries(next)
+    .filter(([, value]) => value)
+    .map(([key, value]) => [optionalDetailLabels[key], value]);
+
+  labsState.optionalDetails = next;
+  renderOptionalDetailsState();
+
+  if (addedRows.length) {
+    addPropertyTimelineEvent({
+      type: "optional-details",
+      title: "Optional property details added",
+      body: "Additional property context was saved in CMP Labs.",
+      badge: "Landlord updated",
+      activityLabel: "Optional property details saved",
+      details: {
+        title: "Optional details",
+        rows: [...addedRows, ["Created", "Just now"]],
+        note: "Prototype optional property details for layout testing."
+      }
+    });
+  }
+
+  closeTimelineModals();
+  showToast("Optional property details saved");
+}
+
+function observationLabel(count) {
+  return count === 1 ? "1 observation" : `${count} observations`;
+}
+
+function renderPropertyMemoryState() {
+  ["kitchen", "bathroom", "living"].forEach((room) => {
+    const count = labsState.propertyMemory.rooms[room].length;
+    const status = document.querySelector(`[data-room-status="${room}"]`);
+    if (status) {
+      status.textContent = count ? observationLabel(count) : "No notes yet";
+    }
+  });
+
+  renderMemoryModal();
+}
+
+function openMemoryModal(room = labsState.propertyMemory.activeRoom, showAdd = false) {
+  labsState.propertyMemory.activeRoom = room;
+  renderMemoryModal();
+  openTimelineModal("[data-memory-modal]");
+  if (showAdd) {
+    showMemoryAddPanel();
+  }
+}
+
+function renderMemoryModal() {
+  const roomList = document.querySelector("[data-memory-room-list]");
+  const detail = document.querySelector("[data-memory-detail]");
+  const roomSelect = document.querySelector("[data-memory-room-select]");
+
+  if (!roomList || !detail || !roomSelect) {
+    return;
+  }
+
+  const activeRoom = labsState.propertyMemory.activeRoom;
+  roomList.innerHTML = Object.entries(roomLabels).map(([key, label]) => `
+    <button class="${key === activeRoom ? "is-active" : ""}" type="button" data-memory-room="${key}">
+      <span>${escapeHtml(label)}</span>
+      <small>${labsState.propertyMemory.rooms[key].length ? escapeHtml(observationLabel(labsState.propertyMemory.rooms[key].length)) : "No notes"}</small>
+    </button>
+  `).join("");
+  roomSelect.innerHTML = Object.entries(roomLabels).map(([key, label]) => `
+    <option value="${key}" ${key === activeRoom ? "selected" : ""}>${escapeHtml(label)}</option>
+  `).join("");
+
+  const observations = labsState.propertyMemory.rooms[activeRoom];
+  detail.innerHTML = `
+    <h3>${escapeHtml(roomLabels[activeRoom])}</h3>
+    ${observations.length
+      ? observations.map((item) => `
+          <article class="memory-observation">
+            <span class="source-badge">${escapeHtml(item.status || "Observation")}</span>
+            <h4>${escapeHtml(item.title)}</h4>
+            <p>${escapeHtml(item.body)}</p>
+            <small>Created: ${escapeHtml(item.created || "Just now")}</small>
+          </article>
+        `).join("")
+      : `<p class="memory-empty">No observations have been recorded for this room yet.</p>`
+    }
+  `;
+}
+
+function showMemoryAddPanel() {
+  const panel = document.querySelector("[data-memory-add-panel]");
+  const actions = document.querySelector("[data-memory-actions]");
+  const activeRoom = labsState.propertyMemory.activeRoom;
+
+  if (panel) {
+    panel.hidden = false;
+  }
+  if (actions) {
+    actions.hidden = true;
+  }
+
+  setSelectValue("[data-memory-room-select]", activeRoom);
+  document.querySelector("[data-memory-observation]").value = "";
+  document.querySelector("[data-memory-follow-up]").value = "Review at next inspection";
+}
+
+function hideMemoryAddPanel() {
+  document.querySelector("[data-memory-add-panel]") && (document.querySelector("[data-memory-add-panel]").hidden = true);
+  document.querySelector("[data-memory-actions]") && (document.querySelector("[data-memory-actions]").hidden = false);
+}
+
+function saveMemoryObservation() {
+  const room = document.querySelector("[data-memory-room-select]")?.value || labsState.propertyMemory.activeRoom;
+  const observation = document.querySelector("[data-memory-observation]")?.value.trim();
+  const followUp = document.querySelector("[data-memory-follow-up]")?.value.trim() || "Review later";
+
+  if (!observation) {
+    showToast("Add an observation before saving");
+    return;
+  }
+
+  const item = {
+    title: observation.split(".")[0].slice(0, 72),
+    body: observation,
+    status: followUp,
+    created: "Just now"
+  };
+
+  labsState.propertyMemory.rooms[room].unshift(item);
+  labsState.propertyMemory.activeRoom = room;
+  hideMemoryAddPanel();
+  renderPropertyMemoryState();
+  addPropertyTimelineEvent({
+    type: "memory-observation",
+    icon: "message",
+    title: "Property Memory observation added",
+    body: observation,
+    badge: "Memory updated",
+    activityLabel: "Property Memory updated",
+    details: {
+      title: "Memory observation",
+      rows: [
+        ["Room", roomLabels[room]],
+        ["Observation", observation],
+        ["Follow-up", followUp],
+        ["Created", "Just now"]
+      ],
+      note: "Prototype Property Memory record for layout testing."
+    }
+  });
+  showToast("Property Memory updated");
+}
+
+function bindPropertyDetails() {
+  renderPropertyDetailsState();
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-property-basics-open]")) {
+      openBasicsModal();
+    }
+
+    if (event.target.closest("[data-basics-save]")) {
+      savePropertyBasics();
+    }
+
+    if (event.target.closest("[data-optional-open]")) {
+      openOptionalModal();
+    }
+
+    if (event.target.closest("[data-optional-save]")) {
+      saveOptionalDetails();
+    }
+
+    const memoryRoomButton = event.target.closest("[data-memory-open-room]");
+    if (memoryRoomButton) {
+      openMemoryModal(memoryRoomButton.dataset.memoryOpenRoom, memoryRoomButton.hasAttribute("data-memory-add-first"));
+    }
+
+    if (event.target.closest("[data-memory-open]")) {
+      openMemoryModal();
+    }
+
+    const memoryRoom = event.target.closest("[data-memory-room]");
+    if (memoryRoom) {
+      labsState.propertyMemory.activeRoom = memoryRoom.dataset.memoryRoom;
+      hideMemoryAddPanel();
+      renderMemoryModal();
+    }
+
+    if (event.target.closest("[data-memory-add]")) {
+      showMemoryAddPanel();
+    }
+
+    if (event.target.closest("[data-memory-cancel]")) {
+      hideMemoryAddPanel();
+    }
+
+    if (event.target.closest("[data-memory-save]")) {
+      saveMemoryObservation();
+    }
+  });
+
+  document.querySelectorAll("[data-basics-close], [data-optional-close], [data-memory-close]").forEach((button) => {
+    button.addEventListener("click", closeTimelineModals);
+  });
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -856,6 +1360,7 @@ function escapeHtml(value) {
 function getTimelineEvents() {
   const events = [
     ...labsState.serviceEvents.map((event) => ({ ...event })),
+    ...labsState.propertyEvents.map((event) => ({ ...event })),
     ...labsState.notes.map((note) => ({
       id: note.id,
       group: "Today",
@@ -1073,7 +1578,7 @@ function eventMatchesFilter(event) {
   }
 
   if (labsState.timelineFilter === "actions") {
-    return event.open || event.actions?.some((action) => action.primary || action.upload);
+    return event.filter === "actions" || event.open || event.actions?.some((action) => action.primary || action.upload);
   }
 
   return event.filter === labsState.timelineFilter;
@@ -1220,7 +1725,10 @@ function closeTimelineModals() {
     "[data-service-modal]",
     "[data-callback-modal]",
     "[data-message-modal]",
-    "[data-handled-modal]"
+    "[data-handled-modal]",
+    "[data-basics-modal]",
+    "[data-optional-modal]",
+    "[data-memory-modal]"
   ].forEach((selector) => {
     const modal = document.querySelector(selector);
     if (modal) {
@@ -1549,6 +2057,7 @@ function confirmEicr() {
 
   renderTimelineState();
   renderServicesState();
+  renderPropertyDetailsState();
   renderAssistantActivity();
   setAssistantResponse(postEicrAssistantMessage);
   closeSmartModal();
@@ -1570,5 +2079,6 @@ bindTimeline();
 bindInbox();
 bindSmartUpload();
 bindServices();
+bindPropertyDetails();
 
 window.labsDemoProperty = labsDemoProperty;

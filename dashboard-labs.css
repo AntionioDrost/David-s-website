@@ -115,7 +115,13 @@ a {
 .primary-service-card,
 .open-requests-panel,
 .service-option-card,
-.human-support-panel {
+.human-support-panel,
+.passport-header,
+.passport-summary-card,
+.passport-card,
+.record-card,
+.property-memory-card,
+.room-card {
   border: 1px solid var(--labs-border);
   background: rgba(255, 255, 255, 0.92);
   box-shadow: var(--labs-card-shadow);
@@ -2051,6 +2057,426 @@ body.prs-open .prs-drawer {
   margin: 0;
 }
 
+.property-passport-panel {
+  display: grid;
+  gap: 14px;
+}
+
+.passport-header {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.42fr);
+  gap: 18px;
+  align-items: start;
+  padding: 22px;
+  border-radius: var(--labs-radius-lg);
+}
+
+.passport-header h2,
+.passport-card h2,
+.property-memory-card h2 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: clamp(1.45rem, 2.45vw, 1.95rem);
+  line-height: 1.12;
+}
+
+.passport-header p:not(.section-kicker),
+.passport-header-side small,
+.passport-card p,
+.property-memory-card p,
+.property-memory-card small,
+.detail-item small,
+.linked-evidence-card small,
+.passport-note {
+  color: var(--labs-muted);
+  line-height: 1.55;
+}
+
+.passport-header p:not(.section-kicker),
+.passport-card-header p,
+.property-memory-card .passport-card-header p {
+  margin: 10px 0 0;
+}
+
+.passport-header-side {
+  display: grid;
+  justify-items: start;
+  gap: 12px;
+}
+
+.passport-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.passport-summary-card {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  min-height: 94px;
+  padding: 16px;
+  border-radius: 18px;
+}
+
+.passport-summary-card p,
+.passport-summary-card small {
+  margin: 0;
+}
+
+.passport-summary-card p {
+  color: var(--labs-soft);
+  font-size: 0.68rem;
+  font-weight: 840;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.passport-summary-card strong {
+  display: block;
+  margin-top: 3px;
+  color: var(--labs-ink);
+  font-size: 1.05rem;
+}
+
+.passport-summary-card small {
+  display: block;
+  margin-top: 3px;
+  color: var(--labs-muted);
+  font-size: 0.78rem;
+}
+
+.passport-card,
+.property-memory-card {
+  display: grid;
+  gap: 16px;
+  padding: 20px;
+  border-radius: var(--labs-radius-lg);
+}
+
+.passport-card-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.detail-item {
+  display: grid;
+  gap: 7px;
+  min-height: 132px;
+  padding: 15px;
+  border: 1px solid var(--labs-border);
+  border-radius: 16px;
+  background: var(--labs-surface-soft);
+}
+
+.detail-item span,
+.record-card dt,
+.property-form-grid label,
+.memory-add-panel label {
+  color: var(--labs-soft);
+  font-size: 0.68rem;
+  font-weight: 840;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+
+.detail-item strong {
+  color: var(--labs-ink);
+  font-size: 1.02rem;
+  line-height: 1.2;
+}
+
+.source-pill {
+  display: inline-flex;
+  width: fit-content;
+  min-height: 25px;
+  align-items: center;
+  padding: 0 9px;
+  border: 1px solid rgba(67, 122, 145, 0.18);
+  border-radius: 999px;
+  color: var(--labs-blue);
+  background: rgba(231, 241, 246, 0.82);
+  font-size: 0.7rem;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.source-landlord {
+  border-color: rgba(41, 122, 87, 0.18);
+  color: var(--labs-green-dark);
+  background: rgba(232, 246, 237, 0.86);
+}
+
+.source-workspace {
+  border-color: rgba(122, 132, 142, 0.18);
+  color: #596a66;
+  background: rgba(244, 247, 246, 0.92);
+}
+
+.record-grid,
+.evidence-linked-grid,
+.room-card-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.room-card-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.record-card,
+.linked-evidence-card,
+.room-card {
+  padding: 16px;
+  border-radius: 17px;
+}
+
+.record-card {
+  display: grid;
+  gap: 12px;
+}
+
+.record-card-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: flex-start;
+}
+
+.record-card h3,
+.linked-evidence-card h3,
+.room-card h3,
+.memory-observation h4 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: 1rem;
+}
+
+.record-card dl {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 9px 16px;
+  margin: 0;
+}
+
+.record-card dd {
+  margin: 3px 0 0;
+  color: #314944;
+  font-size: 0.84rem;
+  font-weight: 720;
+}
+
+.linked-evidence-card {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  border: 1px solid var(--labs-border);
+  background: var(--labs-surface-soft);
+}
+
+.linked-evidence-card p {
+  margin: 8px 0 0;
+  font-weight: 820;
+}
+
+.linked-evidence-card ul {
+  margin: 10px 0 0;
+  padding-left: 18px;
+  color: var(--labs-muted);
+}
+
+.linked-evidence-card .text-button {
+  margin-top: 10px;
+}
+
+.linked-evidence-card.is-verified {
+  border-color: rgba(41, 122, 87, 0.18);
+  background: rgba(239, 248, 243, 0.72);
+}
+
+.optional-details-card {
+  grid-template-columns: minmax(0, 0.75fr) minmax(280px, 1fr);
+  align-items: start;
+}
+
+.optional-details-layout {
+  display: grid;
+  gap: 14px;
+}
+
+.optional-details-layout > div:first-child > strong {
+  color: var(--labs-green-dark);
+}
+
+.optional-checklist {
+  display: grid;
+  gap: 7px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.optional-checklist li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--labs-muted);
+  font-size: 0.88rem;
+}
+
+.optional-checklist li::before {
+  position: absolute;
+  left: 0;
+  content: "•";
+  color: var(--labs-green);
+  font-weight: 900;
+}
+
+.optional-checklist li.is-complete {
+  color: var(--labs-green-dark);
+  font-weight: 760;
+}
+
+.property-form-grid,
+.support-fields {
+  display: grid;
+  gap: 12px;
+}
+
+.property-form-grid {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.property-form-grid label,
+.memory-add-panel label {
+  display: grid;
+  gap: 7px;
+}
+
+.property-form-grid input,
+.property-form-grid select,
+.property-form-grid textarea,
+.memory-add-panel input,
+.memory-add-panel select,
+.memory-add-panel textarea {
+  width: 100%;
+  min-height: 42px;
+  padding: 10px 12px;
+  border: 1px solid var(--labs-border);
+  border-radius: 12px;
+  color: var(--labs-ink);
+  background: #fff;
+  font: inherit;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+}
+
+.property-form-grid textarea,
+.memory-add-panel textarea {
+  min-height: 96px;
+  resize: vertical;
+}
+
+.property-memory-card {
+  background:
+    linear-gradient(135deg, rgba(41, 122, 87, 0.06), rgba(255, 255, 255, 0.9) 45%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.room-card {
+  display: grid;
+  gap: 10px;
+}
+
+.room-card p,
+.room-card small {
+  margin: 0;
+  color: var(--labs-muted);
+}
+
+.room-card p {
+  font-weight: 780;
+}
+
+.memory-layout {
+  display: grid;
+  grid-template-columns: minmax(180px, 0.35fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.memory-room-list {
+  display: grid;
+  gap: 8px;
+  align-content: start;
+}
+
+.memory-room-list button {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  width: 100%;
+  padding: 11px 12px;
+  border: 1px solid var(--labs-border);
+  border-radius: 13px;
+  color: var(--labs-ink);
+  background: #fff;
+  font: inherit;
+  font-weight: 760;
+  text-align: left;
+  cursor: pointer;
+}
+
+.memory-room-list button.is-active {
+  border-color: rgba(41, 122, 87, 0.22);
+  color: var(--labs-green-dark);
+  background: rgba(232, 246, 237, 0.78);
+}
+
+.memory-room-list small {
+  color: var(--labs-muted);
+  font-size: 0.72rem;
+}
+
+.memory-detail-panel {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.memory-observation {
+  display: grid;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 14px;
+  border: 1px solid var(--labs-border);
+  border-radius: 15px;
+  background: var(--labs-surface-soft);
+}
+
+.memory-observation p,
+.memory-empty {
+  margin: 0;
+  color: var(--labs-muted);
+  line-height: 1.5;
+}
+
+.memory-add-panel {
+  display: grid;
+  gap: 12px;
+  padding: 14px;
+  border: 1px solid rgba(41, 122, 87, 0.16);
+  border-radius: 16px;
+  background: rgba(239, 248, 243, 0.72);
+}
+
 .human-support-panel {
   align-items: center;
 }
@@ -2767,7 +3193,8 @@ body.assistant-open {
   .compliance-header,
   .scenario-summary,
   .timeline-header,
-  .services-header {
+  .services-header,
+  .passport-header {
     grid-template-columns: 1fr;
   }
 
@@ -2790,7 +3217,8 @@ body.assistant-open {
 
   .primary-service-card,
   .open-requests-panel,
-  .human-support-panel {
+  .human-support-panel,
+  .optional-details-card {
     grid-template-columns: 1fr;
   }
 
@@ -2850,7 +3278,12 @@ body.assistant-open {
   .documents-grid,
   .result-grid,
   .compliance-lower-grid,
-  .service-grid {
+  .service-grid,
+  .passport-summary,
+  .detail-grid,
+  .record-grid,
+  .evidence-linked-grid,
+  .room-card-grid {
     grid-template-columns: 1fr;
   }
 
@@ -2985,7 +3418,11 @@ body.assistant-open {
   .primary-service-card,
   .open-requests-panel,
   .service-option-card,
-  .human-support-panel {
+  .human-support-panel,
+  .passport-header,
+  .passport-card,
+  .property-memory-card,
+  .passport-summary-card {
     padding: 18px;
   }
 
@@ -3080,8 +3517,15 @@ body.assistant-open {
   .summary-sections,
   .timeline-details dl,
   .request-card dl,
-  .service-success dl {
+  .service-success dl,
+  .record-card dl,
+  .property-form-grid,
+  .memory-layout {
     grid-template-columns: 1fr;
+  }
+
+  .passport-card-header {
+    display: grid;
   }
 }
 
@@ -3116,6 +3560,7 @@ body.assistant-open {
   .timeline-actions-panel .button-row,
   .timeline-modal .button-row,
   .services-panel .button-row,
+  .property-passport-panel .button-row,
   .service-card-actions {
     align-items: stretch;
     flex-direction: column;
@@ -3137,7 +3582,10 @@ body.assistant-open {
   .timeline-modal .secondary-button,
   .services-panel .primary-button,
   .services-panel .secondary-button,
-  .services-panel .text-button {
+  .services-panel .text-button,
+  .property-passport-panel .primary-button,
+  .property-passport-panel .secondary-button,
+  .property-passport-panel .text-button {
     width: 100%;
   }
 

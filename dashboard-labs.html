@@ -145,8 +145,8 @@
             <p>Coventry, CV1 3BJ</p>
           </div>
           <div class="property-meta" aria-label="Property metadata">
-            <span>Vacant property</span>
-            <span>General compliance check</span>
+            <span data-header-occupancy>Vacant property</span>
+            <span data-header-goal>General compliance check</span>
             <span>Last reviewed today</span>
           </div>
         </header>
@@ -819,9 +819,241 @@
             </div>
           </article>
         </section>
-        <section class="tab-panel placeholder-panel" data-panel="details" hidden>
-          <h2>Property details</h2>
-          <p>This area will be designed in a later Labs pass.</p>
+        <section class="tab-panel property-passport-panel" data-panel="details" hidden>
+          <header class="passport-header">
+            <div>
+              <p class="section-kicker">Property passport</p>
+              <h2>Property details</h2>
+              <p>A clear record of the property information CMP already knows, where it came from and what still needs confirming.</p>
+            </div>
+            <div class="passport-header-side">
+              <small>Property details help CMP ask more relevant questions and organise the right evidence.</small>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-property-basics-open>Review property details</button>
+                <button class="secondary-button" type="button" data-assistant-message="CMP already has the address, postcode, property type, bedroom count and occupancy status. Optional details such as heating type, property age and access notes can be added later.">Ask CMP what is missing</button>
+              </div>
+            </div>
+          </header>
+
+          <section class="passport-summary" aria-label="Property details summary">
+            <article class="passport-summary-card">
+              <span class="tile-icon" data-icon="shield"></span>
+              <div>
+                <p>Property identity</p>
+                <strong>Matched</strong>
+                <small>Address and postcode recorded</small>
+              </div>
+            </article>
+            <article class="passport-summary-card">
+              <span class="tile-icon" data-icon="zap"></span>
+              <div>
+                <p>Official information</p>
+                <strong>2 records</strong>
+                <small>EPC and address match</small>
+              </div>
+            </article>
+            <article class="passport-summary-card">
+              <span class="tile-icon" data-icon="home"></span>
+              <div>
+                <p>Landlord-provided</p>
+                <strong>4 details</strong>
+                <small>Property setup information</small>
+              </div>
+            </article>
+            <article class="passport-summary-card">
+              <span class="tile-icon" data-icon="alert"></span>
+              <div>
+                <p>Needs review</p>
+                <strong>3 details</strong>
+                <small>Add when convenient</small>
+              </div>
+            </article>
+          </section>
+
+          <article class="passport-card" data-core-profile>
+            <div class="passport-card-header">
+              <div>
+                <p class="section-kicker">Core profile</p>
+                <h2>Property basics</h2>
+                <p>The key details CMP uses to shape the property workspace.</p>
+              </div>
+              <button class="secondary-button" type="button" data-property-basics-open>Edit property basics</button>
+            </div>
+            <div class="detail-grid">
+              <article class="detail-item">
+                <span>Address</span>
+                <strong>57 The Butts</strong>
+                <em class="source-pill">Address match</em>
+                <small>Matched during property setup</small>
+              </article>
+              <article class="detail-item">
+                <span>Postcode</span>
+                <strong>CV1 3BJ</strong>
+                <em class="source-pill">Address match</em>
+              </article>
+              <article class="detail-item">
+                <span>Property type</span>
+                <strong data-profile-property-type>Terraced house</strong>
+                <em class="source-pill source-landlord">Landlord provided</em>
+              </article>
+              <article class="detail-item">
+                <span>Bedrooms</span>
+                <strong data-profile-bedrooms>3 bedrooms</strong>
+                <em class="source-pill source-landlord">Landlord provided</em>
+              </article>
+              <article class="detail-item">
+                <span>Occupancy</span>
+                <strong data-profile-occupancy>Vacant property</strong>
+                <em class="source-pill source-landlord">Landlord provided</em>
+              </article>
+              <article class="detail-item">
+                <span>Journey</span>
+                <strong data-profile-goal>General compliance check</strong>
+                <em class="source-pill source-workspace">Workspace setup</em>
+              </article>
+            </div>
+          </article>
+
+          <article class="passport-card">
+            <div class="passport-card-header">
+              <div>
+                <p class="section-kicker">Official information</p>
+                <h2>Matched records</h2>
+                <p>CMP can use official or external records to reduce manual data entry. Always review the information before relying on it.</p>
+              </div>
+            </div>
+            <div class="record-grid">
+              <article class="record-card">
+                <div class="record-card-top">
+                  <span class="tile-icon" data-icon="zap"></span>
+                  <span class="doc-status status-good-text">Matched</span>
+                </div>
+                <h3>Energy Performance Certificate</h3>
+                <span class="source-badge">Official record</span>
+                <dl>
+                  <div><dt>Current rating</dt><dd>C</dd></div>
+                  <div><dt>Valid until</dt><dd>14 March 2031</dd></div>
+                  <div><dt>Floor area</dt><dd>92 m&sup2;</dd></div>
+                  <div><dt>Certificate number</dt><dd>CMP-LABS-EPC-573B</dd></div>
+                </dl>
+                <div class="button-row">
+                  <button class="secondary-button" type="button" data-toast="EPC record viewer is not connected in CMP Labs.">View EPC record</button>
+                  <button class="text-button" type="button" data-toast="Imported-detail review will be designed in a later Labs pass.">Review imported details</button>
+                </div>
+              </article>
+              <article class="record-card">
+                <div class="record-card-top">
+                  <span class="tile-icon" data-icon="building"></span>
+                  <span class="doc-status status-good-text">Matched</span>
+                </div>
+                <h3>Address and property match</h3>
+                <span class="source-badge">Address match</span>
+                <dl>
+                  <div><dt>Address</dt><dd>57 The Butts</dd></div>
+                  <div><dt>Postcode</dt><dd>CV1 3BJ</dd></div>
+                  <div><dt>UPRN</dt><dd>100000057573</dd></div>
+                </dl>
+                <div class="button-row">
+                  <button class="secondary-button" type="button" data-toast="Address review is static in this Labs preview.">Review address</button>
+                  <button class="text-button" type="button" data-assistant-message="CMP stores an address match so evidence, reminders and property questions stay connected to the right property file.">Why CMP stores this</button>
+                </div>
+              </article>
+            </div>
+            <small class="passport-note">CMP Labs preview - official-data connections are simulated.</small>
+          </article>
+
+          <article class="passport-card">
+            <div class="passport-card-header">
+              <div>
+                <p class="section-kicker">Linked evidence</p>
+                <h2>Details supported by stored evidence</h2>
+                <p>Documents can strengthen the property profile when they have been reviewed and linked to this address.</p>
+              </div>
+            </div>
+            <div class="evidence-linked-grid">
+              <article class="linked-evidence-card">
+                <span class="tile-icon" data-icon="shield"></span>
+                <div>
+                  <h3>Gas Safety</h3>
+                  <p class="status-good-text">Verified</p>
+                  <small>Source: uploaded certificate</small>
+                  <ul>
+                    <li>Valid until 18 June 2027</li>
+                  </ul>
+                </div>
+              </article>
+              <article class="linked-evidence-card" data-details-eicr-card>
+                <span class="tile-icon" data-icon="alert" data-details-eicr-icon></span>
+                <div>
+                  <h3>Electrical Safety</h3>
+                  <p class="status-review-text" data-details-eicr-status>Needs checking</p>
+                  <small data-details-eicr-source>Source: no EICR evidence stored</small>
+                  <ul data-details-eicr-list>
+                    <li>No current EICR linked to this property file</li>
+                  </ul>
+                  <button class="text-button" type="button" data-details-eicr-action data-upload-trigger>Upload EICR</button>
+                </div>
+              </article>
+            </div>
+          </article>
+
+          <article class="passport-card optional-details-card">
+            <div>
+              <p class="section-kicker">Still worth confirming</p>
+              <h2>Useful details to add later</h2>
+              <p>These details are optional for now but may help CMP make future guidance more relevant.</p>
+            </div>
+            <div class="optional-details-layout">
+              <div>
+                <strong data-optional-count>0 of 6 added</strong>
+                <ul class="optional-checklist">
+                  <li data-optional-item="constructionYear">Construction year or approximate age</li>
+                  <li data-optional-item="heatingType">Heating type</li>
+                  <li data-optional-item="storeys">Number of storeys</li>
+                  <li data-optional-item="parkingAccess">Parking or access notes</li>
+                  <li data-optional-item="managingAgent">Managing agent details</li>
+                  <li data-optional-item="emergencyAccess">Emergency access notes</li>
+                </ul>
+              </div>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-optional-open>Add optional details</button>
+                <button class="text-button" type="button" data-toast="Optional details skipped for now.">Skip for now</button>
+              </div>
+            </div>
+          </article>
+
+          <section class="property-memory-card" data-property-memory-section>
+            <div class="passport-card-header">
+              <div>
+                <p class="section-kicker">CMP Labs</p>
+                <h2>Property Memory</h2>
+                <p>Keep useful room-by-room notes, inspection observations and recurring issues connected to this property file.</p>
+                <small>This could help future inspections, maintenance follow-ups and handovers feel less repetitive.</small>
+              </div>
+              <button class="secondary-button" type="button" data-memory-open>Open Property Memory preview</button>
+            </div>
+            <div class="room-card-grid">
+              <article class="room-card" data-room-card="kitchen">
+                <h3>Kitchen</h3>
+                <p data-room-status="kitchen">No notes yet</p>
+                <button class="text-button" type="button" data-memory-open-room="kitchen">Add a note</button>
+              </article>
+              <article class="room-card" data-room-card="bathroom">
+                <h3>Bathroom</h3>
+                <p data-room-status="bathroom">No notes yet</p>
+                <button class="text-button" type="button" data-memory-open-room="bathroom">Add a note</button>
+              </article>
+              <article class="room-card" data-room-card="living">
+                <h3>Living room</h3>
+                <p data-room-status="living">1 observation</p>
+                <small>Check condensation near front window during the next inspection.</small>
+                <div class="button-row">
+                  <button class="text-button" type="button" data-memory-open-room="living">View memory</button>
+                  <button class="text-button" type="button" data-memory-open-room="living" data-memory-add-first>Add another note</button>
+                </div>
+              </article>
+            </div>
+          </section>
         </section>
       </main>
 
@@ -1215,6 +1447,127 @@
         <div class="button-row">
           <button class="primary-button" type="button" data-handled-save>Record status</button>
           <button class="secondary-button" type="button" data-handled-close>Cancel</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal property-modal" role="dialog" aria-modal="true" aria-labelledby="basicsModalTitle" data-basics-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Property passport</p>
+            <h2 id="basicsModalTitle">Edit property basics</h2>
+            <p>57 The Butts · Coventry, CV1 3BJ</p>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close property basics" data-basics-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <div class="property-form-grid">
+          <label>Property type
+            <select data-basics-property-type>
+              <option>Terraced house</option>
+              <option>Semi-detached house</option>
+              <option>Detached house</option>
+              <option>Flat</option>
+              <option>Maisonette</option>
+              <option>Bungalow</option>
+              <option>HMO</option>
+              <option>Other</option>
+            </select>
+          </label>
+          <label>Bedrooms
+            <select data-basics-bedrooms>
+              <option>Studio</option>
+              <option>1 bedroom</option>
+              <option>2 bedrooms</option>
+              <option>3 bedrooms</option>
+              <option>4 bedrooms</option>
+              <option>5+ bedrooms</option>
+            </select>
+          </label>
+          <label>Occupancy
+            <select data-basics-occupancy>
+              <option>Vacant property</option>
+              <option>Ready to let</option>
+              <option>Currently tenanted</option>
+              <option>New purchase review</option>
+            </select>
+          </label>
+          <label>Primary workspace goal
+            <select data-basics-goal>
+              <option>General compliance check</option>
+              <option>I need a certificate</option>
+              <option>I have documents to upload</option>
+              <option>I am preparing for a tenancy</option>
+              <option>I am dealing with a compliance issue</option>
+            </select>
+          </label>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-basics-save>Save changes</button>
+          <button class="secondary-button" type="button" data-basics-close>Cancel</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal property-modal" role="dialog" aria-modal="true" aria-labelledby="optionalModalTitle" data-optional-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Optional property details</p>
+            <h2 id="optionalModalTitle">Add optional property details</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close optional details" data-optional-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <div class="property-form-grid">
+          <label>Approximate construction year <input type="text" data-optional-field="constructionYear" placeholder="e.g. 1930s"></label>
+          <label>Heating type <input type="text" data-optional-field="heatingType" placeholder="e.g. gas central heating"></label>
+          <label>Number of storeys <input type="text" data-optional-field="storeys" placeholder="e.g. 2 storeys"></label>
+          <label>Parking or access notes <textarea data-optional-field="parkingAccess" placeholder="Short access notes..."></textarea></label>
+          <label>Managing agent details <textarea data-optional-field="managingAgent" placeholder="Name or contact notes..."></textarea></label>
+          <label>Emergency access notes <textarea data-optional-field="emergencyAccess" placeholder="Useful emergency context..."></textarea></label>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-optional-save>Save optional details</button>
+          <button class="secondary-button" type="button" data-optional-close>Cancel</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal memory-modal" role="dialog" aria-modal="true" aria-labelledby="memoryModalTitle" data-memory-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">CMP Labs</p>
+            <h2 id="memoryModalTitle">Property Memory</h2>
+            <p>57 The Butts · Coventry, CV1 3BJ</p>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close Property Memory" data-memory-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note">A room-by-room workspace for observations, follow-ups and future inspection context.</p>
+        <div class="memory-layout">
+          <div class="memory-room-list" data-memory-room-list></div>
+          <div class="memory-detail-panel">
+            <div data-memory-detail></div>
+            <div class="memory-add-panel" data-memory-add-panel hidden>
+              <label>Room
+                <select data-memory-room-select></select>
+              </label>
+              <label>Observation
+                <textarea data-memory-observation placeholder="Record the observation..."></textarea>
+              </label>
+              <label>Suggested follow-up timing
+                <input type="text" data-memory-follow-up placeholder="e.g. Review at next inspection">
+              </label>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-memory-save>Save observation</button>
+                <button class="secondary-button" type="button" data-memory-cancel>Add later</button>
+              </div>
+            </div>
+            <div class="button-row" data-memory-actions>
+              <button class="primary-button" type="button" data-memory-add>Add observation</button>
+              <button class="text-button" type="button" data-toast="Observation marked as reviewed in this Labs preview.">Mark as reviewed</button>
+            </div>
+          </div>
         </div>
       </section>
     </div>
