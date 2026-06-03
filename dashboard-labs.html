@@ -44,11 +44,11 @@
 
             <section class="nav-group" aria-labelledby="navCompliance">
               <h2 id="navCompliance">Compliance</h2>
-              <a class="nav-item is-active" href="#" aria-current="page">
+              <a class="nav-item is-active" href="#" aria-current="page" data-side-tab="overview">
                 <span class="nav-icon" data-icon="layout"></span>
                 Overview
               </a>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-side-tab="documents">
                 <span class="nav-icon" data-icon="file"></span>
                 Documents
               </a>
@@ -56,7 +56,7 @@
                 <span class="nav-icon" data-icon="check"></span>
                 Tasks
               </a>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-side-tab="timeline">
                 <span class="nav-icon" data-icon="clock"></span>
                 Timeline
               </a>
@@ -174,17 +174,25 @@
               <p class="confidence-line">Evidence confidence: building</p>
               <div class="button-row">
                 <button class="primary-button" type="button" data-toast="Guided check will be wired in a later Labs pass.">Continue guided check</button>
-                <button class="secondary-button" type="button" data-toast="CMP findings preview is static for now.">See what CMP found</button>
+                <button class="secondary-button" type="button" data-findings-open>See what CMP found</button>
               </div>
             </div>
-            <div class="autopilot-emblem" aria-hidden="true">
+            <div class="autopilot-emblem">
               <div class="emblem-shield">
                 <svg viewBox="0 0 64 64" role="presentation">
                   <path d="M32 5 52 13v16.4c0 12.5-8 23.6-20 29.6-12-6-20-17.1-20-29.6V13l20-8Z" fill="currentColor"/>
                   <path d="m22 31 7 7 14-15" fill="none" stroke="#fff" stroke-linecap="round" stroke-linejoin="round" stroke-width="5"/>
                 </svg>
               </div>
-              <span>Property file</span>
+              <div class="strength-copy">
+                <span>Property file strength</span>
+                <strong data-strength-label>Building</strong>
+                <small><b data-strength-value>42%</b> evidenced</small>
+              </div>
+              <div class="strength-meter" aria-label="Property file evidence completeness">
+                <span data-strength-meter style="width: 42%"></span>
+              </div>
+              <p>Evidence completeness only. Not a legal compliance guarantee.</p>
             </div>
           </article>
 
@@ -215,11 +223,11 @@
               <p>Verified</p>
               <small>Uploaded document</small>
             </article>
-            <article class="status-tile status-review">
+            <article class="status-tile status-review" data-electrical-tile>
               <span class="tile-icon" data-icon="alert"></span>
               <h3>Electrical Safety</h3>
-              <p>Needs checking</p>
-              <small>No EICR evidence</small>
+              <p data-electrical-status>Needs checking</p>
+              <small data-electrical-source>No EICR evidence</small>
             </article>
             <article class="status-tile status-watch">
               <span class="tile-icon" data-icon="bell"></span>
@@ -245,7 +253,7 @@
             <article class="small-card">
               <p class="section-kicker">Since your last visit</p>
               <h2>2 updates since your last visit</h2>
-              <ul class="activity-list">
+              <ul class="activity-list" data-recent-activity>
                 <li>Gas Safety evidence was verified</li>
                 <li>Electrical Safety is now your highest-priority gap</li>
               </ul>
@@ -267,9 +275,148 @@
           <h2>Compliance</h2>
           <p>This area will be designed in a later Labs pass.</p>
         </section>
-        <section class="tab-panel placeholder-panel" data-panel="documents" hidden>
-          <h2>Documents</h2>
-          <p>This area will be designed in a later Labs pass.</p>
+        <section class="tab-panel documents-panel" data-panel="documents" hidden>
+          <header class="documents-header">
+            <div>
+              <p class="section-kicker">Property evidence</p>
+              <h2>Evidence Vault</h2>
+              <p>
+                Keep certificates, tenancy documents and property records organised in one place. CMP can help identify paperwork,
+                extract useful details and show what still needs attention.
+              </p>
+            </div>
+            <div class="documents-actions">
+              <button class="primary-button" type="button" data-upload-trigger>Upload documents</button>
+              <button class="secondary-button" type="button" data-toast="Forwarding is simulated in CMP Labs.">Forward documents</button>
+              <button class="secondary-button quiet-button" type="button" data-assistant-message="Your most useful missing document is currently an EICR. You can upload an existing report, enter the details manually or arrange an inspection.">Ask CMP what I need</button>
+            </div>
+          </header>
+
+          <section class="vault-summary" aria-label="Evidence summary">
+            <article class="summary-card status-good">
+              <span class="tile-icon" data-icon="shield"></span>
+              <div>
+                <h3>Verified evidence</h3>
+                <strong data-verified-count>2 documents</strong>
+                <small>Ready in your property file</small>
+              </div>
+            </article>
+            <article class="summary-card status-review">
+              <span class="tile-icon" data-icon="alert"></span>
+              <div>
+                <h3>Needs review</h3>
+                <strong data-review-count>1 document</strong>
+                <small>Check extracted details</small>
+              </div>
+            </article>
+            <article class="summary-card status-watch">
+              <span class="tile-icon" data-icon="upload"></span>
+              <div>
+                <h3>Suggested next upload</h3>
+                <strong data-next-upload>EICR</strong>
+                <small data-next-upload-note>Electrical Safety is still unverified</small>
+              </div>
+            </article>
+          </section>
+
+          <div class="documents-grid">
+            <article class="inbox-panel">
+              <p class="section-kicker">Your CMP Evidence Inbox</p>
+              <h3>Your CMP Evidence Inbox</h3>
+              <p>Forward certificates and property paperwork here. CMP will suggest the correct property and document category for your review.</p>
+              <div class="inbox-address" data-inbox-address>57-the-butts@inbox.complymyproperty.co.uk</div>
+              <div class="button-row">
+                <button class="secondary-button" type="button" data-copy-inbox>Copy inbox address</button>
+                <button class="text-button" type="button" data-toast="Forwarding will accept PDFs, photos and emails in a future CMP workflow.">How forwarding works</button>
+              </div>
+              <small>Prototype preview — forwarding is simulated in CMP Labs.</small>
+            </article>
+
+            <article class="upload-panel">
+              <p class="section-kicker">Smart upload</p>
+              <h3>Add property evidence</h3>
+              <p>Upload one file or a mixed folder of documents. CMP will organise the paperwork for your review.</p>
+              <label class="drop-zone" data-drop-zone>
+                <input type="file" multiple hidden data-file-input>
+                <span class="tile-icon" data-icon="upload"></span>
+                <strong>Drop paperwork here</strong>
+                <small>Files stay local in this Labs prototype.</small>
+              </label>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-upload-trigger>Choose documents</button>
+                <button class="secondary-button" type="button" data-demo-scan>Preview mixed paperwork demo</button>
+              </div>
+            </article>
+          </div>
+
+          <section class="vault-list-card" aria-label="Evidence Vault list">
+            <div class="vault-list-header">
+              <div>
+                <p class="section-kicker">Saved evidence</p>
+                <h3>Property file documents</h3>
+              </div>
+              <span class="prototype-badge" data-vault-state>2 verified, 1 missing</span>
+            </div>
+            <div class="vault-list" data-document-list>
+              <article class="document-row">
+                <div>
+                  <h4>EPC</h4>
+                  <p>Energy Performance Certificate</p>
+                </div>
+                <span class="source-badge">Official record</span>
+                <span class="doc-status status-good-text">Confirmed</span>
+                <span class="doc-date">Expires 14 March 2031</span>
+                <div class="row-actions">
+                  <button class="text-button" type="button" data-toast="Document viewer is not connected in Labs.">View</button>
+                </div>
+              </article>
+              <article class="document-row">
+                <div>
+                  <h4>Gas Safety</h4>
+                  <p>Gas Safety Certificate</p>
+                </div>
+                <span class="source-badge">Uploaded document</span>
+                <span class="doc-status status-good-text">Verified</span>
+                <span class="doc-date">Expires 18 June 2027</span>
+                <div class="row-actions">
+                  <button class="text-button" type="button" data-toast="Document viewer is not connected in Labs.">View</button>
+                  <button class="text-button" type="button" data-upload-trigger>Replace</button>
+                </div>
+              </article>
+              <article class="document-row is-missing" data-eicr-document-row>
+                <div>
+                  <h4>EICR</h4>
+                  <p>Electrical Installation Condition Report</p>
+                </div>
+                <span class="source-badge" data-eicr-source>No evidence uploaded</span>
+                <span class="doc-status status-review-text" data-eicr-doc-status>Missing</span>
+                <span class="doc-date" data-eicr-review-date>Review date unknown</span>
+                <div class="row-actions" data-eicr-actions>
+                  <button class="text-button" type="button" data-upload-trigger>Upload</button>
+                  <button class="text-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange EICR</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <article class="missing-evidence-card">
+            <div>
+              <h3>One useful next upload</h3>
+              <p>Add inspection evidence or confirm that no inspection has been completed yet.</p>
+            </div>
+            <div class="button-row">
+              <button class="secondary-button" type="button" data-upload-trigger>Upload inspection evidence</button>
+              <button class="text-button" type="button" data-toast="Inspection status is not saved in this prototype.">Mark as not yet completed</button>
+            </div>
+          </article>
+
+          <article class="strengthened-panel" data-strengthened-panel hidden>
+            <span class="tile-icon" data-icon="shield"></span>
+            <div>
+              <h3>Property file strengthened</h3>
+              <p>Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.</p>
+            </div>
+          </article>
         </section>
         <section class="tab-panel placeholder-panel" data-panel="timeline" hidden>
           <h2>Timeline</h2>
@@ -331,6 +478,136 @@
       </button>
 
       <div class="toast-region" aria-live="polite" aria-atomic="true" data-toast-region></div>
+
+      <aside class="findings-drawer" aria-label="CMP findings" data-findings-drawer>
+        <div class="drawer-panel">
+          <div class="drawer-header">
+            <div>
+              <p class="section-kicker">What CMP found</p>
+              <h2>Property file signals</h2>
+            </div>
+            <button class="icon-button" type="button" aria-label="Close findings" data-findings-close>
+              <span class="nav-icon" data-icon="close"></span>
+            </button>
+          </div>
+          <div class="findings-list">
+            <section>
+              <h3><span class="tile-icon" data-icon="check"></span>Confirmed automatically</h3>
+              <p><strong>EPC record imported</strong><small>Source: official record</small></p>
+              <p><strong>Property address matched</strong><small>Source: CMP property file</small></p>
+            </section>
+            <section>
+              <h3><span class="tile-icon" data-icon="shield"></span>Verified from uploaded evidence</h3>
+              <p><strong>Gas Safety Certificate</strong><small>Source: uploaded document</small></p>
+            </section>
+            <section>
+              <h3><span class="tile-icon" data-icon="bell"></span>Landlord confirmed</h3>
+              <p><strong>Smoke and CO alarms reported as tested</strong><small>Source: landlord answer</small></p>
+            </section>
+            <section>
+              <h3><span class="tile-icon" data-icon="alert"></span>Still needs checking</h3>
+              <p><strong>EICR evidence</strong><small>Source: no matching document yet</small></p>
+              <p><strong>Local licensing position</strong><small>Source: postcode review pending</small></p>
+            </section>
+          </div>
+          <button class="primary-button" type="button" data-open-compliance>Open full compliance view</button>
+        </div>
+      </aside>
+
+      <div class="modal-backdrop" data-modal-backdrop hidden></div>
+      <section class="smart-modal" role="dialog" aria-modal="true" aria-labelledby="smartModalTitle" data-smart-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Smart document workflow</p>
+            <h2 id="smartModalTitle">Review mixed paperwork</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close upload preview" data-modal-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+
+        <div class="scan-view" data-scan-view>
+          <div class="scan-orb" aria-hidden="true">
+            <span data-scan-fill></span>
+          </div>
+          <h3 data-scan-title>Reading documents...</h3>
+          <p data-scan-body>Preparing a local CMP Labs preview. No files are uploaded or inspected.</p>
+          <ol class="scan-steps" data-scan-steps>
+            <li class="is-active">Reading documents...</li>
+            <li>Identifying document types...</li>
+            <li>Extracting useful details...</li>
+            <li>Matching paperwork to 57 The Butts...</li>
+            <li>Ready for your review</li>
+          </ol>
+        </div>
+
+        <div class="results-view" data-results-view hidden>
+          <p class="modal-note">Prototype review. These details are simulated and editable-looking only.</p>
+          <div class="result-grid">
+            <article class="result-card">
+              <div class="result-topline">
+                <span class="source-badge">EICR</span>
+                <span class="doc-status status-review-text">Needs your review</span>
+              </div>
+              <h3>Electrical Installation Condition Report</h3>
+              <p>Property: 57 The Butts</p>
+              <dl>
+                <div><dt>Inspection date</dt><dd>12 May 2026</dd></div>
+                <div><dt>Suggested review date</dt><dd>11 May 2031</dd></div>
+                <div><dt>Outcome</dt><dd>Satisfactory</dd></div>
+                <div><dt>Contractor</dt><dd>Midlands Electrical Services</dd></div>
+              </dl>
+              <strong class="confidence-pill">High confidence</strong>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-review-eicr>Review and add</button>
+                <button class="text-button" type="button" data-toast="Extracted details are shown in the review step.">View extracted details</button>
+              </div>
+            </article>
+            <article class="result-card">
+              <div class="result-topline">
+                <span class="source-badge">Tenancy document</span>
+                <span class="doc-status status-good-text">Ready to file</span>
+              </div>
+              <h3>Tenancy agreement</h3>
+              <p>Property: 57 The Butts</p>
+              <dl>
+                <div><dt>Tenancy type</dt><dd>Assured tenancy</dd></div>
+                <div><dt>Start date</dt><dd>01 June 2026</dd></div>
+                <div><dt>Named tenants</dt><dd>2</dd></div>
+              </dl>
+              <strong class="confidence-pill">Medium confidence</strong>
+              <div class="button-row">
+                <button class="secondary-button" type="button" data-toast="Tenancy filing will be designed in a later Labs pass.">Add to property file</button>
+                <button class="text-button" type="button" data-toast="Tenancy review is static in this prototype.">Review details</button>
+              </div>
+            </article>
+            <article class="result-card is-unclear">
+              <div class="result-topline">
+                <span class="source-badge">Unclear document</span>
+                <span class="doc-status status-review-text">Needs classification</span>
+              </div>
+              <h3>Document needs help</h3>
+              <p>Suggested match: 57 The Butts</p>
+              <p>CMP could not confidently identify this document.</p>
+              <div class="button-row">
+                <button class="secondary-button" type="button" data-toast="Classification controls will be added later.">Choose document type</button>
+                <button class="text-button" type="button" data-toast="Document left for later in this Labs preview.">Leave for later</button>
+              </div>
+            </article>
+          </div>
+        </div>
+
+        <div class="review-view" data-review-view hidden>
+          <p class="modal-note">Review extracted EICR details before adding them to the property file.</p>
+          <div class="review-fields">
+            <label>Inspection date <span>12 May 2026</span></label>
+            <label>Suggested review date <span>11 May 2031</span></label>
+            <label>Outcome <span>Satisfactory</span></label>
+            <label>Contractor <span>Midlands Electrical Services</span></label>
+          </div>
+          <button class="primary-button" type="button" data-confirm-eicr>Confirm and add to property file</button>
+        </div>
+      </section>
     </div>
   </body>
 </html>

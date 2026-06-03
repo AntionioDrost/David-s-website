@@ -5,6 +5,13 @@ const labsDemoProperty = {
   journey: "General compliance check"
 };
 
+const labsState = {
+  activeTab: "overview",
+  eicrAdded: false,
+  strength: 42,
+  scanTimers: []
+};
+
 const iconPaths = {
   alert: '<path d="M10.3 3.2 2.7 16.4a1.7 1.7 0 0 0 1.5 2.6h15.2a1.7 1.7 0 0 0 1.5-2.6L13.3 3.2a1.7 1.7 0 0 0-3 0Z"/><path d="M12 8v5"/><path d="M12 16.5h.01"/>',
   bell: '<path d="M18 8a6 6 0 1 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9Z"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
@@ -24,22 +31,52 @@ const iconPaths = {
   send: '<path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/>',
   settings: '<path d="M12.2 2h-.4l-1 3a7 7 0 0 0-1.7.7l-2.8-1.4-.3.3-2 3.4.1.4 2.5 1.8a7 7 0 0 0 0 1.8l-2.5 1.8-.1.4 2 3.4.3.3 2.8-1.4a7 7 0 0 0 1.7.7l1 3h.4l4-.1.3-.3 1-2.9a7 7 0 0 0 1.6-.9l3 .9.3-.3 1.8-3.5-.1-.4-2.7-1.5a7 7 0 0 0-.1-1.9l2.3-2 .1-.4-2.3-3.3-.4-.1-2.7 1.6a7 7 0 0 0-1.7-.6l-1.2-2.8-.3-.2-4 .1Z"/><circle cx="12" cy="12" r="3"/>',
   shield: '<path d="M12 2 20 5v6c0 5-3.2 9.4-8 11-4.8-1.6-8-6-8-11V5l8-3Z"/><path d="m9 12 2 2 4-5"/>',
+  upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>',
   zap: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/>'
 };
+
+const overviewPrompts = [
+  "What should I fix first?",
+  "Explain my current status",
+  "What evidence am I missing?",
+  "Is this property ready to let?"
+];
+
+const documentPrompts = [
+  "What evidence am I missing?",
+  "What should I upload next?",
+  "How does document scanning work?",
+  "Can CMP organise mixed paperwork?"
+];
 
 const assistantResponses = {
   "What should I fix first?": "Your most useful next step is to check whether you have a current EICR. Your EPC and Gas Safety evidence are already recorded.",
   "Explain my current status": "This property file is partly built. EPC and Gas Safety are in a good state, alarms are landlord-confirmed, and Electrical Safety still needs evidence.",
-  "What evidence am I missing?": "The clearest evidence gap is a current EICR. Alarm test evidence would also strengthen the file before the property is ready to let.",
-  "Is this property ready to let?": "Not yet. CMP would first need Electrical Safety evidence and a stronger alarm record before this property can be treated as ready."
+  "What evidence am I missing?": "Your most useful missing document is currently an EICR. You can upload an existing report, enter the details manually or arrange an inspection.",
+  "Is this property ready to let?": "Not yet. CMP would first need Electrical Safety evidence and a stronger alarm record before this property can be treated as ready.",
+  "What should I upload next?": "Upload an EICR first. It is the highest-value missing evidence item for this property file.",
+  "How does document scanning work?": "In this Labs preview, CMP simulates reading document names, identifying the type, extracting useful dates and matching the paperwork to 57 The Butts.",
+  "Can CMP organise mixed paperwork?": "Yes, the future workflow is designed for mixed paperwork. CMP would group certificates, tenancy documents and unclear files for review."
 };
 
-const defaultAssistantResponse = "This is a static Labs preview. For this property, CMP would focus on the EICR gap first, then alarms evidence.";
+const postEicrAssistantResponses = {
+  "What evidence am I missing?": "Your EICR has been added. The next useful evidence item is your latest property inspection record.",
+  "What should I upload next?": "Your EICR has been added. The next useful evidence item is your latest property inspection record."
+};
+
+const defaultAssistantResponse = "This is a static Labs preview. CMP can organise evidence, identify gaps and suggest the next useful action for this property.";
+
+const scanStages = [
+  "Reading documents...",
+  "Identifying document types...",
+  "Extracting useful details...",
+  "Matching paperwork to 57 The Butts...",
+  "Ready for your review"
+];
 
 function hydrateIcons() {
   document.querySelectorAll("[data-icon]").forEach((icon) => {
-    const key = icon.dataset.icon;
-    const path = iconPaths[key];
+    const path = iconPaths[icon.dataset.icon];
 
     if (!path) {
       return;
@@ -63,7 +100,7 @@ function showToast(message) {
 
   window.setTimeout(() => {
     toast.remove();
-  }, 2800);
+  }, 3000);
 }
 
 function setAssistantResponse(message) {
@@ -72,6 +109,25 @@ function setAssistantResponse(message) {
   if (response) {
     response.textContent = message || defaultAssistantResponse;
   }
+}
+
+function getAssistantResponse(prompt) {
+  if (labsState.eicrAdded && postEicrAssistantResponses[prompt]) {
+    return postEicrAssistantResponses[prompt];
+  }
+
+  return assistantResponses[prompt] || defaultAssistantResponse;
+}
+
+function renderAssistantPrompts() {
+  const stack = document.querySelector(".prompt-stack");
+  const prompts = labsState.activeTab === "documents" ? documentPrompts : overviewPrompts;
+
+  if (!stack) {
+    return;
+  }
+
+  stack.innerHTML = prompts.map((prompt) => `<button type="button" data-prompt="${prompt}">${prompt}</button>`).join("");
 }
 
 function openAssistant(message) {
@@ -83,28 +139,55 @@ function openAssistant(message) {
 }
 
 function closeDrawers() {
-  document.body.classList.remove("menu-open", "assistant-open");
+  document.body.classList.remove("menu-open", "assistant-open", "findings-open");
 }
 
-function bindTabs() {
+function switchTab(target) {
   const tabs = Array.from(document.querySelectorAll("[data-tab]"));
   const panels = Array.from(document.querySelectorAll("[data-panel]"));
 
-  tabs.forEach((tab) => {
-    tab.addEventListener("click", () => {
-      const target = tab.dataset.tab;
+  labsState.activeTab = target;
 
-      tabs.forEach((item) => {
-        const isActive = item === tab;
-        item.classList.toggle("is-active", isActive);
-        item.setAttribute("aria-selected", String(isActive));
-      });
+  tabs.forEach((item) => {
+    const isActive = item.dataset.tab === target;
+    item.classList.toggle("is-active", isActive);
+    item.setAttribute("aria-selected", String(isActive));
+  });
 
-      panels.forEach((panel) => {
-        const isActive = panel.dataset.panel === target;
-        panel.classList.toggle("is-active", isActive);
-        panel.hidden = !isActive;
-      });
+  panels.forEach((panel) => {
+    const isActive = panel.dataset.panel === target;
+    panel.classList.toggle("is-active", isActive);
+    panel.hidden = !isActive;
+  });
+
+  document.querySelectorAll("[data-side-tab]").forEach((item) => {
+    const isActive = item.dataset.sideTab === target;
+    item.classList.toggle("is-active", isActive);
+
+    if (isActive) {
+      item.setAttribute("aria-current", "page");
+    } else {
+      item.removeAttribute("aria-current");
+    }
+  });
+
+  renderAssistantPrompts();
+
+  if (target === "documents") {
+    setAssistantResponse(labsState.eicrAdded ? postEicrAssistantResponses["What evidence am I missing?"] : assistantResponses["What evidence am I missing?"]);
+  }
+}
+
+function bindTabs() {
+  document.querySelectorAll("[data-tab]").forEach((tab) => {
+    tab.addEventListener("click", () => switchTab(tab.dataset.tab));
+  });
+
+  document.querySelectorAll("[data-side-tab]").forEach((item) => {
+    item.addEventListener("click", (event) => {
+      event.preventDefault();
+      switchTab(item.dataset.sideTab);
+      document.body.classList.remove("menu-open");
     });
   });
 }
@@ -118,24 +201,31 @@ function bindAssistant() {
     document.body.classList.remove("assistant-open");
   });
 
-  document.querySelectorAll("[data-prompt]").forEach((button) => {
-    button.addEventListener("click", () => {
-      const prompt = button.dataset.prompt;
-      setAssistantResponse(assistantResponses[prompt] || defaultAssistantResponse);
-      openAssistant();
-    });
+  document.querySelector(".prompt-stack")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-prompt]");
+
+    if (!button) {
+      return;
+    }
+
+    setAssistantResponse(getAssistantResponse(button.dataset.prompt));
+    openAssistant();
   });
 
   document.querySelector("[data-assistant-form]")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const input = event.currentTarget.elements.question;
-    setAssistantResponse(input.value.trim() ? defaultAssistantResponse : assistantResponses["What should I fix first?"]);
+    setAssistantResponse(input.value.trim() ? defaultAssistantResponse : getAssistantResponse("What evidence am I missing?"));
     input.value = "";
     openAssistant();
   });
 
-  document.querySelectorAll("[data-assistant-message]").forEach((button) => {
-    button.addEventListener("click", () => openAssistant(button.dataset.assistantMessage));
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-assistant-message]");
+
+    if (button) {
+      openAssistant(button.dataset.assistantMessage);
+    }
   });
 }
 
@@ -149,20 +239,272 @@ function bindMobileMenu() {
   window.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
       closeDrawers();
+      closeSmartModal();
     }
   });
 }
 
 function bindToasts() {
-  document.querySelectorAll("[data-toast]").forEach((button) => {
-    button.addEventListener("click", () => showToast(button.dataset.toast));
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-toast]");
+
+    if (button) {
+      showToast(button.dataset.toast);
+    }
   });
 }
 
+function bindFindings() {
+  document.querySelector("[data-findings-open]")?.addEventListener("click", () => {
+    document.body.classList.add("findings-open");
+  });
+
+  document.querySelector("[data-findings-close]")?.addEventListener("click", () => {
+    document.body.classList.remove("findings-open");
+  });
+
+  document.querySelector("[data-open-compliance]")?.addEventListener("click", () => {
+    document.body.classList.remove("findings-open");
+    switchTab("compliance");
+  });
+
+  document.querySelector("[data-findings-drawer]")?.addEventListener("click", (event) => {
+    if (event.target.matches("[data-findings-drawer]")) {
+      document.body.classList.remove("findings-open");
+    }
+  });
+}
+
+async function copyInboxAddress() {
+  const address = document.querySelector("[data-inbox-address]")?.textContent?.trim();
+
+  if (!address) {
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(address);
+    showToast("Evidence Inbox address copied");
+  } catch {
+    showToast(`Evidence Inbox: ${address}`);
+  }
+}
+
+function bindInbox() {
+  document.querySelector("[data-copy-inbox]")?.addEventListener("click", copyInboxAddress);
+}
+
+function clearScanTimers() {
+  labsState.scanTimers.forEach((timer) => window.clearTimeout(timer));
+  labsState.scanTimers = [];
+}
+
+function openSmartModal() {
+  clearScanTimers();
+  document.querySelector("[data-modal-backdrop]").hidden = false;
+  document.querySelector("[data-smart-modal]").hidden = false;
+  document.querySelector("[data-scan-view]").hidden = false;
+  document.querySelector("[data-results-view]").hidden = true;
+  document.querySelector("[data-review-view]").hidden = true;
+  runScanSequence();
+}
+
+function closeSmartModal() {
+  clearScanTimers();
+  const backdrop = document.querySelector("[data-modal-backdrop]");
+  const modal = document.querySelector("[data-smart-modal]");
+
+  if (backdrop) {
+    backdrop.hidden = true;
+  }
+
+  if (modal) {
+    modal.hidden = true;
+  }
+}
+
+function runScanSequence() {
+  const title = document.querySelector("[data-scan-title]");
+  const body = document.querySelector("[data-scan-body]");
+  const fill = document.querySelector("[data-scan-fill]");
+  const steps = Array.from(document.querySelectorAll("[data-scan-steps] li"));
+
+  scanStages.forEach((stage, index) => {
+    const timer = window.setTimeout(() => {
+      if (title) {
+        title.textContent = stage;
+      }
+
+      if (body) {
+        body.textContent = index === scanStages.length - 1
+          ? "Three documents are ready for landlord review."
+          : "Simulating local classification and evidence matching.";
+      }
+
+      if (fill) {
+        fill.style.height = `${18 + index * 20}%`;
+      }
+
+      steps.forEach((step, stepIndex) => {
+        step.classList.toggle("is-active", stepIndex === index);
+        step.classList.toggle("is-complete", stepIndex < index);
+      });
+
+      if (index === scanStages.length - 1) {
+        const finishTimer = window.setTimeout(showScanResults, 520);
+        labsState.scanTimers.push(finishTimer);
+      }
+    }, index * 620);
+
+    labsState.scanTimers.push(timer);
+  });
+}
+
+function showScanResults() {
+  document.querySelector("[data-scan-view]").hidden = true;
+  document.querySelector("[data-results-view]").hidden = false;
+  document.querySelector("[data-review-view]").hidden = true;
+}
+
+function showEicrReview() {
+  document.querySelector("[data-scan-view]").hidden = true;
+  document.querySelector("[data-results-view]").hidden = true;
+  document.querySelector("[data-review-view]").hidden = false;
+}
+
+function bindSmartUpload() {
+  const input = document.querySelector("[data-file-input]");
+  const dropZone = document.querySelector("[data-drop-zone]");
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-upload-trigger]")) {
+      input?.click();
+    }
+
+    if (event.target.closest("[data-demo-scan]")) {
+      openSmartModal();
+    }
+
+    if (event.target.closest("[data-review-eicr]")) {
+      showEicrReview();
+    }
+
+    if (event.target.closest("[data-confirm-eicr]")) {
+      confirmEicr();
+    }
+
+    if (event.target.closest("[data-modal-close]")) {
+      closeSmartModal();
+    }
+  });
+
+  input?.addEventListener("change", () => {
+    if (input.files.length) {
+      openSmartModal();
+      input.value = "";
+    }
+  });
+
+  document.querySelector("[data-modal-backdrop]")?.addEventListener("click", closeSmartModal);
+
+  ["dragenter", "dragover"].forEach((eventName) => {
+    dropZone?.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropZone.classList.add("is-dragging");
+    });
+  });
+
+  ["dragleave", "drop"].forEach((eventName) => {
+    dropZone?.addEventListener(eventName, (event) => {
+      event.preventDefault();
+      dropZone.classList.remove("is-dragging");
+
+      if (eventName === "drop") {
+        openSmartModal();
+      }
+    });
+  });
+}
+
+function updateStrength(percent) {
+  labsState.strength = percent;
+  const value = document.querySelector("[data-strength-value]");
+  const meter = document.querySelector("[data-strength-meter]");
+  const label = document.querySelector("[data-strength-label]");
+
+  if (value) {
+    value.textContent = `${percent}%`;
+  }
+
+  if (meter) {
+    meter.style.width = `${percent}%`;
+  }
+
+  if (label) {
+    label.textContent = percent >= 58 ? "Strengthening" : "Building";
+  }
+}
+
+function confirmEicr() {
+  labsState.eicrAdded = true;
+  updateStrength(58);
+
+  const tile = document.querySelector("[data-electrical-tile]");
+  tile?.classList.remove("status-review", "status-watch", "status-neutral");
+  tile?.classList.add("status-good");
+
+  const tileIcon = tile?.querySelector("[data-icon]");
+  if (tileIcon) {
+    tileIcon.dataset.icon = "shield";
+    hydrateIcons();
+  }
+
+  document.querySelector("[data-electrical-status]").textContent = "Verified";
+  document.querySelector("[data-electrical-source]").textContent = "Uploaded document";
+
+  document.querySelector("[data-verified-count]").textContent = "3 documents";
+  document.querySelector("[data-review-count]").textContent = "0 documents";
+  document.querySelector("[data-next-upload]").textContent = "Inspection evidence";
+  document.querySelector("[data-next-upload-note]").textContent = "Latest inspection record is the next useful item";
+  document.querySelector("[data-vault-state]").textContent = "3 verified, 0 missing";
+
+  document.querySelector("[data-eicr-source]").textContent = "Uploaded document";
+  document.querySelector("[data-eicr-doc-status]").textContent = "Verified";
+  document.querySelector("[data-eicr-doc-status]").classList.remove("status-review-text");
+  document.querySelector("[data-eicr-doc-status]").classList.add("status-good-text");
+  document.querySelector("[data-eicr-review-date]").textContent = "Review date 11 May 2031";
+  document.querySelector("[data-eicr-document-row]")?.classList.remove("is-missing");
+  document.querySelector("[data-eicr-actions]").innerHTML = `
+    <button class="text-button" type="button" data-toast="Document viewer is not connected in Labs.">View</button>
+    <button class="text-button" type="button" data-upload-trigger>Replace</button>
+  `;
+
+  const activity = document.querySelector("[data-recent-activity]");
+  if (activity && !activity.textContent.includes("EICR evidence verified")) {
+    const item = document.createElement("li");
+    item.textContent = "EICR evidence verified";
+    activity.prepend(item);
+  }
+
+  const panel = document.querySelector("[data-strengthened-panel]");
+  if (panel) {
+    panel.hidden = false;
+    panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  setAssistantResponse(postEicrAssistantResponses["What evidence am I missing?"]);
+  closeSmartModal();
+  showToast("Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
+}
+
 hydrateIcons();
+renderAssistantPrompts();
 bindTabs();
 bindAssistant();
 bindMobileMenu();
 bindToasts();
+bindFindings();
+bindInbox();
+bindSmartUpload();
 
 window.labsDemoProperty = labsDemoProperty;
