@@ -49,6 +49,59 @@ const documentPrompts = [
   "Can CMP organise mixed paperwork?"
 ];
 
+const compliancePrompts = [
+  "What should I fix first?",
+  "Is this property ready to let?",
+  "What changes in the next 90 days?",
+  "Why is licensing still checking?"
+];
+
+const scenarioContent = {
+  vacant: {
+    title: "Keep the property secure and ready",
+    body: "Focus on core evidence, inspection records and anything that could delay the next tenancy.",
+    priorities: ["Add EICR evidence", "Confirm inspection status", "Review local licensing position"]
+  },
+  ready: {
+    title: "Prepare the property for advertising and move-in",
+    body: "Review the essential checks, organise the evidence pack and identify anything that could delay a new tenancy.",
+    priorities: ["Confirm alarms have been tested", "Review EICR evidence", "Prepare tenancy documents"]
+  },
+  tenanted: {
+    title: "Keep the tenancy safely on track",
+    body: "Monitor upcoming dates, confirm evidence has been stored and stay ahead of renewal windows.",
+    priorities: ["Review the next 90 days", "Check tenant-facing evidence", "Confirm inspection schedule"]
+  },
+  purchase: {
+    title: "Understand the property before you proceed",
+    body: "Use the property file to identify missing records, possible setup work and useful questions for the seller or agent.",
+    priorities: ["Check available EPC information", "Request certificates", "Review local licensing position"]
+  }
+};
+
+const whatIfContent = {
+  let: {
+    title: "Before a new tenancy",
+    body: "CMP would prioritise your EICR evidence, alarm-test confirmation and tenancy-document checklist before move-in.",
+    steps: ["Review Electrical Safety", "Confirm alarm testing", "Prepare tenancy evidence"]
+  },
+  hmo: {
+    title: "Household change worth reviewing",
+    body: "CMP would ask additional questions about occupancy, property setup and local licensing before suggesting the next steps.",
+    steps: ["Review occupancy details", "Check licensing position", "Ask CMP for guidance"]
+  },
+  advertising: {
+    title: "Get the property file ready",
+    body: "CMP would organise the known evidence, show any missing items and help you prepare a clear checklist before advertising.",
+    steps: ["Review evidence gaps", "Prepare the evidence pack", "Check move-in questions"]
+  },
+  vacant: {
+    title: "Keep the property ready",
+    body: "CMP would continue monitoring evidence gaps, inspection records and any local issues worth reviewing before the next tenancy.",
+    steps: ["Monitor evidence gaps", "Confirm inspection status", "Review licensing position"]
+  }
+};
+
 const assistantResponses = {
   "What should I fix first?": "Your most useful next step is to check whether you have a current EICR. Your EPC and Gas Safety evidence are already recorded.",
   "Explain my current status": "This property file is partly built. EPC and Gas Safety are in a good state, alarms are landlord-confirmed, and Electrical Safety still needs evidence.",
@@ -56,10 +109,13 @@ const assistantResponses = {
   "Is this property ready to let?": "Not yet. CMP would first need Electrical Safety evidence and a stronger alarm record before this property can be treated as ready.",
   "What should I upload next?": "Upload an EICR first. It is the highest-value missing evidence item for this property file.",
   "How does document scanning work?": "In this Labs preview, CMP simulates reading document names, identifying the type, extracting useful dates and matching the paperwork to 57 The Butts.",
-  "Can CMP organise mixed paperwork?": "Yes, the future workflow is designed for mixed paperwork. CMP would group certificates, tenancy documents and unclear files for review."
+  "Can CMP organise mixed paperwork?": "Yes, the future workflow is designed for mixed paperwork. CMP would group certificates, tenancy documents and unclear files for review.",
+  "What changes in the next 90 days?": "There are no confirmed urgent deadlines this week. CMP recommends reviewing inspection evidence and preparing for the Gas Safety renewal window.",
+  "Why is licensing still checking?": "Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed."
 };
 
 const postEicrAssistantResponses = {
+  "What should I fix first?": "Your EICR has been added. Your next useful step is to confirm the latest inspection record and review the local licensing position.",
   "What evidence am I missing?": "Your EICR has been added. The next useful evidence item is your latest property inspection record.",
   "What should I upload next?": "Your EICR has been added. The next useful evidence item is your latest property inspection record."
 };
@@ -121,7 +177,11 @@ function getAssistantResponse(prompt) {
 
 function renderAssistantPrompts() {
   const stack = document.querySelector(".prompt-stack");
-  const prompts = labsState.activeTab === "documents" ? documentPrompts : overviewPrompts;
+  const prompts = labsState.activeTab === "documents"
+    ? documentPrompts
+    : labsState.activeTab === "compliance"
+      ? compliancePrompts
+      : overviewPrompts;
 
   if (!stack) {
     return;
@@ -139,7 +199,7 @@ function openAssistant(message) {
 }
 
 function closeDrawers() {
-  document.body.classList.remove("menu-open", "assistant-open", "findings-open");
+  document.body.classList.remove("menu-open", "assistant-open", "findings-open", "prs-open");
 }
 
 function switchTab(target) {
@@ -160,21 +220,12 @@ function switchTab(target) {
     panel.hidden = !isActive;
   });
 
-  document.querySelectorAll("[data-side-tab]").forEach((item) => {
-    const isActive = item.dataset.sideTab === target;
-    item.classList.toggle("is-active", isActive);
-
-    if (isActive) {
-      item.setAttribute("aria-current", "page");
-    } else {
-      item.removeAttribute("aria-current");
-    }
-  });
-
   renderAssistantPrompts();
 
   if (target === "documents") {
     setAssistantResponse(labsState.eicrAdded ? postEicrAssistantResponses["What evidence am I missing?"] : assistantResponses["What evidence am I missing?"]);
+  } else if (target === "compliance") {
+    setAssistantResponse(getAssistantResponse("What should I fix first?"));
   }
 }
 
@@ -183,10 +234,10 @@ function bindTabs() {
     tab.addEventListener("click", () => switchTab(tab.dataset.tab));
   });
 
-  document.querySelectorAll("[data-side-tab]").forEach((item) => {
+  document.querySelectorAll("[data-global-nav]").forEach((item) => {
     item.addEventListener("click", (event) => {
       event.preventDefault();
-      switchTab(item.dataset.sideTab);
+      showToast(`${item.dataset.globalNav} is a portfolio-level destination in this Labs prototype.`);
       document.body.classList.remove("menu-open");
     });
   });
@@ -272,6 +323,73 @@ function bindFindings() {
     if (event.target.matches("[data-findings-drawer]")) {
       document.body.classList.remove("findings-open");
     }
+  });
+}
+
+function bindPrsDrawer() {
+  document.querySelector("[data-prs-open]")?.addEventListener("click", () => {
+    document.body.classList.add("prs-open");
+  });
+
+  document.querySelector("[data-prs-close]")?.addEventListener("click", () => {
+    document.body.classList.remove("prs-open");
+  });
+
+  document.querySelector("[data-prs-drawer]")?.addEventListener("click", (event) => {
+    if (event.target.matches("[data-prs-drawer]")) {
+      document.body.classList.remove("prs-open");
+    }
+  });
+}
+
+function bindScenarios() {
+  document.querySelectorAll("[data-scenario]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const content = scenarioContent[button.dataset.scenario];
+
+      if (!content) {
+        return;
+      }
+
+      document.querySelectorAll("[data-scenario]").forEach((item) => {
+        item.classList.toggle("is-active", item === button);
+      });
+
+      document.querySelector("[data-scenario-title]").textContent = content.title;
+      document.querySelector("[data-scenario-body]").textContent = content.body;
+      document.querySelector("[data-scenario-priorities]").innerHTML = content.priorities.map((priority) => `<li>${priority}</li>`).join("");
+    });
+  });
+}
+
+function bindWhatIf() {
+  const toggle = document.querySelector("[data-what-if-toggle]");
+  const body = document.querySelector("[data-what-if-body]");
+
+  toggle?.addEventListener("click", () => {
+    const willOpen = body.hidden;
+    body.hidden = !willOpen;
+    toggle.setAttribute("aria-expanded", String(willOpen));
+  });
+
+  document.querySelectorAll("[data-what-if]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const content = whatIfContent[button.dataset.whatIf];
+
+      if (!content) {
+        return;
+      }
+
+      document.querySelectorAll("[data-what-if]").forEach((item) => {
+        item.classList.toggle("is-active", item === button);
+      });
+
+      document.querySelector("[data-what-if-response]").innerHTML = `
+        <h3>${content.title}</h3>
+        <p>${content.body}</p>
+        <ul>${content.steps.map((step) => `<li>${step}</li>`).join("")}</ul>
+      `;
+    });
   });
 }
 
@@ -479,6 +597,21 @@ function confirmEicr() {
     <button class="text-button" type="button" data-upload-trigger>Replace</button>
   `;
 
+  const complianceCard = document.querySelector("[data-compliance-eicr-card]");
+  complianceCard?.classList.remove("status-review", "status-watch", "status-neutral");
+  complianceCard?.classList.add("status-good");
+  document.querySelector("[data-compliance-eicr-icon]").dataset.icon = "shield";
+  document.querySelector("[data-compliance-eicr-source]").textContent = "Uploaded document";
+  document.querySelector("[data-compliance-eicr-status]").textContent = "Verified";
+  document.querySelector("[data-compliance-eicr-status]").classList.remove("status-review-text");
+  document.querySelector("[data-compliance-eicr-status]").classList.add("status-good-text");
+  document.querySelector("[data-compliance-eicr-details]").textContent = "Satisfactory EICR recorded. Review date: 11 May 2031.";
+  document.querySelector("[data-compliance-eicr-actions]").innerHTML = `
+    <button class="secondary-button" type="button" data-toast="EICR viewer is not connected in Labs.">View certificate</button>
+    <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
+  `;
+  hydrateIcons();
+
   const activity = document.querySelector("[data-recent-activity]");
   if (activity && !activity.textContent.includes("EICR evidence verified")) {
     const item = document.createElement("li");
@@ -504,6 +637,9 @@ bindAssistant();
 bindMobileMenu();
 bindToasts();
 bindFindings();
+bindPrsDrawer();
+bindScenarios();
+bindWhatIf();
 bindInbox();
 bindSmartUpload();
 

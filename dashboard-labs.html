@@ -32,47 +32,47 @@
           <nav class="nav-stack">
             <section class="nav-group" aria-labelledby="navPortfolio">
               <h2 id="navPortfolio">Portfolio</h2>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-global-nav="Home">
                 <span class="nav-icon" data-icon="home"></span>
                 Home
               </a>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-global-nav="Properties">
                 <span class="nav-icon" data-icon="building"></span>
                 Properties
               </a>
             </section>
 
-            <section class="nav-group" aria-labelledby="navCompliance">
-              <h2 id="navCompliance">Compliance</h2>
-              <a class="nav-item is-active" href="#" aria-current="page" data-side-tab="overview">
+            <section class="nav-group" aria-labelledby="navPortfolioTools">
+              <h2 id="navPortfolioTools">Portfolio tools</h2>
+              <a class="nav-item" href="#" data-global-nav="Compliance centre">
                 <span class="nav-icon" data-icon="layout"></span>
-                Overview
+                Compliance centre
               </a>
-              <a class="nav-item" href="#" data-side-tab="documents">
+              <a class="nav-item" href="#" data-global-nav="Evidence Vault">
                 <span class="nav-icon" data-icon="file"></span>
-                Documents
+                Evidence Vault
               </a>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-global-nav="Tasks">
                 <span class="nav-icon" data-icon="check"></span>
                 Tasks
               </a>
-              <a class="nav-item" href="#" data-side-tab="timeline">
+              <a class="nav-item" href="#" data-global-nav="Activity">
                 <span class="nav-icon" data-icon="clock"></span>
-                Timeline
+                Activity
               </a>
             </section>
 
             <section class="nav-group" aria-labelledby="navSupport">
               <h2 id="navSupport">Support</h2>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-global-nav="Ask CMP">
                 <span class="nav-icon" data-icon="message"></span>
                 Ask CMP
               </a>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-global-nav="Book a service">
                 <span class="nav-icon" data-icon="calendar"></span>
                 Book a service
               </a>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-global-nav="Learn">
                 <span class="nav-icon" data-icon="book"></span>
                 Learn
               </a>
@@ -80,7 +80,7 @@
 
             <section class="nav-group" aria-labelledby="navAccount">
               <h2 id="navAccount">Account</h2>
-              <a class="nav-item" href="#">
+              <a class="nav-item" href="#" data-global-nav="Settings">
                 <span class="nav-icon" data-icon="settings"></span>
                 Settings
               </a>
@@ -271,9 +271,255 @@
           </section>
         </section>
 
-        <section class="tab-panel placeholder-panel" data-panel="compliance" hidden>
-          <h2>Compliance</h2>
-          <p>This area will be designed in a later Labs pass.</p>
+        <section class="tab-panel compliance-panel" data-panel="compliance" hidden>
+          <header class="compliance-header">
+            <div>
+              <p class="section-kicker">Property compliance</p>
+              <h2>Your compliance picture</h2>
+              <p>See what CMP can already confirm, what still needs checking and the shortest path to a stronger property file.</p>
+            </div>
+            <div class="compliance-header-side">
+              <div class="compliance-counts" aria-label="Compliance status summary">
+                <span><strong>3</strong> confirmed</span>
+                <span><strong>1</strong> landlord-confirmed</span>
+                <span><strong>2</strong> need checking</span>
+              </div>
+              <small>Based on the evidence currently stored in CMP.</small>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-toast="The full guided check will be designed in a later Labs pass.">Continue guided check</button>
+                <button class="secondary-button" type="button" data-assistant-message="Your clearest next step is to add or arrange an EICR. Your EPC and Gas Safety evidence are already recorded.">Ask CMP what matters most</button>
+              </div>
+            </div>
+          </header>
+
+          <section class="scenario-panel" aria-labelledby="scenarioTitle">
+            <div class="scenario-intro">
+              <p class="section-kicker">View this property through a goal</p>
+              <h2 id="scenarioTitle">What are you preparing for?</h2>
+              <p>CMP can reorganise the same property information around the situation that matters to you.</p>
+            </div>
+            <div class="scenario-options" role="list" aria-label="Compliance scenarios">
+              <button class="scenario-option is-active" type="button" data-scenario="vacant">
+                <span class="tile-icon" data-icon="shield"></span>
+                Vacant property
+              </button>
+              <button class="scenario-option" type="button" data-scenario="ready">
+                <span class="tile-icon" data-icon="check"></span>
+                Ready to let
+              </button>
+              <button class="scenario-option" type="button" data-scenario="tenanted">
+                <span class="tile-icon" data-icon="home"></span>
+                Currently tenanted
+              </button>
+              <button class="scenario-option" type="button" data-scenario="purchase">
+                <span class="tile-icon" data-icon="building"></span>
+                New purchase review
+              </button>
+            </div>
+            <article class="scenario-summary">
+              <div>
+                <h3 data-scenario-title>Keep the property secure and ready</h3>
+                <p data-scenario-body>Focus on core evidence, inspection records and anything that could delay the next tenancy.</p>
+              </div>
+              <div>
+                <span class="mini-label">Suggested priorities</span>
+                <ul data-scenario-priorities>
+                  <li>Add EICR evidence</li>
+                  <li>Confirm inspection status</li>
+                  <li>Review local licensing position</li>
+                </ul>
+              </div>
+            </article>
+          </section>
+
+          <section class="essential-section" aria-labelledby="essentialTitle">
+            <div class="section-heading">
+              <p class="section-kicker">Essential checks</p>
+              <h2 id="essentialTitle">Review the areas that matter most</h2>
+              <p>Each item shows what CMP knows, where the information came from and the clearest next action.</p>
+            </div>
+            <div class="essential-grid">
+              <article class="essential-card status-good">
+                <div class="essential-topline">
+                  <span class="tile-icon" data-icon="zap"></span>
+                  <span class="source-badge">Official record</span>
+                </div>
+                <h3>EPC</h3>
+                <p class="card-category">Energy Performance Certificate</p>
+                <strong class="status-good-text">Confirmed</strong>
+                <p>Current EPC record found. Valid until 14 March 2031.</p>
+                <div class="card-actions">
+                  <button class="secondary-button" type="button" data-toast="EPC record viewer is not connected in Labs.">View record</button>
+                  <button class="text-button" type="button" data-toast="EPC guidance will be added in a later Labs pass.">Why this matters</button>
+                </div>
+              </article>
+              <article class="essential-card status-good">
+                <div class="essential-topline">
+                  <span class="tile-icon" data-icon="shield"></span>
+                  <span class="source-badge">Uploaded document</span>
+                </div>
+                <h3>Gas Safety</h3>
+                <p class="card-category">Gas Safety</p>
+                <strong class="status-good-text">Verified</strong>
+                <p>Certificate recorded. Valid until 18 June 2027.</p>
+                <div class="card-actions">
+                  <button class="secondary-button" type="button" data-toast="Gas Safety viewer is not connected in Labs.">View certificate</button>
+                  <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
+                </div>
+              </article>
+              <article class="essential-card status-review" data-compliance-eicr-card>
+                <div class="essential-topline">
+                  <span class="tile-icon" data-icon="alert" data-compliance-eicr-icon></span>
+                  <span class="source-badge" data-compliance-eicr-source>No EICR evidence</span>
+                </div>
+                <h3>Electrical Safety</h3>
+                <p class="card-category">Electrical safety</p>
+                <strong class="status-review-text" data-compliance-eicr-status>Needs checking</strong>
+                <p data-compliance-eicr-details>CMP does not yet have a current EICR stored for this property.</p>
+                <div class="card-actions" data-compliance-eicr-actions>
+                  <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
+                  <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
+                  <button class="text-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+                </div>
+              </article>
+              <article class="essential-card status-watch">
+                <div class="essential-topline">
+                  <span class="tile-icon" data-icon="bell"></span>
+                  <span class="source-badge">Evidence not uploaded</span>
+                </div>
+                <h3>Alarms</h3>
+                <p class="card-category">Smoke and CO alarms</p>
+                <strong>Landlord confirmed</strong>
+                <p>You previously confirmed that alarms have been tested. Add inspection evidence when available.</p>
+                <div class="card-actions">
+                  <button class="secondary-button" type="button" data-upload-trigger>Add evidence</button>
+                  <button class="text-button" type="button" data-toast="Alarm answer review is static in this prototype.">Review answer</button>
+                </div>
+              </article>
+              <article class="essential-card status-neutral">
+                <div class="essential-topline">
+                  <span class="tile-icon" data-icon="file"></span>
+                  <span class="source-badge">Property currently vacant</span>
+                </div>
+                <h3>Deposit and tenancy</h3>
+                <p class="card-category">Deposit and tenancy</p>
+                <strong>Not applicable</strong>
+                <p>CMP will ask the relevant tenancy questions when a new tenancy is being prepared.</p>
+                <div class="card-actions">
+                  <button class="secondary-button" type="button" data-toast="Tenancy preparation will be designed in a later Labs pass.">Prepare for a tenancy</button>
+                </div>
+              </article>
+              <article class="essential-card status-watch">
+                <div class="essential-topline">
+                  <span class="tile-icon" data-icon="map"></span>
+                  <span class="source-badge">Local rules review</span>
+                </div>
+                <h3>Licensing</h3>
+                <p class="card-category">Local licensing</p>
+                <strong>Checking postcode</strong>
+                <p>CMP is still reviewing whether any local licensing requirements may affect this property.</p>
+                <div class="card-actions">
+                  <button class="secondary-button" type="button" data-toast="Licensing review is static in this Labs prototype.">Review licensing</button>
+                  <button class="text-button" type="button" data-assistant-message="Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed.">Ask CMP</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <section class="forecast-section" aria-labelledby="forecastTitle">
+            <div class="section-heading">
+              <p class="section-kicker">Next 90 days</p>
+              <h2 id="forecastTitle">Your compliance forecast</h2>
+              <p>A simple view of what may need attention next, based on the information currently stored in CMP.</p>
+            </div>
+            <div class="forecast-timeline">
+              <article>
+                <span>This week</span>
+                <strong>No confirmed urgent deadlines</strong>
+                <p>Your main priority is improving the missing evidence in the property file.</p>
+              </article>
+              <article>
+                <span>In 34 days</span>
+                <strong>Inspection review recommended</strong>
+                <p>Confirm whether a recent inspection has been completed or schedule the next one.</p>
+              </article>
+              <article>
+                <span>In 71 days</span>
+                <strong>Gas Safety renewal window opens</strong>
+                <p>Start planning the next Gas Safety check before the current certificate approaches expiry.</p>
+              </article>
+              <article>
+                <span>Local watch</span>
+                <strong>Licensing review in progress</strong>
+                <p>CMP is checking whether local rules may affect this address.</p>
+              </article>
+            </div>
+            <small>Prototype forecast — example timeline for layout testing.</small>
+          </section>
+
+          <div class="compliance-lower-grid">
+            <article class="prs-card">
+              <p class="section-kicker">Future readiness</p>
+              <h2>PRS Database readiness</h2>
+              <div class="prs-score">
+                <strong>68% prepared</strong>
+                <span><i style="width: 68%"></i></span>
+              </div>
+              <p>CMP already holds useful property details and evidence that could make future registration tasks easier to organise.</p>
+              <ul class="compact-checklist">
+                <li>Property identity recorded</li>
+                <li>Address and postcode recorded</li>
+                <li>Core evidence building</li>
+                <li>Landlord details still need review</li>
+              </ul>
+              <div class="button-row">
+                <button class="secondary-button" type="button" data-prs-open>Preview readiness checklist</button>
+                <button class="text-button" type="button" data-toast="CMP Labs tracks this as a future readiness concept only.">Why CMP tracks this</button>
+              </div>
+            </article>
+
+            <article class="what-if-panel" data-what-if-panel>
+              <button class="what-if-toggle" type="button" data-what-if-toggle aria-expanded="false">
+                <span>
+                  <small>CMP Labs</small>
+                  <strong>What would happen if...</strong>
+                  <em>Explore possible changes without changing saved property data.</em>
+                </span>
+                <span class="nav-icon" data-icon="more"></span>
+              </button>
+              <div class="what-if-body" hidden data-what-if-body>
+                <p>Explore how a possible change could affect the next questions CMP asks. Your saved property file will not be changed.</p>
+                <div class="what-if-options">
+                  <button type="button" data-what-if="let">What changes if I let this property next month?</button>
+                  <button type="button" data-what-if="hmo">What changes if three unrelated tenants move in?</button>
+                  <button type="button" data-what-if="advertising">What evidence would I need before advertising?</button>
+                  <button type="button" data-what-if="vacant">What changes if the property remains vacant?</button>
+                </div>
+                <article class="what-if-response" data-what-if-response>
+                  <h3>Before a new tenancy</h3>
+                  <p>CMP would prioritise your EICR evidence, alarm-test confirmation and tenancy-document checklist before move-in.</p>
+                  <ul>
+                    <li>Review Electrical Safety</li>
+                    <li>Confirm alarm testing</li>
+                    <li>Prepare tenancy evidence</li>
+                  </ul>
+                </article>
+                <small>Prototype scenario only — no saved property data has been changed.</small>
+              </div>
+            </article>
+          </div>
+
+          <article class="guided-card">
+            <div>
+              <p class="section-kicker">Guided compliance check</p>
+              <h2>Answer one calm question at a time</h2>
+              <p>Continue the step-by-step review when you are ready. You can answer what you know, skip uncertain questions and return later.</p>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" type="button" data-toast="The full guided check will be designed in a later Labs pass.">Continue guided check</button>
+              <button class="text-button" type="button" data-toast="Next question preview will be designed in a later Labs pass.">Preview the next question</button>
+            </div>
+          </article>
         </section>
         <section class="tab-panel documents-panel" data-panel="documents" hidden>
           <header class="documents-header">
@@ -511,6 +757,51 @@
             </section>
           </div>
           <button class="primary-button" type="button" data-open-compliance>Open full compliance view</button>
+        </div>
+      </aside>
+
+      <aside class="prs-drawer" aria-label="PRS Database readiness preview" data-prs-drawer>
+        <div class="drawer-panel">
+          <div class="drawer-header">
+            <div>
+              <p class="section-kicker">Future readiness</p>
+              <h2>PRS Database readiness checklist</h2>
+            </div>
+            <button class="icon-button" type="button" aria-label="Close PRS readiness preview" data-prs-close>
+              <span class="nav-icon" data-icon="close"></span>
+            </button>
+          </div>
+          <p class="drawer-note">Prototype preview — submission is not enabled.</p>
+          <div class="readiness-list">
+            <article>
+              <span class="tile-icon" data-icon="check"></span>
+              <div>
+                <h3>Property identity recorded</h3>
+                <p>Address, postcode and current property context are available in the CMP file.</p>
+              </div>
+            </article>
+            <article>
+              <span class="tile-icon" data-icon="check"></span>
+              <div>
+                <h3>Core evidence building</h3>
+                <p>EPC and Gas Safety evidence are recorded. Electrical Safety still needs review unless EICR evidence is added.</p>
+              </div>
+            </article>
+            <article>
+              <span class="tile-icon" data-icon="alert"></span>
+              <div>
+                <h3>Landlord details need review</h3>
+                <p>Registration-style contact details are not part of this Labs pass.</p>
+              </div>
+            </article>
+            <article>
+              <span class="tile-icon" data-icon="clock"></span>
+              <div>
+                <h3>Submission workflow not enabled</h3>
+                <p>This is a forward-looking concept only. CMP Labs does not submit anything to a government database.</p>
+              </div>
+            </article>
+          </div>
         </div>
       </aside>
 
