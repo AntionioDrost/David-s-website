@@ -536,9 +536,9 @@
               </p>
             </div>
             <div class="documents-actions">
-              <button class="primary-button" type="button" data-upload-trigger>Upload documents</button>
-              <button class="secondary-button" type="button" data-toast="Forwarding is simulated in CMP Labs.">Forward documents</button>
-              <button class="secondary-button quiet-button" type="button" data-assistant-message="Your most useful missing document is currently an EICR. You can upload an existing report, enter the details manually or arrange an inspection.">Ask CMP what I need</button>
+              <button class="primary-button" type="button" data-scroll-target="[data-document-upload-panel]">Upload documents</button>
+              <button class="secondary-button" type="button" data-scroll-target="[data-document-inbox-panel]">Forward documents</button>
+              <button class="secondary-button quiet-button" type="button" data-assistant-message="Your most useful missing item is your latest property inspection record. Add evidence if an inspection has been completed, or confirm that it has not yet been carried out.">Ask CMP what I need</button>
             </div>
           </header>
 
@@ -570,7 +570,7 @@
           </section>
 
           <div class="documents-grid">
-            <article class="inbox-panel">
+            <article class="inbox-panel" data-document-inbox-panel tabindex="-1">
               <p class="section-kicker">Your CMP Evidence Inbox</p>
               <h3>Your CMP Evidence Inbox</h3>
               <p>Forward certificates and property paperwork here. CMP will suggest the correct property and document category for your review.</p>
@@ -582,7 +582,7 @@
               <small>Prototype preview — forwarding is simulated in CMP Labs.</small>
             </article>
 
-            <article class="upload-panel">
+            <article class="upload-panel" data-document-upload-panel tabindex="-1">
               <p class="section-kicker">Smart upload</p>
               <h3>Add property evidence</h3>
               <p>Upload one file or a mixed folder of documents. CMP will organise the paperwork for your review.</p>
@@ -726,9 +726,98 @@
             </aside>
           </div>
         </section>
-        <section class="tab-panel placeholder-panel" data-panel="services" hidden>
-          <h2>Services</h2>
-          <p>This area will be designed in a later Labs pass.</p>
+        <section class="tab-panel services-panel" data-panel="services" hidden>
+          <header class="services-header">
+            <div>
+              <p class="section-kicker">Property support</p>
+              <h2>Recommended help for this property</h2>
+              <p>Only the most useful next actions, based on the current property file and the evidence CMP still needs.</p>
+            </div>
+            <div class="services-header-side">
+              <small>Recommendations update as your property file becomes stronger.</small>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-assistant-message="Electrical Safety is your clearest unresolved evidence area. You can upload an existing EICR or request help arranging an inspection.">Ask CMP what to prioritise</button>
+                <button class="secondary-button" type="button" data-scroll-target="[data-open-requests-panel]">View open requests</button>
+              </div>
+            </div>
+          </header>
+
+          <article class="primary-service-card">
+            <div class="service-card-main">
+              <p class="section-kicker">Highest-priority support</p>
+              <h2 data-service-primary-title>Arrange an EICR</h2>
+              <p data-service-primary-body>Electrical Safety is the clearest missing evidence area in this property file. Add an existing report or request help arranging an inspection.</p>
+              <div class="service-reason">
+                <strong>Why CMP is suggesting this</strong>
+                <span data-service-primary-reason>CMP does not currently hold a satisfactory EICR for this property.</span>
+              </div>
+            </div>
+            <div class="service-card-actions">
+              <button class="primary-button" type="button" data-service-request-open data-service-primary-action>Request EICR support</button>
+              <button class="secondary-button" type="button" data-service-upload-action>Upload existing EICR</button>
+              <button class="text-button" type="button" data-handled-open data-service-handled-action>Mark as already handled</button>
+            </div>
+          </article>
+
+          <section class="open-requests-panel" data-open-requests-panel tabindex="-1">
+            <div>
+              <p class="section-kicker">Open requests</p>
+              <h3>Support requests</h3>
+              <p data-open-requests-empty>No support requests have been created for this property yet.</p>
+              <small data-open-requests-note>Use the recommended action above when you want help.</small>
+            </div>
+            <div class="request-list" data-request-list></div>
+          </section>
+
+          <section class="service-recommendations" aria-label="Other useful support">
+            <div>
+              <p class="section-kicker">Other useful support</p>
+              <h2>A few sensible next options</h2>
+              <p>CMP keeps this list short so the property file stays manageable.</p>
+            </div>
+            <div class="service-grid">
+              <article class="service-option-card">
+                <span class="source-badge">Worth reviewing</span>
+                <h3>Review local licensing</h3>
+                <p>CMP is still checking whether local rules may affect this address.</p>
+                <div class="button-row">
+                  <button class="secondary-button" type="button" data-toast="Licensing support request will be designed in a later Labs pass.">Request licensing support</button>
+                  <button class="text-button" type="button" data-assistant-message="Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed.">Ask CMP</button>
+                </div>
+              </article>
+              <article class="service-option-card">
+                <span class="source-badge">Useful before letting</span>
+                <h3>Prepare for a future tenancy</h3>
+                <p>Build a clear checklist for evidence, alarm testing and tenant-facing documents before move-in.</p>
+                <div class="button-row">
+                  <button class="secondary-button" type="button" data-toast="Tenancy checklist preview will be designed in a later Labs pass.">Preview tenancy checklist</button>
+                  <button class="text-button" type="button" data-assistant-message="Before letting, CMP would help review EICR evidence, alarm-test confirmation and tenancy-document readiness.">Ask CMP</button>
+                </div>
+              </article>
+              <article class="service-option-card">
+                <span class="source-badge">Optional reassurance</span>
+                <h3>Request a property-file review</h3>
+                <p>Ask for a human review when you want extra reassurance about the evidence already stored in CMP.</p>
+                <div class="button-row">
+                  <button class="secondary-button" type="button" data-toast="Property-file review request will be designed in a later Labs pass.">Request a review</button>
+                  <button class="text-button" type="button" data-assistant-message="A property-file review would look at the evidence and next steps shown in this prototype. No legal approval is implied.">What will be reviewed?</button>
+                </div>
+              </article>
+            </div>
+          </section>
+
+          <article class="human-support-panel">
+            <div>
+              <p class="section-kicker">Human support</p>
+              <h2>Not sure what to arrange?</h2>
+              <p>Ask CMP for a plain-English explanation or request a quick human review of the next step.</p>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" type="button" data-assistant-message="Your next useful step is to review inspection evidence. You can upload an existing record, confirm that no inspection has been completed yet or request support.">Ask CMP</button>
+              <button class="secondary-button" type="button" data-callback-open>Request a callback</button>
+              <button class="text-button" type="button" data-message-open>Send a message</button>
+            </div>
+          </article>
         </section>
         <section class="tab-panel placeholder-panel" data-panel="details" hidden>
           <h2>Property details</h2>
@@ -768,7 +857,7 @@
 
         <div class="recent-activity">
           <h3>Recent activity</h3>
-          <ul>
+          <ul data-assistant-activity>
             <li>EPC record imported</li>
             <li>Gas Safety certificate verified</li>
             <li>EICR gap identified</li>
@@ -1005,7 +1094,7 @@
         </div>
         <small>Prototype preview — no PDF has been generated.</small>
         <div class="button-row">
-          <button class="primary-button" type="button" data-toast="Export preview prepared">Preview export</button>
+          <button class="primary-button" type="button" data-toast="Export preview prepared">Preview report</button>
           <button class="secondary-button" type="button" data-summary-close>Close</button>
         </div>
       </section>
@@ -1027,6 +1116,105 @@
         <div class="button-row">
           <button class="primary-button" type="button" data-note-save>Save note</button>
           <button class="secondary-button" type="button" data-note-close>Cancel</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal service-modal" role="dialog" aria-modal="true" aria-labelledby="serviceModalTitle" data-service-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Property support</p>
+            <h2 id="serviceModalTitle" data-service-modal-title>Request EICR support</h2>
+            <p>57 The Butts · Coventry, CV1 3BJ</p>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close support request" data-service-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <div data-service-form>
+          <p class="modal-note" data-service-modal-body>Tell CMP how you would like to proceed. This Labs preview will create a prototype support request only.</p>
+          <div class="service-choice-list" data-service-options></div>
+          <label class="note-field">
+            <span>Add a note for the CMP team</span>
+            <textarea data-service-note placeholder="Optional note..."></textarea>
+          </label>
+          <div class="button-row">
+            <button class="primary-button" type="button" data-service-create>Create support request</button>
+            <button class="secondary-button" type="button" data-service-close>Cancel</button>
+          </div>
+        </div>
+        <div class="service-success" data-service-success hidden>
+          <span class="tile-icon" data-icon="shield"></span>
+          <h3>Support request created</h3>
+          <p>CMP has recorded your request against this property file.</p>
+          <dl>
+            <div><dt>Property</dt><dd>57 The Butts</dd></div>
+            <div><dt>Request type</dt><dd data-service-success-type>EICR support</dd></div>
+            <div><dt>Status</dt><dd>Awaiting review</dd></div>
+            <div><dt>Created</dt><dd>Just now</dd></div>
+          </dl>
+          <div class="button-row">
+            <button class="primary-button" type="button" data-view-request>View request</button>
+            <button class="secondary-button" type="button" data-service-close>Close</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="timeline-modal support-modal" role="dialog" aria-modal="true" aria-labelledby="callbackModalTitle" data-callback-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Human support</p>
+            <h2 id="callbackModalTitle">Request a callback</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close callback request" data-callback-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note">Leave a short note so the CMP team knows what you would like help with.</p>
+        <div class="support-fields">
+          <label>Phone number <input type="text" data-callback-phone placeholder="Your phone number"></label>
+          <label>Best time to call <input type="text" data-callback-time placeholder="Morning, afternoon or a specific time"></label>
+          <label>What would you like help with? <textarea data-callback-help placeholder="Tell CMP what you need help with..."></textarea></label>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-callback-save>Request callback</button>
+          <button class="secondary-button" type="button" data-callback-close>Cancel</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal support-modal" role="dialog" aria-modal="true" aria-labelledby="messageModalTitle" data-message-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Human support</p>
+            <h2 id="messageModalTitle">Send a message</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close message" data-message-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <label class="note-field">
+          <span>Message</span>
+          <textarea data-message-input placeholder="Tell CMP what you need help with..."></textarea>
+        </label>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-message-save>Send message</button>
+          <button class="secondary-button" type="button" data-message-close>Cancel</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal support-modal" role="dialog" aria-modal="true" aria-labelledby="handledModalTitle" data-handled-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Property support</p>
+            <h2 id="handledModalTitle" data-handled-title>Has this already been handled?</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close recommendation status" data-handled-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <div class="service-choice-list" data-handled-options></div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-handled-save>Record status</button>
+          <button class="secondary-button" type="button" data-handled-close>Cancel</button>
         </div>
       </section>
     </div>

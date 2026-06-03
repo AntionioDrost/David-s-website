@@ -11,6 +11,8 @@ const labsState = {
   strength: 42,
   timelineFilter: "all",
   notes: [],
+  serviceRequests: [],
+  serviceEvents: [],
   scanTimers: []
 };
 
@@ -64,6 +66,13 @@ const timelinePrompts = [
   "What still needs attention?",
   "Summarise this property file",
   "Why is this event important?"
+];
+
+const servicesPrompts = [
+  "What should I arrange first?",
+  "Why is this being recommended?",
+  "Can someone review my property file?",
+  "What can CMP help with?"
 ];
 
 const scenarioContent = {
@@ -125,15 +134,23 @@ const assistantResponses = {
   "What changed recently?": "CMP verified your Gas Safety evidence and identified Electrical Safety as the clearest remaining evidence gap.",
   "What still needs attention?": "The clearest next step is to add or arrange an EICR. Local licensing and inspection evidence also remain under review.",
   "Summarise this property file": "CMP has official EPC information, verified Gas Safety evidence and a landlord-confirmed alarm answer. The timeline records each source so you can see how the property file developed.",
-  "Why is this event important?": "Timeline events help explain where each status came from, what changed and which evidence still needs attention."
+  "Why is this event important?": "Timeline events help explain where each status came from, what changed and which evidence still needs attention.",
+  "What should I arrange first?": "Electrical Safety is your clearest unresolved evidence area. You can upload an existing EICR or request help arranging an inspection.",
+  "Why is this being recommended?": "CMP is recommending EICR support because there is no current Electrical Safety evidence stored against this property.",
+  "Can someone review my property file?": "Yes. CMP can record a request for a human review of the evidence and next steps shown in this prototype.",
+  "What can CMP help with?": "CMP can help organise evidence, explain the next priority and record a support request when you want help arranging the next step."
 };
 
+const postEicrAssistantMessage = "Your EICR has been verified and your property file is stronger. The next useful step is to review your latest inspection record.";
+
 const postEicrAssistantResponses = {
-  "What should I fix first?": "Your EICR has been added. Your next useful step is to confirm the latest inspection record and review the local licensing position.",
-  "What evidence am I missing?": "Your EICR has been added. The next useful evidence item is your latest property inspection record.",
-  "What should I upload next?": "Your EICR has been added. The next useful evidence item is your latest property inspection record.",
+  "What should I fix first?": postEicrAssistantMessage,
+  "What evidence am I missing?": postEicrAssistantMessage,
+  "What should I upload next?": postEicrAssistantMessage,
   "What changed recently?": "CMP verified your EICR and updated the property file. Inspection evidence is now the most useful next upload.",
-  "What still needs attention?": "Electrical Safety evidence is now recorded. CMP still recommends reviewing local licensing and adding inspection evidence."
+  "What still needs attention?": "Electrical Safety evidence is now recorded. CMP still recommends reviewing local licensing and adding inspection evidence.",
+  "What should I arrange first?": "Your EICR is recorded. The next useful improvement is your latest property inspection record.",
+  "Why is this being recommended?": "CMP is recommending an inspection review because Electrical Safety evidence is now recorded and inspection evidence is the next useful gap."
 };
 
 const defaultAssistantResponse = "This is a static Labs preview. CMP can organise evidence, identify gaps and suggest the next useful action for this property.";
@@ -183,6 +200,29 @@ function setAssistantResponse(message) {
   }
 }
 
+function renderAssistantActivity() {
+  const list = document.querySelector("[data-assistant-activity]");
+
+  if (!list) {
+    return;
+  }
+
+  const baseItems = [
+    "EPC record imported",
+    "Gas Safety certificate verified",
+    labsState.eicrAdded ? "EICR evidence verified" : "EICR gap identified"
+  ];
+  const serviceItems = labsState.serviceEvents
+    .filter((event) => ["service-request", "callback", "message"].includes(event.type))
+    .slice(0, 2)
+    .map((event) => event.activityLabel);
+
+  list.innerHTML = [...baseItems, ...serviceItems]
+    .filter(Boolean)
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+}
+
 function getAssistantResponse(prompt) {
   if (labsState.eicrAdded && postEicrAssistantResponses[prompt]) {
     return postEicrAssistantResponses[prompt];
@@ -199,7 +239,9 @@ function renderAssistantPrompts() {
       ? compliancePrompts
       : labsState.activeTab === "timeline"
         ? timelinePrompts
-      : overviewPrompts;
+        : labsState.activeTab === "services"
+          ? servicesPrompts
+          : overviewPrompts;
 
   if (!stack) {
     return;
@@ -248,6 +290,9 @@ function switchTab(target) {
   } else if (target === "timeline") {
     renderTimelineState();
     setAssistantResponse(getAssistantResponse("What changed recently?"));
+  } else if (target === "services") {
+    renderServicesState();
+    setAssistantResponse(getAssistantResponse("What should I arrange first?"));
   }
 }
 
@@ -416,6 +461,389 @@ function bindWhatIf() {
   });
 }
 
+function scrollToPanel(selector) {
+  const panel = document.querySelector(selector);
+
+  if (!panel) {
+    return;
+  }
+
+  panel.scrollIntoView({ behavior: "smooth", block: "center" });
+  panel.focus({ preventScroll: true });
+}
+
+function serviceMode() {
+  return labsState.eicrAdded ? "inspection" : "eicr";
+}
+
+function serviceCopy() {
+  if (labsState.eicrAdded) {
+    return {
+      title: "Add or arrange a property inspection",
+      body: "Electrical Safety evidence is now recorded. Your latest property inspection record is the next useful improvement.",
+      reason: "Inspection evidence helps keep the property file current and supports future follow-up actions.",
+      action: "Request inspection support",
+      upload: "Upload inspection evidence",
+      handled: "Mark as not yet needed",
+      requestTitle: "Request property inspection support",
+      requestType: "Property inspection support",
+      eventTitle: "Property inspection support requested",
+      eventBody: "CMP recorded a request to help arrange the next property-inspection step.",
+      linkedTo: "Inspection evidence",
+      options: ["Help me arrange an inspection", "Ask someone to contact me", "I want guidance before deciding"],
+      handledTitle: "Record inspection status",
+      handledOptions: ["No recent inspection has been completed", "An inspection is already arranged", "I want to review this later"]
+    };
+  }
+
+  return {
+    title: "Arrange an EICR",
+    body: "Electrical Safety is the clearest missing evidence area in this property file. Add an existing report or request help arranging an inspection.",
+    reason: "CMP does not currently hold a satisfactory EICR for this property.",
+    action: "Request EICR support",
+    upload: "Upload existing EICR",
+    handled: "Mark as already handled",
+    requestTitle: "Request EICR support",
+    requestType: "EICR support",
+    eventTitle: "EICR support requested",
+    eventBody: "CMP recorded a request to help arrange Electrical Safety support for this property.",
+    linkedTo: "Electrical Safety",
+    options: ["Help me arrange an inspection", "Ask someone to contact me", "I want to upload an existing EICR instead"],
+    handledTitle: "Has this already been handled?",
+    handledOptions: ["I already have an EICR", "An inspection has been arranged elsewhere", "I want to return to this later"]
+  };
+}
+
+function renderChoiceList(container, options, name) {
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = options.map((option, index) => `
+    <label class="choice-option">
+      <input type="radio" name="${name}" value="${escapeHtml(option)}" ${index === 0 ? "checked" : ""}>
+      <span>${escapeHtml(option)}</span>
+    </label>
+  `).join("");
+}
+
+function renderServicesState() {
+  const copy = serviceCopy();
+
+  const title = document.querySelector("[data-service-primary-title]");
+  if (!title) {
+    return;
+  }
+
+  title.textContent = copy.title;
+  document.querySelector("[data-service-primary-body]").textContent = copy.body;
+  document.querySelector("[data-service-primary-reason]").textContent = copy.reason;
+  document.querySelector("[data-service-primary-action]").textContent = copy.action;
+  document.querySelector("[data-service-upload-action]").textContent = copy.upload;
+  document.querySelector("[data-service-handled-action]").textContent = copy.handled;
+
+  const headerButton = document.querySelector(".services-header [data-assistant-message]");
+  if (headerButton) {
+    headerButton.dataset.assistantMessage = getAssistantResponse("What should I arrange first?");
+  }
+
+  const empty = document.querySelector("[data-open-requests-empty]");
+  const note = document.querySelector("[data-open-requests-note]");
+  const list = document.querySelector("[data-request-list]");
+
+  if (!list) {
+    return;
+  }
+
+  if (!labsState.serviceRequests.length) {
+    if (empty) {
+      empty.hidden = false;
+    }
+    if (note) {
+      note.hidden = false;
+    }
+    list.innerHTML = "";
+    return;
+  }
+
+  if (empty) {
+    empty.hidden = true;
+  }
+  if (note) {
+    note.hidden = true;
+  }
+
+  list.innerHTML = labsState.serviceRequests.map((request) => `
+    <article class="request-card${request.status === "Cancelled" ? " is-cancelled" : ""}" data-request-id="${request.id}">
+      <div class="request-card-top">
+        <h3>${escapeHtml(request.type)}</h3>
+        <span class="doc-status ${request.status === "Cancelled" ? "status-neutral-text" : "status-watch-text"}">${escapeHtml(request.status)}</span>
+      </div>
+      <dl>
+        <div><dt>Created</dt><dd>${escapeHtml(request.created)}</dd></div>
+        <div><dt>Linked to</dt><dd>${escapeHtml(request.linkedTo)}</dd></div>
+        <div><dt>Property</dt><dd>57 The Butts</dd></div>
+      </dl>
+      <div class="button-row">
+        <button class="text-button" type="button" data-toast="Request detail is static in this Labs prototype.">View request</button>
+        <button class="text-button" type="button" data-toast="Request-note controls will be designed in a later Labs pass.">Add a note</button>
+        <button class="text-button" type="button" data-cancel-request="${request.id}" ${request.status === "Cancelled" ? "disabled" : ""}>Cancel request</button>
+      </div>
+    </article>
+  `).join("");
+}
+
+function openServiceRequestModal() {
+  const copy = serviceCopy();
+  document.querySelector("[data-service-modal-title]").textContent = copy.requestTitle;
+  document.querySelector("[data-service-note]").value = "";
+  document.querySelector("[data-service-form]").hidden = false;
+  document.querySelector("[data-service-success]").hidden = true;
+  renderChoiceList(document.querySelector("[data-service-options]"), copy.options, "service-option");
+  openTimelineModal("[data-service-modal]");
+}
+
+function addServiceTimelineEvent(event) {
+  labsState.serviceEvents.unshift({
+    id: `${event.type}-${Date.now()}`,
+    group: "Today",
+    filter: "actions",
+    icon: event.icon || "calendar",
+    category: event.category,
+    title: event.title,
+    body: event.body,
+    badge: event.badge,
+    badgeClass: event.badgeClass || "status-watch-text",
+    activityLabel: event.activityLabel,
+    type: event.type,
+    actions: event.actions || [],
+    details: event.details || null
+  });
+  renderTimelineState();
+  renderAssistantActivity();
+}
+
+function createSupportRequest() {
+  const copy = serviceCopy();
+  const id = `request-${Date.now()}`;
+  const request = {
+    id,
+    type: copy.requestType,
+    status: "Awaiting review",
+    created: "just now",
+    linkedTo: copy.linkedTo
+  };
+
+  labsState.serviceRequests.unshift(request);
+  addServiceTimelineEvent({
+    type: "service-request",
+    category: "Service request",
+    title: copy.eventTitle,
+    body: copy.eventBody,
+    badge: "Awaiting review",
+    activityLabel: `${copy.requestType} requested`,
+    details: {
+      title: "Request details",
+      rows: [
+        ["Property", "57 The Butts"],
+        ["Request type", copy.requestType],
+        ["Status", "Awaiting review"],
+        ["Created", "Just now"]
+      ],
+      note: "Prototype support request for layout testing."
+    }
+  });
+  renderServicesState();
+  document.querySelector("[data-service-success-type]").textContent = copy.requestType;
+  document.querySelector("[data-service-form]").hidden = true;
+  document.querySelector("[data-service-success]").hidden = false;
+  hydrateIcons();
+  showToast("Support request added to property file");
+}
+
+function cancelSupportRequest(id) {
+  const request = labsState.serviceRequests.find((item) => item.id === id);
+
+  if (!request || request.status === "Cancelled") {
+    return;
+  }
+
+  if (!window.confirm("Cancel this prototype support request?")) {
+    return;
+  }
+
+  request.status = "Cancelled";
+  addServiceTimelineEvent({
+    type: "service-cancel",
+    category: "Service request",
+    title: "Support request cancelled",
+    body: `The ${request.type.toLowerCase()} request was marked as cancelled in CMP Labs.`,
+    badge: "Cancelled",
+    badgeClass: "status-neutral-text",
+    activityLabel: "Support request cancelled",
+    details: {
+      title: "Cancellation details",
+      rows: [
+        ["Property", "57 The Butts"],
+        ["Request type", request.type],
+        ["Status", "Cancelled"],
+        ["Updated", "Just now"]
+      ],
+      note: "Prototype service history for layout testing."
+    }
+  });
+  renderServicesState();
+  showToast("Support request cancelled");
+}
+
+function openHandledModal() {
+  const copy = serviceCopy();
+  document.querySelector("[data-handled-title]").textContent = copy.handledTitle;
+  renderChoiceList(document.querySelector("[data-handled-options]"), copy.handledOptions, "handled-option");
+  openTimelineModal("[data-handled-modal]");
+}
+
+function saveHandledStatus() {
+  const selected = document.querySelector('input[name="handled-option"]:checked')?.value || "I want to review this later";
+  const isEicr = serviceMode() === "eicr";
+  const title = isEicr ? "EICR support status recorded" : "Inspection status recorded";
+
+  addServiceTimelineEvent({
+    type: "service-status",
+    category: "Service request",
+    title,
+    body: selected,
+    badge: "Recorded",
+    badgeClass: "status-neutral-text",
+    activityLabel: title,
+    details: {
+      title: "Recorded status",
+      rows: [
+        ["Property", "57 The Butts"],
+        ["Area", isEicr ? "Electrical Safety" : "Inspection evidence"],
+        ["Answer", selected],
+        ["Status", "Recorded"]
+      ],
+      note: "Prototype support status for layout testing."
+    }
+  });
+  closeTimelineModals();
+  showToast("Recommendation status recorded");
+}
+
+function createCallbackRequest() {
+  addServiceTimelineEvent({
+    type: "callback",
+    category: "Human support",
+    icon: "message",
+    title: "Callback requested",
+    body: "CMP recorded a callback request for this property.",
+    badge: "Awaiting review",
+    activityLabel: "Callback requested",
+    details: {
+      title: "Callback details",
+      rows: [
+        ["Property", "57 The Butts"],
+        ["Status", "Awaiting review"],
+        ["Created", "Just now"],
+        ["Source", "Services tab"]
+      ],
+      note: "Prototype callback request for layout testing."
+    }
+  });
+  closeTimelineModals();
+  showToast("Callback request recorded");
+}
+
+function createSupportMessage() {
+  const input = document.querySelector("[data-message-input]");
+  const body = input?.value.trim() || "Support message recorded for CMP review.";
+
+  addServiceTimelineEvent({
+    type: "message",
+    category: "Human support",
+    icon: "message",
+    title: "Support message added",
+    body,
+    badge: "Recorded",
+    badgeClass: "status-neutral-text",
+    activityLabel: "Support message added",
+    details: {
+      title: "Message details",
+      rows: [
+        ["Property", "57 The Butts"],
+        ["Status", "Recorded"],
+        ["Created", "Just now"],
+        ["Source", "Services tab"]
+      ],
+      note: "Prototype support message for layout testing."
+    }
+  });
+  closeTimelineModals();
+  showToast("Message recorded");
+}
+
+function bindServices() {
+  renderServicesState();
+
+  document.addEventListener("click", (event) => {
+    const scrollButton = event.target.closest("[data-scroll-target]");
+    if (scrollButton) {
+      scrollToPanel(scrollButton.dataset.scrollTarget);
+    }
+
+    if (event.target.closest("[data-service-request-open]")) {
+      openServiceRequestModal();
+    }
+
+    if (event.target.closest("[data-service-create]")) {
+      createSupportRequest();
+    }
+
+    if (event.target.closest("[data-view-request]")) {
+      closeTimelineModals();
+      scrollToPanel("[data-open-requests-panel]");
+    }
+
+    const cancelButton = event.target.closest("[data-cancel-request]");
+    if (cancelButton) {
+      cancelSupportRequest(cancelButton.dataset.cancelRequest);
+    }
+
+    if (event.target.closest("[data-service-upload-action]")) {
+      if (labsState.eicrAdded) {
+        showToast("Inspection upload is simulated in this Labs preview.");
+      } else {
+        document.querySelector("[data-file-input]")?.click();
+      }
+    }
+
+    if (event.target.closest("[data-callback-open]")) {
+      document.querySelector("[data-callback-phone]").value = "";
+      document.querySelector("[data-callback-time]").value = "";
+      document.querySelector("[data-callback-help]").value = "";
+      openTimelineModal("[data-callback-modal]");
+    }
+
+    if (event.target.closest("[data-message-open]")) {
+      document.querySelector("[data-message-input]").value = "";
+      openTimelineModal("[data-message-modal]");
+    }
+
+    if (event.target.closest("[data-handled-open]")) {
+      openHandledModal();
+    }
+  });
+
+  document.querySelector("[data-callback-save]")?.addEventListener("click", createCallbackRequest);
+  document.querySelector("[data-message-save]")?.addEventListener("click", createSupportMessage);
+  document.querySelector("[data-handled-save]")?.addEventListener("click", saveHandledStatus);
+
+  document.querySelectorAll("[data-service-close], [data-callback-close], [data-message-close], [data-handled-close]").forEach((button) => {
+    button.addEventListener("click", closeTimelineModals);
+  });
+}
+
 function escapeHtml(value) {
   return String(value)
     .replaceAll("&", "&amp;")
@@ -427,6 +855,7 @@ function escapeHtml(value) {
 
 function getTimelineEvents() {
   const events = [
+    ...labsState.serviceEvents.map((event) => ({ ...event })),
     ...labsState.notes.map((note) => ({
       id: note.id,
       group: "Today",
@@ -716,8 +1145,7 @@ function renderTimelineState() {
       `).join("")
     : `<div class="timeline-empty">No timeline events match this filter yet.</div>`;
 
-  const recordedCount = labsState.eicrAdded ? 9 + labsState.notes.length : 8 + labsState.notes.length;
-  document.querySelector("[data-timeline-event-count]").textContent = recordedCount;
+  document.querySelector("[data-timeline-event-count]").textContent = allEvents.length;
   document.querySelector("[data-timeline-evidence-count]").textContent = labsState.eicrAdded ? "4" : "3";
   document.querySelector("[data-timeline-open-count]").textContent = "1";
 
@@ -772,14 +1200,33 @@ function renderTimelineState() {
 }
 
 function openTimelineModal(selector) {
-  document.querySelector("[data-timeline-backdrop]").hidden = false;
-  document.querySelector(selector).hidden = false;
+  const backdrop = document.querySelector("[data-timeline-backdrop]");
+  const modal = document.querySelector(selector);
+
+  if (backdrop) {
+    backdrop.hidden = false;
+  }
+
+  if (modal) {
+    modal.hidden = false;
+  }
 }
 
 function closeTimelineModals() {
   document.querySelector("[data-timeline-backdrop]").hidden = true;
-  document.querySelector("[data-summary-modal]").hidden = true;
-  document.querySelector("[data-note-modal]").hidden = true;
+  [
+    "[data-summary-modal]",
+    "[data-note-modal]",
+    "[data-service-modal]",
+    "[data-callback-modal]",
+    "[data-message-modal]",
+    "[data-handled-modal]"
+  ].forEach((selector) => {
+    const modal = document.querySelector(selector);
+    if (modal) {
+      modal.hidden = true;
+    }
+  });
 }
 
 function bindTimeline() {
@@ -809,6 +1256,20 @@ function bindTimeline() {
     }
 
     const willOpen = details.hidden;
+
+    document.querySelectorAll("[data-event-details]").forEach((item) => {
+      if (item !== details) {
+        item.hidden = true;
+      }
+    });
+
+    document.querySelectorAll("[data-event-toggle]").forEach((item) => {
+      if (item !== button) {
+        item.textContent = "Show details";
+        item.setAttribute("aria-expanded", "false");
+      }
+    });
+
     details.hidden = !willOpen;
     button.textContent = willOpen ? "Hide details" : "Show details";
     button.setAttribute("aria-expanded", String(willOpen));
@@ -1087,13 +1548,16 @@ function confirmEicr() {
   }
 
   renderTimelineState();
-  setAssistantResponse(postEicrAssistantResponses["What evidence am I missing?"]);
+  renderServicesState();
+  renderAssistantActivity();
+  setAssistantResponse(postEicrAssistantMessage);
   closeSmartModal();
   showToast("Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
 }
 
 hydrateIcons();
 renderAssistantPrompts();
+renderAssistantActivity();
 bindTabs();
 bindAssistant();
 bindMobileMenu();
@@ -1105,5 +1569,6 @@ bindWhatIf();
 bindTimeline();
 bindInbox();
 bindSmartUpload();
+bindServices();
 
 window.labsDemoProperty = labsDemoProperty;
