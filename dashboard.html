@@ -21,15 +21,8 @@
 
     <header class="topbar">
       <a class="brand" href="index.html" aria-label="CMP home">
-        <span class="brand-mark brand-mark-shield" aria-hidden="true">
-          <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
-            <path d="M8 18.5C8 11.0442 14.0442 5 21.5 5H28.25C35.7058 5 41.75 11.0442 41.75 18.5V20.4405C41.75 26.5602 39.0814 32.3755 34.4419 36.3676L24 45L13.5581 36.3676C8.91864 32.3755 6.25 26.5602 6.25 20.4405V18.5H8Z" fill="#102F4B"/>
-            <path d="M14.25 23.25L22 31L35 16.75" stroke="#58B63F" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
-            <path d="M21.25 18.25L24.75 14.75L29.25 19.25V27.75H21.25V18.25Z" fill="#F8FBFF"/>
-            <rect x="24" y="18.5" width="2" height="5.5" rx="1" fill="#102F4B"/>
-          </svg>
-        </span>
-        <span class="brand-copy">
+        <span class="brand-mark">CMP</span>
+        <span>
           <strong>ComplyMyProperty</strong>
           <small>Landlord compliance OS</small>
         </span>
@@ -37,10 +30,11 @@
 
       <nav class="nav-links" aria-label="Primary navigation">
         <a href="index.html">Home</a>
-        <a href="#dashboard">Overview</a>
+        <a href="#dashboard">Dashboard</a>
         <a href="#guided-check">Guided check</a>
-        <a href="#evidence-pack">Evidence &amp; history</a>
-        <a href="#services">Services &amp; actions</a>
+        <a href="#az-checker">Tracker</a>
+        <a href="#evidence-pack">Evidence pack</a>
+        <a href="#services">Services</a>
       </nav>
 
       <div class="topbar-actions">
@@ -74,11 +68,11 @@
           </div>
 
           <div class="demo-studio">
-            <span class="section-kicker">Quick preview</span>
+            <span class="section-kicker">Demo studio</span>
             <h2>Preview a landlord journey</h2>
             <p>Use the simulator to test different dashboard states quickly.</p>
             <div class="demo-actions" id="demoActions">
-              <button class="mini-button" type="button" data-demo-scenario="demo_property">Load example property</button>
+              <button class="mini-button" type="button" data-demo-scenario="demo_property">Load demo property</button>
               <button class="mini-button" type="button" data-demo-scenario="epc_only">Preview EPC journey</button>
               <button class="mini-button" type="button" data-demo-scenario="full_compliance">Preview full compliance</button>
               <button class="mini-button" type="button" data-demo-scenario="eviction">Preview eviction pack</button>
@@ -92,132 +86,107 @@
           <section class="setup-panel" id="propertySetup" aria-labelledby="propertySetupTitle"></section>
 
           <div class="workspace-header">
-            <div class="workspace-header-copy">
+            <div>
               <span class="section-kicker" id="dashboardHeaderKicker">Property dashboard</span>
               <h1 id="propertyTitle">Loading property</h1>
               <p id="propertySubtitle"></p>
-              <div class="journey-badges" id="heroMetaChips"></div>
-              <p class="hero-reassurance" id="propertyReassurance">CMP keeps the next steps calm and focused on this property.</p>
             </div>
-            <div class="workspace-header-side">
-              <div class="hero-status-card">
-                <span class="status-pill info" id="heroStatusPill">Setup in progress</span>
-                <strong id="heroActionHeading">Start with the next step</strong>
-                <p id="heroActionCopy">CMP will guide the next useful action for this property.</p>
-                <div class="hero-status-actions">
-                  <button class="primary-button" type="button" id="startGuidedCheck">
-                    <i data-lucide="sparkles"></i>
-                    Open guided check
-                  </button>
-                  <button class="quiet-button" type="button" id="pullEpcButton">
-                    <i data-lucide="cloud-download"></i>
-                    Refresh EPC
-                  </button>
-                </div>
-              </div>
+            <div class="header-actions">
+              <button class="secondary-button" type="button" id="pullEpcButton">
+                <i data-lucide="cloud-download"></i>
+                Pull EPC
+              </button>
+              <button class="primary-button" type="button" id="startGuidedCheck">
+                <i data-lucide="sparkles"></i>
+                Guided check
+              </button>
             </div>
           </div>
 
           <section class="completion-banner" id="completionBanner" hidden></section>
 
-          <section class="priority-panel overview-priority-panel">
-            <div class="panel-heading">
-              <span class="section-kicker">Priority action</span>
-              <h2 id="priorityHeading">One clear next step</h2>
-            </div>
-            <p class="panel-helper" id="priorityHelper">CMP should make the next action obvious.</p>
-            <div class="priority-list" id="priorityList"></div>
-          </section>
-
-          <section class="snapshot-panel" aria-labelledby="snapshotHeading">
-            <div class="section-heading snapshot-heading">
-              <div>
-                <span class="section-kicker">Compliance snapshot</span>
-                <h2 id="snapshotHeading">Keep the overview simple</h2>
-                <p class="section-copy">Use this as the calm summary. The guided flow and evidence views hold the detail.</p>
+          <div class="dashboard-grid">
+            <section class="score-panel">
+              <div class="score-ring" id="scoreRing" aria-label="Compliance score">
+                <span id="scoreValue">0%</span>
+                <small id="riskLabel">Risk</small>
               </div>
-              <span class="quiet-pill" id="snapshotProgressMeta"></span>
-            </div>
-            <div class="snapshot-progress-track" aria-hidden="true">
-              <span id="snapshotProgressFill"></span>
-            </div>
-            <div class="snapshot-stats" id="snapshotStats"></div>
+              <div class="score-copy">
+                <h2 id="scoreHeadline">CMP is checking the property.</h2>
+                <p id="scoreNarrative"></p>
+                <p class="compliance-note" id="complianceDisclaimer">CMP helps organise and highlight property compliance information, but it is not legal advice.</p>
+              </div>
+            </section>
+
+            <section class="priority-panel">
+              <div class="panel-heading">
+                <span class="section-kicker">Start here</span>
+                <h2 id="priorityHeading">One clear next step</h2>
+              </div>
+              <p class="panel-helper" id="priorityHelper">CMP should make the next action obvious.</p>
+              <div class="priority-list" id="priorityList"></div>
+            </section>
+          </div>
+
+          <section class="intelligence-strip" id="intelligenceStrip"></section>
+
+          <section class="overview-grid" id="overviewGrid" aria-label="Property overview">
+            <article class="overview-card overview-card-known">
+              <div class="panel-heading">
+                <span class="section-kicker">What we already know</span>
+                <h2>Imported and confirmed</h2>
+              </div>
+              <div class="overview-list" id="knownSnapshot"></div>
+            </article>
+
+            <article class="overview-card overview-card-missing">
+              <div class="panel-heading">
+                <span class="section-kicker">What still needs checking</span>
+                <h2>Missing, unknown, or review needed</h2>
+              </div>
+              <div class="overview-list" id="missingSnapshot"></div>
+            </article>
+
+            <article class="overview-card overview-card-actions">
+              <div class="panel-heading">
+                <span class="section-kicker">Recommended next steps</span>
+                <h2>Keep it manageable</h2>
+              </div>
+              <div class="overview-list" id="actionSnapshot"></div>
+            </article>
           </section>
 
-          <section class="compliance-section overview-core-section">
+          <section class="tracker-preview-panel" aria-labelledby="trackerPreviewHeading">
             <div class="section-heading">
               <div>
-                <span class="section-kicker">Core checks</span>
-                <h2 id="overviewChecksHeading">Review the key areas for this property</h2>
-                <p class="section-copy">Open each card when you want the detail. The full guided flow stays below.</p>
+                <span class="section-kicker">A-Z compliance tracker</span>
+                <h2 id="trackerPreviewHeading">Build your compliance picture in baby steps</h2>
+                <p class="section-copy">Each card is one calm part of the landlord journey. Start, continue, review, or skip for now.</p>
               </div>
-              <button class="secondary-button" type="button" data-dashboard-panel-link="check">
-                <i data-lucide="sparkles"></i>
-                Open guided check
-              </button>
             </div>
-            <div class="compliance-grid overview-checks-grid" id="coreChecksGrid"></div>
-          </section>
-
-          <details class="specialist-panel" id="additionalChecksPanel">
-            <summary>
-              <div class="specialist-summary-copy">
-                <span class="section-kicker">Additional checks</span>
-                <strong id="specialistHeading">Journey-specific and lower-priority areas</strong>
-                <small id="specialistSummary">Open this when you need the wider property picture.</small>
-              </div>
-              <span class="quiet-pill" id="specialistCount"></span>
-            </summary>
-            <div class="compliance-grid specialist-grid" id="additionalChecksGrid"></div>
-          </details>
-
-          <section class="overview-preview-grid" aria-label="Evidence and services overview">
-            <article class="overview-preview-panel">
-              <div class="section-heading">
-                <div>
-                  <span class="section-kicker">Evidence &amp; recent activity</span>
-                  <h2 id="overviewActivityHeading">Keep the property file tidy</h2>
-                </div>
-                <span class="quiet-pill" id="evidencePreviewCount"></span>
-              </div>
-              <div class="activity-preview-list" id="activityPreviewList"></div>
-              <p class="panel-helper" id="evidencePreviewHelper"></p>
-              <button class="secondary-button" type="button" data-dashboard-panel-link="evidence">Open Evidence &amp; history</button>
-            </article>
-
-            <article class="overview-preview-panel overview-preview-panel-services">
-              <div class="section-heading">
-                <div>
-                  <span class="section-kicker">Relevant services</span>
-                  <h2 id="overviewServicesHeading">Only the next useful actions</h2>
-                </div>
-                <span class="quiet-pill">Maximum 3</span>
-              </div>
-              <div class="service-list overview-service-list" id="overviewServiceList"></div>
-              <button class="secondary-button" type="button" data-dashboard-panel-link="services">Open Services &amp; actions</button>
-            </article>
+            <div class="tracker-preview-grid" id="trackerPreview"></div>
           </section>
 
           <nav class="detail-tabs" aria-label="Dashboard sections">
             <button class="detail-tab" type="button" data-dashboard-tab="requirements">
               <i data-lucide="list-checks"></i>
-              Core checks
+              What matters
             </button>
             <button class="detail-tab is-active" type="button" data-dashboard-tab="check">
               <i data-lucide="sparkles"></i>
-              Guided check
+              Guided interview
             </button>
             <button class="detail-tab" type="button" data-dashboard-tab="az">
               <i data-lucide="list-tree"></i>
-              Review board
+              Tracker
             </button>
             <button class="detail-tab" type="button" data-dashboard-tab="evidence">
               <i data-lucide="folder-check"></i>
-              Evidence &amp; history
+              Evidence & timeline
             </button>
             <button class="detail-tab" type="button" data-dashboard-tab="services">
               <i data-lucide="calendar-plus"></i>
-              Services &amp; actions
+              Actions
             </button>
           </nav>
 
@@ -235,20 +204,10 @@
           <section class="guided-check detail-panel is-active" id="guided-check" data-dashboard-panel="check">
             <div class="section-heading">
               <div>
-                <span class="section-kicker">A-Z compliance check</span>
-                <h2 id="guidedHeading">Answer one calm question at a time.</h2>
+                <span class="section-kicker">Guided compliance interview</span>
+                <h2 id="guidedHeading">Answer what you know. CMP organises the rest.</h2>
               </div>
               <div class="step-count" id="stepCount"></div>
-            </div>
-
-            <div class="guided-progress-shell">
-              <div class="guided-progress-copy">
-                <strong id="guidedProgressNarrative">You can answer what you know and come back later.</strong>
-                <span id="guidedProgressHelper">Not sure at this point is always a safe option.</span>
-              </div>
-              <div class="guided-progress-track" aria-hidden="true">
-                <span id="guidedProgressFill"></span>
-              </div>
             </div>
 
             <div class="wizard-shell">
@@ -260,9 +219,9 @@
           <section class="az-checker detail-panel" id="az-checker" data-dashboard-panel="az">
             <div class="section-heading">
               <div>
-                <span class="section-kicker">A-Z review board</span>
-                <h2>See the whole compliance picture in one place.</h2>
-                <p class="section-copy">Use the guided interview and document area together. CMP keeps the answers, evidence gaps, and next actions in one place.</p>
+                <span class="section-kicker">A-Z compliance tracker</span>
+                <h2>Build your compliance picture one calm step at a time.</h2>
+                <p class="section-copy">Use the guided interview and document dump together. CMP keeps the answers, evidence gaps, and next actions in one place.</p>
               </div>
               <span class="quiet-pill save-pill" id="azSaveStatus">Not saved yet</span>
             </div>
@@ -349,7 +308,7 @@
                 <div class="assistant-orb">
                   <i data-lucide="brain-circuit"></i>
                 </div>
-                <span class="section-kicker">CMP guide</span>
+                <span class="section-kicker">CMP assistant</span>
                 <h2 id="assistantHeadline">Smart guidance, controlled by you</h2>
                 <p id="assistantCopy"></p>
               </section>
@@ -381,21 +340,9 @@
     </main>
 
     <footer class="footer">
-      <div class="footer-brand-panel">
-        <div class="footer-brand-lockup">
-          <span class="brand-mark brand-mark-shield" aria-hidden="true">
-            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" role="presentation">
-              <path d="M8 18.5C8 11.0442 14.0442 5 21.5 5H28.25C35.7058 5 41.75 11.0442 41.75 18.5V20.4405C41.75 26.5602 39.0814 32.3755 34.4419 36.3676L24 45L13.5581 36.3676C8.91864 32.3755 6.25 26.5602 6.25 20.4405V18.5H8Z" fill="#102F4B"/>
-              <path d="M14.25 23.25L22 31L35 16.75" stroke="#58B63F" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>
-              <path d="M21.25 18.25L24.75 14.75L29.25 19.25V27.75H21.25V18.25Z" fill="#F8FBFF"/>
-              <rect x="24" y="18.5" width="2" height="5.5" rx="1" fill="#102F4B"/>
-            </svg>
-          </span>
-          <div>
-            <strong>COMPLYMYPROPERTY</strong>
-            <p>The compliance operating system for UK landlords.</p>
-          </div>
-        </div>
+      <div>
+        <strong>COMPLYMYPROPERTY</strong>
+        <p>The compliance operating system for UK landlords.</p>
       </div>
       <div>
         <span>Contact</span>
@@ -421,7 +368,7 @@
           The prototype scans file names and readable text for dates and document type.
           A production CMP build would use OCR, PDF parsing, and human confirmation.
         </p>
-        <p class="upload-prototype-note" id="uploadStorageNote">Files are selected for this prototype preview and are not stored permanently yet.</p>
+        <p class="upload-prototype-note" id="uploadStorageNote">Files are analysed in prototype mode and are not permanently stored yet.</p>
         <div class="upload-feedback" id="uploadFeedback" hidden></div>
         <label class="upload-zone" for="documentUpload">
           <i data-lucide="upload"></i>
