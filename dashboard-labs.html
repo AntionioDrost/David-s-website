@@ -483,9 +483,13 @@
                 <span>
                   <small>CMP Labs</small>
                   <strong>What would happen if...</strong>
-                  <em>Explore possible changes without changing saved property data.</em>
+                  <em>Explore possible scenarios</em>
+                  <b>See how a future tenancy, occupancy change or vacant period could alter the next questions CMP asks.</b>
                 </span>
-                <span class="nav-icon" data-icon="more"></span>
+                <span class="what-if-toggle-action">
+                  <i>Explore scenarios</i>
+                  <span class="nav-icon" data-icon="chevron"></span>
+                </span>
               </button>
               <div class="what-if-body" hidden data-what-if-body>
                 <p>Explore how a possible change could affect the next questions CMP asks. Your saved property file will not be changed.</p>
@@ -664,9 +668,63 @@
             </div>
           </article>
         </section>
-        <section class="tab-panel placeholder-panel" data-panel="timeline" hidden>
-          <h2>Timeline</h2>
-          <p>This area will be designed in a later Labs pass.</p>
+        <section class="tab-panel timeline-panel" data-panel="timeline" hidden>
+          <header class="timeline-header">
+            <div>
+              <p class="section-kicker">Property activity</p>
+              <h2>Property timeline</h2>
+              <p>A clear history of the evidence, answers and actions that have shaped this property file.</p>
+            </div>
+            <div class="timeline-header-side">
+              <div class="timeline-counts">
+                <span><strong data-timeline-event-count>8</strong> recorded events</span>
+                <span><strong data-timeline-evidence-count>3</strong> evidence updates</span>
+                <span><strong data-timeline-open-count>1</strong> action still open</span>
+              </div>
+              <small>Timeline entries reflect the information currently stored in this CMP Labs preview.</small>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-summary-open>Generate evidence summary</button>
+                <button class="secondary-button" type="button" data-note-open>Add a note</button>
+              </div>
+            </div>
+          </header>
+
+          <nav class="timeline-filter-row" aria-label="Timeline filters">
+            <button class="is-active" type="button" data-timeline-filter="all">All activity</button>
+            <button type="button" data-timeline-filter="evidence">Evidence</button>
+            <button type="button" data-timeline-filter="compliance">Compliance checks</button>
+            <button type="button" data-timeline-filter="details">Property details</button>
+            <button type="button" data-timeline-filter="actions">Actions</button>
+            <button type="button" data-timeline-filter="notes">Notes</button>
+          </nav>
+
+          <article class="timeline-visit-card">
+            <div>
+              <p class="section-kicker">Since your last visit</p>
+              <h3 data-visit-title>2 useful updates</h3>
+              <ul data-visit-list>
+                <li>Gas Safety evidence was verified</li>
+                <li>Electrical Safety became the highest-priority evidence gap</li>
+              </ul>
+            </div>
+            <button class="text-button" type="button" data-toast="Updates marked as reviewed">Mark updates as reviewed</button>
+          </article>
+
+          <div class="timeline-workbench">
+            <section class="flight-recorder" aria-label="Property flight recorder">
+              <div class="timeline-list" data-timeline-list></div>
+            </section>
+
+            <aside class="timeline-actions-panel">
+              <p class="section-kicker">Open actions</p>
+              <h3>One useful next step</h3>
+              <p data-timeline-action-body>Add or arrange an EICR to strengthen the Electrical Safety record.</p>
+              <div class="button-row" data-timeline-action-buttons>
+                <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
+                <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+              </div>
+            </aside>
+          </div>
         </section>
         <section class="tab-panel placeholder-panel" data-panel="services" hidden>
           <h2>Services</h2>
@@ -897,6 +955,78 @@
             <label>Contractor <span>Midlands Electrical Services</span></label>
           </div>
           <button class="primary-button" type="button" data-confirm-eicr>Confirm and add to property file</button>
+        </div>
+      </section>
+
+      <div class="modal-backdrop timeline-backdrop" data-timeline-backdrop hidden></div>
+      <section class="timeline-modal" role="dialog" aria-modal="true" aria-labelledby="summaryModalTitle" data-summary-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Property evidence summary</p>
+            <h2 id="summaryModalTitle">Property evidence summary</h2>
+            <p>57 The Butts · Coventry, CV1 3BJ</p>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close evidence summary" data-summary-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note">A review-ready snapshot of the information currently stored in CMP.</p>
+        <div class="summary-sections">
+          <section>
+            <h3>Property details</h3>
+            <ul>
+              <li>Address recorded</li>
+              <li>Vacant property</li>
+              <li>General compliance check</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Confirmed evidence</h3>
+            <ul data-summary-confirmed>
+              <li>EPC — confirmed from official record</li>
+              <li>Gas Safety — verified from uploaded document</li>
+              <li>EICR — needs checking</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Landlord-confirmed information</h3>
+            <ul>
+              <li>Smoke and CO alarms reported as tested</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Still needs checking</h3>
+            <ul data-summary-needs>
+              <li>Electrical Safety evidence</li>
+              <li>Local licensing position</li>
+              <li>Inspection evidence</li>
+            </ul>
+          </section>
+        </div>
+        <small>Prototype preview — no PDF has been generated.</small>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-toast="Export preview prepared">Preview export</button>
+          <button class="secondary-button" type="button" data-summary-close>Close</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal note-modal" role="dialog" aria-modal="true" aria-labelledby="noteModalTitle" data-note-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Property note</p>
+            <h2 id="noteModalTitle">Add a property note</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close note" data-note-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <label class="note-field">
+          <span>Note</span>
+          <textarea data-note-input placeholder="Record a useful observation, follow-up or reminder..."></textarea>
+        </label>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-note-save>Save note</button>
+          <button class="secondary-button" type="button" data-note-close>Cancel</button>
         </div>
       </section>
     </div>

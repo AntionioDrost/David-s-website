@@ -9,6 +9,8 @@ const labsState = {
   activeTab: "overview",
   eicrAdded: false,
   strength: 42,
+  timelineFilter: "all",
+  notes: [],
   scanTimers: []
 };
 
@@ -19,6 +21,7 @@ const iconPaths = {
   building: '<path d="M4 21V5a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v16"/><path d="M9 21v-4h3v4"/><path d="M8 7h1"/><path d="M12 7h1"/><path d="M8 11h1"/><path d="M12 11h1"/><path d="M20 21H2"/>',
   calendar: '<path d="M8 2v4"/><path d="M16 2v4"/><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18"/>',
   check: '<path d="m20 6-11 11-5-5"/>',
+  chevron: '<path d="m6 9 6 6 6-6"/>',
   clock: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
   close: '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>',
   file: '<path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8Z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/>',
@@ -54,6 +57,13 @@ const compliancePrompts = [
   "Is this property ready to let?",
   "What changes in the next 90 days?",
   "Why is licensing still checking?"
+];
+
+const timelinePrompts = [
+  "What changed recently?",
+  "What still needs attention?",
+  "Summarise this property file",
+  "Why is this event important?"
 ];
 
 const scenarioContent = {
@@ -111,13 +121,19 @@ const assistantResponses = {
   "How does document scanning work?": "In this Labs preview, CMP simulates reading document names, identifying the type, extracting useful dates and matching the paperwork to 57 The Butts.",
   "Can CMP organise mixed paperwork?": "Yes, the future workflow is designed for mixed paperwork. CMP would group certificates, tenancy documents and unclear files for review.",
   "What changes in the next 90 days?": "There are no confirmed urgent deadlines this week. CMP recommends reviewing inspection evidence and preparing for the Gas Safety renewal window.",
-  "Why is licensing still checking?": "Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed."
+  "Why is licensing still checking?": "Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed.",
+  "What changed recently?": "CMP verified your Gas Safety evidence and identified Electrical Safety as the clearest remaining evidence gap.",
+  "What still needs attention?": "The clearest next step is to add or arrange an EICR. Local licensing and inspection evidence also remain under review.",
+  "Summarise this property file": "CMP has official EPC information, verified Gas Safety evidence and a landlord-confirmed alarm answer. The timeline records each source so you can see how the property file developed.",
+  "Why is this event important?": "Timeline events help explain where each status came from, what changed and which evidence still needs attention."
 };
 
 const postEicrAssistantResponses = {
   "What should I fix first?": "Your EICR has been added. Your next useful step is to confirm the latest inspection record and review the local licensing position.",
   "What evidence am I missing?": "Your EICR has been added. The next useful evidence item is your latest property inspection record.",
-  "What should I upload next?": "Your EICR has been added. The next useful evidence item is your latest property inspection record."
+  "What should I upload next?": "Your EICR has been added. The next useful evidence item is your latest property inspection record.",
+  "What changed recently?": "CMP verified your EICR and updated the property file. Inspection evidence is now the most useful next upload.",
+  "What still needs attention?": "Electrical Safety evidence is now recorded. CMP still recommends reviewing local licensing and adding inspection evidence."
 };
 
 const defaultAssistantResponse = "This is a static Labs preview. CMP can organise evidence, identify gaps and suggest the next useful action for this property.";
@@ -181,6 +197,8 @@ function renderAssistantPrompts() {
     ? documentPrompts
     : labsState.activeTab === "compliance"
       ? compliancePrompts
+      : labsState.activeTab === "timeline"
+        ? timelinePrompts
       : overviewPrompts;
 
   if (!stack) {
@@ -200,6 +218,7 @@ function openAssistant(message) {
 
 function closeDrawers() {
   document.body.classList.remove("menu-open", "assistant-open", "findings-open", "prs-open");
+  closeTimelineModals();
 }
 
 function switchTab(target) {
@@ -226,6 +245,9 @@ function switchTab(target) {
     setAssistantResponse(labsState.eicrAdded ? postEicrAssistantResponses["What evidence am I missing?"] : assistantResponses["What evidence am I missing?"]);
   } else if (target === "compliance") {
     setAssistantResponse(getAssistantResponse("What should I fix first?"));
+  } else if (target === "timeline") {
+    renderTimelineState();
+    setAssistantResponse(getAssistantResponse("What changed recently?"));
   }
 }
 
@@ -291,6 +313,7 @@ function bindMobileMenu() {
     if (event.key === "Escape") {
       closeDrawers();
       closeSmartModal();
+      closeTimelineModals();
     }
   });
 }
@@ -391,6 +414,444 @@ function bindWhatIf() {
       `;
     });
   });
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function getTimelineEvents() {
+  const events = [
+    ...labsState.notes.map((note) => ({
+      id: note.id,
+      group: "Today",
+      filter: "notes",
+      icon: "message",
+      category: "Note",
+      title: "Property note added",
+      body: note.body,
+      badge: "Landlord note",
+      badgeClass: "status-watch-text",
+      actions: [],
+      details: null
+    }))
+  ];
+
+  if (labsState.eicrAdded) {
+    events.push({
+      id: "eicr-verified",
+      group: "Today",
+      filter: "evidence",
+      icon: "shield",
+      category: "Evidence",
+      title: "EICR evidence verified",
+      body: "A satisfactory Electrical Installation Condition Report was reviewed and added to the property file.",
+      badge: "Verified",
+      badgeClass: "status-good-text",
+      actions: [{ label: "View evidence", toast: "EICR viewer is not connected in Labs." }],
+      details: {
+        title: "Document details",
+        rows: [
+          ["Document type", "Electrical Installation Condition Report"],
+          ["Matched to", "57 The Butts"],
+          ["Inspection date", "12 May 2026"],
+          ["Review date", "11 May 2031"],
+          ["Outcome", "Satisfactory"],
+          ["Confidence", "High"],
+          ["Status", "Verified from uploaded document"]
+        ],
+        note: "Prototype evidence record for layout testing."
+      }
+    });
+  }
+
+  events.push(
+    {
+      id: "electrical-gap",
+      group: "Today",
+      filter: "compliance",
+      icon: labsState.eicrAdded ? "check" : "alert",
+      category: "Compliance check",
+      title: "Electrical Safety gap identified",
+      body: "CMP could not find a current EICR in the property file. Electrical Safety became the clearest next evidence priority.",
+      badge: labsState.eicrAdded ? "Resolved" : "Needs checking",
+      badgeClass: labsState.eicrAdded ? "status-good-text" : "status-review-text",
+      resolved: labsState.eicrAdded,
+      open: !labsState.eicrAdded,
+      resolvedNote: labsState.eicrAdded ? "Resolved after EICR evidence was verified" : "",
+      actions: labsState.eicrAdded
+        ? []
+        : [
+            { label: "Upload EICR", upload: true, primary: true },
+            { label: "Ask CMP why this matters", assistant: "Your clearest next step is to add or arrange an EICR. This strengthens the Electrical Safety record in the property file." }
+          ],
+      details: {
+        title: "Why CMP flagged this",
+        rows: [
+          ["Source", "Property file review"],
+          ["Document type", "EICR"],
+          ["Status", labsState.eicrAdded ? "Resolved from uploaded document" : "No matching evidence stored"],
+          ["Property match", "57 The Butts"]
+        ],
+        note: "Prototype evidence record for layout testing."
+      }
+    },
+    {
+      id: "gas-verified",
+      group: "Today",
+      filter: "evidence",
+      icon: "shield",
+      category: "Evidence",
+      title: "Gas Safety Certificate verified",
+      body: "Uploaded certificate reviewed and stored against 57 The Butts.",
+      badge: "Verified",
+      badgeClass: "status-good-text",
+      actions: [{ label: "View evidence", toast: "Document viewer is not connected in Labs." }],
+      details: {
+        title: "Document details",
+        rows: [
+          ["Source", "Uploaded document"],
+          ["Document type", "Gas Safety Certificate"],
+          ["Valid until", "18 June 2027"],
+          ["Confidence", "High"],
+          ["Status", "Verified from uploaded document"]
+        ],
+        note: "Prototype evidence record for layout testing."
+      }
+    },
+    {
+      id: "epc-imported",
+      group: "Today",
+      filter: "evidence",
+      icon: "zap",
+      category: "Official record",
+      title: "EPC record imported",
+      body: "CMP matched an Energy Performance Certificate to this property.",
+      badge: "Confirmed",
+      badgeClass: "status-good-text",
+      actions: [{ label: "View record", toast: "Official record viewer is not connected in Labs." }],
+      details: {
+        title: "Official record details",
+        rows: [
+          ["Source", "Official record"],
+          ["Document type", "Energy Performance Certificate"],
+          ["Valid until", "14 March 2031"],
+          ["Property match", "57 The Butts"],
+          ["Status", "Confirmed from official record"]
+        ],
+        note: "Prototype evidence record for layout testing."
+      }
+    },
+    {
+      id: "licensing-review",
+      group: "Today",
+      filter: "compliance",
+      icon: "map",
+      category: "Compliance check",
+      title: "Local licensing review started",
+      body: "CMP marked the postcode for a local rules review so the property file can show whether any extra checks may be relevant.",
+      badge: "Checking",
+      badgeClass: "status-watch-text",
+      actions: [{ label: "Ask CMP", assistant: "Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed." }],
+      details: {
+        title: "Review details",
+        rows: [
+          ["Source", "Postcode review"],
+          ["Area", "Local licensing"],
+          ["Property match", "57 The Butts"],
+          ["Status", "Review in progress"]
+        ],
+        note: "Prototype evidence record for layout testing."
+      }
+    },
+    {
+      id: "inspection-follow-up",
+      group: "Today",
+      filter: "actions",
+      icon: "calendar",
+      category: "Actions",
+      title: "Inspection follow-up prepared",
+      body: "CMP prepared inspection evidence as a useful follow-up item for this vacant property.",
+      badge: "Prepared",
+      badgeClass: "status-watch-text",
+      actions: [{ label: "Upload inspection evidence", upload: true }],
+      details: null
+    },
+    {
+      id: "alarms-confirmed",
+      group: "Earlier this week",
+      filter: "compliance",
+      icon: "bell",
+      category: "Landlord answer",
+      title: "Alarm testing confirmed",
+      body: "Smoke and CO alarms were reported as tested. Supporting evidence has not yet been uploaded.",
+      badge: "Landlord confirmed",
+      badgeClass: "status-watch-text",
+      actions: [
+        { label: "Add evidence", upload: true },
+        { label: "Review answer", toast: "Answer review is not connected in Labs." }
+      ],
+      details: {
+        title: "Answer details",
+        rows: [
+          ["Source", "Landlord answer"],
+          ["Area", "Smoke and CO alarms"],
+          ["Evidence", "Not uploaded"],
+          ["Status", "Landlord confirmed"]
+        ],
+        note: "Prototype evidence record for layout testing."
+      }
+    },
+    {
+      id: "vacant-scenario",
+      group: "Earlier this week",
+      filter: "details",
+      icon: "home",
+      category: "Property details",
+      title: "Property marked as vacant",
+      body: "CMP adjusted the suggested next steps to focus on core evidence, inspection records and readiness for a future tenancy.",
+      badge: "Scenario updated",
+      badgeClass: "status-watch-text",
+      actions: [{ label: "View scenario", toast: "Scenario detail is shown in the Compliance tab." }],
+      details: null
+    },
+    {
+      id: "file-created",
+      group: "Earlier this week",
+      filter: "details",
+      icon: "building",
+      category: "Property setup",
+      title: "Property file created",
+      body: "57 The Butts was added to the CMP Labs workspace.",
+      badge: "Recorded",
+      badgeClass: "status-neutral-text",
+      actions: [],
+      details: null
+    }
+  );
+
+  return events;
+}
+
+function eventMatchesFilter(event) {
+  if (labsState.timelineFilter === "all") {
+    return true;
+  }
+
+  if (labsState.timelineFilter === "actions") {
+    return event.open || event.actions?.some((action) => action.primary || action.upload);
+  }
+
+  return event.filter === labsState.timelineFilter;
+}
+
+function renderTimelineEvent(event) {
+  const actions = event.actions?.map((action) => {
+    const attrs = action.upload
+      ? "data-upload-trigger"
+      : action.assistant
+        ? `data-assistant-message="${escapeHtml(action.assistant)}"`
+        : `data-toast="${escapeHtml(action.toast || "This action is static in CMP Labs.")}"`;
+    const className = action.primary ? "primary-button" : "text-button";
+    return `<button class="${className}" type="button" ${attrs}>${escapeHtml(action.label)}</button>`;
+  }).join("") || "";
+
+  const detailsButton = event.details
+    ? `<button class="text-button" type="button" data-event-toggle="${event.id}" aria-expanded="false">Show details</button>`
+    : "";
+
+  const details = event.details
+    ? `
+      <div class="timeline-details" hidden data-event-details="${event.id}">
+        <h4>${escapeHtml(event.details.title)}</h4>
+        <dl>
+          ${event.details.rows.map(([term, detail]) => `<div><dt>${escapeHtml(term)}</dt><dd>${escapeHtml(detail)}</dd></div>`).join("")}
+        </dl>
+        <small>${escapeHtml(event.details.note)}</small>
+      </div>
+    `
+    : "";
+
+  return `
+    <article class="timeline-event${event.open ? " is-open" : ""}${event.resolved ? " is-resolved" : ""}" data-event-id="${event.id}">
+      <div class="timeline-event-top">
+        <div>
+          <span class="timeline-event-kicker"><span class="nav-icon" data-icon="${event.icon}"></span>${escapeHtml(event.category)}</span>
+          <h3>${escapeHtml(event.title)}</h3>
+        </div>
+        <span class="doc-status ${event.badgeClass}">${escapeHtml(event.badge)}</span>
+      </div>
+      <p>${escapeHtml(event.body)}</p>
+      ${event.resolvedNote ? `<span class="timeline-resolved-note">${escapeHtml(event.resolvedNote)}</span>` : ""}
+      ${details}
+      ${actions || detailsButton ? `<div class="button-row">${actions}${detailsButton}</div>` : ""}
+    </article>
+  `;
+}
+
+function renderTimelineState() {
+  const list = document.querySelector("[data-timeline-list]");
+
+  if (!list) {
+    return;
+  }
+
+  const allEvents = getTimelineEvents();
+  const events = allEvents.filter(eventMatchesFilter);
+  const groups = [...new Set(events.map((event) => event.group))];
+
+  list.innerHTML = groups.length
+    ? groups.map((group) => `
+        <section class="timeline-day">
+          <span class="timeline-day-label">${escapeHtml(group)}</span>
+          <div class="timeline-events">
+            ${events.filter((event) => event.group === group).map(renderTimelineEvent).join("")}
+          </div>
+        </section>
+      `).join("")
+    : `<div class="timeline-empty">No timeline events match this filter yet.</div>`;
+
+  const recordedCount = labsState.eicrAdded ? 9 + labsState.notes.length : 8 + labsState.notes.length;
+  document.querySelector("[data-timeline-event-count]").textContent = recordedCount;
+  document.querySelector("[data-timeline-evidence-count]").textContent = labsState.eicrAdded ? "4" : "3";
+  document.querySelector("[data-timeline-open-count]").textContent = "1";
+
+  document.querySelector("[data-visit-title]").textContent = labsState.eicrAdded ? "3 useful updates" : "2 useful updates";
+  document.querySelector("[data-visit-list]").innerHTML = labsState.eicrAdded
+    ? `
+      <li>Gas Safety evidence was verified</li>
+      <li>Electrical Safety evidence was added</li>
+      <li>Inspection evidence is now the next useful upload</li>
+    `
+    : `
+      <li>Gas Safety evidence was verified</li>
+      <li>Electrical Safety became the highest-priority evidence gap</li>
+    `;
+
+  document.querySelector("[data-timeline-action-body]").textContent = labsState.eicrAdded
+    ? "Add inspection evidence or confirm that no recent inspection has been completed."
+    : "Add or arrange an EICR to strengthen the Electrical Safety record.";
+  document.querySelector("[data-timeline-action-buttons]").innerHTML = labsState.eicrAdded
+    ? `
+      <button class="primary-button" type="button" data-upload-trigger>Upload inspection evidence</button>
+      <button class="secondary-button" type="button" data-toast="Inspection status is not saved in this prototype.">Mark as not yet completed</button>
+    `
+    : `
+      <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
+      <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+    `;
+
+  document.querySelector("[data-summary-confirmed]").innerHTML = labsState.eicrAdded
+    ? `
+      <li>EPC — confirmed from official record</li>
+      <li>Gas Safety — verified from uploaded document</li>
+      <li>EICR — verified from uploaded document</li>
+    `
+    : `
+      <li>EPC — confirmed from official record</li>
+      <li>Gas Safety — verified from uploaded document</li>
+      <li>EICR — needs checking</li>
+    `;
+  document.querySelector("[data-summary-needs]").innerHTML = labsState.eicrAdded
+    ? `
+      <li>Local licensing position</li>
+      <li>Inspection evidence</li>
+    `
+    : `
+      <li>Electrical Safety evidence</li>
+      <li>Local licensing position</li>
+      <li>Inspection evidence</li>
+    `;
+
+  hydrateIcons();
+}
+
+function openTimelineModal(selector) {
+  document.querySelector("[data-timeline-backdrop]").hidden = false;
+  document.querySelector(selector).hidden = false;
+}
+
+function closeTimelineModals() {
+  document.querySelector("[data-timeline-backdrop]").hidden = true;
+  document.querySelector("[data-summary-modal]").hidden = true;
+  document.querySelector("[data-note-modal]").hidden = true;
+}
+
+function bindTimeline() {
+  renderTimelineState();
+
+  document.querySelectorAll("[data-timeline-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      labsState.timelineFilter = button.dataset.timelineFilter;
+      document.querySelectorAll("[data-timeline-filter]").forEach((item) => {
+        item.classList.toggle("is-active", item === button);
+      });
+      renderTimelineState();
+    });
+  });
+
+  document.querySelector("[data-timeline-list]")?.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-event-toggle]");
+
+    if (!button) {
+      return;
+    }
+
+    const details = document.querySelector(`[data-event-details="${button.dataset.eventToggle}"]`);
+
+    if (!details) {
+      return;
+    }
+
+    const willOpen = details.hidden;
+    details.hidden = !willOpen;
+    button.textContent = willOpen ? "Hide details" : "Show details";
+    button.setAttribute("aria-expanded", String(willOpen));
+  });
+
+  document.querySelector("[data-summary-open]")?.addEventListener("click", () => {
+    renderTimelineState();
+    openTimelineModal("[data-summary-modal]");
+  });
+
+  document.querySelectorAll("[data-summary-close]").forEach((button) => {
+    button.addEventListener("click", closeTimelineModals);
+  });
+
+  document.querySelector("[data-note-open]")?.addEventListener("click", () => {
+    document.querySelector("[data-note-input]").value = "";
+    openTimelineModal("[data-note-modal]");
+  });
+
+  document.querySelectorAll("[data-note-close]").forEach((button) => {
+    button.addEventListener("click", closeTimelineModals);
+  });
+
+  document.querySelector("[data-note-save]")?.addEventListener("click", () => {
+    const input = document.querySelector("[data-note-input]");
+    const body = input.value.trim();
+
+    if (!body) {
+      showToast("Add a note before saving");
+      return;
+    }
+
+    labsState.notes.unshift({ id: `note-${Date.now()}`, body });
+    labsState.timelineFilter = "all";
+    document.querySelectorAll("[data-timeline-filter]").forEach((item) => {
+      item.classList.toggle("is-active", item.dataset.timelineFilter === "all");
+    });
+    closeTimelineModals();
+    renderTimelineState();
+    showToast("Note added to property timeline");
+  });
+
+  document.querySelector("[data-timeline-backdrop]")?.addEventListener("click", closeTimelineModals);
 }
 
 async function copyInboxAddress() {
@@ -625,6 +1086,7 @@ function confirmEicr() {
     panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
+  renderTimelineState();
   setAssistantResponse(postEicrAssistantResponses["What evidence am I missing?"]);
   closeSmartModal();
   showToast("Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
@@ -640,6 +1102,7 @@ bindFindings();
 bindPrsDrawer();
 bindScenarios();
 bindWhatIf();
+bindTimeline();
 bindInbox();
 bindSmartUpload();
 
