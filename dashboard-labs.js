@@ -6,10 +6,12 @@ const labsDemoProperty = {
 };
 
 const labsState = {
+  currentView: "home",
   activeTab: "overview",
   eicrAdded: false,
   strength: 42,
   timelineFilter: "all",
+  alarmAnswer: "",
   notes: [],
   propertyEvents: [],
   serviceRequests: [],
@@ -115,6 +117,13 @@ const propertyPrompts = [
   "Where did this information come from?",
   "Why does CMP need property details?",
   "What is Property Memory?"
+];
+
+const portfolioPrompts = [
+  "Summarise my portfolio",
+  "What should I do today?",
+  "Which property needs attention?",
+  "What evidence am I missing?"
 ];
 
 const roomLabels = {
@@ -226,6 +235,24 @@ const postEicrAssistantResponses = {
   "Why is this being recommended?": "CMP is recommending an inspection review because Electrical Safety evidence is now recorded and inspection evidence is the next useful gap."
 };
 
+const portfolioAssistantResponses = {
+  "Summarise my portfolio": "You currently have one property in CMP. EPC and Gas Safety evidence are recorded for 57 The Butts. Electrical Safety is the clearest area to check next.",
+  "What should I do today?": "The most useful action today is to check whether 57 The Butts has a current EICR. You can upload an existing report or ask CMP to help arrange an inspection.",
+  "Which property needs attention?": "57 The Butts is the only property in this Labs portfolio. Its clearest remaining gap is Electrical Safety evidence.",
+  "What evidence am I missing?": "CMP has EPC and Gas Safety evidence. The clearest missing item is an EICR. Inspection evidence can also be added when available.",
+  "Ask CMP why this matters": "Electrical Safety evidence helps CMP understand whether this property file is ready for the next tenancy steps. Upload an existing EICR or request help arranging an inspection.",
+  "Ask CMP what I need": "Your most useful missing item is your latest property inspection record. Add evidence if an inspection has been completed, or confirm that it has not yet been carried out."
+};
+
+const portfolioPostEicrAssistantResponses = {
+  "Summarise my portfolio": "You currently have one property in CMP. EPC, Gas Safety and EICR evidence are recorded for 57 The Butts. Inspection evidence is the next useful item to add.",
+  "What should I do today?": "Your EICR is recorded. The next useful step is to add recent inspection evidence or arrange a property inspection.",
+  "Which property needs attention?": "57 The Butts is still the active property. Electrical Safety evidence is now verified, so inspection evidence is the next useful focus.",
+  "What evidence am I missing?": "CMP has EPC, Gas Safety and EICR evidence. The next useful upload is a recent property-inspection record.",
+  "Ask CMP why this matters": "Your EICR is now verified. The next useful step is to review your latest inspection record so CMP can keep the property file current.",
+  "Ask CMP what I need": "Your most useful missing item is your latest property inspection record. Add evidence if an inspection has been completed, or confirm that it has not yet been carried out."
+};
+
 const defaultAssistantResponse = "This is a static Labs preview. CMP can organise evidence, identify gaps and suggest the next useful action for this property.";
 
 const scanStages = [
@@ -280,6 +307,12 @@ function renderAssistantActivity() {
     return;
   }
 
+  list.innerHTML = getRecentActivityItems()
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+}
+
+function getRecentActivityItems() {
   const dynamicItems = [...labsState.serviceEvents, ...labsState.propertyEvents]
     .filter((event) => event.activityLabel)
     .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
@@ -290,14 +323,49 @@ function renderAssistantActivity() {
     "EPC record imported"
   ];
 
-  list.innerHTML = [...dynamicItems, ...baseItems]
+  return [...dynamicItems, ...baseItems]
     .filter(Boolean)
-    .slice(0, 3)
+    .slice(0, 3);
+}
+
+function renderOverviewRecentActivity() {
+  const list = document.querySelector("[data-recent-activity]");
+
+  if (!list) {
+    return;
+  }
+
+  const heading = list.closest(".small-card")?.querySelector("h2");
+  const items = labsState.eicrAdded
+    ? [
+        "Gas Safety evidence was verified",
+        "Electrical Safety evidence was added",
+        "Inspection evidence is now your next useful upload"
+      ]
+    : [
+        "Gas Safety evidence was verified",
+        "Electrical Safety is now your highest-priority gap"
+      ];
+
+  if (heading) {
+    heading.textContent = `${items.length} updates since your last visit`;
+  }
+
+  list.innerHTML = items
     .map((item) => `<li>${escapeHtml(item)}</li>`)
     .join("");
 }
 
+function getPortfolioAssistantResponse(prompt) {
+  const responses = labsState.eicrAdded ? portfolioPostEicrAssistantResponses : portfolioAssistantResponses;
+  return responses[prompt] || defaultAssistantResponse;
+}
+
 function getAssistantResponse(prompt) {
+  if (labsState.currentView === "home") {
+    return getPortfolioAssistantResponse(prompt);
+  }
+
   if (labsState.eicrAdded && postEicrAssistantResponses[prompt]) {
     return postEicrAssistantResponses[prompt];
   }
@@ -307,7 +375,9 @@ function getAssistantResponse(prompt) {
 
 function renderAssistantPrompts() {
   const stack = document.querySelector(".prompt-stack");
-  const prompts = labsState.activeTab === "documents"
+  const prompts = labsState.currentView === "home"
+    ? portfolioPrompts
+    : labsState.activeTab === "documents"
     ? documentPrompts
     : labsState.activeTab === "compliance"
       ? compliancePrompts
@@ -339,11 +409,31 @@ function closeDrawers() {
   closeTimelineModals();
 }
 
+function setGlobalNavActive(label) {
+  document.querySelectorAll("[data-global-nav]").forEach((item) => {
+    item.classList.toggle("is-active", item.dataset.globalNav === label);
+  });
+}
+
+function focusAssistantInput() {
+  const input = document.querySelector('[data-assistant-form] input[name="question"]');
+
+  if (window.matchMedia("(max-width: 1240px)").matches) {
+    openAssistant();
+  }
+
+  input?.focus({ preventScroll: false });
+}
+
 function switchTab(target) {
   const tabs = Array.from(document.querySelectorAll("[data-tab]"));
   const panels = Array.from(document.querySelectorAll("[data-panel]"));
 
+  labsState.currentView = "property";
   labsState.activeTab = target;
+  document.body.classList.remove("portfolio-home-active", "menu-open");
+  document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
+  setGlobalNavActive(null);
 
   tabs.forEach((item) => {
     const isActive = item.dataset.tab === target;
@@ -372,7 +462,235 @@ function switchTab(target) {
   } else if (target === "details") {
     renderPropertyDetailsState();
     setAssistantResponse(getAssistantResponse("What details are still missing?"));
+  } else {
+    setAssistantResponse(getAssistantResponse("What should I fix first?"));
   }
+}
+
+function renderPortfolioHomeState() {
+  const home = document.querySelector("[data-portfolio-home]");
+
+  if (!home) {
+    return;
+  }
+
+  const strength = labsState.eicrAdded ? 58 : 42;
+  const latestActivity = getRecentActivityItems();
+  const activeRequest = currentServiceRequest();
+
+  document.querySelector("[data-home-summary-title]").textContent = labsState.eicrAdded
+    ? "Add recent inspection evidence for 57 The Butts"
+    : "Check whether 57 The Butts has a current EICR";
+  document.querySelector("[data-home-summary-body]").textContent = labsState.eicrAdded
+    ? "Electrical Safety is recorded. Inspection evidence is the next useful improvement."
+    : "Electrical Safety is the clearest evidence gap in the property file.";
+  document.querySelector("[data-home-priority-detail]").textContent = activeRequest
+    ? "request awaiting review"
+    : "clear next step";
+  document.querySelector("[data-home-verified-count]").textContent = labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-home-review-count]").textContent = labsState.eicrAdded ? "2" : "3";
+  document.querySelector("[data-home-priority-area]").textContent = labsState.eicrAdded ? "Property inspection" : "Electrical Safety";
+  document.querySelector("[data-home-priority-status]").textContent = labsState.eicrAdded ? "Useful next step" : "Evidence missing";
+  document.querySelector("[data-home-priority-body]").textContent = labsState.eicrAdded
+    ? "The Electrical Safety evidence is now recorded. The next useful action is to add recent inspection evidence or arrange a property inspection."
+    : "CMP could not find a current EICR for 57 The Butts. Upload an existing report or request help arranging an inspection.";
+  document.querySelector("[data-home-upload-priority]").textContent = labsState.eicrAdded ? "Upload inspection evidence" : "Upload EICR";
+  document.querySelector("[data-home-arrange-priority]").textContent = labsState.eicrAdded ? "Arrange an inspection" : "Arrange an EICR";
+  document.querySelector("[data-home-occupancy]").textContent = labsState.propertyDetails.occupancy;
+  document.querySelector("[data-home-goal]").textContent = labsState.propertyDetails.goal;
+  document.querySelector("[data-home-strength]").textContent = `${strength}% evidenced`;
+  document.querySelector("[data-home-strength-meter]").style.width = `${strength}%`;
+  document.querySelector("[data-home-status]").textContent = labsState.eicrAdded
+    ? "2 areas still need review"
+    : "3 areas need checking";
+  document.querySelector("[data-home-activity-list]").innerHTML = latestActivity
+    .map((item) => `<li>${escapeHtml(item)}</li>`)
+    .join("");
+
+  const quickTitle = document.querySelector("[data-home-quick-title]");
+  const quickBody = document.querySelector("[data-home-quick-body]");
+  const quickButton = document.querySelector("[data-home-quick-win-open]");
+
+  if (labsState.alarmAnswer) {
+    quickTitle.textContent = "Alarm-testing answer recorded";
+    quickBody.textContent = `Saved answer: ${labsState.alarmAnswer}. You can update this later from the property timeline.`;
+    quickButton.textContent = "Update answer";
+  } else {
+    quickTitle.textContent = "Complete a useful task in approximately 2 minutes";
+    quickBody.textContent = "Confirm whether smoke and CO alarms have been tested recently.";
+    quickButton.textContent = "Complete now";
+  }
+}
+
+function showPortfolioHome({ scroll = false } = {}) {
+  const home = document.querySelector("[data-portfolio-home]");
+
+  if (!home) {
+    return;
+  }
+
+  labsState.currentView = "home";
+  document.body.classList.add("portfolio-home-active");
+  document.body.classList.remove("menu-open");
+  home.hidden = false;
+  document.querySelectorAll("[data-panel]").forEach((panel) => {
+    panel.hidden = true;
+    panel.classList.remove("is-active");
+  });
+  document.querySelectorAll("[data-tab]").forEach((tab) => {
+    tab.classList.remove("is-active");
+    tab.setAttribute("aria-selected", "false");
+  });
+  setGlobalNavActive("Home");
+  renderPortfolioHomeState();
+  renderAssistantPrompts();
+  renderAssistantActivity();
+  setAssistantResponse(getPortfolioAssistantResponse("What should I do today?"));
+
+  if (scroll) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+function openPropertyWorkspace(tab = "overview", focusSelector = null) {
+  switchTab(tab);
+
+  window.setTimeout(() => {
+    if (focusSelector) {
+      scrollToPanel(focusSelector);
+      return;
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }, 60);
+}
+
+function openHomeAlarmModal() {
+  document.querySelectorAll('input[name="home-alarm-answer"]').forEach((input) => {
+    input.checked = labsState.alarmAnswer ? input.value === labsState.alarmAnswer : input.value === "Yes, they have been tested";
+  });
+  openTimelineModal("[data-home-alarm-modal]");
+}
+
+function saveHomeAlarmAnswer() {
+  const selected = document.querySelector('input[name="home-alarm-answer"]:checked');
+
+  if (!selected) {
+    showToast("Choose an alarm-testing answer before saving");
+    return;
+  }
+
+  const previous = labsState.alarmAnswer || "Not answered";
+  labsState.alarmAnswer = selected.value;
+  addPropertyTimelineEvent({
+    type: "alarm-answer",
+    filter: "checks",
+    icon: "bell",
+    category: "Landlord answer",
+    title: "Alarm-testing answer saved",
+    body: `Smoke and CO alarm answer saved: ${labsState.alarmAnswer}.`,
+    badge: "Landlord answer",
+    badgeClass: "status-watch-text",
+    activityLabel: "Alarm-testing answer saved",
+    detailsTitle: "Answer details",
+    details: {
+      title: "Answer details",
+      rows: [
+        ["Previous answer", previous],
+        ["Saved answer", labsState.alarmAnswer],
+        ["Created", "Just now"],
+        ["Source", "Portfolio Home quick win"]
+      ],
+      note: "Prototype landlord answer for layout testing."
+    }
+  });
+  closeTimelineModals();
+  renderPortfolioHomeState();
+  showToast("Alarm-testing answer saved");
+}
+
+function bindPortfolioHome() {
+  document.querySelectorAll("[data-home-add-property]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showToast("Add-property onboarding will be connected in a later CMP Labs pass.");
+    });
+  });
+
+  document.querySelector("[data-home-ask]")?.addEventListener("click", () => {
+    focusAssistantInput();
+  });
+
+  document.querySelector("[data-home-open-action]")?.addEventListener("click", () => {
+    openPropertyWorkspace(labsState.eicrAdded ? "timeline" : "overview", labsState.eicrAdded ? "[data-timeline-action-body]" : "[data-next-best-step]");
+  });
+
+  document.querySelector("[data-home-why]")?.addEventListener("click", () => {
+    openAssistant(getPortfolioAssistantResponse("Ask CMP why this matters"));
+  });
+
+  document.querySelectorAll("[data-home-prompt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openAssistant(getPortfolioAssistantResponse(button.dataset.homePrompt));
+    });
+  });
+
+  document.querySelector("[data-home-upload-priority]")?.addEventListener("click", () => {
+    openPropertyWorkspace(labsState.eicrAdded ? "documents" : "documents", labsState.eicrAdded ? "[data-inspection-upload-card]" : "[data-document-upload-panel]");
+  });
+
+  document.querySelector("[data-home-arrange-priority]")?.addEventListener("click", () => {
+    openPropertyWorkspace("services", "[data-service-primary-card]");
+  });
+
+  document.querySelector("[data-home-open-workspace]")?.addEventListener("click", () => {
+    openPropertyWorkspace("overview");
+  });
+
+  document.querySelector("[data-home-open-property]")?.addEventListener("click", () => {
+    openPropertyWorkspace("overview");
+  });
+
+  document.querySelector("[data-home-view-activity]")?.addEventListener("click", () => {
+    openPropertyWorkspace("timeline");
+  });
+
+  document.querySelector("[data-home-copy-inbox]")?.addEventListener("click", () => {
+    const address = document.querySelector("[data-home-inbox-address]")?.textContent?.trim();
+    copyInboxAddress(address);
+  });
+
+  document.querySelector("[data-home-open-vault]")?.addEventListener("click", () => {
+    openPropertyWorkspace("documents");
+  });
+
+  document.querySelector("[data-home-view-timeline]")?.addEventListener("click", () => {
+    openPropertyWorkspace("timeline");
+  });
+
+  document.querySelectorAll("[data-home-upcoming]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const target = button.dataset.homeUpcoming;
+
+      if (target === "inspection") {
+        openPropertyWorkspace("timeline", "[data-timeline-action-body]");
+      } else if (target === "gas") {
+        openPropertyWorkspace("documents", "[data-vault-list]");
+      } else if (target === "licensing") {
+        openPropertyWorkspace("compliance", "[data-compliance-licensing-card]");
+      } else {
+        openHomeAlarmModal();
+      }
+    });
+  });
+
+  document.querySelector("[data-home-quick-win-open]")?.addEventListener("click", openHomeAlarmModal);
+  document.querySelector("[data-home-quick-remind]")?.addEventListener("click", () => {
+    showToast("Quick win reminder is not scheduled in this Labs preview.");
+  });
+  document.querySelector("[data-home-alarm-save]")?.addEventListener("click", saveHomeAlarmAnswer);
+  document.querySelectorAll("[data-home-alarm-close]").forEach((button) => {
+    button.addEventListener("click", closeTimelineModals);
+  });
 }
 
 function bindTabs() {
@@ -383,9 +701,25 @@ function bindTabs() {
   document.querySelectorAll("[data-global-nav]").forEach((item) => {
     item.addEventListener("click", (event) => {
       event.preventDefault();
-      showToast(`${item.dataset.globalNav} is a portfolio-level destination in this Labs prototype.`);
+      if (item.dataset.globalNav === "Home") {
+        showPortfolioHome({ scroll: true });
+        return;
+      }
+
+      showToast("This portfolio page will be designed in a later CMP Labs pass.");
       document.body.classList.remove("menu-open");
     });
+  });
+
+  document.querySelectorAll("[data-home-link]").forEach((link) => {
+    link.addEventListener("click", (event) => {
+      event.preventDefault();
+      showPortfolioHome({ scroll: true });
+    });
+  });
+
+  document.querySelectorAll("[data-open-property]").forEach((button) => {
+    button.addEventListener("click", () => openPropertyWorkspace("overview"));
   });
 }
 
@@ -725,6 +1059,7 @@ function addServiceTimelineEvent(event) {
   });
   renderTimelineState();
   renderAssistantActivity();
+  renderPortfolioHomeState();
 }
 
 function createSupportRequest() {
@@ -962,9 +1297,9 @@ function addPropertyTimelineEvent(event) {
     id: `${event.type}-${Date.now()}`,
     createdAt: Date.now(),
     group: "Today",
-    filter: "details",
+    filter: event.filter || "details",
     icon: event.icon || "home",
-    category: "Property details",
+    category: event.category || "Property details",
     title: event.title,
     body: event.body,
     badge: event.badge,
@@ -976,6 +1311,7 @@ function addPropertyTimelineEvent(event) {
   });
   renderTimelineState();
   renderAssistantActivity();
+  renderPortfolioHomeState();
 }
 
 function applyScenarioByOccupancy(occupancy) {
@@ -1052,6 +1388,7 @@ function renderPropertyDetailsState() {
 
   renderOptionalDetailsState();
   renderPropertyMemoryState();
+  renderPortfolioHomeState();
   hydrateIcons();
 }
 
@@ -1726,6 +2063,7 @@ function closeTimelineModals() {
     "[data-callback-modal]",
     "[data-message-modal]",
     "[data-handled-modal]",
+    "[data-home-alarm-modal]",
     "[data-basics-modal]",
     "[data-optional-modal]",
     "[data-memory-modal]"
@@ -1823,8 +2161,10 @@ function bindTimeline() {
   document.querySelector("[data-timeline-backdrop]")?.addEventListener("click", closeTimelineModals);
 }
 
-async function copyInboxAddress() {
-  const address = document.querySelector("[data-inbox-address]")?.textContent?.trim();
+async function copyInboxAddress(addressOverride) {
+  const address = typeof addressOverride === "string"
+    ? addressOverride
+    : document.querySelector("[data-inbox-address]")?.textContent?.trim();
 
   if (!address) {
     return;
@@ -2042,13 +2382,6 @@ function confirmEicr() {
   `;
   hydrateIcons();
 
-  const activity = document.querySelector("[data-recent-activity]");
-  if (activity && !activity.textContent.includes("EICR evidence verified")) {
-    const item = document.createElement("li");
-    item.textContent = "EICR evidence verified";
-    activity.prepend(item);
-  }
-
   const panel = document.querySelector("[data-strengthened-panel]");
   if (panel) {
     panel.hidden = false;
@@ -2059,6 +2392,8 @@ function confirmEicr() {
   renderServicesState();
   renderPropertyDetailsState();
   renderAssistantActivity();
+  renderOverviewRecentActivity();
+  renderPortfolioHomeState();
   setAssistantResponse(postEicrAssistantMessage);
   closeSmartModal();
   showToast("Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
@@ -2067,7 +2402,9 @@ function confirmEicr() {
 hydrateIcons();
 renderAssistantPrompts();
 renderAssistantActivity();
+renderOverviewRecentActivity();
 bindTabs();
+bindPortfolioHome();
 bindAssistant();
 bindMobileMenu();
 bindToasts();
@@ -2080,5 +2417,6 @@ bindInbox();
 bindSmartUpload();
 bindServices();
 bindPropertyDetails();
+showPortfolioHome();
 
 window.labsDemoProperty = labsDemoProperty;

@@ -116,6 +116,15 @@ a {
 .open-requests-panel,
 .service-option-card,
 .human-support-panel,
+.portfolio-home-header,
+.portfolio-autopilot-card,
+.portfolio-summary-panel,
+.portfolio-pulse-card,
+.home-priority-card,
+.portfolio-property-card,
+.portfolio-upcoming-card,
+.home-secondary-card,
+.home-quick-win-card,
 .passport-header,
 .passport-summary-card,
 .passport-card,
@@ -606,6 +615,245 @@ a {
   color: var(--labs-green-dark);
   font-size: 0.78rem;
   font-weight: 800;
+}
+
+body.portfolio-home-active .utility-bar,
+body.portfolio-home-active .property-header,
+body.portfolio-home-active .tab-bar {
+  display: none;
+}
+
+.portfolio-home {
+  display: grid;
+  gap: 14px;
+}
+
+.portfolio-home[hidden] {
+  display: none;
+}
+
+.portfolio-home-header,
+.home-priority-card,
+.home-quick-win-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 22px;
+  border-radius: var(--labs-radius-lg);
+}
+
+.portfolio-home-header h1,
+.portfolio-autopilot-card h2,
+.home-priority-card h2,
+.section-heading h2,
+.home-secondary-card h2,
+.home-quick-win-card h2 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: clamp(1.38rem, 2.5vw, 1.95rem);
+  line-height: 1.12;
+}
+
+.portfolio-home-header p:not(.section-kicker),
+.portfolio-autopilot-card p,
+.home-priority-card p,
+.home-secondary-card p,
+.home-quick-win-card p,
+.portfolio-section p {
+  margin: 8px 0 0;
+  color: var(--labs-muted);
+  line-height: 1.55;
+}
+
+.portfolio-header-actions,
+.home-priority-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 170px;
+}
+
+.portfolio-autopilot-card {
+  display: grid;
+  gap: 16px;
+  padding: 22px;
+  border-radius: var(--labs-radius-lg);
+  background:
+    radial-gradient(circle at 88% 10%, rgba(41, 122, 87, 0.1), transparent 28%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(232, 245, 237, 0.72));
+}
+
+.portfolio-summary-panel {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+  padding: 16px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.portfolio-summary-panel h3 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: 1.05rem;
+}
+
+.portfolio-prompt-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.portfolio-prompt-row button {
+  min-height: 34px;
+  padding: 7px 12px;
+  border: 1px solid var(--labs-border);
+  border-radius: 999px;
+  color: #2c4944;
+  background: #fff;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 760;
+}
+
+.portfolio-pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.portfolio-pulse-card {
+  display: grid;
+  gap: 3px;
+  padding: 15px;
+  border-radius: 17px;
+}
+
+.portfolio-pulse-card span,
+.portfolio-property-progress span {
+  color: var(--labs-soft);
+  font-size: 0.68rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.portfolio-pulse-card strong {
+  color: var(--labs-green-dark);
+  font-size: 1.45rem;
+  line-height: 1;
+}
+
+.portfolio-pulse-card small,
+.portfolio-property-progress small {
+  color: var(--labs-muted);
+  font-weight: 650;
+}
+
+.home-priority-card strong[data-home-priority-status] {
+  display: block;
+  margin-top: 8px;
+  color: var(--labs-amber);
+}
+
+.portfolio-section {
+  display: grid;
+  gap: 12px;
+}
+
+.portfolio-property-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(170px, 0.52fr) auto;
+  gap: 18px;
+  align-items: center;
+  padding: 18px;
+  border-radius: var(--labs-radius-lg);
+}
+
+.portfolio-property-main {
+  display: flex;
+  gap: 12px;
+  min-width: 0;
+  align-items: flex-start;
+}
+
+.portfolio-property-main h3 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: 1.08rem;
+}
+
+.portfolio-property-main p {
+  margin: 2px 0 10px;
+}
+
+.status-dot {
+  width: 10px;
+  height: 10px;
+  flex: 0 0 10px;
+  margin-top: 8px;
+  border-radius: 999px;
+  background: var(--labs-green);
+  box-shadow: 0 0 0 5px var(--labs-green-soft);
+}
+
+.portfolio-property-progress {
+  display: grid;
+  gap: 6px;
+}
+
+.portfolio-property-progress strong {
+  color: var(--labs-green-dark);
+}
+
+.home-upcoming-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.portfolio-upcoming-card {
+  display: grid;
+  min-height: 160px;
+  align-content: start;
+  gap: 8px;
+  padding: 15px;
+  border-radius: 17px;
+}
+
+.portfolio-upcoming-card h3,
+.home-secondary-card h3 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: 1rem;
+}
+
+.portfolio-upcoming-card p {
+  margin: 0;
+  font-size: 0.88rem;
+}
+
+.home-two-column {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.home-secondary-card {
+  display: grid;
+  align-content: start;
+  gap: 12px;
+  padding: 20px;
+  border-radius: var(--labs-radius-lg);
+}
+
+.home-secondary-card .activity-list {
+  margin: 0;
+}
+
+.home-quick-win-card {
+  margin-bottom: 10px;
 }
 
 .next-action-card {
@@ -3194,7 +3442,10 @@ body.assistant-open {
   .scenario-summary,
   .timeline-header,
   .services-header,
-  .passport-header {
+  .passport-header,
+  .portfolio-home-header,
+  .home-priority-card,
+  .home-quick-win-card {
     grid-template-columns: 1fr;
   }
 
@@ -3280,11 +3531,17 @@ body.assistant-open {
   .compliance-lower-grid,
   .service-grid,
   .passport-summary,
+  .home-two-column,
   .detail-grid,
   .record-grid,
   .evidence-linked-grid,
   .room-card-grid {
     grid-template-columns: 1fr;
+  }
+
+  .portfolio-pulse-grid,
+  .home-upcoming-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .vault-summary {
@@ -3419,6 +3676,15 @@ body.assistant-open {
   .open-requests-panel,
   .service-option-card,
   .human-support-panel,
+  .portfolio-home-header,
+  .portfolio-autopilot-card,
+  .portfolio-summary-panel,
+  .portfolio-pulse-card,
+  .home-priority-card,
+  .portfolio-property-card,
+  .portfolio-upcoming-card,
+  .home-secondary-card,
+  .home-quick-win-card,
   .passport-header,
   .passport-card,
   .property-memory-card,
@@ -3508,7 +3774,11 @@ body.assistant-open {
   }
 
   .scenario-options,
-  .forecast-timeline {
+  .forecast-timeline,
+  .portfolio-pulse-grid,
+  .home-upcoming-grid,
+  .home-two-column,
+  .portfolio-property-card {
     grid-template-columns: 1fr;
   }
 
@@ -3553,6 +3823,10 @@ body.assistant-open {
 
   .documents-actions,
   .card-actions,
+  .portfolio-header-actions,
+  .home-priority-actions,
+  .portfolio-property-card .button-row,
+  .home-quick-win-card .button-row,
   .documents-panel .button-row,
   .missing-evidence-card .button-row,
   .guided-card .button-row,
@@ -3583,6 +3857,8 @@ body.assistant-open {
   .services-panel .primary-button,
   .services-panel .secondary-button,
   .services-panel .text-button,
+  .portfolio-home .primary-button,
+  .portfolio-home .secondary-button,
   .property-passport-panel .primary-button,
   .property-passport-panel .secondary-button,
   .property-passport-panel .text-button {

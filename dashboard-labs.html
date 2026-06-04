@@ -8,6 +8,7 @@
       name="description"
       content="An isolated CMP Labs dashboard concept for future property compliance workflows."
     >
+    <link rel="icon" href="data:,">
     <link rel="stylesheet" href="dashboard-labs.css">
     <script src="dashboard-labs.js" defer></script>
   </head>
@@ -15,7 +16,7 @@
     <div class="labs-shell" data-app-shell>
       <aside class="labs-sidebar" aria-label="Primary navigation" data-mobile-menu>
         <div class="sidebar-top">
-          <a class="brand-lockup" href="dashboard-labs.html" aria-label="CMP Labs dashboard home">
+          <a class="brand-lockup" href="dashboard-labs.html" aria-label="CMP Labs dashboard home" data-home-link>
             <span class="brand-mark" aria-hidden="true">
               <svg viewBox="0 0 48 48" role="presentation">
                 <path d="M8.5 18.2C8.5 10.9 14.4 5 21.7 5h5.6c7.3 0 13.2 5.9 13.2 13.2v2c0 6-2.6 11.6-7.1 15.5L24 43.5l-9.4-7.8C10.1 31.8 7.5 26.2 7.5 20.2v-2h1Z" fill="currentColor"/>
@@ -90,14 +91,14 @@
 
         <div class="property-switcher">
           <div class="switcher-label">Your properties</div>
-          <button class="property-option is-current" type="button" data-toast="57 The Butts is already selected.">
+          <button class="property-option is-current" type="button" data-open-property>
             <span class="status-dot" aria-hidden="true"></span>
             <span>
               <strong>57 The Butts</strong>
               <small>Coventry, CV1 3BJ</small>
             </span>
           </button>
-          <button class="quiet-add" type="button" data-toast="Add property will be designed in a later Labs pass.">
+          <button class="quiet-add" type="button" data-home-add-property>
             <span aria-hidden="true">+</span>
             Add property
           </button>
@@ -108,7 +109,7 @@
         <button class="icon-button" type="button" aria-label="Open menu" data-menu-open>
           <span class="nav-icon" data-icon="menu"></span>
         </button>
-        <a class="mobile-brand" href="dashboard-labs.html">
+        <a class="mobile-brand" href="dashboard-labs.html" data-home-link>
           <span class="brand-mark" aria-hidden="true">
             <svg viewBox="0 0 48 48" role="presentation">
               <path d="M8.5 18.2C8.5 10.9 14.4 5 21.7 5h5.6c7.3 0 13.2 5.9 13.2 13.2v2c0 6-2.6 11.6-7.1 15.5L24 43.5l-9.4-7.8C10.1 31.8 7.5 26.2 7.5 20.2v-2h1Z" fill="currentColor"/>
@@ -160,6 +161,187 @@
           <button class="tab-button" type="button" role="tab" aria-selected="false" data-tab="details">Property details</button>
         </div>
 
+        <section class="portfolio-home" data-portfolio-home hidden aria-labelledby="portfolioHomeTitle">
+          <header class="portfolio-home-header">
+            <div>
+              <p class="section-kicker">Portfolio Home</p>
+              <h1 id="portfolioHomeTitle">Good morning, David</h1>
+              <p>See what needs attention, pick up where you left off and let CMP organise the next useful step.</p>
+              <span class="prototype-badge">Prototype portfolio preview</span>
+            </div>
+            <div class="portfolio-header-actions">
+              <button class="primary-button" type="button" data-home-add-property>Add property</button>
+              <button class="secondary-button" type="button" data-home-ask>Ask CMP</button>
+            </div>
+          </header>
+
+          <article class="portfolio-autopilot-card">
+            <div>
+              <p class="section-kicker">CMP Autopilot</p>
+              <h2>Your portfolio has one clear next step</h2>
+              <p>CMP has reviewed the information currently stored for your property and highlighted the most useful action to take next.</p>
+            </div>
+            <div class="portfolio-summary-panel">
+              <span class="tile-icon" data-icon="shield"></span>
+              <div>
+                <h3 data-home-summary-title>Check whether 57 The Butts has a current EICR</h3>
+                <p data-home-summary-body>Electrical Safety is the clearest evidence gap in the property file.</p>
+                <div class="button-row">
+                  <button class="primary-button" type="button" data-home-open-action>Open property action</button>
+                  <button class="secondary-button" type="button" data-home-why>Ask CMP why this matters</button>
+                </div>
+              </div>
+            </div>
+            <div class="portfolio-prompt-row" aria-label="Portfolio Ask CMP prompts">
+              <button type="button" data-home-prompt="Summarise my portfolio">Summarise my portfolio</button>
+              <button type="button" data-home-prompt="What should I do today?">What should I do today?</button>
+              <button type="button" data-home-prompt="Which property needs attention?">Which property needs attention?</button>
+              <button type="button" data-home-prompt="What evidence am I missing?">What evidence am I missing?</button>
+            </div>
+          </article>
+
+          <section class="portfolio-pulse-grid" aria-label="Portfolio summary">
+            <article class="portfolio-pulse-card">
+              <span>Properties</span>
+              <strong>1</strong>
+              <small>property tracked</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Priority actions</span>
+              <strong>1</strong>
+              <small data-home-priority-detail>clear next step</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Verified evidence</span>
+              <strong data-home-verified-count>2</strong>
+              <small>documents confirmed</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Needs review</span>
+              <strong data-home-review-count>3</strong>
+              <small>areas still checking</small>
+            </article>
+          </section>
+
+          <article class="home-priority-card">
+            <div>
+              <p class="section-kicker">Start here</p>
+              <h2>What needs attention first</h2>
+              <span class="source-badge" data-home-priority-area>Electrical Safety</span>
+              <strong data-home-priority-status>Evidence missing</strong>
+              <p data-home-priority-body>CMP could not find a current EICR for 57 The Butts. Upload an existing report or request help arranging an inspection.</p>
+            </div>
+            <div class="home-priority-actions">
+              <button class="primary-button" type="button" data-home-upload-priority>Upload EICR</button>
+              <button class="secondary-button" type="button" data-home-arrange-priority>Arrange an EICR</button>
+              <button class="text-button" type="button" data-home-open-workspace>Open property workspace</button>
+            </div>
+          </article>
+
+          <section class="portfolio-section" aria-labelledby="homePropertiesTitle">
+            <div class="section-heading">
+              <p class="section-kicker">Your portfolio</p>
+              <h2 id="homePropertiesTitle">Your properties</h2>
+              <p>Open a property workspace to review evidence, compliance checks, activity and useful next steps.</p>
+            </div>
+            <article class="portfolio-property-card">
+              <div class="portfolio-property-main">
+                <span class="status-dot" aria-hidden="true"></span>
+                <div>
+                  <h3>57 The Butts</h3>
+                  <p>Coventry, CV1 3BJ</p>
+                  <div class="signal-row">
+                    <span data-home-occupancy>Vacant property</span>
+                    <span data-home-goal>General compliance check</span>
+                  </div>
+                </div>
+              </div>
+              <div class="portfolio-property-progress">
+                <span>Evidence strength</span>
+                <strong data-home-strength>42% evidenced</strong>
+                <div class="strength-meter"><span data-home-strength-meter style="width: 42%"></span></div>
+                <small data-home-status>3 areas need checking</small>
+              </div>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-home-open-property>Open property workspace</button>
+                <button class="text-button" type="button" data-home-view-activity>View activity</button>
+                <button class="secondary-button quiet-button" type="button" data-home-add-property>+ Add another property</button>
+              </div>
+            </article>
+          </section>
+
+          <section class="portfolio-section" aria-labelledby="homeUpcomingTitle">
+            <div class="section-heading">
+              <p class="section-kicker">Looking ahead</p>
+              <h2 id="homeUpcomingTitle">Upcoming compliance and reviews</h2>
+              <p>CMP keeps a simple watchlist so important actions do not disappear into the background.</p>
+            </div>
+            <div class="home-upcoming-grid">
+              <article class="portfolio-upcoming-card">
+                <span class="source-badge">Recommended</span>
+                <h3>Inspection review</h3>
+                <p>Confirm whether a recent inspection has been completed or schedule the next one.</p>
+                <button class="text-button" type="button" data-home-upcoming="inspection">Review inspection</button>
+              </article>
+              <article class="portfolio-upcoming-card">
+                <span class="source-badge">In 371 days</span>
+                <h3>Gas Safety</h3>
+                <p>Start planning the next Gas Safety check before the current certificate approaches expiry.</p>
+                <button class="text-button" type="button" data-home-upcoming="gas">View certificate</button>
+              </article>
+              <article class="portfolio-upcoming-card">
+                <span class="source-badge">Checking postcode</span>
+                <h3>Local licensing</h3>
+                <p>CMP is reviewing whether local rules may affect this address.</p>
+                <button class="text-button" type="button" data-home-upcoming="licensing">Review licensing</button>
+              </article>
+              <article class="portfolio-upcoming-card">
+                <span class="source-badge">Landlord confirmed</span>
+                <h3>Alarm evidence</h3>
+                <p>Smoke and CO alarms were reported as tested. Supporting evidence can be added later.</p>
+                <button class="text-button" type="button" data-home-upcoming="alarms">Add evidence</button>
+              </article>
+            </div>
+          </section>
+
+          <div class="home-two-column">
+            <article class="home-secondary-card">
+              <p class="section-kicker">Evidence Inbox</p>
+              <h2>Forward paperwork to CMP</h2>
+              <p>Keep certificates and property records together. CMP can suggest the correct property and document category for review.</p>
+              <div class="inbox-address" data-home-inbox-address>57-the-butts@inbox.complymyproperty.co.uk</div>
+              <div class="button-row">
+                <button class="secondary-button" type="button" data-home-copy-inbox>Copy inbox address</button>
+                <button class="text-button" type="button" data-home-open-vault>Open Evidence Vault</button>
+              </div>
+              <small>Prototype preview — forwarding is simulated in CMP Labs.</small>
+            </article>
+
+            <article class="home-secondary-card">
+              <p class="section-kicker">Recent activity</p>
+              <h2>Since your last visit</h2>
+              <ul class="activity-list" data-home-activity-list>
+                <li>EICR gap identified</li>
+                <li>Gas Safety certificate verified</li>
+                <li>EPC record imported</li>
+              </ul>
+              <button class="text-button" type="button" data-home-view-timeline>View full property timeline</button>
+            </article>
+          </div>
+
+          <article class="home-quick-win-card">
+            <div>
+              <p class="section-kicker">Quick win</p>
+              <h2 data-home-quick-title>Complete a useful task in approximately 2 minutes</h2>
+              <p data-home-quick-body>Confirm whether smoke and CO alarms have been tested recently.</p>
+            </div>
+            <div class="button-row">
+              <button class="primary-button" type="button" data-home-quick-win-open>Complete now</button>
+              <button class="text-button" type="button" data-home-quick-remind>Remind me later</button>
+            </div>
+          </article>
+        </section>
+
         <section class="tab-panel is-active" data-panel="overview" aria-label="Overview">
           <article class="autopilot-card">
             <div class="autopilot-copy">
@@ -196,7 +378,7 @@
             </div>
           </article>
 
-          <article class="next-action-card">
+          <article class="next-action-card" data-next-best-step tabindex="-1">
             <div>
               <p class="section-kicker">Your next best step</p>
               <h2>Check whether this property has a current EICR</h2>
@@ -382,7 +564,7 @@
                   <button class="text-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
                 </div>
               </article>
-              <article class="essential-card status-watch">
+              <article class="essential-card status-watch" data-compliance-licensing-card tabindex="-1">
                 <div class="essential-topline">
                   <span class="tile-icon" data-icon="bell"></span>
                   <span class="source-badge">Evidence not uploaded</span>
@@ -599,7 +781,7 @@
             </article>
           </div>
 
-          <section class="vault-list-card" aria-label="Evidence Vault list">
+          <section class="vault-list-card" data-vault-list tabindex="-1" aria-label="Evidence Vault list">
             <div class="vault-list-header">
               <div>
                 <p class="section-kicker">Saved evidence</p>
@@ -649,7 +831,7 @@
             </div>
           </section>
 
-          <article class="missing-evidence-card">
+          <article class="missing-evidence-card" data-inspection-upload-card tabindex="-1">
             <div>
               <h3>One useful next upload</h3>
               <p>Add inspection evidence or confirm that no inspection has been completed yet.</p>
@@ -742,7 +924,7 @@
             </div>
           </header>
 
-          <article class="primary-service-card">
+          <article class="primary-service-card" data-service-primary-card tabindex="-1">
             <div class="service-card-main">
               <p class="section-kicker">Highest-priority support</p>
               <h2 data-service-primary-title>Arrange an EICR</h2>
@@ -1447,6 +1629,37 @@
         <div class="button-row">
           <button class="primary-button" type="button" data-handled-save>Record status</button>
           <button class="secondary-button" type="button" data-handled-close>Cancel</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal home-alarm-modal" role="dialog" aria-modal="true" aria-labelledby="homeAlarmModalTitle" data-home-alarm-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Quick win</p>
+            <h2 id="homeAlarmModalTitle">Confirm alarm testing</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close alarm testing" data-home-alarm-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note">Have smoke and CO alarms been tested recently?</p>
+        <div class="service-choice-list">
+          <label class="choice-option">
+            <input type="radio" name="home-alarm-answer" value="Yes, they have been tested" checked>
+            <span>Yes, they have been tested</span>
+          </label>
+          <label class="choice-option">
+            <input type="radio" name="home-alarm-answer" value="Not yet">
+            <span>Not yet</span>
+          </label>
+          <label class="choice-option">
+            <input type="radio" name="home-alarm-answer" value="I am not sure">
+            <span>I am not sure</span>
+          </label>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-home-alarm-save>Save answer</button>
+          <button class="secondary-button" type="button" data-home-alarm-close>Cancel</button>
         </div>
       </section>
 
