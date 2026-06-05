@@ -129,6 +129,13 @@ const portfolioPrompts = [
   "What evidence am I missing?"
 ];
 
+const complianceCentrePrompts = [
+  "What should I fix first?",
+  "Which evidence is missing?",
+  "What expires soon?",
+  "Summarise my compliance position"
+];
+
 const propertiesPrompts = [
   "Which property needs attention?",
   "Summarise my properties",
@@ -261,6 +268,20 @@ const portfolioPostEicrAssistantResponses = {
   "What evidence am I missing?": "CMP has EPC, Gas Safety and EICR evidence. The next useful upload is a recent property-inspection record.",
   "Ask CMP why this matters": "Your EICR is now verified. The next useful step is to review your latest inspection record so CMP can keep the property file current.",
   "Ask CMP what I need": "Your most useful missing item is your latest property inspection record. Add evidence if an inspection has been completed, or confirm that it has not yet been carried out."
+};
+
+const complianceCentreAssistantResponses = {
+  "What should I fix first?": "Your clearest next step is 57 The Butts. Electrical Safety evidence is missing, while EPC and Gas Safety are already recorded.",
+  "Which evidence is missing?": "The clearest missing evidence is an EICR for 57 The Butts. Inspection evidence and local licensing are also still worth reviewing.",
+  "What expires soon?": "There are no confirmed urgent deadlines this week. CMP recommends reviewing inspection status in 34 days and planning the Gas Safety renewal window in 71 days.",
+  "Summarise my compliance position": "CMP has one monitored property. EPC and Gas Safety evidence are recorded, while EICR, inspection evidence and licensing review still need attention."
+};
+
+const complianceCentrePostEicrAssistantResponses = {
+  "What should I fix first?": "Your EICR is now recorded. The next useful compliance improvement is inspection evidence and local licensing review.",
+  "Which evidence is missing?": "CMP has EPC, Gas Safety and EICR evidence. The next useful evidence item is a recent property-inspection record.",
+  "What expires soon?": "There are no confirmed urgent deadlines this week. CMP recommends confirming inspection status in 34 days and planning the Gas Safety renewal window in 71 days.",
+  "Summarise my compliance position": "CMP has EPC, Gas Safety and EICR evidence for 57 The Butts. Inspection evidence and local licensing review are now the most useful follow-up items."
 };
 
 const propertiesAssistantResponses = {
@@ -501,6 +522,7 @@ function renderAllState() {
   renderAssistantActivity();
   renderPortfolioHomeState();
   renderPortfolioPropertiesState();
+  renderPortfolioComplianceState();
   hydrateIcons();
 }
 
@@ -514,6 +536,11 @@ function getPropertiesAssistantResponse(prompt) {
   return responses[prompt] || defaultAssistantResponse;
 }
 
+function getComplianceCentreAssistantResponse(prompt) {
+  const responses = labsState.eicrAdded ? complianceCentrePostEicrAssistantResponses : complianceCentreAssistantResponses;
+  return responses[prompt] || defaultAssistantResponse;
+}
+
 function getAssistantResponse(prompt) {
   if (labsState.currentView === "home") {
     return getPortfolioAssistantResponse(prompt);
@@ -521,6 +548,10 @@ function getAssistantResponse(prompt) {
 
   if (labsState.currentView === "properties") {
     return getPropertiesAssistantResponse(prompt);
+  }
+
+  if (labsState.currentView === "complianceCentre") {
+    return getComplianceCentreAssistantResponse(prompt);
   }
 
   if (labsState.eicrAdded && postEicrAssistantResponses[prompt]) {
@@ -536,6 +567,8 @@ function renderAssistantPrompts() {
     ? portfolioPrompts
     : labsState.currentView === "properties"
       ? propertiesPrompts
+      : labsState.currentView === "complianceCentre"
+        ? complianceCentrePrompts
     : labsState.activeTab === "documents"
     ? documentPrompts
     : labsState.activeTab === "compliance"
@@ -590,9 +623,10 @@ function switchTab(target) {
 
   labsState.currentView = "property";
   labsState.activeTab = target;
-  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "menu-open");
+  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-compliance-active", "menu-open");
   document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
   setGlobalNavActive(null);
 
   tabs.forEach((item) => {
@@ -692,9 +726,10 @@ function showPortfolioHome({ scroll = false } = {}) {
 
   labsState.currentView = "home";
   document.body.classList.add("portfolio-home-active");
-  document.body.classList.remove("portfolio-properties-active", "menu-open");
+  document.body.classList.remove("portfolio-properties-active", "portfolio-compliance-active", "menu-open");
   home.hidden = false;
   document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
   document.querySelectorAll("[data-panel]").forEach((panel) => {
     panel.hidden = true;
     panel.classList.remove("is-active");
@@ -802,8 +837,9 @@ function showPortfolioProperties({ scroll = false } = {}) {
 
   labsState.currentView = "properties";
   document.body.classList.add("portfolio-properties-active");
-  document.body.classList.remove("portfolio-home-active", "menu-open");
+  document.body.classList.remove("portfolio-home-active", "portfolio-compliance-active", "menu-open");
   document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
   page.hidden = false;
   document.querySelectorAll("[data-panel]").forEach((panel) => {
     panel.hidden = true;
@@ -817,6 +853,139 @@ function showPortfolioProperties({ scroll = false } = {}) {
   renderAllState();
   renderAssistantPrompts();
   setAssistantResponse(getPropertiesAssistantResponse("Which property needs attention?"));
+
+  if (scroll) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+function compliancePriorityRequestType() {
+  return labsState.eicrAdded ? "Property inspection support" : "EICR support";
+}
+
+function currentComplianceRequest() {
+  const type = compliancePriorityRequestType();
+  return labsState.serviceRequests.find((request) => request.type === type && request.status !== "Cancelled");
+}
+
+function renderPortfolioComplianceState() {
+  const page = document.querySelector("[data-portfolio-compliance]");
+
+  if (!page) {
+    return;
+  }
+
+  const activeRequest = currentComplianceRequest();
+  document.querySelector("[data-compliance-confirmed-count]").textContent = labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-compliance-review-count]").textContent = labsState.eicrAdded ? "2" : "3";
+  document.querySelector("[data-compliance-open-action-detail]").textContent = labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety";
+  document.querySelector("[data-compliance-priority-title]").textContent = labsState.eicrAdded
+    ? "57 The Butts needs inspection evidence"
+    : "57 The Butts needs Electrical Safety evidence";
+  document.querySelector("[data-compliance-priority-body]").textContent = labsState.eicrAdded
+    ? "Electrical Safety evidence is now recorded. The next useful improvement is a recent property-inspection record."
+    : "CMP has EPC and Gas Safety evidence recorded, but no current EICR is stored for this property.";
+  document.querySelector("[data-compliance-priority-upload]").textContent = labsState.eicrAdded ? "Upload inspection evidence" : "Upload EICR";
+  document.querySelector("[data-compliance-priority-support]").textContent = labsState.eicrAdded ? "Request inspection support" : "Request EICR support";
+
+  const requestIndicator = document.querySelector("[data-compliance-request-indicator]");
+  if (requestIndicator) {
+    requestIndicator.hidden = !activeRequest;
+    requestIndicator.textContent = activeRequest ? `${activeRequest.type} open` : "Support request open";
+  }
+
+  const eicrStatus = document.querySelector("[data-compliance-matrix-eicr-status]");
+  const eicrSource = document.querySelector("[data-compliance-matrix-eicr-source]");
+  if (eicrStatus) {
+    eicrStatus.textContent = labsState.eicrAdded ? "Verified" : "Needs checking";
+    eicrStatus.classList.toggle("status-good-text", labsState.eicrAdded);
+    eicrStatus.classList.toggle("status-review-text", !labsState.eicrAdded);
+  }
+  if (eicrSource) {
+    eicrSource.textContent = labsState.eicrAdded ? "Uploaded document" : "No EICR evidence";
+  }
+
+  renderComplianceGaps();
+}
+
+function renderComplianceGaps() {
+  const list = document.querySelector("[data-compliance-gap-list]");
+
+  if (!list) {
+    return;
+  }
+
+  const gaps = [
+    ...(!labsState.eicrAdded
+      ? [{
+          title: "EICR missing",
+          detail: "57 The Butts · Electrical Safety",
+          actions: [
+            { label: "Upload EICR", action: "uploadEicr", primary: true },
+            { label: "Request support", action: "requestSupport" }
+          ]
+        }]
+      : []),
+    {
+      title: "Inspection evidence missing",
+      detail: "57 The Butts · Property inspection",
+      actions: [
+        { label: "Upload inspection evidence", action: "uploadInspection", primary: !labsState.eicrAdded },
+        { label: "Mark as not completed", action: "markInspection" }
+      ]
+    },
+    {
+      title: "Licensing still checking",
+      detail: "57 The Butts · Local licensing",
+      actions: [
+        { label: "Review licensing", action: "reviewLicensing" },
+        { label: "Ask CMP", action: "askLicensing" }
+      ]
+    }
+  ];
+
+  list.innerHTML = gaps.map((gap) => `
+    <article class="compliance-gap-card">
+      <div>
+        <h3>${escapeHtml(gap.title)}</h3>
+        <p>${escapeHtml(gap.detail)}</p>
+      </div>
+      <div class="compliance-gap-actions">
+        ${gap.actions.map((action) => `
+          <button class="${action.primary ? "primary-button" : "text-button"}" type="button" data-compliance-action="${action.action}">
+            ${escapeHtml(action.label)}
+          </button>
+        `).join("")}
+      </div>
+    </article>
+  `).join("");
+}
+
+function showPortfolioCompliance({ scroll = false } = {}) {
+  const page = document.querySelector("[data-portfolio-compliance]");
+
+  if (!page) {
+    return;
+  }
+
+  labsState.currentView = "complianceCentre";
+  document.body.classList.add("portfolio-compliance-active");
+  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "menu-open");
+  document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
+  page.hidden = false;
+  document.querySelectorAll("[data-panel]").forEach((panel) => {
+    panel.hidden = true;
+    panel.classList.remove("is-active");
+  });
+  document.querySelectorAll("[data-tab]").forEach((tab) => {
+    tab.classList.remove("is-active");
+    tab.setAttribute("aria-selected", "false");
+  });
+  setGlobalNavActive("Compliance centre");
+  renderAllState();
+  renderAssistantPrompts();
+  setAssistantResponse(getComplianceCentreAssistantResponse("What should I fix first?"));
 
   if (scroll) {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1038,6 +1207,11 @@ function bindTabs() {
         return;
       }
 
+      if (item.dataset.globalNav === "Compliance centre") {
+        showPortfolioCompliance({ scroll: true });
+        return;
+      }
+
       showToast("This portfolio page will be designed in a later CMP Labs pass.");
       document.body.classList.remove("menu-open");
     });
@@ -1052,6 +1226,58 @@ function bindTabs() {
 
   document.querySelectorAll("[data-open-property]").forEach((button) => {
     button.addEventListener("click", () => openPropertyWorkspace("overview"));
+  });
+}
+
+function bindPortfolioCompliance() {
+  document.querySelector("[data-compliance-ask]")?.addEventListener("click", () => {
+    openAssistant(getComplianceCentreAssistantResponse("What should I fix first?"));
+    focusAssistantInput();
+  });
+
+  document.querySelector("[data-compliance-review-actions]")?.addEventListener("click", () => {
+    scrollToPanel("[data-compliance-gaps-section]");
+  });
+
+  document.querySelector("[data-compliance-priority-upload]")?.addEventListener("click", () => {
+    if (labsState.eicrAdded) {
+      showToast("Inspection evidence upload will be connected in a later Labs pass.");
+      return;
+    }
+
+    openPropertyWorkspace("documents", "[data-document-upload-panel]");
+  });
+
+  document.querySelector("[data-compliance-priority-support]")?.addEventListener("click", () => {
+    openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
+  });
+
+  document.querySelector("[data-compliance-open-property]")?.addEventListener("click", () => {
+    openPropertyWorkspace("overview");
+  });
+
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-compliance-action]");
+
+    if (!button) {
+      return;
+    }
+
+    const action = button.dataset.complianceAction;
+
+    if (action === "uploadEicr") {
+      openPropertyWorkspace("documents", "[data-document-upload-panel]");
+    } else if (action === "requestSupport") {
+      openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
+    } else if (action === "uploadInspection") {
+      showToast("Inspection evidence upload will be connected in a later Labs pass.");
+    } else if (action === "markInspection") {
+      showToast("Inspection status marked as not completed for this Labs preview.");
+    } else if (action === "reviewLicensing") {
+      openPropertyWorkspace("compliance", "[data-compliance-licensing-card]");
+    } else if (action === "askLicensing") {
+      openAssistant(assistantResponses["Why is licensing still checking?"]);
+    }
   });
 }
 
@@ -2683,6 +2909,7 @@ renderAllState();
 bindTabs();
 bindPortfolioHome();
 bindPortfolioProperties();
+bindPortfolioCompliance();
 bindAssistant();
 bindMobileMenu();
 bindToasts();

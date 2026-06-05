@@ -479,6 +479,167 @@
           </article>
         </section>
 
+        <section class="portfolio-compliance-centre" data-portfolio-compliance hidden aria-labelledby="portfolioComplianceTitle">
+          <header class="portfolio-compliance-header">
+            <div>
+              <p class="section-kicker">PORTFOLIO COMPLIANCE</p>
+              <h1 id="portfolioComplianceTitle">Compliance Centre</h1>
+              <p>See the clearest risks, missing evidence and upcoming reviews across your property portfolio.</p>
+              <span class="prototype-badge">1 property monitored</span>
+            </div>
+            <div class="portfolio-header-actions">
+              <button class="primary-button" type="button" data-compliance-ask>Ask CMP what matters most</button>
+              <button class="secondary-button" type="button" data-compliance-review-actions>Review open actions</button>
+            </div>
+          </header>
+
+          <section class="compliance-centre-summary" aria-label="Portfolio compliance summary">
+            <article class="portfolio-pulse-card">
+              <span>Properties monitored</span>
+              <strong>1</strong>
+              <small>property tracked</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Confirmed checks</span>
+              <strong data-compliance-confirmed-count>2</strong>
+              <small>evidence-backed items</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Needs checking</span>
+              <strong data-compliance-review-count>3</strong>
+              <small>areas still reviewing</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Open actions</span>
+              <strong>1</strong>
+              <small data-compliance-open-action-detail>Electrical Safety</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Upcoming reviews</span>
+              <strong>2</strong>
+              <small>next 90 days</small>
+            </article>
+          </section>
+
+          <article class="compliance-start-card" data-compliance-start-card tabindex="-1">
+            <div>
+              <p class="section-kicker">START HERE</p>
+              <span class="source-badge" data-compliance-request-indicator hidden>Support request open</span>
+              <h2 data-compliance-priority-title>57 The Butts needs Electrical Safety evidence</h2>
+              <p data-compliance-priority-body>CMP has EPC and Gas Safety evidence recorded, but no current EICR is stored for this property.</p>
+            </div>
+            <div class="compliance-start-actions">
+              <button class="primary-button" type="button" data-compliance-priority-upload>Upload EICR</button>
+              <button class="secondary-button" type="button" data-compliance-priority-support>Request EICR support</button>
+              <button class="text-button" type="button" data-compliance-open-property>Open property</button>
+            </div>
+          </article>
+
+          <section class="compliance-centre-section" aria-labelledby="portfolioMatrixTitle">
+            <div class="section-heading">
+              <p class="section-kicker">Portfolio matrix</p>
+              <h2 id="portfolioMatrixTitle">Compliance by property</h2>
+              <p>A compact view of the evidence CMP can see across the portfolio.</p>
+            </div>
+            <div class="compliance-matrix-wrap">
+              <table class="compliance-matrix">
+                <thead>
+                  <tr>
+                    <th scope="col">Property</th>
+                    <th scope="col">EPC</th>
+                    <th scope="col">Gas Safety</th>
+                    <th scope="col">EICR</th>
+                    <th scope="col">Alarms</th>
+                    <th scope="col">Deposit / tenancy</th>
+                    <th scope="col">Licensing</th>
+                    <th scope="col">Inspection</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <th scope="row">
+                      <strong>57 The Butts</strong>
+                      <span>Coventry, CV1 3BJ</span>
+                    </th>
+                    <td><span class="matrix-pill status-good-text">Confirmed</span><small>Official record</small></td>
+                    <td><span class="matrix-pill status-good-text">Verified</span><small>Uploaded document</small></td>
+                    <td><span class="matrix-pill status-review-text" data-compliance-matrix-eicr-status>Needs checking</span><small data-compliance-matrix-eicr-source>No EICR evidence</small></td>
+                    <td><span class="matrix-pill status-watch-text">Landlord confirmed</span><small>Evidence not uploaded</small></td>
+                    <td><span class="matrix-pill status-neutral-text">Not applicable</span><small>Vacant</small></td>
+                    <td><span class="matrix-pill status-watch-text">Checking</span><small>Postcode review</small></td>
+                    <td><span class="matrix-pill status-review-text">Missing</span><small>No recent evidence</small></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <section class="compliance-centre-section" data-compliance-gaps-section tabindex="-1" aria-labelledby="complianceGapsTitle">
+            <div class="section-heading">
+              <p class="section-kicker">EVIDENCE GAPS</p>
+              <h2 id="complianceGapsTitle">What still needs attention</h2>
+              <p>CMP keeps the action list short so the next step is easy to find.</p>
+            </div>
+            <div class="compliance-gap-list" data-compliance-gap-list></div>
+          </section>
+
+          <section class="compliance-centre-section" aria-labelledby="portfolioForecastTitle">
+            <div class="section-heading">
+              <p class="section-kicker">Next 90 days</p>
+              <h2 id="portfolioForecastTitle">Portfolio forecast</h2>
+              <p>Short-range watch items based on the information currently in CMP Labs.</p>
+            </div>
+            <div class="compliance-forecast-grid">
+              <article>
+                <span>This week</span>
+                <strong>No confirmed urgent deadlines</strong>
+                <p>57 The Butts · Improve missing evidence</p>
+              </article>
+              <article>
+                <span>In 34 days</span>
+                <strong>Inspection review recommended</strong>
+                <p>57 The Butts · Confirm inspection status</p>
+              </article>
+              <article>
+                <span>In 71 days</span>
+                <strong>Gas Safety renewal window opens</strong>
+                <p>57 The Butts · Plan future check</p>
+              </article>
+              <article>
+                <span>Local watch</span>
+                <strong>Licensing review in progress</strong>
+                <p>57 The Butts · Postcode review</p>
+              </article>
+            </div>
+            <small class="prototype-note">Prototype forecast — example timeline for layout testing.</small>
+          </section>
+
+          <article class="compliance-readiness-card">
+            <div>
+              <p class="section-kicker">FUTURE READINESS</p>
+              <h2>PRS Database readiness</h2>
+              <div class="prs-score">
+                <strong>68% prepared</strong>
+                <span><i style="width: 68%"></i></span>
+              </div>
+              <p>CMP already holds useful property details and evidence that could make future registration tasks easier to organise.</p>
+              <small>Prototype preview — submission is not enabled.</small>
+            </div>
+            <div>
+              <ul class="compact-checklist">
+                <li>Property identity recorded</li>
+                <li>Address and postcode recorded</li>
+                <li>Core evidence building</li>
+                <li>Landlord details still need review</li>
+              </ul>
+              <div class="button-row">
+                <button class="secondary-button" type="button" data-prs-open>Preview readiness</button>
+                <button class="text-button" type="button" data-toast="CMP Labs tracks this as a future readiness concept only.">Why CMP tracks this</button>
+              </div>
+            </div>
+          </article>
+        </section>
+
         <section class="tab-panel is-active" data-panel="overview" aria-label="Overview">
           <article class="autopilot-card">
             <div class="autopilot-copy">

@@ -118,10 +118,16 @@ a {
 .human-support-panel,
 .portfolio-home-header,
 .portfolio-properties-header,
+.portfolio-compliance-header,
 .portfolio-autopilot-card,
 .portfolio-summary-panel,
 .portfolio-pulse-card,
 .home-priority-card,
+.compliance-start-card,
+.compliance-matrix-wrap,
+.compliance-gap-card,
+.compliance-forecast-grid article,
+.compliance-readiness-card,
 .portfolio-property-card,
 .portfolio-upcoming-card,
 .home-secondary-card,
@@ -624,24 +630,31 @@ body.portfolio-home-active .property-header,
 body.portfolio-home-active .tab-bar,
 body.portfolio-properties-active .utility-bar,
 body.portfolio-properties-active .property-header,
-body.portfolio-properties-active .tab-bar {
+body.portfolio-properties-active .tab-bar,
+body.portfolio-compliance-active .utility-bar,
+body.portfolio-compliance-active .property-header,
+body.portfolio-compliance-active .tab-bar {
   display: none;
 }
 
 .portfolio-home,
-.portfolio-properties {
+.portfolio-properties,
+.portfolio-compliance-centre {
   display: grid;
   gap: 14px;
 }
 
 .portfolio-home[hidden],
-.portfolio-properties[hidden] {
+.portfolio-properties[hidden],
+.portfolio-compliance-centre[hidden] {
   display: none;
 }
 
 .portfolio-home-header,
 .portfolio-properties-header,
+.portfolio-compliance-header,
 .home-priority-card,
+.compliance-start-card,
 .home-quick-win-card,
 .properties-grow-card {
   display: grid;
@@ -654,8 +667,11 @@ body.portfolio-properties-active .tab-bar {
 
 .portfolio-home-header h1,
 .portfolio-properties-header h1,
+.portfolio-compliance-header h1,
 .portfolio-autopilot-card h2,
 .home-priority-card h2,
+.compliance-start-card h2,
+.compliance-readiness-card h2,
 .section-heading h2,
 .home-secondary-card h2,
 .home-quick-win-card h2,
@@ -669,11 +685,15 @@ body.portfolio-properties-active .tab-bar {
 
 .portfolio-home-header p:not(.section-kicker),
 .portfolio-properties-header p:not(.section-kicker),
+.portfolio-compliance-header p:not(.section-kicker),
 .portfolio-autopilot-card p,
 .home-priority-card p,
+.compliance-start-card p,
+.compliance-readiness-card p,
 .home-secondary-card p,
 .home-quick-win-card p,
 .portfolio-section p,
+.compliance-centre-section p,
 .properties-grow-card p,
 .properties-empty-state p {
   margin: 8px 0 0;
@@ -738,6 +758,12 @@ body.portfolio-properties-active .tab-bar {
   gap: 12px;
 }
 
+.compliance-centre-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
 .properties-summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -776,6 +802,180 @@ body.portfolio-properties-active .tab-bar {
   display: block;
   margin-top: 8px;
   color: var(--labs-amber);
+}
+
+.compliance-start-card {
+  align-items: start;
+  background:
+    radial-gradient(circle at 92% 10%, rgba(41, 122, 87, 0.11), transparent 26%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.compliance-start-card .source-badge {
+  margin-bottom: 9px;
+}
+
+.compliance-start-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 190px;
+}
+
+.compliance-centre-section {
+  display: grid;
+  gap: 12px;
+}
+
+.compliance-matrix-wrap {
+  overflow-x: auto;
+  border-radius: var(--labs-radius-lg);
+}
+
+.compliance-matrix {
+  width: 100%;
+  min-width: 860px;
+  border-collapse: collapse;
+}
+
+.compliance-matrix th,
+.compliance-matrix td {
+  padding: 14px 12px;
+  border-bottom: 1px solid var(--labs-border);
+  text-align: left;
+  vertical-align: top;
+}
+
+.compliance-matrix thead th {
+  color: var(--labs-soft);
+  font-size: 0.67rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.compliance-matrix tbody th {
+  min-width: 150px;
+}
+
+.compliance-matrix tbody th strong,
+.compliance-matrix tbody th span,
+.compliance-matrix td small {
+  display: block;
+}
+
+.compliance-matrix tbody th strong {
+  color: var(--labs-ink);
+  font-size: 0.92rem;
+}
+
+.compliance-matrix tbody th span,
+.compliance-matrix td small {
+  margin-top: 5px;
+  color: var(--labs-muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.matrix-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 27px;
+  padding: 0 9px;
+  border-radius: 999px;
+  background: var(--labs-surface-soft);
+  font-size: 0.73rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.compliance-gap-list {
+  display: grid;
+  gap: 10px;
+}
+
+.compliance-gap-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 18px;
+}
+
+.compliance-gap-card h3,
+.compliance-forecast-grid h3 {
+  margin: 0;
+  color: var(--labs-ink);
+}
+
+.compliance-gap-card h3 {
+  font-size: 1rem;
+}
+
+.compliance-gap-card p {
+  margin-top: 4px;
+  font-size: 0.88rem;
+}
+
+.compliance-gap-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.compliance-forecast-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.compliance-forecast-grid article {
+  display: grid;
+  align-content: start;
+  gap: 8px;
+  min-height: 142px;
+  padding: 15px;
+  border-radius: 17px;
+}
+
+.compliance-forecast-grid span {
+  color: var(--labs-green-dark);
+  font-size: 0.7rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.compliance-forecast-grid strong {
+  color: var(--labs-ink);
+  font-size: 0.98rem;
+  line-height: 1.25;
+}
+
+.compliance-forecast-grid p {
+  margin: 0;
+  font-size: 0.86rem;
+}
+
+.prototype-note {
+  color: var(--labs-muted);
+  font-size: 0.78rem;
+}
+
+.compliance-readiness-card {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(260px, 0.7fr);
+  gap: 18px;
+  align-items: start;
+  padding: 20px;
+  border-radius: var(--labs-radius-lg);
+}
+
+.compliance-readiness-card small {
+  display: block;
+  margin-top: 10px;
+  color: var(--labs-muted);
 }
 
 .portfolio-section {
@@ -3629,7 +3829,10 @@ body.assistant-open {
   .passport-header,
   .portfolio-home-header,
   .portfolio-properties-header,
+  .portfolio-compliance-header,
   .home-priority-card,
+  .compliance-start-card,
+  .compliance-readiness-card,
   .home-quick-win-card,
   .properties-grow-card {
     grid-template-columns: 1fr;
@@ -3727,6 +3930,7 @@ body.assistant-open {
 
   .portfolio-pulse-grid,
   .properties-summary-grid,
+  .compliance-centre-summary,
   .home-upcoming-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -3743,6 +3947,10 @@ body.assistant-open {
   }
 
   .forecast-timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .compliance-forecast-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
@@ -3872,10 +4080,16 @@ body.assistant-open {
   .human-support-panel,
   .portfolio-home-header,
   .portfolio-properties-header,
+  .portfolio-compliance-header,
   .portfolio-autopilot-card,
   .portfolio-summary-panel,
   .portfolio-pulse-card,
   .home-priority-card,
+  .compliance-start-card,
+  .compliance-matrix-wrap,
+  .compliance-gap-card,
+  .compliance-forecast-grid article,
+  .compliance-readiness-card,
   .portfolio-property-card,
   .portfolio-upcoming-card,
   .home-secondary-card,
@@ -3976,6 +4190,8 @@ body.assistant-open {
   .forecast-timeline,
   .portfolio-pulse-grid,
   .properties-summary-grid,
+  .compliance-centre-summary,
+  .compliance-forecast-grid,
   .home-upcoming-grid,
   .home-two-column,
   .portfolio-property-card,
@@ -3984,6 +4200,15 @@ body.assistant-open {
   .properties-card-status,
   .properties-compact-row {
     grid-template-columns: 1fr;
+  }
+
+  .compliance-gap-card {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+
+  .compliance-gap-actions {
+    justify-content: flex-start;
   }
 
   .compliance-counts,
@@ -4029,6 +4254,8 @@ body.assistant-open {
   .card-actions,
   .portfolio-header-actions,
   .home-priority-actions,
+  .compliance-start-actions,
+  .compliance-gap-actions,
   .properties-card-actions,
   .portfolio-property-card .button-row,
   .home-quick-win-card .button-row,
@@ -4067,6 +4294,9 @@ body.assistant-open {
   .portfolio-properties .primary-button,
   .portfolio-properties .secondary-button,
   .portfolio-properties .text-button,
+  .portfolio-compliance-centre .primary-button,
+  .portfolio-compliance-centre .secondary-button,
+  .portfolio-compliance-centre .text-button,
   .property-passport-panel .primary-button,
   .property-passport-panel .secondary-button,
   .property-passport-panel .text-button {
