@@ -415,6 +415,95 @@ function renderOverviewNextAction() {
     `;
 }
 
+function renderOverviewState() {
+  updateStrength(labsState.eicrAdded ? 58 : 42);
+  renderOverviewRecentActivity();
+  renderOverviewNextAction();
+
+  const tile = document.querySelector("[data-electrical-tile]");
+  const tileIcon = tile?.querySelector("[data-icon]");
+  if (tile) {
+    tile.classList.toggle("status-good", labsState.eicrAdded);
+    tile.classList.toggle("status-review", !labsState.eicrAdded);
+    tile.classList.remove("status-watch", "status-neutral");
+  }
+  if (tileIcon) {
+    tileIcon.dataset.icon = labsState.eicrAdded ? "shield" : "alert";
+  }
+
+  document.querySelector("[data-electrical-status]").textContent = labsState.eicrAdded ? "Verified" : "Needs checking";
+  document.querySelector("[data-electrical-source]").textContent = labsState.eicrAdded ? "Uploaded document" : "No EICR evidence";
+}
+
+function renderDocumentsState() {
+  document.querySelector("[data-verified-count]").textContent = labsState.eicrAdded ? "3 documents" : "2 documents";
+  document.querySelector("[data-review-count]").textContent = labsState.eicrAdded ? "0 documents" : "1 document";
+  document.querySelector("[data-next-upload]").textContent = labsState.eicrAdded ? "Inspection evidence" : "EICR";
+  document.querySelector("[data-next-upload-note]").textContent = labsState.eicrAdded ? "Latest inspection record is the next useful item" : "Electrical Safety is still unverified";
+  document.querySelector("[data-vault-state]").textContent = labsState.eicrAdded ? "3 verified, 0 missing" : "2 verified, 1 missing";
+
+  document.querySelector("[data-eicr-source]").textContent = labsState.eicrAdded ? "Uploaded document" : "No evidence uploaded";
+  const status = document.querySelector("[data-eicr-doc-status]");
+  status.textContent = labsState.eicrAdded ? "Verified" : "Missing";
+  status.classList.toggle("status-good-text", labsState.eicrAdded);
+  status.classList.toggle("status-review-text", !labsState.eicrAdded);
+  document.querySelector("[data-eicr-review-date]").textContent = labsState.eicrAdded ? "Review date 11 May 2031" : "Review date unknown";
+  document.querySelector("[data-eicr-document-row]")?.classList.toggle("is-missing", !labsState.eicrAdded);
+  document.querySelector("[data-eicr-actions]").innerHTML = labsState.eicrAdded
+    ? `
+      <button class="text-button" type="button" data-toast="Document viewer is not connected in Labs.">View</button>
+      <button class="text-button" type="button" data-upload-trigger>Replace</button>
+    `
+    : `
+      <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
+      <button class="text-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
+    `;
+}
+
+function renderComplianceState() {
+  const complianceCard = document.querySelector("[data-compliance-eicr-card]");
+  complianceCard?.classList.toggle("status-good", labsState.eicrAdded);
+  complianceCard?.classList.toggle("status-review", !labsState.eicrAdded);
+  complianceCard?.classList.remove("status-watch", "status-neutral");
+
+  const icon = document.querySelector("[data-compliance-eicr-icon]");
+  if (icon) {
+    icon.dataset.icon = labsState.eicrAdded ? "shield" : "alert";
+  }
+
+  document.querySelector("[data-compliance-eicr-source]").textContent = labsState.eicrAdded ? "Uploaded document" : "No EICR evidence";
+  const status = document.querySelector("[data-compliance-eicr-status]");
+  status.textContent = labsState.eicrAdded ? "Verified" : "Needs checking";
+  status.classList.toggle("status-good-text", labsState.eicrAdded);
+  status.classList.toggle("status-review-text", !labsState.eicrAdded);
+  document.querySelector("[data-compliance-eicr-details]").textContent = labsState.eicrAdded
+    ? "Satisfactory EICR recorded. Review date: 11 May 2031."
+    : "CMP does not yet have a current EICR stored for this property.";
+  document.querySelector("[data-compliance-eicr-actions]").innerHTML = labsState.eicrAdded
+    ? `
+      <button class="secondary-button" type="button" data-toast="EICR viewer is not connected in Labs.">View certificate</button>
+      <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
+    `
+    : `
+      <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
+      <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
+      <button class="text-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+    `;
+}
+
+function renderAllState() {
+  renderOverviewState();
+  renderDocumentsState();
+  renderComplianceState();
+  renderTimelineState();
+  renderServicesState();
+  renderPropertyDetailsState();
+  renderAssistantActivity();
+  renderPortfolioHomeState();
+  renderPortfolioPropertiesState();
+  hydrateIcons();
+}
+
 function getPortfolioAssistantResponse(prompt) {
   const responses = labsState.eicrAdded ? portfolioPostEicrAssistantResponses : portfolioAssistantResponses;
   return responses[prompt] || defaultAssistantResponse;
@@ -518,6 +607,7 @@ function switchTab(target) {
     panel.hidden = !isActive;
   });
 
+  renderAllState();
   renderAssistantPrompts();
 
   if (target === "documents") {
@@ -614,9 +704,8 @@ function showPortfolioHome({ scroll = false } = {}) {
     tab.setAttribute("aria-selected", "false");
   });
   setGlobalNavActive("Home");
-  renderPortfolioHomeState();
+  renderAllState();
   renderAssistantPrompts();
-  renderAssistantActivity();
   setAssistantResponse(getPortfolioAssistantResponse("What should I do today?"));
 
   if (scroll) {
@@ -725,9 +814,8 @@ function showPortfolioProperties({ scroll = false } = {}) {
     tab.setAttribute("aria-selected", "false");
   });
   setGlobalNavActive("Properties");
-  renderPortfolioPropertiesState();
+  renderAllState();
   renderAssistantPrompts();
-  renderAssistantActivity();
   setAssistantResponse(getPropertiesAssistantResponse("Which property needs attention?"));
 
   if (scroll) {
@@ -1301,10 +1389,7 @@ function addServiceTimelineEvent(event) {
     actions: event.actions || [],
     details: event.details || null
   });
-  renderTimelineState();
-  renderAssistantActivity();
-  renderPortfolioHomeState();
-  renderPortfolioPropertiesState();
+  renderAllState();
 }
 
 function createSupportRequest() {
@@ -1346,7 +1431,7 @@ function createSupportRequest() {
       note: "Prototype support request for layout testing."
     }
   });
-  renderServicesState();
+  renderAllState();
   document.querySelector("[data-service-success-type]").textContent = copy.requestType;
   document.querySelector("[data-service-form]").hidden = true;
   document.querySelector("[data-service-success]").hidden = false;
@@ -1385,7 +1470,6 @@ function cancelSupportRequest(id) {
       note: "Prototype service history for layout testing."
     }
   });
-  renderServicesState();
   showToast("Support request cancelled");
 }
 
@@ -1554,9 +1638,7 @@ function addPropertyTimelineEvent(event) {
     actions: event.actions || [],
     details: event.details || null
   });
-  renderTimelineState();
-  renderAssistantActivity();
-  renderPortfolioHomeState();
+  renderAllState();
 }
 
 function applyScenarioByOccupancy(occupancy) {
@@ -1614,7 +1696,7 @@ function renderPropertyDetailsState() {
     eicrStatus.textContent = labsState.eicrAdded ? "Verified" : "Needs checking";
     eicrStatus.classList.toggle("status-good-text", labsState.eicrAdded);
     eicrStatus.classList.toggle("status-review-text", !labsState.eicrAdded);
-    eicrSource.textContent = labsState.eicrAdded ? "Source: uploaded document" : "Source: no EICR evidence stored";
+    eicrSource.textContent = labsState.eicrAdded ? "Uploaded document" : "Source: no EICR evidence stored";
     eicrList.innerHTML = labsState.eicrAdded
       ? `
         <li>Inspection date: 12 May 2026</li>
@@ -1660,8 +1742,6 @@ function savePropertyBasics() {
     .map(([key, value]) => [propertyFieldLabel(key), `${previous[key]} -> ${value}`]);
 
   labsState.propertyDetails = next;
-  renderPropertyDetailsState();
-  renderPortfolioPropertiesState();
   applyScenarioByOccupancy(next.occupancy);
 
   if (changedRows.length) {
@@ -1677,6 +1757,8 @@ function savePropertyBasics() {
         note: "Prototype property update for layout testing."
       }
     });
+  } else {
+    renderAllState();
   }
 
   closeTimelineModals();
@@ -2580,68 +2662,16 @@ function updateStrength(percent) {
 }
 
 function confirmEicr() {
+  const wasAlreadyConfirmed = labsState.eicrAdded;
   labsState.eicrAdded = true;
-  updateStrength(58);
-
-  const tile = document.querySelector("[data-electrical-tile]");
-  tile?.classList.remove("status-review", "status-watch", "status-neutral");
-  tile?.classList.add("status-good");
-
-  const tileIcon = tile?.querySelector("[data-icon]");
-  if (tileIcon) {
-    tileIcon.dataset.icon = "shield";
-    hydrateIcons();
-  }
-
-  document.querySelector("[data-electrical-status]").textContent = "Verified";
-  document.querySelector("[data-electrical-source]").textContent = "Uploaded document";
-
-  document.querySelector("[data-verified-count]").textContent = "3 documents";
-  document.querySelector("[data-review-count]").textContent = "0 documents";
-  document.querySelector("[data-next-upload]").textContent = "Inspection evidence";
-  document.querySelector("[data-next-upload-note]").textContent = "Latest inspection record is the next useful item";
-  document.querySelector("[data-vault-state]").textContent = "3 verified, 0 missing";
-
-  document.querySelector("[data-eicr-source]").textContent = "Uploaded document";
-  document.querySelector("[data-eicr-doc-status]").textContent = "Verified";
-  document.querySelector("[data-eicr-doc-status]").classList.remove("status-review-text");
-  document.querySelector("[data-eicr-doc-status]").classList.add("status-good-text");
-  document.querySelector("[data-eicr-review-date]").textContent = "Review date 11 May 2031";
-  document.querySelector("[data-eicr-document-row]")?.classList.remove("is-missing");
-  document.querySelector("[data-eicr-actions]").innerHTML = `
-    <button class="text-button" type="button" data-toast="Document viewer is not connected in Labs.">View</button>
-    <button class="text-button" type="button" data-upload-trigger>Replace</button>
-  `;
-
-  const complianceCard = document.querySelector("[data-compliance-eicr-card]");
-  complianceCard?.classList.remove("status-review", "status-watch", "status-neutral");
-  complianceCard?.classList.add("status-good");
-  document.querySelector("[data-compliance-eicr-icon]").dataset.icon = "shield";
-  document.querySelector("[data-compliance-eicr-source]").textContent = "Uploaded document";
-  document.querySelector("[data-compliance-eicr-status]").textContent = "Verified";
-  document.querySelector("[data-compliance-eicr-status]").classList.remove("status-review-text");
-  document.querySelector("[data-compliance-eicr-status]").classList.add("status-good-text");
-  document.querySelector("[data-compliance-eicr-details]").textContent = "Satisfactory EICR recorded. Review date: 11 May 2031.";
-  document.querySelector("[data-compliance-eicr-actions]").innerHTML = `
-    <button class="secondary-button" type="button" data-toast="EICR viewer is not connected in Labs.">View certificate</button>
-    <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
-  `;
-  hydrateIcons();
+  renderAllState();
 
   const panel = document.querySelector("[data-strengthened-panel]");
-  if (panel) {
+  if (panel && !wasAlreadyConfirmed) {
     panel.hidden = false;
     panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
-  renderTimelineState();
-  renderServicesState();
-  renderPropertyDetailsState();
-  renderAssistantActivity();
-  renderOverviewRecentActivity();
-  renderOverviewNextAction();
-  renderPortfolioHomeState();
-  renderPortfolioPropertiesState();
   setAssistantResponse(postEicrAssistantMessage);
   closeSmartModal();
   showToast("Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
@@ -2649,9 +2679,7 @@ function confirmEicr() {
 
 hydrateIcons();
 renderAssistantPrompts();
-renderAssistantActivity();
-renderOverviewRecentActivity();
-renderOverviewNextAction();
+renderAllState();
 bindTabs();
 bindPortfolioHome();
 bindPortfolioProperties();
