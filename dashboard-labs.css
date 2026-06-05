@@ -119,6 +119,7 @@ a {
 .portfolio-home-header,
 .portfolio-properties-header,
 .portfolio-compliance-header,
+.portfolio-evidence-header,
 .portfolio-autopilot-card,
 .portfolio-summary-panel,
 .portfolio-pulse-card,
@@ -128,6 +129,11 @@ a {
 .compliance-gap-card,
 .compliance-forecast-grid article,
 .compliance-readiness-card,
+.evidence-inbox-panel,
+.evidence-toolbar,
+.evidence-list-card,
+.smart-upload-shortcut,
+.property-evidence-health-card,
 .portfolio-property-card,
 .portfolio-upcoming-card,
 .home-secondary-card,
@@ -633,28 +639,35 @@ body.portfolio-properties-active .property-header,
 body.portfolio-properties-active .tab-bar,
 body.portfolio-compliance-active .utility-bar,
 body.portfolio-compliance-active .property-header,
-body.portfolio-compliance-active .tab-bar {
+body.portfolio-compliance-active .tab-bar,
+body.portfolio-evidence-active .utility-bar,
+body.portfolio-evidence-active .property-header,
+body.portfolio-evidence-active .tab-bar {
   display: none;
 }
 
 .portfolio-home,
 .portfolio-properties,
-.portfolio-compliance-centre {
+.portfolio-compliance-centre,
+.portfolio-evidence-vault {
   display: grid;
   gap: 14px;
 }
 
 .portfolio-home[hidden],
 .portfolio-properties[hidden],
-.portfolio-compliance-centre[hidden] {
+.portfolio-compliance-centre[hidden],
+.portfolio-evidence-vault[hidden] {
   display: none;
 }
 
 .portfolio-home-header,
 .portfolio-properties-header,
 .portfolio-compliance-header,
+.portfolio-evidence-header,
 .home-priority-card,
 .compliance-start-card,
+.evidence-inbox-panel,
 .home-quick-win-card,
 .properties-grow-card {
   display: grid;
@@ -668,10 +681,14 @@ body.portfolio-compliance-active .tab-bar {
 .portfolio-home-header h1,
 .portfolio-properties-header h1,
 .portfolio-compliance-header h1,
+.portfolio-evidence-header h1,
 .portfolio-autopilot-card h2,
 .home-priority-card h2,
 .compliance-start-card h2,
 .compliance-readiness-card h2,
+.evidence-inbox-panel h2,
+.smart-upload-shortcut h2,
+.property-evidence-health-card h2,
 .section-heading h2,
 .home-secondary-card h2,
 .home-quick-win-card h2,
@@ -686,10 +703,14 @@ body.portfolio-compliance-active .tab-bar {
 .portfolio-home-header p:not(.section-kicker),
 .portfolio-properties-header p:not(.section-kicker),
 .portfolio-compliance-header p:not(.section-kicker),
+.portfolio-evidence-header p:not(.section-kicker),
 .portfolio-autopilot-card p,
 .home-priority-card p,
 .compliance-start-card p,
 .compliance-readiness-card p,
+.evidence-inbox-panel p,
+.smart-upload-shortcut p,
+.property-evidence-health-card p,
 .home-secondary-card p,
 .home-quick-win-card p,
 .portfolio-section p,
@@ -761,6 +782,12 @@ body.portfolio-compliance-active .tab-bar {
 .compliance-centre-summary {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.evidence-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -976,6 +1003,163 @@ body.portfolio-compliance-active .tab-bar {
   display: block;
   margin-top: 10px;
   color: var(--labs-muted);
+}
+
+.evidence-inbox-panel {
+  align-items: center;
+  background:
+    radial-gradient(circle at 88% 18%, rgba(41, 122, 87, 0.09), transparent 28%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.evidence-inbox-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 180px;
+}
+
+.evidence-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.evidence-results {
+  display: grid;
+  gap: 12px;
+}
+
+.evidence-list-card {
+  overflow: hidden;
+  border-radius: var(--labs-radius-lg);
+}
+
+.evidence-list-header,
+.evidence-row {
+  display: grid;
+  grid-template-columns: minmax(165px, 1.15fr) minmax(140px, 0.9fr) minmax(120px, 0.72fr) minmax(100px, 0.6fr) minmax(130px, 0.72fr) minmax(180px, 0.85fr);
+  gap: 12px;
+  align-items: center;
+}
+
+.evidence-list-header {
+  padding: 13px 15px;
+  border-bottom: 1px solid var(--labs-border);
+  color: var(--labs-soft);
+  font-size: 0.67rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  background: rgba(249, 251, 250, 0.86);
+}
+
+.evidence-list {
+  display: grid;
+}
+
+.evidence-row {
+  padding: 15px;
+  border-bottom: 1px solid var(--labs-border);
+}
+
+.evidence-row:last-child {
+  border-bottom: 0;
+}
+
+.evidence-row h3 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: 0.98rem;
+}
+
+.evidence-row p,
+.evidence-row small {
+  display: block;
+  margin: 4px 0 0;
+  color: var(--labs-muted);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+.evidence-row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.evidence-row-actions .primary-button,
+.evidence-row-actions .text-button,
+.evidence-row-actions .secondary-button {
+  min-height: 30px;
+  padding: 0 8px;
+  font-size: 0.76rem;
+}
+
+.evidence-list-card.is-card-view {
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.evidence-list-card.is-card-view .evidence-list-header {
+  display: none;
+}
+
+.evidence-list-card.is-card-view .evidence-list {
+  gap: 12px;
+}
+
+.evidence-list-card.is-card-view .evidence-row {
+  grid-template-columns: 1fr;
+  gap: 10px;
+  border: 1px solid var(--labs-border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--labs-card-shadow);
+}
+
+.evidence-lower-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(280px, 0.72fr);
+  gap: 14px;
+}
+
+.smart-upload-shortcut,
+.property-evidence-health-card {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+  padding: 20px;
+  border-radius: var(--labs-radius-lg);
+}
+
+.property-evidence-health {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.property-evidence-health span,
+.property-evidence-health strong {
+  display: grid;
+  align-content: center;
+  min-height: 54px;
+  padding: 10px;
+  border: 1px solid var(--labs-border);
+  border-radius: 14px;
+  background: var(--labs-surface-soft);
+  color: var(--labs-green-dark);
+  font-size: 0.8rem;
+  font-weight: 800;
+  line-height: 1.25;
+}
+
+.property-evidence-health strong {
+  grid-column: 1 / -1;
+  color: var(--labs-ink);
 }
 
 .portfolio-section {
@@ -3830,9 +4014,11 @@ body.assistant-open {
   .portfolio-home-header,
   .portfolio-properties-header,
   .portfolio-compliance-header,
+  .portfolio-evidence-header,
   .home-priority-card,
   .compliance-start-card,
   .compliance-readiness-card,
+  .evidence-inbox-panel,
   .home-quick-win-card,
   .properties-grow-card {
     grid-template-columns: 1fr;
@@ -3918,6 +4104,7 @@ body.assistant-open {
   .documents-grid,
   .result-grid,
   .compliance-lower-grid,
+  .evidence-lower-grid,
   .service-grid,
   .passport-summary,
   .home-two-column,
@@ -3931,11 +4118,13 @@ body.assistant-open {
   .portfolio-pulse-grid,
   .properties-summary-grid,
   .compliance-centre-summary,
+  .evidence-summary-grid,
   .home-upcoming-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .properties-toolbar,
+  .evidence-toolbar,
   .properties-card-main,
   .properties-card-status,
   .properties-compact-row {
@@ -4081,6 +4270,7 @@ body.assistant-open {
   .portfolio-home-header,
   .portfolio-properties-header,
   .portfolio-compliance-header,
+  .portfolio-evidence-header,
   .portfolio-autopilot-card,
   .portfolio-summary-panel,
   .portfolio-pulse-card,
@@ -4090,6 +4280,11 @@ body.assistant-open {
   .compliance-gap-card,
   .compliance-forecast-grid article,
   .compliance-readiness-card,
+  .evidence-inbox-panel,
+  .evidence-toolbar,
+  .evidence-list-card,
+  .smart-upload-shortcut,
+  .property-evidence-health-card,
   .portfolio-property-card,
   .portfolio-upcoming-card,
   .home-secondary-card,
@@ -4191,11 +4386,13 @@ body.assistant-open {
   .portfolio-pulse-grid,
   .properties-summary-grid,
   .compliance-centre-summary,
+  .evidence-summary-grid,
   .compliance-forecast-grid,
   .home-upcoming-grid,
   .home-two-column,
   .portfolio-property-card,
   .properties-toolbar,
+  .evidence-toolbar,
   .properties-card-main,
   .properties-card-status,
   .properties-compact-row {
@@ -4209,6 +4406,29 @@ body.assistant-open {
 
   .compliance-gap-actions {
     justify-content: flex-start;
+  }
+
+  .evidence-list-header {
+    display: none;
+  }
+
+  .evidence-list {
+    gap: 12px;
+  }
+
+  .evidence-row {
+    grid-template-columns: 1fr;
+    gap: 10px;
+    border: 1px solid var(--labs-border);
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.92);
+    box-shadow: var(--labs-card-shadow);
+  }
+
+  .evidence-list-card {
+    border: 0;
+    background: transparent;
+    box-shadow: none;
   }
 
   .compliance-counts,
@@ -4255,6 +4475,7 @@ body.assistant-open {
   .portfolio-header-actions,
   .home-priority-actions,
   .compliance-start-actions,
+  .evidence-inbox-actions,
   .compliance-gap-actions,
   .properties-card-actions,
   .portfolio-property-card .button-row,
@@ -4297,6 +4518,9 @@ body.assistant-open {
   .portfolio-compliance-centre .primary-button,
   .portfolio-compliance-centre .secondary-button,
   .portfolio-compliance-centre .text-button,
+  .portfolio-evidence-vault .primary-button,
+  .portfolio-evidence-vault .secondary-button,
+  .portfolio-evidence-vault .text-button,
   .property-passport-panel .primary-button,
   .property-passport-panel .secondary-button,
   .property-passport-panel .text-button {

@@ -640,6 +640,138 @@
           </article>
         </section>
 
+        <section class="portfolio-evidence-vault" data-portfolio-evidence hidden aria-labelledby="portfolioEvidenceTitle">
+          <header class="portfolio-evidence-header">
+            <div>
+              <p class="section-kicker">PORTFOLIO EVIDENCE</p>
+              <h1 id="portfolioEvidenceTitle">Evidence Vault</h1>
+              <p>View certificates, records and property paperwork across your portfolio, with clear source labels and next actions.</p>
+              <span class="prototype-badge">1 property connected</span>
+            </div>
+            <div class="portfolio-header-actions">
+              <button class="primary-button" type="button" data-evidence-upload>Upload evidence</button>
+              <button class="secondary-button" type="button" data-evidence-copy-inbox>Copy inbox address</button>
+              <button class="secondary-button" type="button" data-evidence-ask>Ask CMP what is missing</button>
+            </div>
+          </header>
+
+          <section class="evidence-summary-grid" aria-label="Evidence Vault summary">
+            <article class="portfolio-pulse-card">
+              <span>Verified evidence</span>
+              <strong data-evidence-verified-count>2</strong>
+              <small>documents ready</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Needs review</span>
+              <strong data-evidence-review-count>1</strong>
+              <small data-evidence-review-detail>EICR extraction</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Missing evidence</span>
+              <strong data-evidence-missing-count>2</strong>
+              <small data-evidence-missing-detail>EICR and inspection</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Inbox</span>
+              <strong>1</strong>
+              <small>forwarding address</small>
+            </article>
+          </section>
+
+          <article class="evidence-inbox-panel">
+            <div>
+              <p class="section-kicker">EVIDENCE INBOX</p>
+              <h2>Forward paperwork once</h2>
+              <p>Send certificates, tenancy paperwork and property records to CMP. CMP can suggest the correct property and document category for review.</p>
+              <div class="inbox-address" data-evidence-inbox-address>57-the-butts@inbox.complymyproperty.co.uk</div>
+            </div>
+            <div class="evidence-inbox-actions">
+              <button class="secondary-button" type="button" data-evidence-copy-inbox>Copy inbox address</button>
+              <button class="primary-button" type="button" data-evidence-open-property-inbox>Open property inbox</button>
+              <button class="text-button" type="button" data-evidence-forwarding-help>How forwarding works</button>
+            </div>
+          </article>
+
+          <section class="evidence-toolbar" aria-label="Evidence search and filters">
+            <label class="properties-search evidence-search">
+              <span class="nav-icon" data-icon="file"></span>
+              <input type="search" data-evidence-search placeholder="Search documents, properties or sources..." autocomplete="off">
+            </label>
+            <div class="properties-filter-row" aria-label="Evidence filters">
+              <button class="is-active" type="button" data-evidence-filter="all">All</button>
+              <button type="button" data-evidence-filter="verified">Verified</button>
+              <button type="button" data-evidence-filter="review">Needs review</button>
+              <button type="button" data-evidence-filter="missing">Missing</button>
+              <button type="button" data-evidence-filter="official">Official records</button>
+              <button type="button" data-evidence-filter="uploaded">Uploaded documents</button>
+            </div>
+            <div class="properties-view-toggle" aria-label="Evidence view">
+              <button type="button" data-evidence-view="cards">Cards</button>
+              <button class="is-active" type="button" data-evidence-view="list">List</button>
+            </div>
+          </section>
+
+          <section class="evidence-results" aria-label="Portfolio evidence records">
+            <div class="evidence-list-card" data-evidence-list-card>
+              <div class="evidence-list-header" aria-hidden="true">
+                <span>Document</span>
+                <span>Property</span>
+                <span>Source</span>
+                <span>Status</span>
+                <span>Key date</span>
+                <span>Actions</span>
+              </div>
+              <div class="evidence-list" data-evidence-list></div>
+            </div>
+            <article class="properties-empty-state" data-evidence-empty hidden>
+              <h2>No evidence matches this view</h2>
+              <p>Try clearing the search or switching back to all evidence.</p>
+              <button class="secondary-button" type="button" data-evidence-clear>Clear filters</button>
+            </article>
+          </section>
+
+          <section class="compliance-centre-section" data-evidence-missing-section aria-labelledby="evidenceMissingTitle">
+            <div class="section-heading">
+              <p class="section-kicker">MISSING EVIDENCE</p>
+              <h2 id="evidenceMissingTitle">What CMP still needs</h2>
+              <p>A short list of evidence gaps across the portfolio.</p>
+            </div>
+            <div class="compliance-gap-list" data-evidence-missing-list></div>
+          </section>
+
+          <div class="evidence-lower-grid">
+            <article class="smart-upload-shortcut">
+              <div>
+                <p class="section-kicker">SMART UPLOAD</p>
+                <h2>Add mixed paperwork</h2>
+                <p>Upload mixed certificates and records. CMP will organise them for review in the property workspace.</p>
+              </div>
+              <div class="button-row">
+                <button class="primary-button" type="button" data-evidence-demo-upload>Preview mixed paperwork demo</button>
+                <button class="secondary-button" type="button" data-evidence-open-documents>Open property Documents</button>
+              </div>
+            </article>
+
+            <article class="property-evidence-health-card">
+              <div>
+                <h2>57 The Butts</h2>
+                <p>Coventry, CV1 3BJ</p>
+              </div>
+              <div class="property-evidence-health">
+                <span data-evidence-health-strength>42% evidenced</span>
+                <span data-evidence-health-verified>2 verified</span>
+                <span data-evidence-health-missing>1 missing</span>
+                <strong data-evidence-health-focus>Electrical Safety needs evidence</strong>
+              </div>
+              <div class="button-row">
+                <button class="secondary-button" type="button" data-evidence-open-documents>Open property evidence</button>
+                <button class="text-button" type="button" data-evidence-open-timeline>View timeline</button>
+                <button class="text-button" type="button" data-evidence-open-services>Request support</button>
+              </div>
+            </article>
+          </div>
+        </section>
+
         <section class="tab-panel is-active" data-panel="overview" aria-label="Overview">
           <article class="autopilot-card">
             <div class="autopilot-copy">
@@ -1958,6 +2090,22 @@
         <div class="button-row">
           <button class="primary-button" type="button" data-home-alarm-save>Save answer</button>
           <button class="secondary-button" type="button" data-home-alarm-close>Cancel</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal evidence-inbox-modal" role="dialog" aria-modal="true" aria-labelledby="evidenceInboxModalTitle" data-evidence-inbox-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Evidence Inbox</p>
+            <h2 id="evidenceInboxModalTitle">How Evidence Inbox works</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close Evidence Inbox explanation" data-evidence-inbox-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note">In the finished product, forwarded documents could be matched to a property, classified by type and prepared for review. This Labs preview simulates that behaviour locally.</p>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-evidence-inbox-close>Got it</button>
         </div>
       </section>
 
