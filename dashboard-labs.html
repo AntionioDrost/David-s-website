@@ -346,6 +346,139 @@
           </article>
         </section>
 
+        <section class="portfolio-properties" data-portfolio-properties hidden aria-labelledby="portfolioPropertiesTitle">
+          <header class="portfolio-properties-header">
+            <div>
+              <p class="section-kicker">PORTFOLIO</p>
+              <h1 id="portfolioPropertiesTitle">Properties</h1>
+              <p>Manage your property workspaces, see which files need attention and open the right property in one click.</p>
+              <span class="prototype-badge">1 property tracked</span>
+            </div>
+            <div class="portfolio-header-actions">
+              <button class="primary-button" type="button" data-properties-add>Add property</button>
+              <button class="secondary-button" type="button" data-properties-ask>Ask CMP</button>
+            </div>
+          </header>
+
+          <section class="properties-summary-grid" aria-label="Properties summary">
+            <article class="portfolio-pulse-card">
+              <span>Properties</span>
+              <strong>1</strong>
+              <small>property tracked</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Needs attention</span>
+              <strong>1</strong>
+              <small data-properties-attention-detail>Electrical Safety</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Evidence strength</span>
+              <strong data-properties-summary-strength>42%</strong>
+              <small>property file evidence</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Open requests</span>
+              <strong data-properties-open-requests>0</strong>
+              <small>support requests</small>
+            </article>
+          </section>
+
+          <section class="properties-toolbar" aria-label="Properties search and filters">
+            <label class="properties-search">
+              <span class="nav-icon" data-icon="home"></span>
+              <input type="search" data-properties-search placeholder="Search by address, postcode or status..." autocomplete="off">
+            </label>
+            <div class="properties-filter-row" aria-label="Property filters">
+              <button class="is-active" type="button" data-properties-filter="all">All</button>
+              <button type="button" data-properties-filter="attention">Needs attention</button>
+              <button type="button" data-properties-filter="vacant">Vacant</button>
+              <button type="button" data-properties-filter="requests">Open requests</button>
+            </div>
+            <div class="properties-view-toggle" aria-label="Properties view">
+              <button class="is-active" type="button" data-properties-view="cards">Cards</button>
+              <button type="button" data-properties-view="compact">Compact</button>
+            </div>
+          </section>
+
+          <section class="properties-results" data-properties-results>
+            <article class="properties-card" data-properties-card>
+              <div class="properties-card-main">
+                <div>
+                  <h2>57 The Butts</h2>
+                  <p>Coventry, CV1 3BJ</p>
+                  <div class="signal-row">
+                    <span data-properties-occupancy>Vacant property</span>
+                    <span data-properties-journey>General compliance check</span>
+                    <span data-properties-request-indicator hidden>Open request</span>
+                  </div>
+                </div>
+                <div class="properties-evidence">
+                  <span>Evidence strength</span>
+                  <strong data-properties-card-strength>42% evidenced</strong>
+                  <div class="strength-meter"><span data-properties-card-meter style="width: 42%"></span></div>
+                </div>
+              </div>
+              <div class="properties-card-status">
+                <div>
+                  <span>Current focus</span>
+                  <strong data-properties-current-focus>Electrical Safety evidence</strong>
+                </div>
+                <div>
+                  <span>State</span>
+                  <strong data-properties-current-state>Needs checking</strong>
+                </div>
+              </div>
+              <div class="properties-card-actions">
+                <button class="primary-button" type="button" data-properties-open-workspace>Open workspace</button>
+                <button class="secondary-button" type="button" data-properties-upload>Upload evidence</button>
+                <button class="text-button" type="button" data-properties-timeline>View timeline</button>
+                <button class="text-button" type="button" data-properties-support>Request support</button>
+              </div>
+            </article>
+
+            <article class="properties-compact-row" data-properties-compact hidden>
+              <div>
+                <span>Property</span>
+                <strong>57 The Butts</strong>
+                <small>Coventry, CV1 3BJ</small>
+              </div>
+              <div>
+                <span>Status</span>
+                <strong data-properties-compact-status>Needs checking</strong>
+                <small data-properties-compact-occupancy>Vacant property</small>
+              </div>
+              <div>
+                <span>Evidence</span>
+                <strong data-properties-compact-strength>42% evidenced</strong>
+                <div class="strength-meter"><span data-properties-compact-meter style="width: 42%"></span></div>
+              </div>
+              <div>
+                <span>Priority</span>
+                <strong data-properties-compact-priority>Electrical Safety evidence</strong>
+              </div>
+              <div>
+                <span>Next action</span>
+                <button class="text-button" type="button" data-properties-open-workspace>Open workspace</button>
+              </div>
+            </article>
+          </section>
+
+          <article class="properties-empty-state" data-properties-empty hidden>
+            <h2>No properties match this view</h2>
+            <p>Try clearing the search or switching back to all properties.</p>
+            <button class="secondary-button" type="button" data-properties-clear>Clear filters</button>
+          </article>
+
+          <article class="properties-grow-card">
+            <div>
+              <p class="section-kicker">Growing your portfolio?</p>
+              <h2>Add another property when you are ready</h2>
+              <p>CMP will build a separate workspace for each address.</p>
+            </div>
+            <button class="secondary-button" type="button" data-properties-add>Add another property</button>
+          </article>
+        </section>
+
         <section class="tab-panel is-active" data-panel="overview" aria-label="Overview">
           <article class="autopilot-card">
             <div class="autopilot-copy">

@@ -16,6 +16,9 @@ const labsState = {
   propertyEvents: [],
   serviceRequests: [],
   serviceEvents: [],
+  propertiesSearch: "",
+  propertiesFilter: "all",
+  propertiesView: "cards",
   propertyDetails: {
     propertyType: "Terraced house",
     bedrooms: "3 bedrooms",
@@ -124,6 +127,13 @@ const portfolioPrompts = [
   "What should I do today?",
   "Which property needs attention?",
   "What evidence am I missing?"
+];
+
+const propertiesPrompts = [
+  "Which property needs attention?",
+  "Summarise my properties",
+  "What should I open first?",
+  "How do I add another property?"
 ];
 
 const roomLabels = {
@@ -251,6 +261,20 @@ const portfolioPostEicrAssistantResponses = {
   "What evidence am I missing?": "CMP has EPC, Gas Safety and EICR evidence. The next useful upload is a recent property-inspection record.",
   "Ask CMP why this matters": "Your EICR is now verified. The next useful step is to review your latest inspection record so CMP can keep the property file current.",
   "Ask CMP what I need": "Your most useful missing item is your latest property inspection record. Add evidence if an inspection has been completed, or confirm that it has not yet been carried out."
+};
+
+const propertiesAssistantResponses = {
+  "Which property needs attention?": "57 The Butts needs attention because Electrical Safety evidence is still missing. Open the workspace or upload an existing EICR.",
+  "Summarise my properties": "You currently have one property in this CMP Labs portfolio: 57 The Butts in Coventry. CMP has EPC and Gas Safety evidence recorded, with the next priority shown on the property card.",
+  "What should I open first?": "Open 57 The Butts and review the Electrical Safety action. That is the clearest evidence gap.",
+  "How do I add another property?": "In the finished product, Add property will start a postcode and address lookup. This Labs version shows the button as a prototype placeholder."
+};
+
+const propertiesPostEicrAssistantResponses = {
+  "Which property needs attention?": "57 The Butts is still the active property. Electrical Safety evidence is now recorded, so inspection evidence is the next useful focus.",
+  "Summarise my properties": "You currently have one property in this CMP Labs portfolio: 57 The Butts in Coventry. CMP has EPC and Gas Safety evidence recorded, with the next priority shown on the property card.",
+  "What should I open first?": "Open 57 The Butts and review inspection evidence. It is now the next useful item.",
+  "How do I add another property?": "In the finished product, Add property will start a postcode and address lookup. This Labs version shows the button as a prototype placeholder."
 };
 
 const defaultAssistantResponse = "This is a static Labs preview. CMP can organise evidence, identify gaps and suggest the next useful action for this property.";
@@ -396,9 +420,18 @@ function getPortfolioAssistantResponse(prompt) {
   return responses[prompt] || defaultAssistantResponse;
 }
 
+function getPropertiesAssistantResponse(prompt) {
+  const responses = labsState.eicrAdded ? propertiesPostEicrAssistantResponses : propertiesAssistantResponses;
+  return responses[prompt] || defaultAssistantResponse;
+}
+
 function getAssistantResponse(prompt) {
   if (labsState.currentView === "home") {
     return getPortfolioAssistantResponse(prompt);
+  }
+
+  if (labsState.currentView === "properties") {
+    return getPropertiesAssistantResponse(prompt);
   }
 
   if (labsState.eicrAdded && postEicrAssistantResponses[prompt]) {
@@ -412,6 +445,8 @@ function renderAssistantPrompts() {
   const stack = document.querySelector(".prompt-stack");
   const prompts = labsState.currentView === "home"
     ? portfolioPrompts
+    : labsState.currentView === "properties"
+      ? propertiesPrompts
     : labsState.activeTab === "documents"
     ? documentPrompts
     : labsState.activeTab === "compliance"
@@ -466,8 +501,9 @@ function switchTab(target) {
 
   labsState.currentView = "property";
   labsState.activeTab = target;
-  document.body.classList.remove("portfolio-home-active", "menu-open");
+  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "menu-open");
   document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
   setGlobalNavActive(null);
 
   tabs.forEach((item) => {
@@ -566,8 +602,9 @@ function showPortfolioHome({ scroll = false } = {}) {
 
   labsState.currentView = "home";
   document.body.classList.add("portfolio-home-active");
-  document.body.classList.remove("menu-open");
+  document.body.classList.remove("portfolio-properties-active", "menu-open");
   home.hidden = false;
+  document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
   document.querySelectorAll("[data-panel]").forEach((panel) => {
     panel.hidden = true;
     panel.classList.remove("is-active");
@@ -581,6 +618,117 @@ function showPortfolioHome({ scroll = false } = {}) {
   renderAssistantPrompts();
   renderAssistantActivity();
   setAssistantResponse(getPortfolioAssistantResponse("What should I do today?"));
+
+  if (scroll) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+function propertySearchText() {
+  return [
+    "57",
+    "the butts",
+    "butts",
+    "coventry",
+    "cv1",
+    "eicr",
+    "inspection",
+    "vacant",
+    labsState.propertyDetails.occupancy,
+    labsState.propertyDetails.goal,
+    currentServiceRequest() ? "open requests support request" : ""
+  ].join(" ").toLowerCase();
+}
+
+function propertyMatchesCurrentView() {
+  const query = labsState.propertiesSearch.trim().toLowerCase();
+  const hasOpenRequest = Boolean(currentServiceRequest());
+  const matchesSearch = !query || propertySearchText().includes(query);
+  const matchesFilter = labsState.propertiesFilter === "all"
+    || (labsState.propertiesFilter === "attention")
+    || (labsState.propertiesFilter === "vacant" && labsState.propertyDetails.occupancy === "Vacant property")
+    || (labsState.propertiesFilter === "requests" && hasOpenRequest);
+
+  return matchesSearch && matchesFilter;
+}
+
+function renderPortfolioPropertiesState() {
+  const page = document.querySelector("[data-portfolio-properties]");
+
+  if (!page) {
+    return;
+  }
+
+  const strength = labsState.eicrAdded ? 58 : 42;
+  const focus = labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety evidence";
+  const state = labsState.eicrAdded ? "Useful next step" : "Needs checking";
+  const attentionDetail = labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety";
+  const openRequests = currentServiceRequest() ? 1 : 0;
+  const hasResult = propertyMatchesCurrentView();
+  const cardView = labsState.propertiesView === "cards";
+
+  document.querySelector("[data-properties-attention-detail]").textContent = attentionDetail;
+  document.querySelector("[data-properties-summary-strength]").textContent = `${strength}%`;
+  document.querySelector("[data-properties-open-requests]").textContent = String(openRequests);
+  document.querySelector("[data-properties-card-strength]").textContent = `${strength}% evidenced`;
+  document.querySelector("[data-properties-card-meter]").style.width = `${strength}%`;
+  document.querySelector("[data-properties-current-focus]").textContent = focus;
+  document.querySelector("[data-properties-current-state]").textContent = state;
+  document.querySelector("[data-properties-occupancy]").textContent = labsState.propertyDetails.occupancy;
+  document.querySelector("[data-properties-journey]").textContent = labsState.propertyDetails.goal;
+  document.querySelector("[data-properties-compact-status]").textContent = state;
+  document.querySelector("[data-properties-compact-occupancy]").textContent = labsState.propertyDetails.occupancy;
+  document.querySelector("[data-properties-compact-strength]").textContent = `${strength}% evidenced`;
+  document.querySelector("[data-properties-compact-meter]").style.width = `${strength}%`;
+  document.querySelector("[data-properties-compact-priority]").textContent = focus;
+
+  const requestIndicator = document.querySelector("[data-properties-request-indicator]");
+  if (requestIndicator) {
+    requestIndicator.hidden = !openRequests;
+  }
+
+  const searchInput = document.querySelector("[data-properties-search]");
+  if (searchInput && searchInput.value !== labsState.propertiesSearch) {
+    searchInput.value = labsState.propertiesSearch;
+  }
+
+  document.querySelectorAll("[data-properties-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.propertiesFilter === labsState.propertiesFilter);
+  });
+  document.querySelectorAll("[data-properties-view]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.propertiesView === labsState.propertiesView);
+  });
+
+  document.querySelector("[data-properties-card]").hidden = !hasResult || !cardView;
+  document.querySelector("[data-properties-compact]").hidden = !hasResult || cardView;
+  document.querySelector("[data-properties-empty]").hidden = hasResult;
+}
+
+function showPortfolioProperties({ scroll = false } = {}) {
+  const page = document.querySelector("[data-portfolio-properties]");
+
+  if (!page) {
+    return;
+  }
+
+  labsState.currentView = "properties";
+  document.body.classList.add("portfolio-properties-active");
+  document.body.classList.remove("portfolio-home-active", "menu-open");
+  document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
+  page.hidden = false;
+  document.querySelectorAll("[data-panel]").forEach((panel) => {
+    panel.hidden = true;
+    panel.classList.remove("is-active");
+  });
+  document.querySelectorAll("[data-tab]").forEach((tab) => {
+    tab.classList.remove("is-active");
+    tab.setAttribute("aria-selected", "false");
+  });
+  setGlobalNavActive("Properties");
+  renderPortfolioPropertiesState();
+  renderAssistantPrompts();
+  renderAssistantActivity();
+  setAssistantResponse(getPropertiesAssistantResponse("Which property needs attention?"));
 
   if (scroll) {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -728,6 +876,62 @@ function bindPortfolioHome() {
   });
 }
 
+function bindPortfolioProperties() {
+  document.querySelectorAll("[data-properties-add]").forEach((button) => {
+    button.addEventListener("click", () => {
+      showToast("Add-property onboarding will be connected in a later CMP Labs pass.");
+    });
+  });
+
+  document.querySelector("[data-properties-ask]")?.addEventListener("click", () => {
+    openAssistant(getPropertiesAssistantResponse("Which property needs attention?"));
+    focusAssistantInput();
+  });
+
+  document.querySelector("[data-properties-search]")?.addEventListener("input", (event) => {
+    labsState.propertiesSearch = event.target.value;
+    renderPortfolioPropertiesState();
+  });
+
+  document.querySelectorAll("[data-properties-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      labsState.propertiesFilter = button.dataset.propertiesFilter;
+      renderPortfolioPropertiesState();
+    });
+  });
+
+  document.querySelectorAll("[data-properties-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      labsState.propertiesView = button.dataset.propertiesView;
+      renderPortfolioPropertiesState();
+    });
+  });
+
+  document.querySelector("[data-properties-clear]")?.addEventListener("click", () => {
+    labsState.propertiesSearch = "";
+    labsState.propertiesFilter = "all";
+    renderPortfolioPropertiesState();
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-properties-open-workspace]")) {
+      openPropertyWorkspace("overview");
+    }
+
+    if (event.target.closest("[data-properties-upload]")) {
+      openPropertyWorkspace("documents", "[data-document-upload-panel]");
+    }
+
+    if (event.target.closest("[data-properties-timeline]")) {
+      openPropertyWorkspace("timeline");
+    }
+
+    if (event.target.closest("[data-properties-support]")) {
+      openPropertyWorkspace("services", currentServiceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
+    }
+  });
+}
+
 function bindTabs() {
   document.querySelectorAll("[data-tab]").forEach((tab) => {
     tab.addEventListener("click", () => switchTab(tab.dataset.tab));
@@ -738,6 +942,11 @@ function bindTabs() {
       event.preventDefault();
       if (item.dataset.globalNav === "Home") {
         showPortfolioHome({ scroll: true });
+        return;
+      }
+
+      if (item.dataset.globalNav === "Properties") {
+        showPortfolioProperties({ scroll: true });
         return;
       }
 
@@ -1095,6 +1304,7 @@ function addServiceTimelineEvent(event) {
   renderTimelineState();
   renderAssistantActivity();
   renderPortfolioHomeState();
+  renderPortfolioPropertiesState();
 }
 
 function createSupportRequest() {
@@ -1451,6 +1661,7 @@ function savePropertyBasics() {
 
   labsState.propertyDetails = next;
   renderPropertyDetailsState();
+  renderPortfolioPropertiesState();
   applyScenarioByOccupancy(next.occupancy);
 
   if (changedRows.length) {
@@ -2430,6 +2641,7 @@ function confirmEicr() {
   renderOverviewRecentActivity();
   renderOverviewNextAction();
   renderPortfolioHomeState();
+  renderPortfolioPropertiesState();
   setAssistantResponse(postEicrAssistantMessage);
   closeSmartModal();
   showToast("Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
@@ -2442,6 +2654,7 @@ renderOverviewRecentActivity();
 renderOverviewNextAction();
 bindTabs();
 bindPortfolioHome();
+bindPortfolioProperties();
 bindAssistant();
 bindMobileMenu();
 bindToasts();

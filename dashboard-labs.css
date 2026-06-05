@@ -117,6 +117,7 @@ a {
 .service-option-card,
 .human-support-panel,
 .portfolio-home-header,
+.portfolio-properties-header,
 .portfolio-autopilot-card,
 .portfolio-summary-panel,
 .portfolio-pulse-card,
@@ -125,6 +126,7 @@ a {
 .portfolio-upcoming-card,
 .home-secondary-card,
 .home-quick-win-card,
+.properties-grow-card,
 .passport-header,
 .passport-summary-card,
 .passport-card,
@@ -619,22 +621,29 @@ a {
 
 body.portfolio-home-active .utility-bar,
 body.portfolio-home-active .property-header,
-body.portfolio-home-active .tab-bar {
+body.portfolio-home-active .tab-bar,
+body.portfolio-properties-active .utility-bar,
+body.portfolio-properties-active .property-header,
+body.portfolio-properties-active .tab-bar {
   display: none;
 }
 
-.portfolio-home {
+.portfolio-home,
+.portfolio-properties {
   display: grid;
   gap: 14px;
 }
 
-.portfolio-home[hidden] {
+.portfolio-home[hidden],
+.portfolio-properties[hidden] {
   display: none;
 }
 
 .portfolio-home-header,
+.portfolio-properties-header,
 .home-priority-card,
-.home-quick-win-card {
+.home-quick-win-card,
+.properties-grow-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   gap: 18px;
@@ -644,11 +653,14 @@ body.portfolio-home-active .tab-bar {
 }
 
 .portfolio-home-header h1,
+.portfolio-properties-header h1,
 .portfolio-autopilot-card h2,
 .home-priority-card h2,
 .section-heading h2,
 .home-secondary-card h2,
-.home-quick-win-card h2 {
+.home-quick-win-card h2,
+.properties-grow-card h2,
+.properties-empty-state h2 {
   margin: 0;
   color: var(--labs-ink);
   font-size: clamp(1.38rem, 2.5vw, 1.95rem);
@@ -656,11 +668,14 @@ body.portfolio-home-active .tab-bar {
 }
 
 .portfolio-home-header p:not(.section-kicker),
+.portfolio-properties-header p:not(.section-kicker),
 .portfolio-autopilot-card p,
 .home-priority-card p,
 .home-secondary-card p,
 .home-quick-win-card p,
-.portfolio-section p {
+.portfolio-section p,
+.properties-grow-card p,
+.properties-empty-state p {
   margin: 8px 0 0;
   color: var(--labs-muted);
   line-height: 1.55;
@@ -718,6 +733,12 @@ body.portfolio-home-active .tab-bar {
 }
 
 .portfolio-pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.properties-summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
@@ -805,6 +826,163 @@ body.portfolio-home-active .tab-bar {
 
 .portfolio-property-progress strong {
   color: var(--labs-green-dark);
+}
+
+.properties-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border: 1px solid var(--labs-border);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.properties-search {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 9px;
+  align-items: center;
+  min-height: 42px;
+  padding: 0 12px;
+  border: 1px solid var(--labs-border);
+  border-radius: 999px;
+  background: #fff;
+}
+
+.properties-search .nav-icon {
+  width: 17px;
+  height: 17px;
+  color: var(--labs-soft);
+}
+
+.properties-search input {
+  width: 100%;
+  border: 0;
+  outline: 0;
+  color: var(--labs-ink);
+  background: transparent;
+  font: inherit;
+  font-size: 0.9rem;
+}
+
+.properties-filter-row,
+.properties-view-toggle {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.properties-filter-row button,
+.properties-view-toggle button {
+  min-height: 36px;
+  padding: 7px 11px;
+  border: 1px solid var(--labs-border);
+  border-radius: 999px;
+  color: #2c4944;
+  background: #fff;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.properties-filter-row button.is-active,
+.properties-view-toggle button.is-active {
+  border-color: rgba(41, 122, 87, 0.34);
+  color: var(--labs-green-dark);
+  background: var(--labs-green-soft);
+}
+
+.properties-results {
+  display: grid;
+  gap: 12px;
+}
+
+.properties-card,
+.properties-compact-row,
+.properties-empty-state,
+.properties-grow-card {
+  padding: 18px;
+  border: 1px solid var(--labs-border);
+  border-radius: var(--labs-radius-lg);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: var(--labs-card-shadow);
+}
+
+.properties-card {
+  display: grid;
+  gap: 16px;
+}
+
+.properties-card-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(190px, 0.34fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.properties-card h2 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: 1.22rem;
+}
+
+.properties-card p {
+  margin: 4px 0 12px;
+  color: var(--labs-muted);
+}
+
+.properties-evidence,
+.properties-card-status {
+  display: grid;
+  gap: 8px;
+}
+
+.properties-card-status {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.properties-evidence span,
+.properties-card-status span,
+.properties-compact-row span {
+  color: var(--labs-soft);
+  font-size: 0.68rem;
+  font-weight: 820;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.properties-evidence strong,
+.properties-card-status strong,
+.properties-compact-row strong {
+  display: block;
+  color: var(--labs-green-dark);
+}
+
+.properties-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.properties-compact-row {
+  grid-template-columns: minmax(150px, 1fr) minmax(130px, 0.8fr) minmax(150px, 0.8fr) minmax(150px, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+}
+
+.properties-compact-row small {
+  display: block;
+  margin-top: 3px;
+  color: var(--labs-muted);
+  font-weight: 650;
+}
+
+.properties-empty-state {
+  display: grid;
+  justify-items: start;
+  gap: 10px;
 }
 
 .home-upcoming-grid {
@@ -3450,8 +3628,10 @@ body.assistant-open {
   .services-header,
   .passport-header,
   .portfolio-home-header,
+  .portfolio-properties-header,
   .home-priority-card,
-  .home-quick-win-card {
+  .home-quick-win-card,
+  .properties-grow-card {
     grid-template-columns: 1fr;
   }
 
@@ -3546,8 +3726,16 @@ body.assistant-open {
   }
 
   .portfolio-pulse-grid,
+  .properties-summary-grid,
   .home-upcoming-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .properties-toolbar,
+  .properties-card-main,
+  .properties-card-status,
+  .properties-compact-row {
+    grid-template-columns: 1fr;
   }
 
   .vault-summary {
@@ -3683,6 +3871,7 @@ body.assistant-open {
   .service-option-card,
   .human-support-panel,
   .portfolio-home-header,
+  .portfolio-properties-header,
   .portfolio-autopilot-card,
   .portfolio-summary-panel,
   .portfolio-pulse-card,
@@ -3691,6 +3880,10 @@ body.assistant-open {
   .portfolio-upcoming-card,
   .home-secondary-card,
   .home-quick-win-card,
+  .properties-card,
+  .properties-compact-row,
+  .properties-empty-state,
+  .properties-grow-card,
   .passport-header,
   .passport-card,
   .property-memory-card,
@@ -3782,9 +3975,14 @@ body.assistant-open {
   .scenario-options,
   .forecast-timeline,
   .portfolio-pulse-grid,
+  .properties-summary-grid,
   .home-upcoming-grid,
   .home-two-column,
-  .portfolio-property-card {
+  .portfolio-property-card,
+  .properties-toolbar,
+  .properties-card-main,
+  .properties-card-status,
+  .properties-compact-row {
     grid-template-columns: 1fr;
   }
 
@@ -3831,6 +4029,7 @@ body.assistant-open {
   .card-actions,
   .portfolio-header-actions,
   .home-priority-actions,
+  .properties-card-actions,
   .portfolio-property-card .button-row,
   .home-quick-win-card .button-row,
   .documents-panel .button-row,
@@ -3865,6 +4064,9 @@ body.assistant-open {
   .services-panel .text-button,
   .portfolio-home .primary-button,
   .portfolio-home .secondary-button,
+  .portfolio-properties .primary-button,
+  .portfolio-properties .secondary-button,
+  .portfolio-properties .text-button,
   .property-passport-panel .primary-button,
   .property-passport-panel .secondary-button,
   .property-passport-panel .text-button {
