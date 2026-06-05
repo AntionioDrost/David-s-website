@@ -772,6 +772,81 @@
           </div>
         </section>
 
+        <section class="portfolio-activity-page" data-portfolio-activity hidden aria-labelledby="portfolioActivityTitle">
+          <header class="portfolio-activity-header">
+            <div>
+              <p class="section-kicker">PORTFOLIO ACTIVITY</p>
+              <h1 id="portfolioActivityTitle">Activity</h1>
+              <p>See what changed across your portfolio, from imported records and uploaded evidence to support requests and landlord answers.</p>
+              <span class="prototype-badge">Portfolio flight recorder</span>
+            </div>
+            <div class="portfolio-header-actions">
+              <button class="primary-button" type="button" data-activity-ask>Ask CMP what changed</button>
+              <button class="secondary-button" type="button" data-activity-open-timeline>View property timeline</button>
+            </div>
+          </header>
+
+          <section class="activity-summary-grid" aria-label="Activity summary">
+            <article class="portfolio-pulse-card">
+              <span>Recorded events</span>
+              <strong data-activity-event-count>8</strong>
+              <small>portfolio history</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Evidence updates</span>
+              <strong data-activity-evidence-count>2</strong>
+              <small>documents and records</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Actions</span>
+              <strong data-activity-action-count>1</strong>
+              <small>task and support events</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Still open</span>
+              <strong data-activity-open-count>1</strong>
+              <small data-activity-open-detail>EICR gap</small>
+            </article>
+          </section>
+
+          <article class="activity-visit-card">
+            <div>
+              <p class="section-kicker">SINCE YOUR LAST VISIT</p>
+              <h2 data-activity-visit-title>2 useful updates</h2>
+              <ul data-activity-visit-list>
+                <li>Gas Safety evidence was verified</li>
+                <li>Electrical Safety became the highest-priority evidence gap</li>
+              </ul>
+            </div>
+            <button class="secondary-button" type="button" data-activity-summary-open>Generate activity summary</button>
+          </article>
+
+          <section class="activity-toolbar" aria-label="Activity search and filters">
+            <label class="properties-search activity-search">
+              <span class="nav-icon" data-icon="clock"></span>
+              <input type="search" data-activity-search placeholder="Search activity, property or source..." autocomplete="off">
+            </label>
+            <div class="properties-filter-row" aria-label="Activity filters">
+              <button class="is-active" type="button" data-activity-filter="all">All activity</button>
+              <button type="button" data-activity-filter="evidence">Evidence</button>
+              <button type="button" data-activity-filter="compliance">Compliance</button>
+              <button type="button" data-activity-filter="tasks">Tasks</button>
+              <button type="button" data-activity-filter="support">Support</button>
+              <button type="button" data-activity-filter="details">Property details</button>
+              <button type="button" data-activity-filter="answers">Landlord answers</button>
+            </div>
+          </section>
+
+          <section class="activity-workbench" aria-label="Portfolio activity feed">
+            <div class="activity-feed" data-activity-feed></div>
+            <article class="properties-empty-state" data-activity-empty hidden>
+              <h2>No activity matches this view</h2>
+              <p>Try clearing the search or switching back to all activity.</p>
+              <button class="secondary-button" type="button" data-activity-clear>Clear filters</button>
+            </article>
+          </section>
+        </section>
+
         <section class="portfolio-tasks-page" data-portfolio-tasks hidden aria-labelledby="portfolioTasksTitle">
           <header class="portfolio-tasks-header">
             <div>
@@ -2246,6 +2321,96 @@
         <div class="button-row">
           <button class="primary-button" type="button" data-task-detail-open-property>Open property</button>
           <button class="secondary-button" type="button" data-task-detail-close>Close</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal activity-detail-modal" role="dialog" aria-modal="true" aria-labelledby="activityDetailModalTitle" data-activity-detail-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Portfolio activity</p>
+            <h2 id="activityDetailModalTitle">Activity details</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close activity details" data-activity-detail-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <div class="summary-sections activity-detail-grid">
+          <section>
+            <h3>Event</h3>
+            <p data-activity-detail-title>Electrical Safety gap identified</p>
+          </section>
+          <section>
+            <h3>Property</h3>
+            <p data-activity-detail-property>57 The Butts · CV1 3BJ</p>
+          </section>
+          <section>
+            <h3>Category</h3>
+            <p data-activity-detail-category>Compliance</p>
+          </section>
+          <section>
+            <h3>Source</h3>
+            <p data-activity-detail-source>Compliance Centre</p>
+          </section>
+          <section>
+            <h3>Status</h3>
+            <p data-activity-detail-status>Needs checking</p>
+          </section>
+          <section>
+            <h3>Why CMP recorded it</h3>
+            <p data-activity-detail-why>CMP recorded this because no current EICR was found in the property file.</p>
+          </section>
+          <section>
+            <h3>Suggested next action</h3>
+            <p data-activity-detail-action>Upload EICR or ask CMP for help.</p>
+          </section>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-activity-detail-open>Open related page</button>
+          <button class="secondary-button" type="button" data-activity-detail-close>Close</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal activity-summary-modal" role="dialog" aria-modal="true" aria-labelledby="activitySummaryModalTitle" data-activity-summary-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Portfolio activity</p>
+            <h2 id="activitySummaryModalTitle">Portfolio activity summary</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close activity summary" data-activity-summary-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note">A review-ready summary of recent portfolio changes in CMP Labs.</p>
+        <div class="summary-sections">
+          <section>
+            <h3>Evidence updates</h3>
+            <ul data-activity-summary-evidence>
+              <li>Gas Safety evidence verified</li>
+              <li>EPC record imported</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Open actions</h3>
+            <ul data-activity-summary-open>
+              <li>Electrical Safety evidence</li>
+              <li>Inspection evidence</li>
+              <li>Local licensing review</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Resolved items</h3>
+            <ul data-activity-summary-resolved>
+              <li>Gas Safety certificate verified</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Suggested next step</h3>
+            <p data-activity-summary-next>Upload or arrange an EICR for 57 The Butts.</p>
+          </section>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-activity-preview-export>Preview export</button>
+          <button class="secondary-button" type="button" data-activity-summary-close>Close</button>
         </div>
       </section>
 

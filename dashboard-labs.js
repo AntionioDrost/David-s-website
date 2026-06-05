@@ -25,6 +25,8 @@ const labsState = {
   taskSearch: "",
   taskFilter: "all",
   taskView: "list",
+  activitySearch: "",
+  activityFilter: "all",
   inspectionStatusRecorded: false,
   propertyDetails: {
     propertyType: "Terraced house",
@@ -155,6 +157,13 @@ const tasksPrompts = [
   "Why is this a task?",
   "Which tasks are evidence-related?",
   "What can I leave for later?"
+];
+
+const activityPrompts = [
+  "What changed recently?",
+  "What still needs attention?",
+  "Summarise portfolio activity",
+  "Why was this recorded?"
 ];
 
 const propertiesPrompts = [
@@ -331,6 +340,20 @@ const tasksPostEicrAssistantResponses = {
   "Why is this a task?": "CMP creates tasks from missing evidence, compliance checks, upcoming reviews and support requests so you can act without reading every section manually.",
   "Which tasks are evidence-related?": "The main evidence-related task is inspection evidence for 57 The Butts.",
   "What can I leave for later?": "Licensing is still under review, so it can be monitored unless you need to let or alter the property soon. Inspection evidence is the more useful next action."
+};
+
+const activityAssistantResponses = {
+  "What changed recently?": "Prototype assistant preview: CMP recently verified Gas Safety evidence and identified Electrical Safety evidence as the clearest gap for 57 The Butts.",
+  "What still needs attention?": "Prototype assistant preview: Electrical Safety evidence still needs attention. Inspection evidence and licensing review are also worth monitoring.",
+  "Summarise portfolio activity": "Prototype assistant preview: The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
+  "Why was this recorded?": "Prototype assistant preview: CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
+};
+
+const activityPostEicrAssistantResponses = {
+  "What changed recently?": "Prototype assistant preview: Your EICR was verified and the Electrical Safety gap was resolved. The next useful item is inspection evidence.",
+  "What still needs attention?": "Prototype assistant preview: Inspection evidence is now the main useful upload. Licensing review is still in progress.",
+  "Summarise portfolio activity": "Prototype assistant preview: The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
+  "Why was this recorded?": "Prototype assistant preview: CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
 };
 
 const propertiesAssistantResponses = {
@@ -574,6 +597,7 @@ function renderAllState() {
   renderPortfolioComplianceState();
   renderPortfolioEvidenceState();
   renderPortfolioTasksState();
+  renderPortfolioActivityState();
   hydrateIcons();
 }
 
@@ -602,6 +626,11 @@ function getTasksAssistantResponse(prompt) {
   return responses[prompt] || defaultAssistantResponse;
 }
 
+function getActivityAssistantResponse(prompt) {
+  const responses = labsState.eicrAdded ? activityPostEicrAssistantResponses : activityAssistantResponses;
+  return responses[prompt] || defaultAssistantResponse;
+}
+
 function getAssistantResponse(prompt) {
   if (labsState.currentView === "home") {
     return getPortfolioAssistantResponse(prompt);
@@ -623,6 +652,10 @@ function getAssistantResponse(prompt) {
     return getTasksAssistantResponse(prompt);
   }
 
+  if (labsState.currentView === "activity") {
+    return getActivityAssistantResponse(prompt);
+  }
+
   if (labsState.eicrAdded && postEicrAssistantResponses[prompt]) {
     return postEicrAssistantResponses[prompt];
   }
@@ -632,27 +665,31 @@ function getAssistantResponse(prompt) {
 
 function renderAssistantPrompts() {
   const stack = document.querySelector(".prompt-stack");
-  const prompts = labsState.currentView === "home"
-    ? portfolioPrompts
-    : labsState.currentView === "properties"
-      ? propertiesPrompts
-      : labsState.currentView === "complianceCentre"
-        ? complianceCentrePrompts
-        : labsState.currentView === "evidenceVault"
-          ? evidenceVaultPrompts
-          : labsState.currentView === "tasks"
-            ? tasksPrompts
-    : labsState.activeTab === "documents"
-    ? documentPrompts
-    : labsState.activeTab === "compliance"
-      ? compliancePrompts
-      : labsState.activeTab === "timeline"
-        ? timelinePrompts
-        : labsState.activeTab === "services"
-          ? servicesPrompts
-          : labsState.activeTab === "details"
-            ? propertyPrompts
-            : overviewPrompts;
+  let prompts = overviewPrompts;
+
+  if (labsState.currentView === "home") {
+    prompts = portfolioPrompts;
+  } else if (labsState.currentView === "properties") {
+    prompts = propertiesPrompts;
+  } else if (labsState.currentView === "complianceCentre") {
+    prompts = complianceCentrePrompts;
+  } else if (labsState.currentView === "evidenceVault") {
+    prompts = evidenceVaultPrompts;
+  } else if (labsState.currentView === "tasks") {
+    prompts = tasksPrompts;
+  } else if (labsState.currentView === "activity") {
+    prompts = activityPrompts;
+  } else if (labsState.activeTab === "documents") {
+    prompts = documentPrompts;
+  } else if (labsState.activeTab === "compliance") {
+    prompts = compliancePrompts;
+  } else if (labsState.activeTab === "timeline") {
+    prompts = timelinePrompts;
+  } else if (labsState.activeTab === "services") {
+    prompts = servicesPrompts;
+  } else if (labsState.activeTab === "details") {
+    prompts = propertyPrompts;
+  }
 
   if (!stack) {
     return;
@@ -696,12 +733,13 @@ function switchTab(target) {
 
   labsState.currentView = "property";
   labsState.activeTab = target;
-  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-compliance-active", "portfolio-evidence-active", "portfolio-tasks-active", "menu-open");
+  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-compliance-active", "portfolio-evidence-active", "portfolio-tasks-active", "portfolio-activity-active", "menu-open");
   document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-evidence]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-tasks]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-activity]")?.setAttribute("hidden", "");
   setGlobalNavActive(null);
 
   tabs.forEach((item) => {
@@ -801,12 +839,13 @@ function showPortfolioHome({ scroll = false } = {}) {
 
   labsState.currentView = "home";
   document.body.classList.add("portfolio-home-active");
-  document.body.classList.remove("portfolio-properties-active", "portfolio-compliance-active", "portfolio-evidence-active", "portfolio-tasks-active", "menu-open");
+  document.body.classList.remove("portfolio-properties-active", "portfolio-compliance-active", "portfolio-evidence-active", "portfolio-tasks-active", "portfolio-activity-active", "menu-open");
   home.hidden = false;
   document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-evidence]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-tasks]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-activity]")?.setAttribute("hidden", "");
   document.querySelectorAll("[data-panel]").forEach((panel) => {
     panel.hidden = true;
     panel.classList.remove("is-active");
@@ -914,11 +953,12 @@ function showPortfolioProperties({ scroll = false } = {}) {
 
   labsState.currentView = "properties";
   document.body.classList.add("portfolio-properties-active");
-  document.body.classList.remove("portfolio-home-active", "portfolio-compliance-active", "portfolio-evidence-active", "portfolio-tasks-active", "menu-open");
+  document.body.classList.remove("portfolio-home-active", "portfolio-compliance-active", "portfolio-evidence-active", "portfolio-tasks-active", "portfolio-activity-active", "menu-open");
   document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-evidence]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-tasks]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-activity]")?.setAttribute("hidden", "");
   page.hidden = false;
   document.querySelectorAll("[data-panel]").forEach((panel) => {
     panel.hidden = true;
@@ -1049,11 +1089,12 @@ function showPortfolioCompliance({ scroll = false } = {}) {
 
   labsState.currentView = "complianceCentre";
   document.body.classList.add("portfolio-compliance-active");
-  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-evidence-active", "portfolio-tasks-active", "menu-open");
+  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-evidence-active", "portfolio-tasks-active", "portfolio-activity-active", "menu-open");
   document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-evidence]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-tasks]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-activity]")?.setAttribute("hidden", "");
   page.hidden = false;
   document.querySelectorAll("[data-panel]").forEach((panel) => {
     panel.hidden = true;
@@ -1286,11 +1327,12 @@ function showPortfolioEvidence({ scroll = false } = {}) {
 
   labsState.currentView = "evidenceVault";
   document.body.classList.add("portfolio-evidence-active");
-  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-compliance-active", "portfolio-tasks-active", "menu-open");
+  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-compliance-active", "portfolio-tasks-active", "portfolio-activity-active", "menu-open");
   document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-tasks]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-activity]")?.setAttribute("hidden", "");
   page.hidden = false;
   document.querySelectorAll("[data-panel]").forEach((panel) => {
     panel.hidden = true;
@@ -1627,11 +1669,12 @@ function showPortfolioTasks({ scroll = false } = {}) {
 
   labsState.currentView = "tasks";
   document.body.classList.add("portfolio-tasks-active");
-  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-compliance-active", "portfolio-evidence-active", "menu-open");
+  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-compliance-active", "portfolio-evidence-active", "portfolio-activity-active", "menu-open");
   document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
   document.querySelector("[data-portfolio-evidence]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-activity]")?.setAttribute("hidden", "");
   page.hidden = false;
   document.querySelectorAll("[data-panel]").forEach((panel) => {
     panel.hidden = true;
@@ -1645,6 +1688,427 @@ function showPortfolioTasks({ scroll = false } = {}) {
   renderAllState();
   renderAssistantPrompts();
   setAssistantResponse(getTasksAssistantResponse("What should I do first?"));
+
+  if (scroll) {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+}
+
+function activeSupportRequestForActivity() {
+  return labsState.serviceRequests.find((request) => request.status !== "Cancelled");
+}
+
+function makeActivityAction(label, action, primary = false) {
+  return { label, action, primary };
+}
+
+function getActivityEvents() {
+  const property = "57 The Butts · CV1 3BJ";
+  const activeSupportRequest = activeSupportRequestForActivity();
+  const events = [];
+
+  if (activeSupportRequest) {
+    events.push({
+      id: "support-request-created",
+      group: "Today",
+      filter: "support",
+      category: "Support",
+      title: "Support request created",
+      property,
+      body: "A prototype support request was created from the Services workspace.",
+      source: "Services",
+      status: "Awaiting review",
+      statusClass: "status-watch-text",
+      search: `${activeSupportRequest.type} support service request awaiting review 57 butts`,
+      why: "CMP recorded this because a prototype support request was created from the Services workspace.",
+      nextAction: "Open Services to review the request.",
+      route: "services",
+      actions: [
+        makeActivityAction("Open services", "openServices"),
+        makeActivityAction("View request", "viewRequest")
+      ]
+    });
+  }
+
+  if (labsState.inspectionStatusRecorded) {
+    events.push({
+      id: "inspection-status-recorded",
+      group: "Today",
+      filter: "tasks",
+      category: "Tasks",
+      title: "Inspection status recorded",
+      property,
+      body: "Inspection evidence was marked as not yet completed in this Labs preview.",
+      source: "Tasks",
+      status: "Recorded",
+      statusClass: "status-neutral-text",
+      search: "inspection task evidence status recorded not completed 57 butts",
+      why: "CMP recorded this because the inspection evidence task was marked as not yet completed.",
+      nextAction: "Return to Tasks when inspection evidence is available.",
+      route: "tasks",
+      actions: [
+        makeActivityAction("Open task", "openTask"),
+        makeActivityAction("Open property", "openProperty")
+      ]
+    });
+  }
+
+  labsState.propertyEvents
+    .filter((event) => ["property-update", "optional-details", "memory-observation", "alarm-answer"].includes(event.type))
+    .forEach((event) => {
+      const isAnswer = event.type === "alarm-answer";
+      events.push({
+        id: `property-event-${event.id}`,
+        group: "Today",
+        filter: isAnswer ? "answers" : "details",
+        category: isAnswer ? "Landlord answer" : "Property details",
+        title: event.title,
+        property,
+        body: event.body,
+        source: event.details?.rows?.find(([term]) => term === "Source")?.[1] || "Property details",
+        status: event.badge || "Recorded",
+        statusClass: event.badgeClass || "status-watch-text",
+        search: `${event.title} ${event.body} property details landlord answer alarm 57 butts`,
+        why: "CMP recorded this because property information changed in the Labs preview.",
+        nextAction: isAnswer ? "Review the property timeline or add supporting evidence." : "Open Property details to review the saved information.",
+        route: isAnswer ? "timeline" : "details",
+        actions: [
+          makeActivityAction(isAnswer ? "Review answer" : "View property details", isAnswer ? "openTimeline" : "openDetails")
+        ]
+      });
+    });
+
+  if (labsState.eicrAdded) {
+    events.push({
+      id: "eicr-verified",
+      group: "Today",
+      filter: "evidence",
+      category: "Evidence",
+      title: "EICR evidence verified",
+      property,
+      body: "A satisfactory Electrical Installation Condition Report was reviewed and added to the property file.",
+      source: "Documents · Smart Upload",
+      status: "Verified",
+      statusClass: "status-good-text",
+      search: "eicr electrical installation condition report evidence verified uploaded smart upload 57 butts",
+      why: "CMP recorded this because the uploaded EICR was confirmed and linked to 57 The Butts.",
+      nextAction: "View the evidence record or continue to the property workspace.",
+      route: "evidence",
+      actions: [
+        makeActivityAction("View evidence", "viewEvidence"),
+        makeActivityAction("Open property", "openProperty")
+      ]
+    });
+  }
+
+  events.push(
+    {
+      id: "electrical-gap",
+      group: "Today",
+      filter: "compliance",
+      category: "Compliance",
+      title: "Electrical Safety gap identified",
+      property,
+      body: labsState.eicrAdded
+        ? "This gap was resolved after EICR evidence was verified."
+        : "CMP could not find a current EICR in the property file. Electrical Safety became the clearest evidence priority.",
+      source: "Compliance Centre",
+      status: labsState.eicrAdded ? "Resolved" : "Needs checking",
+      statusClass: labsState.eicrAdded ? "status-good-text" : "status-review-text",
+      resolved: labsState.eicrAdded,
+      open: !labsState.eicrAdded,
+      search: `eicr electrical safety compliance gap ${labsState.eicrAdded ? "resolved historical" : "missing needs checking"} 57 butts`,
+      why: labsState.eicrAdded
+        ? "This is retained as history. The gap was resolved when EICR evidence was verified."
+        : "CMP recorded this because no current EICR was found in the property file.",
+      nextAction: labsState.eicrAdded ? "No EICR action is needed now." : "Upload EICR or ask CMP for help.",
+      route: labsState.eicrAdded ? "evidence" : "documents",
+      actions: labsState.eicrAdded
+        ? [
+            makeActivityAction("View evidence", "viewEvidence"),
+            makeActivityAction("Open property", "openProperty")
+          ]
+        : [
+            makeActivityAction("Upload EICR", "uploadEicr", true),
+            makeActivityAction("Ask CMP", "askEicr"),
+            makeActivityAction("Open property", "openProperty")
+          ]
+    },
+    {
+      id: "inspection-follow-up",
+      group: "Today",
+      filter: "tasks",
+      category: "Tasks",
+      title: "Inspection follow-up prepared",
+      property,
+      body: "CMP prepared inspection evidence as a useful follow-up item for this vacant property.",
+      source: "Tasks",
+      status: "Prepared",
+      statusClass: "status-watch-text",
+      search: "inspection follow up prepared task evidence 57 butts vacant",
+      why: "CMP recorded this because inspection evidence is a useful follow-up item for a vacant property.",
+      nextAction: "Open the task or upload inspection evidence when available.",
+      route: "tasks",
+      actions: [
+        makeActivityAction("Open task", "openTask"),
+        makeActivityAction("Upload inspection evidence", "uploadInspection")
+      ]
+    },
+    {
+      id: "licensing-review",
+      group: "Today",
+      filter: "compliance",
+      category: "Compliance",
+      title: "Local licensing review started",
+      property,
+      body: "CMP marked the postcode for a local rules review so the property file can show whether any extra checks may be relevant.",
+      source: "Compliance Centre",
+      status: "Checking",
+      statusClass: "status-watch-text",
+      search: "licensing local rules postcode review compliance 57 butts",
+      why: "CMP recorded this because local rules can depend on postcode and property setup.",
+      nextAction: "Review licensing in the property Compliance tab.",
+      route: "compliance",
+      actions: [
+        makeActivityAction("Review licensing", "reviewLicensing"),
+        makeActivityAction("Ask CMP", "askLicensing")
+      ]
+    },
+    {
+      id: "gas-verified",
+      group: "Earlier this week",
+      filter: "evidence",
+      category: "Evidence",
+      title: "Gas Safety Certificate verified",
+      property,
+      body: "Uploaded certificate reviewed and stored against the property file.",
+      source: "Evidence Vault",
+      status: "Verified",
+      statusClass: "status-good-text",
+      search: "gas safety certificate evidence verified document 57 butts",
+      why: "CMP recorded this because an uploaded Gas Safety certificate was reviewed and stored.",
+      nextAction: "View the evidence record or open the property.",
+      route: "evidence",
+      actions: [
+        makeActivityAction("View evidence", "viewEvidence"),
+        makeActivityAction("Open property", "openProperty")
+      ]
+    },
+    {
+      id: "epc-imported",
+      group: "Earlier this week",
+      filter: "evidence",
+      category: "Official record",
+      title: "EPC record imported",
+      property,
+      body: "CMP matched an Energy Performance Certificate to this property.",
+      source: "Official record",
+      status: "Confirmed",
+      statusClass: "status-good-text",
+      search: "epc energy performance certificate official record imported confirmed 57 butts",
+      why: "CMP recorded this because an EPC official record was matched to 57 The Butts.",
+      nextAction: "View the record or open the property.",
+      route: "evidence",
+      actions: [
+        makeActivityAction("View record", "viewEvidence"),
+        makeActivityAction("Open property", "openProperty")
+      ]
+    },
+    {
+      id: "alarms-confirmed",
+      group: "Earlier this week",
+      filter: "answers",
+      category: "Landlord answer",
+      title: "Alarm testing confirmed",
+      property,
+      body: "Smoke and CO alarms were reported as tested. Supporting evidence has not yet been uploaded.",
+      source: "Landlord answer",
+      status: "Landlord confirmed",
+      statusClass: "status-watch-text",
+      search: "alarm smoke co landlord answer confirmed evidence 57 butts",
+      why: "CMP recorded this because the landlord answer affects the property evidence picture.",
+      nextAction: "Add supporting evidence when available or review the answer.",
+      route: "timeline",
+      actions: [
+        makeActivityAction("Add evidence", "addEvidence"),
+        makeActivityAction("Review answer", "openTimeline")
+      ]
+    },
+    {
+      id: "vacant-scenario",
+      group: "Earlier this week",
+      filter: "details",
+      category: "Property details",
+      title: "Property marked as vacant",
+      property,
+      body: "CMP adjusted suggested next steps to focus on core evidence, inspection records and readiness for a future tenancy.",
+      source: "Property details",
+      status: "Scenario updated",
+      statusClass: "status-watch-text",
+      search: "property details vacant scenario updated 57 butts",
+      why: "CMP recorded this because occupancy affects which next steps are most useful.",
+      nextAction: "View Property details.",
+      route: "details",
+      actions: [
+        makeActivityAction("View property details", "openDetails")
+      ]
+    },
+    {
+      id: "file-created",
+      group: "Earlier this week",
+      filter: "details",
+      category: "Property setup",
+      title: "Property file created",
+      property,
+      body: "57 The Butts was added to the CMP Labs workspace.",
+      source: "Property setup",
+      status: "Recorded",
+      statusClass: "status-neutral-text",
+      search: "property setup file created 57 butts",
+      why: "CMP recorded this because the property file was created in the Labs workspace.",
+      nextAction: "Open the property workspace.",
+      route: "overview",
+      actions: [
+        makeActivityAction("Open property", "openProperty")
+      ]
+    }
+  );
+
+  return events;
+}
+
+function activityMatchesCurrentView(event) {
+  const query = labsState.activitySearch.trim().toLowerCase();
+  const text = `${event.category} ${event.title} ${event.property} ${event.body} ${event.source} ${event.status} ${event.search}`.toLowerCase();
+  const matchesSearch = !query || text.includes(query);
+  const matchesFilter = labsState.activityFilter === "all" || event.filter === labsState.activityFilter;
+
+  return matchesSearch && matchesFilter;
+}
+
+function renderActivityEvent(event) {
+  const actions = event.actions.map((action) => `
+    <button class="${action.primary ? "primary-button" : "text-button"}" type="button" data-activity-action="${escapeHtml(action.action)}">
+      ${escapeHtml(action.label)}
+    </button>
+  `).join("");
+
+  return `
+    <article class="activity-event${event.open ? " is-open" : ""}${event.resolved ? " is-resolved" : ""}" data-activity-event="${escapeHtml(event.id)}">
+      <div class="activity-event-top">
+        <div>
+          <span class="timeline-event-kicker"><span class="nav-icon" data-icon="clock"></span>${escapeHtml(event.category)}</span>
+          <button class="activity-event-title" type="button" data-activity-detail="${escapeHtml(event.id)}">
+            <h3>${escapeHtml(event.title)}</h3>
+          </button>
+          <span class="activity-property-label">${escapeHtml(event.property)}</span>
+        </div>
+        <span class="doc-status ${event.statusClass}">${escapeHtml(event.status)}</span>
+      </div>
+      <p>${escapeHtml(event.body)}</p>
+      <div class="activity-source-row">
+        <span>Source: ${escapeHtml(event.source)}</span>
+        <span>${escapeHtml(event.category)}</span>
+      </div>
+      <div class="activity-event-actions">
+        ${actions}
+        <button class="text-button" type="button" data-activity-detail="${escapeHtml(event.id)}">Show details</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderPortfolioActivityState() {
+  const page = document.querySelector("[data-portfolio-activity]");
+
+  if (!page) {
+    return;
+  }
+
+  const allEvents = getActivityEvents();
+  const supportCreated = Boolean(activeSupportRequestForActivity());
+  const visitItems = labsState.eicrAdded
+    ? [
+        "EICR evidence was verified",
+        "Gas Safety evidence was verified",
+        "Inspection evidence is now the next useful upload",
+        ...(supportCreated ? ["Support request was created"] : [])
+      ]
+    : [
+        "Gas Safety evidence was verified",
+        "Electrical Safety became the highest-priority evidence gap",
+        ...(supportCreated ? ["Support request was created"] : [])
+      ];
+
+  document.querySelector("[data-activity-event-count]").textContent = String(allEvents.length);
+  document.querySelector("[data-activity-evidence-count]").textContent = labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-activity-action-count]").textContent = String(1 + (supportCreated ? 1 : 0) + (labsState.inspectionStatusRecorded ? 1 : 0));
+  document.querySelector("[data-activity-open-count]").textContent = "1";
+  document.querySelector("[data-activity-open-detail]").textContent = labsState.eicrAdded ? "inspection evidence" : "EICR gap";
+  document.querySelector("[data-activity-visit-title]").textContent = `${visitItems.length} useful updates`;
+  document.querySelector("[data-activity-visit-list]").innerHTML = visitItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+
+  const searchInput = document.querySelector("[data-activity-search]");
+  if (searchInput && searchInput.value !== labsState.activitySearch) {
+    searchInput.value = labsState.activitySearch;
+  }
+
+  document.querySelectorAll("[data-activity-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.activityFilter === labsState.activityFilter);
+  });
+
+  const events = allEvents.filter(activityMatchesCurrentView);
+  const groups = [...new Set(events.map((event) => event.group))];
+  const feed = document.querySelector("[data-activity-feed]");
+  const empty = document.querySelector("[data-activity-empty]");
+
+  if (feed) {
+    feed.hidden = !events.length;
+    feed.innerHTML = groups.map((group) => `
+      <section class="activity-day">
+        <span class="activity-day-label">${escapeHtml(group)}</span>
+        <div class="activity-events">
+          ${events.filter((event) => event.group === group).map(renderActivityEvent).join("")}
+        </div>
+      </section>
+    `).join("");
+  }
+
+  if (empty) {
+    empty.hidden = Boolean(events.length);
+  }
+
+  renderActivitySummaryModalState();
+}
+
+function showPortfolioActivity({ scroll = false } = {}) {
+  const page = document.querySelector("[data-portfolio-activity]");
+
+  if (!page) {
+    return;
+  }
+
+  labsState.currentView = "activity";
+  document.body.classList.add("portfolio-activity-active");
+  document.body.classList.remove("portfolio-home-active", "portfolio-properties-active", "portfolio-compliance-active", "portfolio-evidence-active", "portfolio-tasks-active", "menu-open");
+  document.querySelector("[data-portfolio-home]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-properties]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-compliance]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-evidence]")?.setAttribute("hidden", "");
+  document.querySelector("[data-portfolio-tasks]")?.setAttribute("hidden", "");
+  page.hidden = false;
+  document.querySelectorAll("[data-panel]").forEach((panel) => {
+    panel.hidden = true;
+    panel.classList.remove("is-active");
+  });
+  document.querySelectorAll("[data-tab]").forEach((tab) => {
+    tab.classList.remove("is-active");
+    tab.setAttribute("aria-selected", "false");
+  });
+  setGlobalNavActive("Activity");
+  renderAllState();
+  renderAssistantPrompts();
+  setAssistantResponse(getActivityAssistantResponse("What changed recently?"));
 
   if (scroll) {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -1878,6 +2342,11 @@ function bindTabs() {
 
       if (item.dataset.globalNav === "Tasks") {
         showPortfolioTasks({ scroll: true });
+        return;
+      }
+
+      if (item.dataset.globalNav === "Activity") {
+        showPortfolioActivity({ scroll: true });
         return;
       }
 
@@ -2183,6 +2652,182 @@ function bindPortfolioTasks() {
 
   document.querySelectorAll("[data-task-detail-close]").forEach((button) => {
     button.addEventListener("click", closeTimelineModals);
+  });
+}
+
+function openActivityRelatedPage(event) {
+  if (!event) {
+    return;
+  }
+
+  if (event.route === "services") {
+    openPropertyWorkspace("services", "[data-open-requests-panel]");
+  } else if (event.route === "tasks") {
+    closeTimelineModals();
+    showPortfolioTasks({ scroll: true });
+  } else if (event.route === "evidence") {
+    closeTimelineModals();
+    showPortfolioEvidence({ scroll: true });
+  } else if (event.route === "documents") {
+    openPropertyWorkspace("documents", "[data-document-upload-panel]");
+  } else if (event.route === "compliance") {
+    openPropertyWorkspace("compliance", "[data-compliance-licensing-card]");
+  } else if (event.route === "details") {
+    openPropertyWorkspace("details");
+  } else if (event.route === "timeline") {
+    openPropertyWorkspace("timeline");
+  } else {
+    openPropertyWorkspace("overview");
+  }
+}
+
+function openActivityDetail(eventId) {
+  const event = getActivityEvents().find((item) => item.id === eventId);
+
+  if (!event) {
+    return;
+  }
+
+  document.querySelector("[data-activity-detail-title]").textContent = event.title;
+  document.querySelector("[data-activity-detail-property]").textContent = event.property;
+  document.querySelector("[data-activity-detail-category]").textContent = event.category;
+  document.querySelector("[data-activity-detail-source]").textContent = event.source;
+  document.querySelector("[data-activity-detail-status]").textContent = event.status;
+  document.querySelector("[data-activity-detail-why]").textContent = event.why;
+  document.querySelector("[data-activity-detail-action]").textContent = event.nextAction;
+  document.querySelector("[data-activity-detail-open]").dataset.activityDetailOpen = event.id;
+  openTimelineModal("[data-activity-detail-modal]");
+}
+
+function renderActivitySummaryModalState() {
+  const evidenceList = document.querySelector("[data-activity-summary-evidence]");
+
+  if (!evidenceList) {
+    return;
+  }
+
+  evidenceList.innerHTML = labsState.eicrAdded
+    ? `
+      <li>EICR evidence verified</li>
+      <li>Gas Safety evidence verified</li>
+      <li>EPC record imported</li>
+    `
+    : `
+      <li>Gas Safety evidence verified</li>
+      <li>EPC record imported</li>
+    `;
+
+  document.querySelector("[data-activity-summary-open]").innerHTML = labsState.eicrAdded
+    ? `
+      <li>Inspection evidence</li>
+      <li>Local licensing review</li>
+    `
+    : `
+      <li>Electrical Safety evidence</li>
+      <li>Inspection evidence</li>
+      <li>Local licensing review</li>
+    `;
+
+  document.querySelector("[data-activity-summary-resolved]").innerHTML = labsState.eicrAdded
+    ? `
+      <li>Electrical Safety gap resolved</li>
+      <li>Gas Safety certificate verified</li>
+    `
+    : `
+      <li>Gas Safety certificate verified</li>
+    `;
+
+  document.querySelector("[data-activity-summary-next]").textContent = labsState.eicrAdded
+    ? "Add inspection evidence or record that no recent inspection has been completed."
+    : "Upload or arrange an EICR for 57 The Butts.";
+}
+
+function handleActivityAction(action) {
+  if (action === "uploadEicr") {
+    openPropertySmartUpload();
+  } else if (action === "askEicr") {
+    openAssistant(getActivityAssistantResponse("What still needs attention?"));
+  } else if (action === "openProperty") {
+    openPropertyWorkspace("overview");
+  } else if (action === "openTask") {
+    showPortfolioTasks({ scroll: true });
+  } else if (action === "uploadInspection") {
+    showToast("Inspection evidence upload will be connected in a later Labs pass.");
+  } else if (action === "reviewLicensing") {
+    openPropertyWorkspace("compliance", "[data-compliance-licensing-card]");
+  } else if (action === "askLicensing") {
+    openAssistant(getActivityAssistantResponse("What still needs attention?"));
+  } else if (action === "viewEvidence") {
+    showPortfolioEvidence({ scroll: true });
+  } else if (action === "addEvidence") {
+    openPropertyWorkspace("documents", "[data-document-upload-panel]");
+  } else if (action === "openTimeline") {
+    openPropertyWorkspace("timeline");
+  } else if (action === "openDetails") {
+    openPropertyWorkspace("details");
+  } else if (action === "openServices" || action === "viewRequest") {
+    openPropertyWorkspace("services", "[data-open-requests-panel]");
+  }
+}
+
+function bindPortfolioActivity() {
+  document.querySelector("[data-activity-ask]")?.addEventListener("click", () => {
+    openAssistant(getActivityAssistantResponse("What changed recently?"));
+    focusAssistantInput();
+  });
+
+  document.querySelector("[data-activity-open-timeline]")?.addEventListener("click", () => {
+    openPropertyWorkspace("timeline");
+  });
+
+  document.querySelector("[data-activity-search]")?.addEventListener("input", (event) => {
+    labsState.activitySearch = event.target.value;
+    renderPortfolioActivityState();
+  });
+
+  document.querySelectorAll("[data-activity-filter]").forEach((button) => {
+    button.addEventListener("click", () => {
+      labsState.activityFilter = button.dataset.activityFilter;
+      renderPortfolioActivityState();
+    });
+  });
+
+  document.querySelector("[data-activity-clear]")?.addEventListener("click", () => {
+    labsState.activitySearch = "";
+    labsState.activityFilter = "all";
+    renderPortfolioActivityState();
+  });
+
+  document.querySelector("[data-activity-summary-open]")?.addEventListener("click", () => {
+    renderActivitySummaryModalState();
+    openTimelineModal("[data-activity-summary-modal]");
+  });
+
+  document.querySelector("[data-activity-preview-export]")?.addEventListener("click", () => {
+    showToast("Activity export will be connected in a later Labs pass.");
+  });
+
+  document.querySelector("[data-activity-detail-open]")?.addEventListener("click", (event) => {
+    const activityEvent = getActivityEvents().find((item) => item.id === event.currentTarget.dataset.activityDetailOpen);
+    closeTimelineModals();
+    openActivityRelatedPage(activityEvent);
+  });
+
+  document.querySelectorAll("[data-activity-detail-close], [data-activity-summary-close]").forEach((button) => {
+    button.addEventListener("click", closeTimelineModals);
+  });
+
+  document.addEventListener("click", (event) => {
+    const actionButton = event.target.closest("[data-activity-action]");
+    if (actionButton) {
+      handleActivityAction(actionButton.dataset.activityAction);
+      return;
+    }
+
+    const detailButton = event.target.closest("[data-activity-detail]");
+    if (detailButton) {
+      openActivityDetail(detailButton.dataset.activityDetail);
+    }
   });
 }
 
@@ -3525,6 +4170,8 @@ function closeTimelineModals() {
     "[data-home-alarm-modal]",
     "[data-evidence-inbox-modal]",
     "[data-task-detail-modal]",
+    "[data-activity-detail-modal]",
+    "[data-activity-summary-modal]",
     "[data-basics-modal]",
     "[data-optional-modal]",
     "[data-memory-modal]"
@@ -3819,6 +4466,7 @@ bindPortfolioProperties();
 bindPortfolioCompliance();
 bindPortfolioEvidence();
 bindPortfolioTasks();
+bindPortfolioActivity();
 bindAssistant();
 bindMobileMenu();
 bindToasts();
