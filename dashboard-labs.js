@@ -5,6 +5,49 @@ const labsDemoProperty = {
   journey: "General compliance check"
 };
 
+function createInitialPropertyDetails() {
+  return {
+    propertyType: "Terraced house",
+    bedrooms: "3 bedrooms",
+    occupancy: "Vacant property",
+    goal: "General compliance check"
+  };
+}
+
+function createInitialOptionalDetails() {
+  return {
+    constructionYear: "",
+    heatingType: "",
+    storeys: "",
+    parkingAccess: "",
+    managingAgent: "",
+    emergencyAccess: ""
+  };
+}
+
+function createInitialPropertyMemory() {
+  return {
+    activeRoom: "living",
+    rooms: {
+      kitchen: [],
+      bathroom: [],
+      living: [
+        {
+          title: "Condensation near front window",
+          body: "Check whether condensation is still appearing during the next inspection. Review ventilation and any visible signs of damp.",
+          status: "Review at next inspection",
+          created: "Earlier this week"
+        }
+      ],
+      bedroom1: [],
+      bedroom2: [],
+      bedroom3: [],
+      hallway: [],
+      external: []
+    }
+  };
+}
+
 const labsState = {
   currentView: "home",
   activeTab: "overview",
@@ -28,40 +71,9 @@ const labsState = {
   activitySearch: "",
   activityFilter: "all",
   inspectionStatusRecorded: false,
-  propertyDetails: {
-    propertyType: "Terraced house",
-    bedrooms: "3 bedrooms",
-    occupancy: "Vacant property",
-    goal: "General compliance check"
-  },
-  optionalDetails: {
-    constructionYear: "",
-    heatingType: "",
-    storeys: "",
-    parkingAccess: "",
-    managingAgent: "",
-    emergencyAccess: ""
-  },
-  propertyMemory: {
-    activeRoom: "living",
-    rooms: {
-      kitchen: [],
-      bathroom: [],
-      living: [
-        {
-          title: "Condensation near front window",
-          body: "Check whether condensation is still appearing during the next inspection. Review ventilation and any visible signs of damp.",
-          status: "Review at next inspection",
-          created: "Earlier this week"
-        }
-      ],
-      bedroom1: [],
-      bedroom2: [],
-      bedroom3: [],
-      hallway: [],
-      external: []
-    }
-  },
+  propertyDetails: createInitialPropertyDetails(),
+  optionalDetails: createInitialOptionalDetails(),
+  propertyMemory: createInitialPropertyMemory(),
   scanTimers: []
 };
 
@@ -343,17 +355,17 @@ const tasksPostEicrAssistantResponses = {
 };
 
 const activityAssistantResponses = {
-  "What changed recently?": "Prototype assistant preview: CMP recently verified Gas Safety evidence and identified Electrical Safety evidence as the clearest gap for 57 The Butts.",
-  "What still needs attention?": "Prototype assistant preview: Electrical Safety evidence still needs attention. Inspection evidence and licensing review are also worth monitoring.",
-  "Summarise portfolio activity": "Prototype assistant preview: The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
-  "Why was this recorded?": "Prototype assistant preview: CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
+  "What changed recently?": "CMP recently verified Gas Safety evidence and identified Electrical Safety evidence as the clearest gap for 57 The Butts.",
+  "What still needs attention?": "Electrical Safety evidence still needs attention. Inspection evidence and licensing review are also worth monitoring.",
+  "Summarise portfolio activity": "The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
+  "Why was this recorded?": "CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
 };
 
 const activityPostEicrAssistantResponses = {
-  "What changed recently?": "Prototype assistant preview: Your EICR was verified and the Electrical Safety gap was resolved. The next useful item is inspection evidence.",
-  "What still needs attention?": "Prototype assistant preview: Inspection evidence is now the main useful upload. Licensing review is still in progress.",
-  "Summarise portfolio activity": "Prototype assistant preview: The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
-  "Why was this recorded?": "Prototype assistant preview: CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
+  "What changed recently?": "Your EICR was verified and the Electrical Safety gap was resolved. The next useful item is inspection evidence.",
+  "What still needs attention?": "Inspection evidence is now the main useful upload. Licensing review is still in progress.",
+  "Summarise portfolio activity": "The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
+  "Why was this recorded?": "CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
 };
 
 const propertiesAssistantResponses = {
@@ -599,6 +611,146 @@ function renderAllState() {
   renderPortfolioTasksState();
   renderPortfolioActivityState();
   hydrateIcons();
+}
+
+function resetDemoState() {
+  clearScanTimers();
+  labsState.eicrAdded = false;
+  labsState.strength = 42;
+  labsState.timelineFilter = "all";
+  labsState.alarmAnswer = "";
+  labsState.notes = [];
+  labsState.propertyEvents = [];
+  labsState.serviceRequests = [];
+  labsState.serviceEvents = [];
+  labsState.propertiesSearch = "";
+  labsState.propertiesFilter = "all";
+  labsState.propertiesView = "cards";
+  labsState.evidenceSearch = "";
+  labsState.evidenceFilter = "all";
+  labsState.evidenceView = "list";
+  labsState.taskSearch = "";
+  labsState.taskFilter = "all";
+  labsState.taskView = "list";
+  labsState.activitySearch = "";
+  labsState.activityFilter = "all";
+  labsState.inspectionStatusRecorded = false;
+  labsState.propertyDetails = createInitialPropertyDetails();
+  labsState.optionalDetails = createInitialOptionalDetails();
+  labsState.propertyMemory = createInitialPropertyMemory();
+}
+
+function ensureDemoSupportRequest() {
+  const requestType = "Property inspection support";
+  const hasRequest = labsState.serviceRequests.some((request) => request.type === requestType && request.status !== "Cancelled");
+
+  if (!hasRequest) {
+    labsState.serviceRequests.unshift({
+      id: "demo-support-request",
+      type: requestType,
+      status: "Awaiting review",
+      created: "just now",
+      linkedTo: "Inspection evidence"
+    });
+  }
+
+  const hasEvent = labsState.serviceEvents.some((event) => event.id === "demo-support-event");
+
+  if (!hasEvent) {
+    labsState.serviceEvents.unshift({
+      id: "demo-support-event",
+      createdAt: Date.now(),
+      group: "Today",
+      filter: "actions",
+      icon: "calendar",
+      category: "Service request",
+      title: "Property inspection support requested",
+      body: "CMP recorded a request to help arrange the next property-inspection step.",
+      badge: "Awaiting review",
+      badgeClass: "status-watch-text",
+      activityLabel: "Property inspection support requested",
+      type: "service-request",
+      actions: [],
+      details: {
+        title: "Request details",
+        rows: [
+          ["Property", "57 The Butts"],
+          ["Request type", requestType],
+          ["Status", "Awaiting review"],
+          ["Created", "Just now"]
+        ],
+        note: "Prototype support request for layout testing."
+      }
+    });
+  }
+}
+
+function ensureDemoQuickWin() {
+  labsState.alarmAnswer = "Yes, they have been tested";
+
+  const hasEvent = labsState.propertyEvents.some((event) => event.id === "demo-alarm-answer");
+
+  if (!hasEvent) {
+    labsState.propertyEvents.unshift({
+      id: "demo-alarm-answer",
+      createdAt: Date.now(),
+      group: "Today",
+      filter: "answers",
+      icon: "check",
+      category: "Landlord answer",
+      title: "Alarm testing answer recorded",
+      body: "Smoke and CO alarm testing was recorded from the Home quick-win card.",
+      badge: "Landlord confirmed",
+      badgeClass: "status-good-text",
+      activityLabel: "Alarm testing answer recorded",
+      type: "alarm-answer",
+      actions: [
+        { label: "Review answer", action: "details" },
+        { label: "Add evidence", action: "documents" }
+      ],
+      details: {
+        title: "Landlord answer",
+        rows: [
+          ["Question", "Have smoke and CO alarms been tested?"],
+          ["Answer", labsState.alarmAnswer],
+          ["Property", "57 The Butts"]
+        ],
+        note: "This quick-win answer is useful history, but supporting evidence can still be added."
+      }
+    });
+  }
+}
+
+function applyDemoState(state) {
+  const labels = {
+    reset: "Reset demo",
+    "before-eicr": "Before EICR",
+    "after-eicr": "After EICR",
+    "after-support": "After support request",
+    "after-quick-win": "After quick win"
+  };
+
+  resetDemoState();
+
+  if (state === "after-eicr" || state === "after-support") {
+    labsState.eicrAdded = true;
+    labsState.strength = 58;
+  }
+
+  if (state === "after-support") {
+    ensureDemoSupportRequest();
+  }
+
+  if (state === "after-quick-win") {
+    ensureDemoQuickWin();
+  }
+
+  renderAllState();
+  renderAssistantPrompts();
+  closeTimelineModals();
+  const firstPrompt = document.querySelector(".prompt-stack [data-prompt]")?.dataset.prompt;
+  setAssistantResponse(getAssistantResponse(firstPrompt || "What changed recently?"));
+  showToast(`Demo state updated: ${labels[state] || "Before EICR"}`);
 }
 
 function getPortfolioAssistantResponse(prompt) {
@@ -1217,10 +1369,10 @@ function renderEvidenceRow(row) {
         <h3>${escapeHtml(row.title)}</h3>
         <p>${escapeHtml(row.document)}</p>
       </div>
-      <div><strong>${escapeHtml(row.property)}</strong></div>
-      <div><span class="matrix-pill ${row.sourceClass}">${escapeHtml(row.source)}</span></div>
-      <div><span class="matrix-pill ${row.statusClass}">${escapeHtml(row.status)}</span></div>
-      <div><small>${escapeHtml(row.keyDate)}</small></div>
+      <div class="evidence-row-meta"><span>Property</span><strong>${escapeHtml(row.property)}</strong></div>
+      <div class="evidence-pill-stack"><span class="matrix-pill ${row.sourceClass}">${escapeHtml(row.source)}</span></div>
+      <div class="evidence-pill-stack"><span class="matrix-pill ${row.statusClass}">${escapeHtml(row.status)}</span></div>
+      <div class="evidence-row-date"><span>Date</span><small>${escapeHtml(row.keyDate)}</small></div>
       <div class="evidence-row-actions">${actions}</div>
     </article>
   `;
@@ -1241,7 +1393,9 @@ function renderPortfolioEvidenceState() {
   document.querySelector("[data-evidence-health-strength]").textContent = labsState.eicrAdded ? "58% evidenced" : "42% evidenced";
   document.querySelector("[data-evidence-health-verified]").textContent = labsState.eicrAdded ? "3 verified" : "2 verified";
   document.querySelector("[data-evidence-health-missing]").textContent = labsState.eicrAdded ? "0 missing in core certificates" : "1 missing";
-  document.querySelector("[data-evidence-health-focus]").textContent = labsState.eicrAdded ? "Inspection evidence is next" : "Electrical Safety needs evidence";
+  document.querySelector("[data-evidence-health-focus]").textContent = labsState.eicrAdded
+    ? "Core certificates are recorded. Inspection evidence is still useful to add."
+    : "Electrical Safety needs evidence";
 
   const searchInput = document.querySelector("[data-evidence-search]");
   if (searchInput && searchInput.value !== labsState.evidenceSearch) {
@@ -2039,6 +2193,9 @@ function renderPortfolioActivityState() {
         "Electrical Safety became the highest-priority evidence gap",
         ...(supportCreated ? ["Support request was created"] : [])
       ];
+  const watchItems = labsState.eicrAdded
+    ? ["Inspection evidence", "Local licensing review"]
+    : ["Electrical Safety evidence", "Inspection evidence", "Local licensing review"];
 
   document.querySelector("[data-activity-event-count]").textContent = String(allEvents.length);
   document.querySelector("[data-activity-evidence-count]").textContent = labsState.eicrAdded ? "3" : "2";
@@ -2047,6 +2204,7 @@ function renderPortfolioActivityState() {
   document.querySelector("[data-activity-open-detail]").textContent = labsState.eicrAdded ? "inspection evidence" : "EICR gap";
   document.querySelector("[data-activity-visit-title]").textContent = `${visitItems.length} useful updates`;
   document.querySelector("[data-activity-visit-list]").innerHTML = visitItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  document.querySelector("[data-activity-watch-list]").innerHTML = watchItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
 
   const searchInput = document.querySelector("[data-activity-search]");
   if (searchInput && searchInput.value !== labsState.activitySearch) {
@@ -2717,7 +2875,7 @@ function renderActivitySummaryModalState() {
       <li>EPC record imported</li>
     `;
 
-  document.querySelector("[data-activity-summary-open]").innerHTML = labsState.eicrAdded
+  document.querySelector("[data-activity-summary-open-list]").innerHTML = labsState.eicrAdded
     ? `
       <li>Inspection evidence</li>
       <li>Local licensing review</li>
@@ -2828,6 +2986,20 @@ function bindPortfolioActivity() {
     if (detailButton) {
       openActivityDetail(detailButton.dataset.activityDetail);
     }
+  });
+}
+
+function bindDemoState() {
+  document.querySelector("[data-demo-state-open]")?.addEventListener("click", () => {
+    openTimelineModal("[data-demo-state-modal]");
+  });
+
+  document.querySelector("[data-demo-state-close]")?.addEventListener("click", closeTimelineModals);
+
+  document.querySelectorAll("[data-demo-state-option]").forEach((button) => {
+    button.addEventListener("click", () => {
+      applyDemoState(button.dataset.demoStateOption);
+    });
   });
 }
 
@@ -4172,6 +4344,7 @@ function closeTimelineModals() {
     "[data-task-detail-modal]",
     "[data-activity-detail-modal]",
     "[data-activity-summary-modal]",
+    "[data-demo-state-modal]",
     "[data-basics-modal]",
     "[data-optional-modal]",
     "[data-memory-modal]"
@@ -4356,13 +4529,46 @@ function runScanSequence() {
   });
 }
 
+function renderSmartUploadState() {
+  const status = document.querySelector("[data-smart-eicr-status]");
+  const note = document.querySelector("[data-smart-eicr-note]");
+  const actions = document.querySelector("[data-smart-eicr-actions]");
+
+  if (!status || !note || !actions) {
+    return;
+  }
+
+  status.classList.toggle("status-good-text", labsState.eicrAdded);
+  status.classList.toggle("status-review-text", !labsState.eicrAdded);
+  status.textContent = labsState.eicrAdded ? "Already in property file" : "Needs your review";
+  note.textContent = labsState.eicrAdded
+    ? "Property: 57 The Butts · Current EICR evidence is already stored"
+    : "Property: 57 The Butts";
+  actions.innerHTML = labsState.eicrAdded
+    ? `
+      <button class="secondary-button" type="button" data-toast="EICR evidence is already stored in this Labs preview.">View current evidence</button>
+      <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
+      <button class="text-button" type="button" data-modal-close>Close</button>
+    `
+    : `
+      <button class="primary-button" type="button" data-review-eicr>Review and add</button>
+      <button class="text-button" type="button" data-toast="Extracted details are shown in the review step.">View extracted details</button>
+    `;
+}
+
 function showScanResults() {
+  renderSmartUploadState();
   document.querySelector("[data-scan-view]").hidden = true;
   document.querySelector("[data-results-view]").hidden = false;
   document.querySelector("[data-review-view]").hidden = true;
 }
 
 function showEicrReview() {
+  if (labsState.eicrAdded) {
+    showToast("EICR evidence is already stored in this Labs preview.");
+    return;
+  }
+
   document.querySelector("[data-scan-view]").hidden = true;
   document.querySelector("[data-results-view]").hidden = true;
   document.querySelector("[data-review-view]").hidden = false;
@@ -4454,7 +4660,9 @@ function confirmEicr() {
 
   setAssistantResponse(postEicrAssistantMessage);
   closeSmartModal();
-  showToast("Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
+  showToast(wasAlreadyConfirmed
+    ? "EICR evidence is already stored in this Labs preview."
+    : "Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
 }
 
 hydrateIcons();
@@ -4467,6 +4675,7 @@ bindPortfolioCompliance();
 bindPortfolioEvidence();
 bindPortfolioTasks();
 bindPortfolioActivity();
+bindDemoState();
 bindAssistant();
 bindMobileMenu();
 bindToasts();
