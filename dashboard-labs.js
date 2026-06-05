@@ -356,6 +356,41 @@ function renderOverviewRecentActivity() {
     .join("");
 }
 
+function renderOverviewNextAction() {
+  const card = document.querySelector("[data-next-best-step]");
+
+  if (!card) {
+    return;
+  }
+
+  card.innerHTML = labsState.eicrAdded
+    ? `
+      <div>
+        <p class="section-kicker">Your next best step</p>
+        <h2>Add recent property inspection evidence</h2>
+        <p>Electrical Safety evidence is now recorded. The next useful improvement is your latest property inspection record.</p>
+      </div>
+      <div class="action-controls">
+        <button class="primary-button" type="button" data-toast="Inspection evidence upload will be connected in a later Labs pass.">Upload inspection evidence</button>
+        <button class="secondary-button" type="button" data-toast="Inspection status recorded for this Labs preview.">Mark as not yet completed</button>
+        <button class="text-button" type="button" data-assistant-message="Your EICR is now verified. The next useful improvement is inspection evidence, because it helps keep the property file current.">Ask CMP why this matters</button>
+      </div>
+    `
+    : `
+      <div>
+        <p class="section-kicker">Your next best step</p>
+        <h2>Check whether this property has a current EICR</h2>
+        <p>Electrical safety is the highest-priority unknown area in this property file.</p>
+      </div>
+      <div class="action-controls">
+        <button class="primary-button" type="button" data-toast="Upload flow is a placeholder in this Labs shell.">Upload EICR</button>
+        <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
+        <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+        <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
+      </div>
+    `;
+}
+
 function getPortfolioAssistantResponse(prompt) {
   const responses = labsState.eicrAdded ? portfolioPostEicrAssistantResponses : portfolioAssistantResponses;
   return responses[prompt] || defaultAssistantResponse;
@@ -2393,6 +2428,7 @@ function confirmEicr() {
   renderPropertyDetailsState();
   renderAssistantActivity();
   renderOverviewRecentActivity();
+  renderOverviewNextAction();
   renderPortfolioHomeState();
   setAssistantResponse(postEicrAssistantMessage);
   closeSmartModal();
@@ -2403,6 +2439,7 @@ hydrateIcons();
 renderAssistantPrompts();
 renderAssistantActivity();
 renderOverviewRecentActivity();
+renderOverviewNextAction();
 bindTabs();
 bindPortfolioHome();
 bindAssistant();
