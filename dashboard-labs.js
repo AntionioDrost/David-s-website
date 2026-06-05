@@ -70,6 +70,7 @@ const labsState = {
   taskView: "list",
   activitySearch: "",
   activityFilter: "all",
+  utilityAskPrompt: "",
   inspectionStatusRecorded: false,
   settings: {
     complianceReminders: true,
@@ -603,7 +604,7 @@ function renderOverviewNextAction() {
         <p>Electrical safety is the highest-priority unknown area in this property file.</p>
       </div>
       <div class="action-controls">
-        <button class="primary-button" type="button" data-toast="Upload flow is a placeholder in this Labs shell.">Upload EICR</button>
+        <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
         <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
         <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
         <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
@@ -726,6 +727,7 @@ function resetDemoState() {
   labsState.taskView = "list";
   labsState.activitySearch = "";
   labsState.activityFilter = "all";
+  labsState.utilityAskPrompt = "";
   labsState.inspectionStatusRecorded = false;
   labsState.propertyDetails = createInitialPropertyDetails();
   labsState.optionalDetails = createInitialOptionalDetails();
@@ -1862,6 +1864,7 @@ function renderCompletedTasks() {
   }
 
   const completed = completedTaskItems();
+  list.classList.toggle("is-empty", !completed.length);
   list.innerHTML = completed.length
     ? completed.map((task) => `
         <article class="completed-task-card">
@@ -1871,7 +1874,13 @@ function renderCompletedTasks() {
           <small>${escapeHtml(task.source)}</small>
         </article>
       `).join("")
-    : "<p>No completed tasks yet in this Labs session.</p>";
+    : `
+        <article class="completed-task-empty">
+          <span>Nothing recorded yet</span>
+          <h3>No completed or dismissed tasks</h3>
+          <p>Completed support, evidence and landlord-answer actions will appear here during this Labs session.</p>
+        </article>
+      `;
 }
 
 function renderPortfolioTasksState() {
@@ -2429,8 +2438,14 @@ function globalServiceCards() {
 function renderPortfolioUtilityState() {
   const askResponse = document.querySelector("[data-utility-ask-response]");
   if (askResponse) {
-    askResponse.textContent = getGlobalAskDefaultResponse();
+    askResponse.textContent = labsState.utilityAskPrompt
+      ? getGlobalAskAssistantResponse(labsState.utilityAskPrompt)
+      : getGlobalAskDefaultResponse();
   }
+
+  document.querySelectorAll("[data-utility-ask-prompt]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.utilityAskPrompt === labsState.utilityAskPrompt);
+  });
 
   renderGlobalServiceState();
   renderLearnGuides();
@@ -3354,8 +3369,10 @@ function bindUtilityPages() {
   document.addEventListener("click", (event) => {
     const askPrompt = event.target.closest("[data-utility-ask-prompt]");
     if (askPrompt) {
-      const response = getGlobalAskAssistantResponse(askPrompt.dataset.utilityAskPrompt);
+      labsState.utilityAskPrompt = askPrompt.dataset.utilityAskPrompt;
+      const response = getGlobalAskAssistantResponse(labsState.utilityAskPrompt);
       document.querySelector("[data-utility-ask-response]").textContent = response;
+      renderPortfolioUtilityState();
       setAssistantResponse(response);
       return;
     }
