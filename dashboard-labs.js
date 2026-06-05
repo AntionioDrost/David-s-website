@@ -212,6 +212,33 @@ const addPropertyAddresses = [
   "12 Station Road, B37 7BA"
 ];
 
+const utilityAskPromptMeta = {
+  "What should I do today?": {
+    category: "Today",
+    helper: "Get the next useful action for the active property."
+  },
+  "Which property needs attention?": {
+    category: "Portfolio",
+    helper: "See where CMP would focus first."
+  },
+  "What evidence is missing?": {
+    category: "Evidence",
+    helper: "Review certificate and document gaps."
+  },
+  "Explain this property file": {
+    category: "Property file",
+    helper: "Summarise what CMP knows and why."
+  },
+  "Summarise my portfolio": {
+    category: "Summary",
+    helper: "Turn portfolio status into plain English."
+  },
+  "What can wait until later?": {
+    category: "Priorities",
+    helper: "Separate urgent gaps from watch items."
+  }
+};
+
 const learnPrompts = [
   "Explain EICR",
   "What evidence should I keep?",
@@ -890,8 +917,10 @@ function getActivityAssistantResponse(prompt) {
 }
 
 function getGlobalAskDefaultResponse() {
-  if (currentServiceRequest()) {
-    return "A support request is open. CMP is waiting for the next review step before creating duplicate requests.";
+  const activeRequest = activeSupportRequestForActivity();
+
+  if (activeRequest) {
+    return `${activeRequest.type} is already open for 57 The Butts and awaiting CMP review. CMP will keep that request visible rather than prompting you to request the same support again.`;
   }
 
   if (labsState.alarmAnswer) {
@@ -906,6 +935,23 @@ function getGlobalAskDefaultResponse() {
 }
 
 function getGlobalAskAssistantResponse(prompt) {
+  const activeRequest = activeSupportRequestForActivity();
+
+  if (activeRequest) {
+    const requestResponses = {
+      "What should I do today?": `${activeRequest.type} is open for 57 The Butts. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
+      "Which property needs attention?": `57 The Butts is still the active property. CMP has ${activeRequest.type.toLowerCase()} awaiting review, so duplicate support is not needed.`,
+      "What evidence is missing?": labsState.eicrAdded
+        ? "Inspection evidence is still the most useful document gap, and CMP already has a support request awaiting review."
+        : "Electrical Safety evidence is still the clearest evidence gap, and CMP already has a support request awaiting review.",
+      "Explain this property file": `57 The Butts has EPC, Gas Safety, tasks, activity and an open ${activeRequest.type.toLowerCase()} connected to the property file.`,
+      "Summarise my portfolio": `Your portfolio has one property. CMP is tracking the open ${activeRequest.type.toLowerCase()} for 57 The Butts and keeping the next evidence gap visible.`,
+      "What can wait until later?": "Avoid creating duplicate support requests. Licensing and document review can stay on watch while CMP reviews the open request."
+    };
+
+    return requestResponses[prompt] || getGlobalAskDefaultResponse();
+  }
+
   const responses = {
     "What should I do today?": labsState.eicrAdded
       ? "Add inspection evidence or record that no recent inspection has been completed for 57 The Butts."
@@ -2574,17 +2620,180 @@ function globalServiceCards() {
   ];
 }
 
-function renderPortfolioUtilityState() {
+function askChatStatusChips() {
+  const activeRequest = activeSupportRequestForActivity();
+
+  if (activeRequest) {
+    return ["Support request open", "CMP review pending", "Evidence checked", "No duplicate needed"];
+  }
+
+  if (labsState.eicrAdded) {
+    return ["EICR verified", "Inspection evidence missing", "Licensing still watching", "Tasks checked"];
+  }
+
+  return ["Evidence Vault checked", "Compliance Centre checked", "Tasks checked", "Activity reviewed"];
+}
+
+function askContextSources() {
+  const activeRequest = activeSupportRequestForActivity();
+  const evidenceState = labsState.eicrAdded ? "3 verified / inspection missing" : "2 verified / 1 missing";
+  const complianceState = labsState.eicrAdded ? "Inspection next" : "EICR priority";
+  const taskState = activeRequest ? "Support review open" : labsState.eicrAdded ? "Inspection task" : "EICR task";
+  const supportState = activeRequest ? "Awaiting review" : "No open requests";
+
+  return [
+    {
+      name: "Property details",
+      body: "Uses address, postcode, occupancy and compliance goal.",
+      state: "57 The Butts"
+    },
+    {
+      name: "Evidence Vault",
+      body: "Uses uploaded certificates, EPC matches and missing document gaps.",
+      state: evidenceState
+    },
+    {
+      name: "Compliance Centre",
+      body: "Uses evidence status and next compliance checks.",
+      state: complianceState
+    },
+    {
+      name: "Tasks",
+      body: "Uses open actions and completed demo updates.",
+      state: taskState
+    },
+    {
+      name: "Activity history",
+      body: "Uses recent evidence, support and landlord-answer events.",
+      state: labsState.eicrAdded ? "EICR verified" : "EICR gap identified"
+    },
+    {
+      name: "Support requests",
+      body: "Uses open requests so CMP avoids duplicate support prompts.",
+      state: supportState
+    },
+    {
+      name: "Book a Service",
+      body: "Uses the recommended support pathway for this property.",
+      state: labsState.eicrAdded ? "Inspection support" : "EICR support"
+    }
+  ];
+}
+
+function askContextHighlight() {
+  const activeRequest = activeSupportRequestForActivity();
+
+  if (activeRequest) {
+    return {
+      title: `${activeRequest.type} is awaiting review`,
+      body: "CMP is keeping the open request tied to 57 The Butts and will not suggest creating the same request again."
+    };
+  }
+
+  if (labsState.eicrAdded) {
+    return {
+      title: "Inspection evidence is the next useful step",
+      body: "CMP has seen the EICR is verified and is now watching inspection evidence and licensing."
+    };
+  }
+
+  return {
+    title: "Electrical Safety is the clearest next step",
+    body: "CMP has checked evidence, compliance status and tasks for 57 The Butts."
+  };
+}
+
+function resolveUtilityAskPrompt(rawValue) {
+  const value = (rawValue || "").trim();
+  if (!value) {
+    return "What should I do today?";
+  }
+
+  const exact = globalAskPrompts.find((prompt) => prompt.toLowerCase() === value.toLowerCase());
+  if (exact) {
+    return exact;
+  }
+
+  const lower = value.toLowerCase();
+  if (lower.includes("today") || lower.includes("first") || lower.includes("next")) {
+    return "What should I do today?";
+  }
+  if (lower.includes("property") || lower.includes("attention")) {
+    return "Which property needs attention?";
+  }
+  if (lower.includes("evidence") || lower.includes("missing") || lower.includes("certificate")) {
+    return "What evidence is missing?";
+  }
+  if (lower.includes("explain") || lower.includes("file")) {
+    return "Explain this property file";
+  }
+  if (lower.includes("summar")) {
+    return "Summarise my portfolio";
+  }
+  if (lower.includes("wait") || lower.includes("later")) {
+    return "What can wait until later?";
+  }
+
+  return "What should I do today?";
+}
+
+function setUtilityAskPrompt(prompt) {
+  labsState.utilityAskPrompt = resolveUtilityAskPrompt(prompt);
+  const response = getGlobalAskAssistantResponse(labsState.utilityAskPrompt);
   const askResponse = document.querySelector("[data-utility-ask-response]");
   if (askResponse) {
-    askResponse.textContent = labsState.utilityAskPrompt
-      ? getGlobalAskAssistantResponse(labsState.utilityAskPrompt)
-      : getGlobalAskDefaultResponse();
+    askResponse.textContent = response;
+  }
+  setAssistantResponse(response);
+  renderPortfolioUtilityState();
+}
+
+function renderPortfolioUtilityState() {
+  const activePrompt = labsState.utilityAskPrompt || "What should I do today?";
+  const askResponse = document.querySelector("[data-utility-ask-response]");
+  if (askResponse) {
+    askResponse.textContent = labsState.utilityAskPrompt ? getGlobalAskAssistantResponse(labsState.utilityAskPrompt) : getGlobalAskDefaultResponse();
   }
 
   document.querySelectorAll("[data-utility-ask-prompt]").forEach((button) => {
-    button.classList.toggle("is-active", button.dataset.utilityAskPrompt === labsState.utilityAskPrompt);
+    button.classList.toggle("is-active", button.dataset.utilityAskPrompt === activePrompt);
   });
+
+  const chatUser = document.querySelector("[data-ask-chat-user]");
+  const chatResponse = document.querySelector("[data-ask-chat-response]");
+  const statusChips = document.querySelector("[data-ask-status-chips]");
+  const sourceGrid = document.querySelector("[data-ask-source-grid]");
+  const highlight = askContextHighlight();
+
+  if (chatUser) {
+    chatUser.textContent = activePrompt;
+  }
+  if (chatResponse) {
+    chatResponse.textContent = getGlobalAskAssistantResponse(activePrompt);
+  }
+  if (statusChips) {
+    statusChips.innerHTML = askChatStatusChips().map((chip) => `<span><i></i>${escapeHtml(chip)}</span>`).join("");
+  }
+  if (sourceGrid) {
+    sourceGrid.innerHTML = askContextSources().map((source) => `
+      <article class="ask-source-card">
+        <div>
+          <strong>${escapeHtml(source.name)}</strong>
+          <span class="doc-status status-neutral-text">${escapeHtml(source.state)}</span>
+        </div>
+        <p>${escapeHtml(source.body)}</p>
+      </article>
+    `).join("");
+  }
+
+  const highlightTitle = document.querySelector("[data-ask-context-highlight-title]");
+  const highlightBody = document.querySelector("[data-ask-context-highlight-body]");
+  if (highlightTitle) {
+    highlightTitle.textContent = highlight.title;
+  }
+  if (highlightBody) {
+    highlightBody.textContent = highlight.body;
+  }
 
   renderGlobalServiceState();
   renderLearnGuides();
@@ -2627,6 +2836,7 @@ function renderGlobalServiceState() {
           <h3>${escapeHtml(card.title)}</h3>
           <span class="doc-status ${card.statusClass}">${escapeHtml(card.status)}</span>
         </div>
+        <span class="service-property-label">57 The Butts · CV1 3BJ</span>
         <p>${escapeHtml(card.body)}</p>
         <div class="commercial-service-why">
           <strong>Why it matters</strong>
@@ -3534,12 +3744,18 @@ function renderAddPropertyState() {
 function openBundlePreviewModal() {
   const list = document.querySelector("[data-bundle-items]");
   if (list) {
-    list.innerHTML = serviceBundleItems().map((item) => `
-      <article class="bundle-item">
-        <span class="tile-icon" data-icon="check"></span>
-        <strong>${escapeHtml(item)}</strong>
+    list.innerHTML = `
+      <article class="bundle-property-card">
+        <span>Bundle for</span>
+        <strong>57 The Butts · CV1 3BJ</strong>
       </article>
-    `).join("");
+      ${serviceBundleItems().map((item) => `
+        <article class="bundle-item">
+          <span class="tile-icon" data-icon="check"></span>
+          <strong>${escapeHtml(item)}</strong>
+        </article>
+      `).join("")}
+    `;
   }
 
   openTimelineModal("[data-bundle-modal]");
@@ -3608,11 +3824,7 @@ function bindUtilityPages() {
   document.addEventListener("click", (event) => {
     const askPrompt = event.target.closest("[data-utility-ask-prompt]");
     if (askPrompt) {
-      labsState.utilityAskPrompt = askPrompt.dataset.utilityAskPrompt;
-      const response = getGlobalAskAssistantResponse(labsState.utilityAskPrompt);
-      document.querySelector("[data-utility-ask-response]").textContent = response;
-      renderPortfolioUtilityState();
-      setAssistantResponse(response);
+      setUtilityAskPrompt(askPrompt.dataset.utilityAskPrompt);
       return;
     }
 
@@ -3676,6 +3888,13 @@ function bindUtilityPages() {
     }
   });
 
+  document.querySelector("[data-utility-ask-form]")?.addEventListener("submit", (event) => {
+    event.preventDefault();
+    const input = event.currentTarget.elements.question;
+    setUtilityAskPrompt(input.value);
+    input.value = "";
+  });
+
   document.querySelectorAll("[data-settings-toggle]").forEach((button) => {
     button.addEventListener("click", () => {
       const key = button.dataset.settingsToggle;
@@ -3706,14 +3925,22 @@ function bindAssistant() {
       return;
     }
 
-    setAssistantResponse(getAssistantResponse(button.dataset.prompt));
+    if (labsState.currentView === "askCmp") {
+      setUtilityAskPrompt(button.dataset.prompt);
+    } else {
+      setAssistantResponse(getAssistantResponse(button.dataset.prompt));
+    }
     openAssistant();
   });
 
   document.querySelector("[data-assistant-form]")?.addEventListener("submit", (event) => {
     event.preventDefault();
     const input = event.currentTarget.elements.question;
-    setAssistantResponse(input.value.trim() ? defaultAssistantResponse : getAssistantResponse("What evidence am I missing?"));
+    if (labsState.currentView === "askCmp") {
+      setUtilityAskPrompt(input.value);
+    } else {
+      setAssistantResponse(input.value.trim() ? defaultAssistantResponse : getAssistantResponse("What evidence am I missing?"));
+    }
     input.value = "";
     openAssistant();
   });

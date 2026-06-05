@@ -862,7 +862,7 @@
         </section>
 
         <section class="portfolio-utility-page portfolio-ask-page" data-portfolio-ask hidden aria-labelledby="portfolioAskTitle">
-          <header class="portfolio-utility-header">
+          <header class="portfolio-utility-header ask-command-header">
             <div>
               <p class="section-kicker">CMP ASSISTANT</p>
               <h1 id="portfolioAskTitle">Ask CMP</h1>
@@ -871,58 +871,114 @@
             </div>
           </header>
 
-          <article class="utility-hero-card">
-            <div>
-              <p class="section-kicker">ASSISTANT STARTER</p>
-              <h2>How can CMP help?</h2>
-              <p>CMP can explain what changed, what still needs attention and which action is most useful next.</p>
-            </div>
-          </article>
+          <section class="ask-command-centre" aria-label="Ask CMP command centre">
+            <article class="ask-chat-panel">
+              <div class="ask-chat-topline">
+                <div>
+                  <p class="section-kicker">AI COMMAND CENTRE</p>
+                  <h2>Portfolio brain for 57 The Butts</h2>
+                </div>
+                <span class="doc-status status-good-text" data-ask-chat-state>Context live</span>
+              </div>
+              <div class="ask-chat-surface">
+                <div class="ask-chat-status-row" data-ask-status-chips>
+                  <span><i></i>Evidence Vault checked</span>
+                  <span><i></i>Compliance Centre checked</span>
+                  <span><i></i>Tasks checked</span>
+                  <span><i></i>Activity reviewed</span>
+                </div>
+                <div class="chat-bubble-row is-user">
+                  <p data-ask-chat-user>What should I do today?</p>
+                </div>
+                <div class="chat-bubble-row is-assistant">
+                  <span class="assistant-avatar">CMP</span>
+                  <p data-ask-chat-response>57 The Butts is missing Electrical Safety evidence. Your EPC and Gas Safety records are already stored, so the clearest next step is to upload or arrange an EICR.</p>
+                </div>
+                <div class="ask-checking-line">
+                  <span></span>
+                  <span></span>
+                  <span></span>
+                  <strong>checking context</strong>
+                </div>
+              </div>
+              <form class="ask-command-bar" data-utility-ask-form>
+                <label>
+                  <span>Ask CMP</span>
+                  <input type="text" name="question" placeholder="Ask CMP anything about your portfolio…" autocomplete="off">
+                </label>
+                <button class="primary-button" type="submit" aria-label="Send Ask CMP question">
+                  <span class="nav-icon" data-icon="send"></span>
+                </button>
+              </form>
+            </article>
 
-          <section class="utility-grid ask-prompt-grid" aria-label="Ask CMP prompt cards">
-            <button class="utility-prompt-card" type="button" data-utility-ask-prompt="What should I do today?">
-              <span class="source-badge">Today</span>
-              <strong>What should I do today?</strong>
-            </button>
-            <button class="utility-prompt-card" type="button" data-utility-ask-prompt="Which property needs attention?">
-              <span class="source-badge">Portfolio</span>
-              <strong>Which property needs attention?</strong>
-            </button>
-            <button class="utility-prompt-card" type="button" data-utility-ask-prompt="What evidence is missing?">
-              <span class="source-badge">Evidence</span>
-              <strong>What evidence is missing?</strong>
-            </button>
-            <button class="utility-prompt-card" type="button" data-utility-ask-prompt="Explain this property file">
-              <span class="source-badge">Property file</span>
-              <strong>Explain this property file</strong>
-            </button>
-            <button class="utility-prompt-card" type="button" data-utility-ask-prompt="Summarise my portfolio">
-              <span class="source-badge">Summary</span>
-              <strong>Summarise my portfolio</strong>
-            </button>
-            <button class="utility-prompt-card" type="button" data-utility-ask-prompt="What can wait until later?">
-              <span class="source-badge">Priorities</span>
-              <strong>What can wait until later?</strong>
-            </button>
+            <aside class="ask-context-panel" aria-labelledby="askCheckingTitle">
+              <p class="section-kicker">WHAT CMP IS CHECKING</p>
+              <h2 id="askCheckingTitle">Connected signals</h2>
+              <div class="ask-check-chip-row">
+                <span>property file</span>
+                <span>certificates</span>
+                <span>missing evidence</span>
+                <span>upcoming reviews</span>
+                <span>support requests</span>
+                <span>activity history</span>
+              </div>
+              <div class="ask-context-highlight">
+                <strong data-ask-context-highlight-title>Electrical Safety is the clearest next step</strong>
+                <p data-ask-context-highlight-body>CMP has checked the evidence and tasks for 57 The Butts.</p>
+              </div>
+            </aside>
           </section>
 
-          <section class="utility-two-column">
+          <section class="ask-prompt-section" aria-labelledby="askPromptTitle">
+            <div class="service-section-heading">
+              <p class="section-kicker">QUICK PROMPTS</p>
+              <h2 id="askPromptTitle">Start with a useful question</h2>
+            </div>
+            <div class="utility-grid ask-prompt-grid" aria-label="Ask CMP prompt cards" data-utility-ask-prompts>
+              <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="What should I do today?">
+                <span class="source-badge">Today</span>
+                <strong>What should I do today?</strong>
+                <small>Get the next useful action for the active property.</small>
+              </button>
+              <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="Which property needs attention?">
+                <span class="source-badge">Portfolio</span>
+                <strong>Which property needs attention?</strong>
+                <small>See where CMP would focus first.</small>
+              </button>
+              <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="What evidence is missing?">
+                <span class="source-badge">Evidence</span>
+                <strong>What evidence is missing?</strong>
+                <small>Review certificate and document gaps.</small>
+              </button>
+              <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="Explain this property file">
+                <span class="source-badge">Property file</span>
+                <strong>Explain this property file</strong>
+                <small>Summarise what CMP knows and why.</small>
+              </button>
+              <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="Summarise my portfolio">
+                <span class="source-badge">Summary</span>
+                <strong>Summarise my portfolio</strong>
+                <small>Turn portfolio status into plain English.</small>
+              </button>
+              <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="What can wait until later?">
+                <span class="source-badge">Priorities</span>
+                <strong>What can wait until later?</strong>
+                <small>Separate urgent gaps from watch items.</small>
+              </button>
+            </div>
+          </section>
+
+          <section class="utility-two-column ask-response-context-grid">
             <article class="utility-response-card">
               <p class="section-kicker">ASSISTANT RESPONSE</p>
               <h2>Assistant response</h2>
               <p data-utility-ask-response>The clearest next step is to upload or arrange an EICR for 57 The Butts. Electrical Safety is the main missing evidence area.</p>
             </article>
-            <article class="utility-list-card">
+            <article class="utility-list-card ask-source-panel">
               <p class="section-kicker">WHAT CMP CAN USE</p>
               <h2>Connected context</h2>
-              <ul>
-                <li>Property details</li>
-                <li>Evidence Vault</li>
-                <li>Compliance Centre</li>
-                <li>Tasks</li>
-                <li>Activity history</li>
-                <li>Support requests</li>
-              </ul>
+              <div class="ask-source-grid" data-ask-source-grid></div>
             </article>
           </section>
         </section>
@@ -935,6 +991,12 @@
               <p>Arrange the right property support without hunting through certificates, rules or supplier emails.</p>
             </div>
           </header>
+
+          <section class="service-property-context" aria-label="Current service recommendation property context">
+            <p>Current recommendation for</p>
+            <strong>57 The Butts · CV1 3BJ</strong>
+            <span>Vacant property · General compliance check</span>
+          </section>
 
           <article class="utility-hero-card service-recommendation-card">
             <div>
@@ -2376,7 +2438,7 @@
           <div>
             <p class="section-kicker">Property support</p>
             <h2 id="serviceModalTitle" data-service-modal-title>Request support</h2>
-            <p>57 The Butts · Coventry, CV1 3BJ</p>
+            <p class="modal-property-context">Property · 57 The Butts · CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close support request" data-service-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -2427,6 +2489,7 @@
           <div>
             <p class="section-kicker">Service bundle</p>
             <h2 id="bundleModalTitle">Preview service bundle</h2>
+            <p class="modal-property-context">Bundle for · 57 The Butts · CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close bundle preview" data-bundle-close>
             <span class="nav-icon" data-icon="close"></span>
