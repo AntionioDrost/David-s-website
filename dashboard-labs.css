@@ -120,6 +120,7 @@ a {
 .portfolio-properties-header,
 .portfolio-compliance-header,
 .portfolio-evidence-header,
+.portfolio-tasks-header,
 .portfolio-autopilot-card,
 .portfolio-summary-panel,
 .portfolio-pulse-card,
@@ -134,6 +135,11 @@ a {
 .evidence-list-card,
 .smart-upload-shortcut,
 .property-evidence-health-card,
+.tasks-start-card,
+.tasks-toolbar,
+.task-card,
+.task-board-column,
+.tasks-completed-section,
 .portfolio-property-card,
 .portfolio-upcoming-card,
 .home-secondary-card,
@@ -642,14 +648,18 @@ body.portfolio-compliance-active .property-header,
 body.portfolio-compliance-active .tab-bar,
 body.portfolio-evidence-active .utility-bar,
 body.portfolio-evidence-active .property-header,
-body.portfolio-evidence-active .tab-bar {
+body.portfolio-evidence-active .tab-bar,
+body.portfolio-tasks-active .utility-bar,
+body.portfolio-tasks-active .property-header,
+body.portfolio-tasks-active .tab-bar {
   display: none;
 }
 
 .portfolio-home,
 .portfolio-properties,
 .portfolio-compliance-centre,
-.portfolio-evidence-vault {
+.portfolio-evidence-vault,
+.portfolio-tasks-page {
   display: grid;
   gap: 14px;
 }
@@ -657,7 +667,8 @@ body.portfolio-evidence-active .tab-bar {
 .portfolio-home[hidden],
 .portfolio-properties[hidden],
 .portfolio-compliance-centre[hidden],
-.portfolio-evidence-vault[hidden] {
+.portfolio-evidence-vault[hidden],
+.portfolio-tasks-page[hidden] {
   display: none;
 }
 
@@ -665,9 +676,11 @@ body.portfolio-evidence-active .tab-bar {
 .portfolio-properties-header,
 .portfolio-compliance-header,
 .portfolio-evidence-header,
+.portfolio-tasks-header,
 .home-priority-card,
 .compliance-start-card,
 .evidence-inbox-panel,
+.tasks-start-card,
 .home-quick-win-card,
 .properties-grow-card {
   display: grid;
@@ -682,6 +695,7 @@ body.portfolio-evidence-active .tab-bar {
 .portfolio-properties-header h1,
 .portfolio-compliance-header h1,
 .portfolio-evidence-header h1,
+.portfolio-tasks-header h1,
 .portfolio-autopilot-card h2,
 .home-priority-card h2,
 .compliance-start-card h2,
@@ -689,6 +703,9 @@ body.portfolio-evidence-active .tab-bar {
 .evidence-inbox-panel h2,
 .smart-upload-shortcut h2,
 .property-evidence-health-card h2,
+.tasks-start-card h2,
+.task-card h3,
+.task-board-column h3,
 .section-heading h2,
 .home-secondary-card h2,
 .home-quick-win-card h2,
@@ -704,6 +721,7 @@ body.portfolio-evidence-active .tab-bar {
 .portfolio-properties-header p:not(.section-kicker),
 .portfolio-compliance-header p:not(.section-kicker),
 .portfolio-evidence-header p:not(.section-kicker),
+.portfolio-tasks-header p:not(.section-kicker),
 .portfolio-autopilot-card p,
 .home-priority-card p,
 .compliance-start-card p,
@@ -711,6 +729,8 @@ body.portfolio-evidence-active .tab-bar {
 .evidence-inbox-panel p,
 .smart-upload-shortcut p,
 .property-evidence-health-card p,
+.tasks-start-card p,
+.task-card p,
 .home-secondary-card p,
 .home-quick-win-card p,
 .portfolio-section p,
@@ -786,6 +806,12 @@ body.portfolio-evidence-active .tab-bar {
 }
 
 .evidence-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.tasks-summary-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   gap: 12px;
@@ -1160,6 +1186,173 @@ body.portfolio-evidence-active .tab-bar {
 .property-evidence-health strong {
   grid-column: 1 / -1;
   color: var(--labs-ink);
+}
+
+.tasks-start-card {
+  align-items: start;
+  background:
+    radial-gradient(circle at 92% 12%, rgba(41, 122, 87, 0.1), transparent 28%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.tasks-start-actions {
+  display: grid;
+  gap: 10px;
+  min-width: 190px;
+}
+
+.task-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+.task-meta-row span:not(.doc-status) {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  padding: 0 9px;
+  border: 1px solid var(--labs-border);
+  border-radius: 999px;
+  color: var(--labs-muted);
+  background: var(--labs-surface-soft);
+  font-size: 0.74rem;
+  font-weight: 720;
+}
+
+.tasks-toolbar {
+  display: grid;
+  grid-template-columns: minmax(240px, 1fr) auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.tasks-section {
+  display: grid;
+  gap: 12px;
+}
+
+.tasks-list,
+.completed-task-list {
+  display: grid;
+  gap: 10px;
+}
+
+.task-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 14px;
+  align-items: center;
+  padding: 16px;
+  border-radius: 18px;
+}
+
+.task-card h3 {
+  margin: 0;
+  font-size: 1.02rem;
+}
+
+.task-title-button {
+  padding: 0;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  text-align: left;
+}
+
+.task-title-button:hover h3 {
+  color: var(--labs-green-dark);
+}
+
+.task-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.task-card-actions .primary-button,
+.task-card-actions .secondary-button,
+.task-card-actions .text-button {
+  min-height: 32px;
+  padding: 0 9px;
+  font-size: 0.77rem;
+}
+
+.task-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 7px;
+  margin-top: 10px;
+}
+
+.task-chip-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 8px;
+  border-radius: 999px;
+  background: var(--labs-surface-soft);
+  color: var(--labs-muted);
+  font-size: 0.72rem;
+  font-weight: 760;
+}
+
+.tasks-board {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.task-board-column {
+  display: grid;
+  align-content: start;
+  gap: 10px;
+  min-height: 180px;
+  padding: 14px;
+  border-radius: 18px;
+}
+
+.task-board-column h3 {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.task-board-column .task-card {
+  grid-template-columns: 1fr;
+  padding: 14px;
+  box-shadow: none;
+}
+
+.task-board-column .task-card-actions {
+  justify-content: flex-start;
+}
+
+.completed-task-list > p {
+  margin: 0;
+  color: var(--labs-muted);
+}
+
+.completed-task-card {
+  display: grid;
+  gap: 5px;
+  padding: 14px;
+  border: 1px solid var(--labs-border);
+  border-radius: 16px;
+  background: rgba(249, 251, 250, 0.82);
+}
+
+.completed-task-card strong {
+  color: var(--labs-ink);
+}
+
+.completed-task-card span {
+  color: var(--labs-green-dark);
+  font-size: 0.76rem;
+  font-weight: 800;
 }
 
 .portfolio-section {
@@ -4015,10 +4208,12 @@ body.assistant-open {
   .portfolio-properties-header,
   .portfolio-compliance-header,
   .portfolio-evidence-header,
+  .portfolio-tasks-header,
   .home-priority-card,
   .compliance-start-card,
   .compliance-readiness-card,
   .evidence-inbox-panel,
+  .tasks-start-card,
   .home-quick-win-card,
   .properties-grow-card {
     grid-template-columns: 1fr;
@@ -4119,12 +4314,14 @@ body.assistant-open {
   .properties-summary-grid,
   .compliance-centre-summary,
   .evidence-summary-grid,
+  .tasks-summary-grid,
   .home-upcoming-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .properties-toolbar,
   .evidence-toolbar,
+  .tasks-toolbar,
   .properties-card-main,
   .properties-card-status,
   .properties-compact-row {
@@ -4141,6 +4338,10 @@ body.assistant-open {
 
   .compliance-forecast-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tasks-board {
+    grid-template-columns: 1fr;
   }
 
   .timeline-counts {
@@ -4271,6 +4472,7 @@ body.assistant-open {
   .portfolio-properties-header,
   .portfolio-compliance-header,
   .portfolio-evidence-header,
+  .portfolio-tasks-header,
   .portfolio-autopilot-card,
   .portfolio-summary-panel,
   .portfolio-pulse-card,
@@ -4285,6 +4487,11 @@ body.assistant-open {
   .evidence-list-card,
   .smart-upload-shortcut,
   .property-evidence-health-card,
+  .tasks-start-card,
+  .tasks-toolbar,
+  .task-card,
+  .task-board-column,
+  .tasks-completed-section,
   .portfolio-property-card,
   .portfolio-upcoming-card,
   .home-secondary-card,
@@ -4387,12 +4594,14 @@ body.assistant-open {
   .properties-summary-grid,
   .compliance-centre-summary,
   .evidence-summary-grid,
+  .tasks-summary-grid,
   .compliance-forecast-grid,
   .home-upcoming-grid,
   .home-two-column,
   .portfolio-property-card,
   .properties-toolbar,
   .evidence-toolbar,
+  .tasks-toolbar,
   .properties-card-main,
   .properties-card-status,
   .properties-compact-row {
@@ -4404,7 +4613,16 @@ body.assistant-open {
     grid-template-columns: 1fr;
   }
 
+  .task-card {
+    align-items: start;
+    grid-template-columns: 1fr;
+  }
+
   .compliance-gap-actions {
+    justify-content: flex-start;
+  }
+
+  .task-card-actions {
     justify-content: flex-start;
   }
 
@@ -4476,6 +4694,8 @@ body.assistant-open {
   .home-priority-actions,
   .compliance-start-actions,
   .evidence-inbox-actions,
+  .tasks-start-actions,
+  .task-card-actions,
   .compliance-gap-actions,
   .properties-card-actions,
   .portfolio-property-card .button-row,
@@ -4521,6 +4741,9 @@ body.assistant-open {
   .portfolio-evidence-vault .primary-button,
   .portfolio-evidence-vault .secondary-button,
   .portfolio-evidence-vault .text-button,
+  .portfolio-tasks-page .primary-button,
+  .portfolio-tasks-page .secondary-button,
+  .portfolio-tasks-page .text-button,
   .property-passport-panel .primary-button,
   .property-passport-panel .secondary-button,
   .property-passport-panel .text-button {

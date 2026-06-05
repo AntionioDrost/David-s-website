@@ -772,6 +772,107 @@
           </div>
         </section>
 
+        <section class="portfolio-tasks-page" data-portfolio-tasks hidden aria-labelledby="portfolioTasksTitle">
+          <header class="portfolio-tasks-header">
+            <div>
+              <p class="section-kicker">PORTFOLIO TASKS</p>
+              <h1 id="portfolioTasksTitle">Tasks</h1>
+              <p>Turn missing evidence, upcoming reviews and support requests into a clear list of useful next actions.</p>
+              <span class="prototype-badge" data-tasks-active-pill>3 active tasks</span>
+            </div>
+            <div class="portfolio-header-actions">
+              <button class="primary-button" type="button" data-tasks-ask>Ask CMP what to do first</button>
+              <button class="secondary-button" type="button" data-tasks-review-completed>Review completed</button>
+            </div>
+          </header>
+
+          <section class="tasks-summary-grid" aria-label="Tasks summary">
+            <article class="portfolio-pulse-card">
+              <span>Active tasks</span>
+              <strong data-tasks-active-count>3</strong>
+              <small>open actions</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Highest priority</span>
+              <strong data-tasks-priority-label>EICR</strong>
+              <small>recommended next</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Due soon</span>
+              <strong>1</strong>
+              <small>review window</small>
+            </article>
+            <article class="portfolio-pulse-card">
+              <span>Completed</span>
+              <strong data-tasks-completed-count>0</strong>
+              <small>this session</small>
+            </article>
+          </section>
+
+          <article class="tasks-start-card" data-tasks-start-card>
+            <div>
+              <p class="section-kicker">START HERE</p>
+              <h2 data-tasks-start-title>Upload or arrange an EICR</h2>
+              <p class="property-card-label">57 The Butts · CV1 3BJ</p>
+              <p data-tasks-start-body>Electrical Safety is the clearest evidence gap in this property file.</p>
+              <div class="task-meta-row">
+                <span data-tasks-start-source>Source: Compliance Centre · Evidence Vault</span>
+                <span class="doc-status status-review-text" data-tasks-start-status>Needs checking</span>
+                <span class="doc-status status-watch-text" data-tasks-support-indicator hidden>Support request open</span>
+              </div>
+            </div>
+            <div class="tasks-start-actions" data-tasks-start-actions>
+              <button class="primary-button" type="button" data-task-action="uploadEicr">Upload EICR</button>
+              <button class="secondary-button" type="button" data-task-action="requestSupport">Request EICR support</button>
+              <button class="text-button" type="button" data-task-action="openProperty">Open property</button>
+            </div>
+          </article>
+
+          <section class="tasks-toolbar" aria-label="Task search and filters">
+            <label class="properties-search task-search">
+              <span class="nav-icon" data-icon="check"></span>
+              <input type="search" data-task-search placeholder="Search tasks, properties or categories..." autocomplete="off">
+            </label>
+            <div class="properties-filter-row" aria-label="Task filters">
+              <button class="is-active" type="button" data-task-filter="all">All</button>
+              <button type="button" data-task-filter="high">High priority</button>
+              <button type="button" data-task-filter="evidence">Evidence</button>
+              <button type="button" data-task-filter="inspection">Inspections</button>
+              <button type="button" data-task-filter="licensing">Licensing</button>
+              <button type="button" data-task-filter="completed">Completed</button>
+            </div>
+            <div class="properties-view-toggle" aria-label="Task view">
+              <button class="is-active" type="button" data-task-view="list">List</button>
+              <button type="button" data-task-view="board">Board</button>
+            </div>
+          </section>
+
+          <section class="tasks-section" aria-labelledby="openTasksTitle">
+            <div class="section-heading">
+              <p class="section-kicker">OPEN TASKS</p>
+              <h2 id="openTasksTitle">Your action list</h2>
+              <p>Tasks are created from missing evidence, compliance checks, upcoming reviews and support activity.</p>
+            </div>
+            <div class="tasks-list" data-task-list></div>
+            <div class="tasks-board" data-task-board hidden></div>
+            <article class="properties-empty-state" data-task-empty hidden>
+              <h2>No tasks match this view</h2>
+              <p>Try clearing the search or switching back to all tasks.</p>
+              <button class="secondary-button" type="button" data-task-clear>Clear filters</button>
+            </article>
+          </section>
+
+          <section class="tasks-section tasks-completed-section" data-tasks-completed-section tabindex="-1" aria-labelledby="completedTasksTitle">
+            <div class="section-heading">
+              <p class="section-kicker">RECENTLY RESOLVED</p>
+              <h2 id="completedTasksTitle">Completed or dismissed</h2>
+            </div>
+            <div class="completed-task-list" data-completed-task-list>
+              <p>No completed tasks yet in this Labs session.</p>
+            </div>
+          </section>
+        </section>
+
         <section class="tab-panel is-active" data-panel="overview" aria-label="Overview">
           <article class="autopilot-card">
             <div class="autopilot-copy">
@@ -2106,6 +2207,45 @@
         <p class="modal-note">In the finished product, forwarded documents could be matched to a property, classified by type and prepared for review. This Labs preview simulates that behaviour locally.</p>
         <div class="button-row">
           <button class="primary-button" type="button" data-evidence-inbox-close>Got it</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal task-detail-modal" role="dialog" aria-modal="true" aria-labelledby="taskDetailModalTitle" data-task-detail-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Task source</p>
+            <h2 id="taskDetailModalTitle">Why CMP created this task</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close task detail" data-task-detail-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note" data-task-detail-body>CMP created this task from the current property file.</p>
+        <div class="summary-sections task-detail-grid">
+          <section>
+            <h3>Property</h3>
+            <p data-task-detail-property>57 The Butts · CV1 3BJ</p>
+          </section>
+          <section>
+            <h3>Category</h3>
+            <p data-task-detail-category>Evidence</p>
+          </section>
+          <section>
+            <h3>Source</h3>
+            <p data-task-detail-source>Compliance Centre</p>
+          </section>
+          <section>
+            <h3>Current status</h3>
+            <p data-task-detail-status>Needs checking</p>
+          </section>
+          <section>
+            <h3>Suggested next action</h3>
+            <p data-task-detail-action>Upload EICR</p>
+          </section>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-task-detail-open-property>Open property</button>
+          <button class="secondary-button" type="button" data-task-detail-close>Close</button>
         </div>
       </section>
 
