@@ -72,6 +72,9 @@ const labsState = {
   activityFilter: "all",
   utilityAskPrompt: "",
   inspectionStatusRecorded: false,
+  pendingServiceRequestType: "eicr",
+  addPropertyStep: 1,
+  addPropertyAddress: "18 Willow Brook Drive, B37 7BA",
   settings: {
     complianceReminders: true,
     evidenceExpiryAlerts: true,
@@ -201,6 +204,12 @@ const globalServicePrompts = [
   "Why is this recommended?",
   "Can CMP help arrange it?",
   "What can wait until later?"
+];
+
+const addPropertyAddresses = [
+  "18 Willow Brook Drive, B37 7BA",
+  "Flat 42, 57 The Butts, CV1 3BJ",
+  "12 Station Road, B37 7BA"
 ];
 
 const learnPrompts = [
@@ -729,6 +738,9 @@ function resetDemoState() {
   labsState.activityFilter = "all";
   labsState.utilityAskPrompt = "";
   labsState.inspectionStatusRecorded = false;
+  labsState.pendingServiceRequestType = "eicr";
+  labsState.addPropertyStep = 1;
+  labsState.addPropertyAddress = addPropertyAddresses[0];
   labsState.propertyDetails = createInitialPropertyDetails();
   labsState.optionalDetails = createInitialOptionalDetails();
   labsState.propertyMemory = createInitialPropertyMemory();
@@ -743,7 +755,7 @@ function ensureDemoSupportRequest() {
       id: "demo-support-request",
       type: requestType,
       status: "Awaiting review",
-      created: "just now",
+      created: "Just now",
       linkedTo: "Inspection evidence"
     });
   }
@@ -917,6 +929,22 @@ function getGlobalAskAssistantResponse(prompt) {
 }
 
 function getGlobalServiceAssistantResponse(prompt) {
+  const activeRequest = activeSupportRequestForActivity();
+
+  if (activeRequest) {
+    const responsesWithRequest = {
+      "What should I book first": `${activeRequest.type} is already open for 57 The Butts. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
+      "What should I book first?": `${activeRequest.type} is already open for 57 The Butts. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
+      "Why is this recommended?": "CMP is avoiding duplicate support requests and keeping the open item visible so the property file stays clear.",
+      "Can CMP help arrange it?": "A prototype support request is already open. In the final workflow this would notify CMP or a connected supplier process.",
+      "What can wait until later?": labsState.eicrAdded
+        ? "Gas Safety, EPC and EICR are recorded. Keep licensing and tenancy document review visible while inspection support is reviewed."
+        : "Gas Safety and EPC are recorded. Keep licensing and document review visible while the open support request is reviewed."
+    };
+
+    return responsesWithRequest[prompt] || responsesWithRequest["What should I book first?"];
+  }
+
   const responses = {
     "What should I book first?": labsState.eicrAdded
       ? "Inspection support is the most useful next support option because core certificates are now recorded."
@@ -2382,55 +2410,166 @@ function showPortfolioActivity({ scroll = false } = {}) {
   });
 }
 
+function recommendedServiceType() {
+  return labsState.eicrAdded ? "inspection" : "eicr";
+}
+
+function serviceRequestConfig(type = recommendedServiceType()) {
+  const configs = {
+    eicr: {
+      requestType: "EICR support",
+      eventTitle: "EICR support requested",
+      eventBody: "CMP recorded a request to help arrange Electrical Safety support for this property.",
+      linkedTo: "Electrical Safety"
+    },
+    inspection: {
+      requestType: "Property inspection support",
+      eventTitle: "Property inspection support requested",
+      eventBody: "CMP recorded a request to help arrange the next property-inspection step.",
+      linkedTo: "Inspection evidence"
+    },
+    review: {
+      requestType: "Property file review",
+      eventTitle: "Property file review requested",
+      eventBody: "CMP recorded a request for a human review of the property file, evidence gaps and recommended next actions.",
+      linkedTo: "Property file review"
+    },
+    bundle: {
+      requestType: "Compliance bundle support",
+      eventTitle: "Compliance bundle support requested",
+      eventBody: "CMP recorded a request to package the most useful support items for this property.",
+      linkedTo: "Service bundle"
+    },
+    licensing: {
+      requestType: "Licensing review support",
+      eventTitle: "Licensing review support requested",
+      eventBody: "CMP recorded a request to review the local licensing position for this property.",
+      linkedTo: "Local licensing"
+    },
+    tenancy: {
+      requestType: "Tenancy document review",
+      eventTitle: "Tenancy document review requested",
+      eventBody: "CMP recorded a request to review tenancy document readiness for this property.",
+      linkedTo: "Tenancy documents"
+    },
+    moveIn: {
+      requestType: "Move-in readiness pack",
+      eventTitle: "Move-in readiness pack requested",
+      eventBody: "CMP recorded a request to prepare move-in readiness support for this property.",
+      linkedTo: "Move-in readiness"
+    }
+  };
+
+  return configs[type] || configs[recommendedServiceType()];
+}
+
+function openSupportRequestForType(type = recommendedServiceType()) {
+  const requestType = serviceRequestConfig(type).requestType;
+  return labsState.serviceRequests.find((request) => request.type === requestType && request.status !== "Cancelled");
+}
+
+function serviceBundleItems() {
+  return labsState.eicrAdded
+    ? ["Inspection evidence", "Local licensing review", "Tenancy document checklist", "Human file review"]
+    : ["EICR support", "Inspection evidence", "Local licensing review", "Tenancy document checklist"];
+}
+
 function globalServiceCards() {
+  const eicrRequest = openSupportRequestForType("eicr");
+  const inspectionRequest = openSupportRequestForType("inspection");
+  const reviewRequest = openSupportRequestForType("review");
+  const bundleRequest = openSupportRequestForType("bundle");
+  const licensingRequest = openSupportRequestForType("licensing");
+  const tenancyRequest = openSupportRequestForType("tenancy");
+
   return [
     {
       title: "EICR",
       body: labsState.eicrAdded ? "Electrical Safety evidence is already verified for 57 The Butts." : "Arrange or upload Electrical Safety evidence for 57 The Butts.",
-      status: labsState.eicrAdded ? "Recorded" : "Recommended",
+      status: labsState.eicrAdded ? "Verified / uploaded" : eicrRequest ? "Request open" : "Recommended",
       statusClass: labsState.eicrAdded ? "status-good-text" : "status-review-text",
-      action: labsState.eicrAdded ? "viewEicr" : "support",
-      button: labsState.eicrAdded ? "View evidence" : "Request EICR support"
+      why: "It is core evidence before CMP can treat Electrical Safety as recorded.",
+      primaryAction: labsState.eicrAdded ? "viewEicr" : eicrRequest ? "openRequests" : "request:eicr",
+      primaryLabel: labsState.eicrAdded ? "View evidence" : eicrRequest ? "View open request" : "Request EICR support",
+      secondaryAction: labsState.eicrAdded ? null : "uploadEicr",
+      secondaryLabel: labsState.eicrAdded ? "" : "Upload existing EICR"
     },
     {
       title: "Gas Safety",
       body: "Gas Safety evidence is already verified and stored in the property file.",
       status: "Verified",
       statusClass: "status-good-text",
-      action: "viewEvidence",
-      button: "View evidence"
+      why: "It keeps the property file ready for renewal tracking and tenant-facing evidence.",
+      primaryAction: "viewEvidence",
+      primaryLabel: "View evidence",
+      secondaryAction: "askGas",
+      secondaryLabel: "Ask CMP why"
     },
     {
       title: "EPC",
       body: "CMP has matched an EPC official record to this property.",
       status: "Confirmed",
       statusClass: "status-good-text",
-      action: "viewEvidence",
-      button: "View record"
+      why: "It helps CMP understand the property and keeps the record tied to the address.",
+      primaryAction: "viewEvidence",
+      primaryLabel: "View record",
+      secondaryAction: "askEpc",
+      secondaryLabel: "Ask CMP why"
     },
     {
       title: "Property inspection",
-      body: "Inspection evidence is useful for keeping the property file current.",
-      status: labsState.eicrAdded ? "Next useful" : "Follow-up",
-      statusClass: "status-watch-text",
-      action: labsState.eicrAdded ? "support" : "uploadInspection",
-      button: labsState.eicrAdded ? "Request inspection support" : "Upload later"
+      body: "Add or arrange a recent inspection record to keep the property file current.",
+      status: inspectionRequest ? "Request open" : labsState.eicrAdded ? "Recommended" : "Follow-up",
+      statusClass: labsState.eicrAdded ? "status-review-text" : "status-watch-text",
+      why: "Inspection evidence explains what was checked and what needs follow-up.",
+      primaryAction: inspectionRequest ? "openRequests" : "request:inspection",
+      primaryLabel: inspectionRequest ? "View open request" : "Request inspection support",
+      secondaryAction: "uploadInspection",
+      secondaryLabel: "Upload inspection evidence"
     },
     {
       title: "Licensing review",
       body: "Review local rules and property setup before treating licensing as confirmed.",
-      status: "Checking",
+      status: licensingRequest ? "Request open" : "Worth reviewing",
       statusClass: "status-watch-text",
-      action: "licensing",
-      button: "Review licensing"
+      why: "Local licensing can depend on council area, occupancy and property setup.",
+      primaryAction: licensingRequest ? "openRequests" : "request:licensing",
+      primaryLabel: licensingRequest ? "View open request" : "Request review",
+      secondaryAction: "licensing",
+      secondaryLabel: "Open Compliance Centre"
     },
     {
       title: "Tenancy document review",
-      body: "A future CMP workflow could help organise tenancy paperwork before move-in.",
-      status: "Preview",
-      statusClass: "status-neutral-text",
-      action: "tenancy",
-      button: "Preview"
+      body: "Check tenancy paperwork, tenant-facing evidence and useful move-in documents.",
+      status: tenancyRequest ? "Request open" : "Useful before letting",
+      statusClass: tenancyRequest ? "status-watch-text" : "status-neutral-text",
+      why: "It reduces repeated admin before advertising or move-in.",
+      primaryAction: tenancyRequest ? "openRequests" : "request:tenancy",
+      primaryLabel: tenancyRequest ? "View open request" : "Request review",
+      secondaryAction: "askTenancy",
+      secondaryLabel: "Ask CMP what to include"
+    },
+    {
+      title: "Full property compliance review",
+      body: "A human review of the property file, evidence gaps and next recommended actions.",
+      status: reviewRequest ? "Request open" : "Optional reassurance",
+      statusClass: reviewRequest ? "status-watch-text" : "status-neutral-text",
+      why: "It is useful when you want extra confidence before making decisions.",
+      primaryAction: reviewRequest ? "openRequests" : "request:review",
+      primaryLabel: reviewRequest ? "View open request" : "Request review",
+      secondaryAction: "askReview",
+      secondaryLabel: "What will be reviewed?"
+    },
+    {
+      title: "Move-in readiness pack",
+      body: "Prepare certificates, alarm checks, tenancy documents and inspection evidence before a new tenancy.",
+      status: bundleRequest ? "Request open" : "Useful before letting",
+      statusClass: bundleRequest ? "status-watch-text" : "status-neutral-text",
+      why: "It groups the practical items landlords usually need before move-in.",
+      primaryAction: bundleRequest ? "openRequests" : "previewBundle",
+      primaryLabel: bundleRequest ? "View open request" : "Preview pack",
+      secondaryAction: "askBundle",
+      secondaryLabel: "Ask CMP what to include"
     }
   ];
 }
@@ -2459,33 +2598,43 @@ function renderGlobalServiceState() {
     return;
   }
 
+  const recommendationType = recommendedServiceType();
+  const existingRecommendationRequest = openSupportRequestForType(recommendationType);
+
   title.textContent = labsState.eicrAdded ? "Arrange or record a property inspection" : "Arrange an EICR";
   document.querySelector("[data-global-service-body]").textContent = labsState.eicrAdded
-    ? "Core certificates are now recorded. A recent inspection record is the next useful evidence item."
-    : "Electrical Safety evidence is currently missing for 57 The Butts.";
-  document.querySelector("[data-global-service-actions]").innerHTML = labsState.eicrAdded
-    ? `
-      <button class="primary-button" type="button" data-global-service-action="support">Request inspection support</button>
-      <button class="secondary-button" type="button" data-global-service-action="uploadInspection">Upload inspection evidence</button>
-      <button class="text-button" type="button" data-global-service-action="ask">Ask CMP why</button>
-    `
-    : `
-      <button class="primary-button" type="button" data-global-service-action="support">Request EICR support</button>
-      <button class="secondary-button" type="button" data-global-service-action="uploadEicr">Upload existing EICR</button>
-      <button class="text-button" type="button" data-global-service-action="ask">Ask CMP why</button>
-    `;
+    ? "Core certificates are now recorded. The next useful evidence item is a recent property inspection record."
+    : "Electrical Safety is the clearest missing evidence area for 57 The Butts. CMP can help you upload an existing report or request support arranging one.";
+
+  const primaryLabel = existingRecommendationRequest
+    ? "View open request"
+    : labsState.eicrAdded ? "Request inspection support" : "Request EICR support";
+  const primaryAction = existingRecommendationRequest ? "openRequests" : "support";
+  const secondaryAction = labsState.eicrAdded ? "uploadInspection" : "uploadEicr";
+  const secondaryLabel = labsState.eicrAdded ? "Upload inspection evidence" : "Upload existing EICR";
+
+  document.querySelector("[data-global-service-actions]").innerHTML = `
+    <button class="primary-button" type="button" data-global-service-action="${primaryAction}">${primaryLabel}</button>
+    <button class="secondary-button" type="button" data-global-service-action="${secondaryAction}">${secondaryLabel}</button>
+    <button class="text-button" type="button" data-global-service-action="ask">Ask CMP why</button>
+  `;
 
   const cardGrid = document.querySelector("[data-global-service-cards]");
   if (cardGrid) {
     cardGrid.innerHTML = globalServiceCards().map((card) => `
-      <article class="service-option-preview">
+      <article class="service-option-preview commercial-service-card">
         <div class="service-card-top">
           <h3>${escapeHtml(card.title)}</h3>
           <span class="doc-status ${card.statusClass}">${escapeHtml(card.status)}</span>
         </div>
         <p>${escapeHtml(card.body)}</p>
+        <div class="commercial-service-why">
+          <strong>Why it matters</strong>
+          <span>${escapeHtml(card.why)}</span>
+        </div>
         <div class="button-row">
-          <button class="${card.action === "support" ? "primary-button" : "secondary-button"}" type="button" data-global-service-action="${escapeHtml(card.action)}">${escapeHtml(card.button)}</button>
+          <button class="primary-button" type="button" data-global-service-action="${escapeHtml(card.primaryAction)}">${escapeHtml(card.primaryLabel)}</button>
+          ${card.secondaryAction ? `<button class="text-button" type="button" data-global-service-action="${escapeHtml(card.secondaryAction)}">${escapeHtml(card.secondaryLabel)}</button>` : ""}
         </div>
       </article>
     `).join("");
@@ -2498,9 +2647,20 @@ function renderGlobalServiceState() {
     list.innerHTML = requests.length
       ? requests.map((request) => `
         <article class="global-request-card">
-          <strong>${escapeHtml(request.type)}</strong>
-          <span class="doc-status status-watch-text">${escapeHtml(request.status)}</span>
-          <p>${escapeHtml(request.linkedTo)} · 57 The Butts · ${escapeHtml(request.created)}</p>
+          <div class="request-card-top">
+            <strong>${escapeHtml(request.type)}</strong>
+            <span class="doc-status status-watch-text">${escapeHtml(request.status)}</span>
+          </div>
+          <dl>
+            <div><dt>Property</dt><dd>57 The Butts · CV1 3BJ</dd></div>
+            <div><dt>Created</dt><dd>${escapeHtml(request.created)}</dd></div>
+            <div><dt>Next step</dt><dd>CMP review</dd></div>
+            <div><dt>Linked to</dt><dd>${escapeHtml(request.linkedTo)}</dd></div>
+          </dl>
+          <div class="button-row">
+            <button class="text-button" type="button" data-global-service-action="openRequests">View request</button>
+            <button class="text-button" type="button" data-cancel-request="${escapeHtml(request.id)}">Cancel request</button>
+          </div>
         </article>
       `).join("")
       : "<p>No open support requests.</p>";
@@ -3331,7 +3491,59 @@ function bindDemoState() {
 }
 
 function openAddPropertyModal() {
+  labsState.addPropertyStep = 1;
+  labsState.addPropertyAddress = addPropertyAddresses[0];
+  renderAddPropertyState();
+  setAssistantResponse("CMP would start with the property address, then import official records where available before building the workspace.");
   openTimelineModal("[data-add-property-modal]");
+}
+
+function renderAddPropertyState() {
+  document.querySelectorAll("[data-add-step-indicator]").forEach((item) => {
+    const step = Number(item.dataset.addStepIndicator);
+    item.classList.toggle("is-active", step === labsState.addPropertyStep);
+    item.classList.toggle("is-complete", step < labsState.addPropertyStep);
+  });
+
+  document.querySelectorAll("[data-add-property-step]").forEach((panel) => {
+    panel.hidden = Number(panel.dataset.addPropertyStep) !== labsState.addPropertyStep;
+  });
+
+  const successPanel = document.querySelector("[data-add-property-success-panel]");
+  if (successPanel) {
+    successPanel.hidden = labsState.addPropertyStep !== 4;
+  }
+
+  const list = document.querySelector("[data-add-address-list]");
+  if (list) {
+    list.innerHTML = addPropertyAddresses.map((address, index) => `
+      <label class="address-choice${address === labsState.addPropertyAddress ? " is-selected" : ""}">
+        <input type="radio" name="add-property-address" value="${escapeHtml(address)}" ${address === labsState.addPropertyAddress ? "checked" : ""}>
+        <span>${escapeHtml(address)}</span>
+        <small>${index === 1 ? "Existing demo workspace address" : "Matched address preview"}</small>
+      </label>
+    `).join("");
+  }
+
+  const selected = document.querySelector("[data-add-selected-address]");
+  if (selected) {
+    selected.textContent = labsState.addPropertyAddress;
+  }
+}
+
+function openBundlePreviewModal() {
+  const list = document.querySelector("[data-bundle-items]");
+  if (list) {
+    list.innerHTML = serviceBundleItems().map((item) => `
+      <article class="bundle-item">
+        <span class="tile-icon" data-icon="check"></span>
+        <strong>${escapeHtml(item)}</strong>
+      </article>
+    `).join("");
+  }
+
+  openTimelineModal("[data-bundle-modal]");
+  hydrateIcons();
 }
 
 function openLearnGuide(index) {
@@ -3347,12 +3559,21 @@ function openLearnGuide(index) {
 }
 
 function handleGlobalServiceAction(action) {
-  if (action === "support") {
-    openServiceRequestModal();
+  if (action.startsWith("request:")) {
+    openServiceRequestModal(action.replace("request:", ""));
+  } else if (action === "support") {
+    openServiceRequestModal(recommendedServiceType());
+  } else if (action === "openRequests") {
+    scrollToPanel("[data-global-open-requests-panel]");
   } else if (action === "uploadEicr" || action === "viewEicr") {
     openPropertyWorkspace("documents", action === "viewEicr" ? "[data-vault-list]" : "[data-document-upload-panel]");
-  } else if (action === "uploadInspection") {
-    showToast("Inspection evidence upload will be connected in a later Labs pass.");
+  } else if (action === "uploadInspection" || action === "uploadRecommended") {
+    if (labsState.eicrAdded || action === "uploadInspection") {
+      showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
+    } else {
+      openPropertyWorkspace("documents", "[data-document-upload-panel]");
+      window.setTimeout(() => document.querySelector("[data-file-input]")?.click(), 180);
+    }
   } else if (action === "licensing") {
     showPortfolioCompliance({ scroll: true });
   } else if (action === "ask") {
@@ -3360,8 +3581,26 @@ function handleGlobalServiceAction(action) {
     focusAssistantInput();
   } else if (action === "viewEvidence") {
     showPortfolioEvidence({ scroll: true });
-  } else if (action === "tenancy") {
-    showToast("Tenancy document review is a preview support option in CMP Labs.");
+  } else if (action === "previewBundle") {
+    openBundlePreviewModal();
+  } else if (action === "callback") {
+    document.querySelector("[data-callback-phone]").value = "";
+    document.querySelector("[data-callback-time]").value = "";
+    document.querySelector("[data-callback-help]").value = "";
+    openTimelineModal("[data-callback-modal]");
+  } else if (action === "askBundle") {
+    openAssistant(labsState.eicrAdded
+      ? "CMP would include inspection evidence, local licensing review, tenancy document readiness and a human file review."
+      : "CMP would include EICR support first, then inspection evidence, local licensing review and a tenancy document checklist.");
+    focusAssistantInput();
+  } else if (action === "askGas") {
+    openAssistant("Gas Safety evidence is already verified. CMP keeps it tied to the property so renewal tracking and evidence sharing stay organised.");
+  } else if (action === "askEpc") {
+    openAssistant("CMP uses the EPC match to anchor the property record and prepare useful checks around the address.");
+  } else if (action === "askTenancy") {
+    openAssistant("CMP would include tenancy agreement readiness, prescribed information, useful certificates and any evidence needed before move-in.");
+  } else if (action === "askReview") {
+    openAssistant("A property-file review would look at stored evidence, unresolved gaps, useful next actions and whether anything should be checked before letting.");
   }
 }
 
@@ -3390,12 +3629,51 @@ function bindUtilityPages() {
     }
   });
 
-  document.querySelectorAll("[data-add-property-close], [data-learn-preview-close]").forEach((button) => {
+  document.querySelectorAll("[data-add-property-close], [data-learn-preview-close], [data-bundle-close]").forEach((button) => {
     button.addEventListener("click", closeTimelineModals);
   });
 
-  document.querySelector("[data-add-property-preview]")?.addEventListener("click", () => {
-    showToast("Add-property onboarding will be connected in a later CMP Labs pass.");
+  document.addEventListener("change", (event) => {
+    const addressInput = event.target.closest('input[name="add-property-address"]');
+    if (addressInput) {
+      labsState.addPropertyAddress = addressInput.value;
+      renderAddPropertyState();
+    }
+  });
+
+  document.addEventListener("click", (event) => {
+    const addNext = event.target.closest("[data-add-property-next]");
+    if (addNext) {
+      labsState.addPropertyStep = Number(addNext.dataset.addPropertyNext);
+      renderAddPropertyState();
+    }
+
+    const addBack = event.target.closest("[data-add-property-back]");
+    if (addBack) {
+      labsState.addPropertyStep = Number(addBack.dataset.addPropertyBack);
+      renderAddPropertyState();
+    }
+
+    if (event.target.closest("[data-add-property-success]")) {
+      labsState.addPropertyStep = 4;
+      renderAddPropertyState();
+      showToast("Prototype preview only — no new property has been saved.");
+    }
+
+    if (event.target.closest("[data-add-property-open-demo]")) {
+      closeTimelineModals();
+      openPropertyWorkspace("overview");
+    }
+
+    if (event.target.closest("[data-add-property-later]")) {
+      closeTimelineModals();
+      showToast("Prototype preview only — no new property has been saved.");
+    }
+
+    if (event.target.closest("[data-bundle-request]")) {
+      closeTimelineModals();
+      openServiceRequestModal("bundle");
+    }
   });
 
   document.querySelectorAll("[data-settings-toggle]").forEach((button) => {
@@ -3625,8 +3903,7 @@ function serviceCopy() {
 }
 
 function currentServiceRequest() {
-  const type = serviceCopy().requestType;
-  return labsState.serviceRequests.find((request) => request.type === type && request.status !== "Cancelled");
+  return openSupportRequestForType(serviceMode());
 }
 
 function renderChoiceList(container, options, name) {
@@ -3673,7 +3950,9 @@ function renderServicesState() {
     return;
   }
 
-  if (!labsState.serviceRequests.length) {
+  const activeRequests = labsState.serviceRequests.filter((request) => request.status !== "Cancelled");
+
+  if (!activeRequests.length) {
     if (empty) {
       empty.hidden = false;
     }
@@ -3691,41 +3970,49 @@ function renderServicesState() {
     note.hidden = true;
   }
 
-  list.innerHTML = labsState.serviceRequests.map((request) => `
-    <article class="request-card${request.status === "Cancelled" ? " is-cancelled" : ""}" data-request-id="${request.id}">
+  list.innerHTML = activeRequests.map((request) => `
+    <article class="request-card" data-request-id="${request.id}">
       <div class="request-card-top">
         <h3>${escapeHtml(request.type)}</h3>
-        <span class="doc-status ${request.status === "Cancelled" ? "status-neutral-text" : "status-watch-text"}">${escapeHtml(request.status)}</span>
+        <span class="doc-status status-watch-text">${escapeHtml(request.status)}</span>
       </div>
       <dl>
+        <div><dt>Property</dt><dd>57 The Butts · CV1 3BJ</dd></div>
         <div><dt>Created</dt><dd>${escapeHtml(request.created)}</dd></div>
+        <div><dt>Next step</dt><dd>CMP review</dd></div>
         <div><dt>Linked to</dt><dd>${escapeHtml(request.linkedTo)}</dd></div>
-        <div><dt>Property</dt><dd>57 The Butts</dd></div>
       </dl>
       <div class="button-row">
         <button class="text-button" type="button" data-toast="Request detail is static in this Labs prototype.">View request</button>
-        <button class="text-button" type="button" data-toast="Request-note controls will be designed in a later Labs pass.">Add a note</button>
-        <button class="text-button" type="button" data-cancel-request="${request.id}" ${request.status === "Cancelled" ? "disabled" : ""}>Cancel request</button>
+        <button class="text-button" type="button" data-cancel-request="${request.id}">Cancel request</button>
       </div>
     </article>
   `).join("");
 }
 
-function openServiceRequestModal() {
-  const copy = serviceCopy();
-  const existingRequest = currentServiceRequest();
+function openServiceRequestModal(type = recommendedServiceType()) {
+  const copy = serviceRequestConfig(type);
+  const existingRequest = openSupportRequestForType(type);
 
   if (existingRequest) {
-    scrollToPanel("[data-open-requests-panel]");
-    showToast(`${existingRequest.type} is already recorded for this property.`);
+    closeTimelineModals();
+    if (labsState.currentView === "bookService") {
+      scrollToPanel("[data-global-open-requests-panel]");
+    } else {
+      scrollToPanel("[data-open-requests-panel]");
+    }
+    showToast("A support request for this item is already open.");
     return;
   }
 
-  document.querySelector("[data-service-modal-title]").textContent = copy.requestTitle;
+  labsState.pendingServiceRequestType = type;
+  document.querySelector("[data-service-modal-title]").textContent = "Request support";
+  document.querySelector("[data-service-selected-type]").textContent = copy.requestType;
   document.querySelector("[data-service-note]").value = "";
   document.querySelector("[data-service-form]").hidden = false;
   document.querySelector("[data-service-success]").hidden = true;
-  renderChoiceList(document.querySelector("[data-service-options]"), copy.options, "service-option");
+  renderChoiceList(document.querySelector("[data-service-contact-options]"), ["Email", "Phone", "Either"], "service-contact");
+  renderChoiceList(document.querySelector("[data-service-urgency-options]"), ["This week", "This month", "Not urgent"], "service-urgency");
   openTimelineModal("[data-service-modal]");
 }
 
@@ -3750,23 +4037,33 @@ function addServiceTimelineEvent(event) {
 }
 
 function createSupportRequest() {
-  const copy = serviceCopy();
-  const existingRequest = currentServiceRequest();
+  const copy = serviceRequestConfig(labsState.pendingServiceRequestType);
+  const existingRequest = openSupportRequestForType(labsState.pendingServiceRequestType);
 
   if (existingRequest) {
     closeTimelineModals();
-    scrollToPanel("[data-open-requests-panel]");
-    showToast(`${existingRequest.type} is already recorded for this property.`);
+    if (labsState.currentView === "bookService") {
+      scrollToPanel("[data-global-open-requests-panel]");
+    } else {
+      scrollToPanel("[data-open-requests-panel]");
+    }
+    showToast("A support request for this item is already open.");
     return;
   }
 
+  const contact = document.querySelector('input[name="service-contact"]:checked')?.value || "Email";
+  const urgency = document.querySelector('input[name="service-urgency"]:checked')?.value || "This month";
+  const note = document.querySelector("[data-service-note]")?.value.trim() || "No note added.";
   const id = `request-${Date.now()}`;
   const request = {
     id,
     type: copy.requestType,
     status: "Awaiting review",
-    created: "just now",
-    linkedTo: copy.linkedTo
+    created: "Just now",
+    linkedTo: copy.linkedTo,
+    contact,
+    urgency,
+    note
   };
 
   labsState.serviceRequests.unshift(request);
@@ -3783,9 +4080,11 @@ function createSupportRequest() {
         ["Property", "57 The Butts"],
         ["Request type", copy.requestType],
         ["Status", "Awaiting review"],
-        ["Created", "Just now"]
+        ["Created", "Just now"],
+        ["Preferred contact", contact],
+        ["Urgency", urgency]
       ],
-      note: "Prototype support request for layout testing."
+      note
     }
   });
   renderAllState();
@@ -3936,7 +4235,7 @@ function bindServices() {
 
     if (event.target.closest("[data-view-request]")) {
       closeTimelineModals();
-      scrollToPanel("[data-open-requests-panel]");
+      scrollToPanel(labsState.currentView === "bookService" ? "[data-global-open-requests-panel]" : "[data-open-requests-panel]");
     }
 
     const cancelButton = event.target.closest("[data-cancel-request]");
@@ -4755,6 +5054,7 @@ function closeTimelineModals() {
     "[data-activity-summary-modal]",
     "[data-demo-state-modal]",
     "[data-add-property-modal]",
+    "[data-bundle-modal]",
     "[data-learn-preview-modal]",
     "[data-basics-modal]",
     "[data-optional-modal]",
