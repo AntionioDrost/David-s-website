@@ -81,6 +81,8 @@ const labsState = {
   activeCheckerSection: "property-basics",
   editingCheckerCard: "",
   checkerAnswers: {},
+  checkerScoreBoosts: {},
+  scorePulse: null,
   selectedServicePropertyId: "all",
   pendingServiceRequestType: "eicr",
   pendingServicePropertyId: "the-butts",
@@ -464,15 +466,15 @@ function averageScore(properties, key) {
     return 0;
   }
 
-  return Math.round(properties.reduce((sum, property) => sum + Number(property[key] || property.strength || 0), 0) / properties.length);
+  return Math.round(properties.reduce((sum, property) => sum + effectivePropertyScore(property, key), 0) / properties.length);
 }
 
 function portfolioComplianceScore() {
-  return averageScore(getPortfolioProperties(), "complianceScore");
+  return clampScore(averageScore(getPortfolioProperties(), "complianceScore") + checkerScoreBoost("portfolio").compliance);
 }
 
 function portfolioEvidenceScore() {
-  return averageScore(getPortfolioProperties(), "evidenceScore");
+  return clampScore(averageScore(getPortfolioProperties(), "evidenceScore") + checkerScoreBoost("portfolio").evidence);
 }
 
 function portfolioEvidenceGapCount() {
@@ -484,7 +486,30 @@ function portfolioUrgentActionCount() {
 }
 
 function fullyCompliantProperties() {
-  return getPortfolioProperties().filter((property) => property.complianceScore === 100 && property.evidenceScore === 100);
+  return getPortfolioProperties().filter((property) => effectivePropertyScore(property, "complianceScore") === 100 && effectivePropertyScore(property, "evidenceScore") === 100);
+}
+
+function clampScore(value) {
+  return Math.min(100, Math.max(0, Math.round(Number(value) || 0)));
+}
+
+function checkerScoreBoost(scope = checkerScopeKey()) {
+  return labsState.checkerScoreBoosts[scope] || { compliance: 0, evidence: 0 };
+}
+
+function effectivePropertyScore(property, key) {
+  const base = Number(property[key] || property.strength || 0);
+  const boost = checkerScoreBoost(property.id);
+  const lift = key === "evidenceScore" ? boost.evidence : boost.compliance;
+  return clampScore(base + lift);
+}
+
+function effectiveComplianceScore(property) {
+  return effectivePropertyScore(property, "complianceScore");
+}
+
+function effectiveEvidenceScore(property) {
+  return effectivePropertyScore(property, "evidenceScore");
 }
 
 function scoreClass(score) {
@@ -1188,6 +1213,8 @@ function resetDemoState() {
   labsState.activeCheckerSection = "property-basics";
   labsState.editingCheckerCard = "";
   labsState.checkerAnswers = {};
+  labsState.checkerScoreBoosts = {};
+  labsState.scorePulse = null;
   labsState.selectedServicePropertyId = "the-butts";
   labsState.pendingServiceRequestType = "eicr";
   labsState.pendingServicePropertyId = "the-butts";
@@ -1810,7 +1837,8 @@ const portfolioBodyClasses = [
   "portfolio-evidence-active",
   "portfolio-tasks-active",
   "portfolio-activity-active",
-  "portfolio-utility-active"
+  "portfolio-utility-active",
+  "checker-is-active"
 ];
 
 const portfolioPageSelectors = [
@@ -1859,6 +1887,9 @@ function activatePortfolioPage({ selector, view, navLabel, bodyClass, response, 
   labsState.currentView = view;
   document.body.classList.remove(...portfolioBodyClasses, "menu-open");
   document.body.classList.add(bodyClass || "portfolio-utility-active");
+  if (bodyClass === "portfolio-compliance-active") {
+    document.body.classList.add("checker-is-active");
+  }
   hidePortfolioPages();
   page.hidden = false;
   hidePropertyPanelsAndTabs();
@@ -1870,6 +1901,10 @@ function activatePortfolioPage({ selector, view, navLabel, bodyClass, response, 
   if (scroll) {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+}
+
+function setCheckerActive() {
+  document.body.classList.add("checker-is-active");
 }
 
 function focusAssistantInput() {
@@ -2716,35 +2751,35 @@ const azSections = [
     title: "Property basics",
     icon: "home",
     completion: 36,
-    description: "Confirm the property setup, journey context and core facts CMP uses to decide what applies."
+    description: "Start with the core property facts. CMP uses these to decide which checks apply."
   },
   {
     id: "epc",
     title: "EPC",
     icon: "energy",
     completion: 36,
-    description: "Review rating, expiry, reference and whether evidence has been pulled from records or uploaded."
+    description: "CMP checks the EPC rating, expiry date and whether the certificate is stored."
   },
   {
     id: "gas-safety",
     title: "Gas Safety",
     icon: "flame",
     completion: 98,
-    description: "Check whether gas appliances apply, certificate dates, tenant service and certificate evidence."
+    description: "Tell CMP whether gas applies, when the certificate was issued and whether evidence is stored."
   },
   {
     id: "electrical-safety",
     title: "Electrical Safety",
     icon: "bolt",
     completion: 36,
-    description: "Track EICR status, issue date, tenant service and missing electrical evidence."
+    description: "Track the current EICR, its result and any missing tenant evidence."
   },
   {
     id: "alarms",
     title: "Alarms",
     icon: "bell",
     completion: 98,
-    description: "Record smoke and carbon monoxide alarm answers, tenancy-start tests and supporting photos."
+    description: "Confirm the alarm checks that apply. Unknown answers stay neutral until confirmed."
   },
   {
     id: "tenancy-deposit",
@@ -2772,7 +2807,7 @@ const azSections = [
     title: "Evidence pack",
     icon: "vault",
     completion: 98,
-    description: "Bring certificate and document gaps into one evidence pack view."
+    description: "Upload documents once. CMP turns them into property evidence and highlights gaps."
   },
   {
     id: "possession-prep",
@@ -2793,7 +2828,7 @@ const azSections = [
     title: "Summary",
     icon: "check",
     completion: 98,
-    description: "Review completed checks, unanswered items, missing proof, renewals and next actions."
+    description: "Review what is complete, what is missing and what CMP recommends next."
   }
 ];
 
@@ -2806,10 +2841,12 @@ function azStatusForProperty(property) {
   if (!getPortfolioProperties().length) {
     return "Setup needed";
   }
-  if (property.complianceScore === 100 && property.evidenceScore === 100) {
+  const compliance = effectiveComplianceScore(property);
+  const evidence = effectiveEvidenceScore(property);
+  if (compliance === 100 && evidence === 100) {
     return "Ready";
   }
-  if (property.complianceScore < 55 || property.evidenceScore < 45) {
+  if (compliance < 55 || evidence < 45) {
     return "Blocked";
   }
   return "Needs review";
@@ -2879,6 +2916,95 @@ function checkerAnswer(sectionId, cardId, fallback) {
 
 function setCheckerAnswer(sectionId, cardId, value, scope = checkerScopeKey()) {
   labsState.checkerAnswers[checkerAnswerKey(sectionId, cardId, scope)] = value;
+}
+
+function azCardById(sectionId, cardId) {
+  return azCardsForSection(sectionId, azSelectedProperty()).find((card) => card.id === cardId);
+}
+
+function parseLeadingNumber(value, fallback = 0) {
+  const match = String(value || "").match(/\d+/);
+  return match ? Number(match[0]) : fallback;
+}
+
+function formatAzRangeValue(card, value) {
+  const numberValue = Number(value);
+  if (card.id === "bedrooms") {
+    if (numberValue === 0) {
+      return "Not set yet";
+    }
+    return `${numberValue} ${numberValue === 1 ? "bedroom" : "bedrooms"}`;
+  }
+  if (card.id === "storeys") {
+    return `${numberValue} ${numberValue === 1 ? "floor" : "floors"}`;
+  }
+  return `${numberValue}${card.suffix || ""}`;
+}
+
+function azRangeInitialValue(card, currentValue) {
+  const fallback = card.id === "storeys" ? 1 : 0;
+  return Math.min(card.max || 10, Math.max(card.min || 0, parseLeadingNumber(currentValue, fallback)));
+}
+
+function azInputSafeDate(value) {
+  return /^\d{4}-\d{2}-\d{2}$/.test(String(value || "")) ? value : "";
+}
+
+function azSelectInitialValue(card, currentValue) {
+  return (card.options || []).includes(currentValue) ? currentValue : card.value;
+}
+
+function scoreDeltaForCard(card) {
+  const evidenceHeavy = card.control === "upload" || /evidence|upload|certificate|document|proof/i.test(`${card.eyebrow} ${card.label}`);
+  if (evidenceHeavy) {
+    return { compliance: 1, evidence: 4 };
+  }
+  if (card.control === "range" || card.control === "select" || card.sectionId === "property-basics") {
+    return { compliance: 3, evidence: 1 };
+  }
+  return { compliance: 2, evidence: 1 };
+}
+
+function recordCheckerAnswer(sectionId, cardId, value) {
+  const card = azCardById(sectionId, cardId) || { control: "choice", sectionId, id: cardId };
+  const scope = checkerScopeKey();
+  const previousValue = checkerAnswer(sectionId, cardId, card.value);
+  setCheckerAnswer(sectionId, cardId, value, scope);
+
+  if (sectionId === "property-basics" && cardId === "journey") {
+    const scenarioEntry = Object.entries(azScenarioLabels).find(([, label]) => label === value);
+    if (scenarioEntry) {
+      labsState.azScenario = scenarioEntry[0];
+    }
+  }
+
+  if (value !== previousValue) {
+    const delta = scoreDeltaForCard(card);
+    const current = checkerScoreBoost(scope);
+    labsState.checkerScoreBoosts[scope] = {
+      compliance: Math.min(100, current.compliance + delta.compliance),
+      evidence: Math.min(100, current.evidence + delta.evidence)
+    };
+    labsState.scorePulse = { scope, compliance: delta.compliance, evidence: delta.evidence };
+  }
+
+  labsState.editingCheckerCard = "";
+}
+
+function syncScenarioJourneyAnswer() {
+  const property = azSelectedProperty();
+  if (!property) {
+    return;
+  }
+  setCheckerAnswer("property-basics", "journey", azScenarioLabels[labsState.azScenario], property.id);
+}
+
+function clearCheckerPulseSoon() {
+  window.setTimeout(() => {
+    labsState.scorePulse = null;
+    renderGlobalScoreSurfaces();
+    renderAzChecker();
+  }, 1800);
 }
 
 function propertyCheckerFacts(property) {
@@ -3038,7 +3164,7 @@ function azCard(sectionId, card) {
     sectionId,
     action: "Edit",
     control: "choice",
-    helper: "Prototype answer only. You can change it later.",
+    helper: "Choose the closest answer. If you do not know, choose Not sure rather than guessing.",
     options: ["Yes", "No", "Not sure", "N/A"],
     ...card
   };
@@ -3142,7 +3268,7 @@ function renderAzPropertySelector(properties) {
       <select data-az-property-select>
         ${properties.map((property) => `
           <option value="${escapeHtml(property.id)}" ${property.id === azSelectedProperty().id ? "selected" : ""}>
-            ${escapeHtml(property.address)} · ${property.complianceScore}% compliance
+            ${escapeHtml(property.address)} · ${effectiveComplianceScore(property)}% compliance
           </option>
         `).join("")}
       </select>
@@ -3167,7 +3293,7 @@ function renderAzProgressHeader({ property, modeLabel }) {
   const section = activeAzSection();
   const step = activeAzSectionIndex() + 1;
   const completeSections = azSections.filter((item) => item.completion >= 90).length;
-  const remainingAnswers = labsState.azMode === "portfolio" ? 33 : Math.max(6, Math.round((100 - property.complianceScore) / 2));
+  const remainingAnswers = labsState.azMode === "portfolio" ? Math.max(8, 33 - checkerScoreBoost("portfolio").compliance) : Math.max(4, Math.round((100 - effectiveComplianceScore(property)) / 2));
   const progress = Math.round(azSections.reduce((total, item) => total + item.completion, 0) / azSections.length);
 
   return `
@@ -3176,11 +3302,12 @@ function renderAzProgressHeader({ property, modeLabel }) {
         <p class="section-kicker">A-Z Compliance Check</p>
         <h3>Answer what you know. CMP organises the rest.</h3>
         <p>${escapeHtml(modeLabel)} · ${escapeHtml(azScenarioLabels[labsState.azScenario])} · ${escapeHtml(section.title)}</p>
+        <small>Answer what you know now. CMP separates missing answers from missing evidence, and uploaded documents can fill some answers automatically.</small>
       </div>
       <div class="az-progress-panel" aria-label="Checker progress">
         <strong>Step ${step} of ${azSections.length}</strong>
         <span>${completeSections}/11 sections complete</span>
-        <small>${completeSections} of 11 sections recorded so far · ${remainingAnswers} answers can still be double-checked later</small>
+        <small>${completeSections} of 11 sections recorded so far · ${remainingAnswers} answers can still be double-checked later. You can skip anything and come back later.</small>
         <div class="az-progress-track"><span style="width: ${progress}%"></span></div>
       </div>
     </div>
@@ -3211,13 +3338,14 @@ function renderAzScenarioPills() {
   `;
 }
 
-function renderAzEditControl(card) {
+function renderAzEditControl(card, currentValue) {
   if (card.control === "select") {
+    const selectedValue = azSelectInitialValue(card, currentValue);
     return `
       <label class="az-edit-field">
         <span>${escapeHtml(card.label)}</span>
         <select data-az-edit-value>
-          ${(card.options || []).map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join("")}
+          ${(card.options || []).map((option) => `<option value="${escapeHtml(option)}" ${option === selectedValue ? "selected" : ""}>${escapeHtml(option)}</option>`).join("")}
         </select>
       </label>
     `;
@@ -3227,16 +3355,18 @@ function renderAzEditControl(card) {
     return `
       <label class="az-edit-field">
         <span>${escapeHtml(card.label)}</span>
-        <input type="date" data-az-edit-value>
+        <input type="date" value="${escapeHtml(azInputSafeDate(currentValue))}" data-az-edit-value>
       </label>
     `;
   }
 
   if (card.control === "range") {
+    const rangeValue = azRangeInitialValue(card, currentValue);
     return `
       <label class="az-edit-field">
         <span>${escapeHtml(card.label)}</span>
-        <input type="range" min="${card.min || 0}" max="${card.max || 10}" value="${card.min || 1}" data-az-edit-value data-az-edit-suffix="${escapeHtml(card.suffix || "")}">
+        <input type="range" min="${card.min || 0}" max="${card.max || 10}" value="${rangeValue}" data-az-edit-value data-az-range-card="${escapeHtml(card.id)}">
+        <strong class="az-range-live" data-az-live-value>${escapeHtml(formatAzRangeValue(card, rangeValue))}</strong>
       </label>
     `;
   }
@@ -3245,7 +3375,7 @@ function renderAzEditControl(card) {
     return `
       <div class="az-upload-prompt">
         <strong>Upload or link evidence</strong>
-        <span>This is a prototype upload prompt. Existing upload hooks elsewhere in Labs remain unchanged.</span>
+        <span>This simulated upload tells CMP there is more proof to organise. Existing upload hooks elsewhere in Labs remain unchanged.</span>
       </div>
     `;
   }
@@ -3254,7 +3384,7 @@ function renderAzEditControl(card) {
     return `
       <label class="az-edit-field">
         <span>${escapeHtml(card.label)}</span>
-        <textarea rows="3" data-az-edit-value placeholder="Add a short note for CMP to use in the evidence pack"></textarea>
+        <textarea rows="3" data-az-edit-value placeholder="Add a short note for CMP to use in the evidence pack">${currentValue !== card.value ? escapeHtml(currentValue) : ""}</textarea>
       </label>
     `;
   }
@@ -3281,7 +3411,7 @@ function renderAzCard(card) {
           <button type="button" data-az-card-cancel>Cancel</button>
         </div>
         <h4>${escapeHtml(card.label)}</h4>
-        ${renderAzEditControl(card)}
+        ${renderAzEditControl(card, value)}
         <p>${escapeHtml(card.helper || "Record what you know now. CMP can keep unanswered items open for later.")}</p>
         ${card.control === "choice" ? "" : `
           <button class="az-edit-done" type="button" data-az-card-done data-az-section-id="${escapeHtml(card.sectionId)}" data-az-card-id="${escapeHtml(card.id)}">Done</button>
@@ -3329,22 +3459,30 @@ function renderAzSectionNav() {
 
 function renderAzOutputPanel(property) {
   const priorities = scenarioPriorityList(labsState.azScenario, property);
+  const scope = checkerScopeKey();
+  const pulse = labsState.scorePulse?.scope === scope ? labsState.scorePulse : null;
+  const compliance = effectiveComplianceScore(property);
+  const evidence = effectiveEvidenceScore(property);
   return `
     <aside class="az-output-panel">
       <p class="section-kicker">Checker output</p>
       <h3>${escapeHtml(azStatusForProperty(property))}</h3>
+      <p class="az-score-explainer">Compliance is readiness against the checks that apply. Evidence is how much proof CMP currently has stored.</p>
       <div class="score-pair-grid">
-        <article class="score-card ${scoreClass(property.complianceScore)} is-compact">
-          <div><span>Compliance score</span><strong>${property.complianceScore}%</strong></div>
-          <div class="score-meter"><span style="width: ${property.complianceScore}%"></span></div>
-          <small>Readiness against required checks.</small>
+        <article class="score-card ${scoreClass(compliance)} is-compact${pulse?.compliance ? " is-pulsing" : ""}">
+          <div><span>Compliance score</span><strong>${compliance}%</strong></div>
+          <div class="score-meter"><span style="width: ${compliance}%"></span></div>
+          <small>Readiness against the checks that apply.</small>
+          ${pulse?.compliance ? `<em>+${pulse.compliance} readiness</em>` : ""}
         </article>
-        <article class="score-card ${scoreClass(property.evidenceScore)} is-compact">
-          <div><span>Evidence score</span><strong>${property.evidenceScore}%</strong></div>
-          <div class="score-meter"><span style="width: ${property.evidenceScore}%"></span></div>
-          <small>Documents and proof currently stored.</small>
+        <article class="score-card ${scoreClass(evidence)} is-compact${pulse?.evidence ? " is-pulsing" : ""}">
+          <div><span>Evidence score</span><strong>${evidence}%</strong></div>
+          <div class="score-meter"><span style="width: ${evidence}%"></span></div>
+          <small>How much proof CMP currently has stored.</small>
+          ${pulse?.evidence ? `<em>+${pulse.evidence} evidence</em>` : ""}
         </article>
       </div>
+      <p class="az-score-note">A property can still have evidence missing even when some answers are complete.</p>
       <dl>
         <div><dt>Required actions</dt><dd>${escapeHtml(priorities.slice(0, 3).join(", "))}</dd></div>
         <div><dt>Evidence gaps</dt><dd>${property.missingEvidence.length ? escapeHtml(property.missingEvidence.join(", ")) : "None"}</dd></div>
@@ -3389,9 +3527,10 @@ function renderSingleAzCheck(properties) {
 }
 
 function renderPortfolioAzSweep(properties) {
-  const selected = properties.filter((property) => property.complianceScore < 100 || property.evidenceScore < 100);
+  const selected = properties.filter((property) => effectiveComplianceScore(property) < 100 || effectiveEvidenceScore(property) < 100);
   const matrixQuestions = ["Gas", "EICR", "Alarms", "Tenancy docs", "Licensing", "Inspection"];
   const property = azSelectedProperty();
+  const pulse = labsState.scorePulse?.scope === "portfolio" ? labsState.scorePulse : null;
   const sharedCards = [
     azCard("portfolio-shared", { id: "england-wales", eyebrow: "Shared answer", label: "All properties are in England/Wales", value: "Yes", source: "Portfolio setup", action: "Edit", helper: "Apply this answer once instead of repeating it for every property." }),
     azCard("portfolio-shared", { id: "same-process", eyebrow: "Shared answer", label: "Same letting process used", value: "Yes", source: "Landlord process", action: "Edit", helper: "CMP can apply this across the sweep and only ask where property-specific differences appear." }),
@@ -3440,13 +3579,14 @@ function renderPortfolioAzSweep(properties) {
                   <tr>
                     <th>
                       <strong>${escapeHtml(property.address)}</strong>
-                      <span>${escapeHtml(property.complianceScore === 100 ? "Fully compliant" : property.priority)}</span>
+                      <span>${escapeHtml(effectiveComplianceScore(property) === 100 && effectiveEvidenceScore(property) === 100 ? "Fully compliant" : property.priority)}</span>
                     </th>
                     ${matrixQuestions.map((question) => {
                       const lower = question.toLowerCase();
                       const missing = property.missingEvidence.some((gap) => gap.toLowerCase().includes(lower) || (lower === "eicr" && gap.toLowerCase().includes("electrical")));
-                      const answer = property.complianceScore === 100 ? "Yes" : missing ? "No" : property.id === "canal-view" && lower === "licensing" ? "Unsure" : "Yes";
-                      return `<td><button class="az-answer ${answer.toLowerCase()}" type="button" data-az-answer>${answer}</button></td>`;
+                      const fallback = effectiveComplianceScore(property) === 100 && effectiveEvidenceScore(property) === 100 ? "Yes" : missing ? "No" : property.id === "canal-view" && lower === "licensing" ? "Unsure" : "Yes";
+                      const answer = checkerAnswer("portfolio-matrix", `${property.id}-${lower}`, fallback);
+                      return `<td><button class="az-answer ${answer.toLowerCase().replace("/", "a")}" type="button" data-az-answer data-az-section-id="portfolio-matrix" data-az-card-id="${escapeHtml(property.id)}-${escapeHtml(lower)}">${escapeHtml(answer)}</button></td>`;
                     }).join("")}
                   </tr>
                 `).join("")}
@@ -3454,15 +3594,15 @@ function renderPortfolioAzSweep(properties) {
             </table>
           </div>
           <div class="az-results-grid">
-            <article>
+            <article class="${pulse?.compliance ? "is-pulsing" : ""}">
               <span>Portfolio compliance score</span>
               <strong>${portfolioComplianceScore()}%</strong>
-              <p>${fullyCompliantProperties().length} property fully compliant. ${selected.length} properties need review.</p>
+              <p>${fullyCompliantProperties().length} property fully compliant. ${selected.length} properties need review.${pulse?.compliance ? ` +${pulse.compliance} readiness recorded.` : ""}</p>
             </article>
-            <article>
+            <article class="${pulse?.evidence ? "is-pulsing" : ""}">
               <span>Portfolio evidence score</span>
               <strong>${portfolioEvidenceScore()}%</strong>
-              <p>${portfolioEvidenceGapCount()} evidence gaps across the portfolio.</p>
+              <p>${portfolioEvidenceGapCount()} evidence gaps across the portfolio.${pulse?.evidence ? ` +${pulse.evidence} evidence context.` : ""}</p>
             </article>
             <article>
               <span>Top actions</span>
@@ -6332,6 +6472,7 @@ function bindAzChecker() {
   document.addEventListener("click", (event) => {
     const modeButton = event.target.closest("[data-az-mode]");
     if (modeButton) {
+      setCheckerActive();
       labsState.azMode = modeButton.dataset.azMode;
       labsState.editingCheckerCard = "";
       if (labsState.azMode === "portfolio" && getPortfolioProperties().length < 2) {
@@ -6344,6 +6485,7 @@ function bindAzChecker() {
 
     const sectionButton = event.target.closest("[data-az-section]");
     if (sectionButton) {
+      setCheckerActive();
       labsState.activeCheckerSection = sectionButton.dataset.azSection;
       labsState.editingCheckerCard = "";
       renderAzChecker();
@@ -6352,7 +6494,9 @@ function bindAzChecker() {
 
     const scenarioButton = event.target.closest("[data-az-scenario-button]");
     if (scenarioButton) {
+      setCheckerActive();
       labsState.azScenario = scenarioButton.dataset.azScenarioButton;
+      syncScenarioJourneyAnswer();
       labsState.activeCheckerSection = scenarioTargetSection(labsState.azScenario);
       labsState.editingCheckerCard = "";
       renderAzChecker();
@@ -6360,6 +6504,7 @@ function bindAzChecker() {
     }
 
     if (event.target.closest("[data-az-prev]")) {
+      setCheckerActive();
       const index = activeAzSectionIndex();
       if (index > 0) {
         labsState.activeCheckerSection = azSections[index - 1].id;
@@ -6370,6 +6515,7 @@ function bindAzChecker() {
     }
 
     if (event.target.closest("[data-az-next]")) {
+      setCheckerActive();
       const index = activeAzSectionIndex();
       if (index < azSections.length - 1) {
         labsState.activeCheckerSection = azSections[index + 1].id;
@@ -6381,12 +6527,14 @@ function bindAzChecker() {
 
     const editButton = event.target.closest("[data-az-edit-card]");
     if (editButton) {
+      setCheckerActive();
       labsState.editingCheckerCard = `${editButton.dataset.azSectionId}:${editButton.dataset.azEditCard}`;
       renderAzChecker();
       return;
     }
 
     if (event.target.closest("[data-az-card-cancel]")) {
+      setCheckerActive();
       labsState.editingCheckerCard = "";
       renderAzChecker();
       return;
@@ -6394,56 +6542,68 @@ function bindAzChecker() {
 
     const optionButton = event.target.closest("[data-az-card-option]");
     if (optionButton) {
-      setCheckerAnswer(optionButton.dataset.azSectionId, optionButton.dataset.azCardId, optionButton.dataset.azCardOption);
-      labsState.editingCheckerCard = "";
+      setCheckerActive();
+      recordCheckerAnswer(optionButton.dataset.azSectionId, optionButton.dataset.azCardId, optionButton.dataset.azCardOption);
+      renderGlobalScoreSurfaces();
       renderAzChecker();
-      showToast("Answer recorded in this prototype. You can change it later.");
+      showToast("Answer recorded. CMP has more context now.");
+      clearCheckerPulseSoon();
       return;
     }
 
     const doneButton = event.target.closest("[data-az-card-done]");
     if (doneButton) {
+      setCheckerActive();
       const card = doneButton.closest(".az-check-card");
       const input = card?.querySelector("[data-az-edit-value]");
+      const cardMeta = azCardById(doneButton.dataset.azSectionId, doneButton.dataset.azCardId);
       let value = input?.value?.trim() || "Recorded";
-      const suffix = input?.dataset?.azEditSuffix || "";
-      if (input?.type === "range") {
-        value = `${value}${suffix}`;
+      if (input?.type === "range" && cardMeta) {
+        value = formatAzRangeValue(cardMeta, input.value);
       }
       if (input?.tagName === "TEXTAREA" && !value) {
         value = "Note added";
       }
-      setCheckerAnswer(doneButton.dataset.azSectionId, doneButton.dataset.azCardId, value);
-      labsState.editingCheckerCard = "";
+      if (cardMeta?.control === "upload") {
+        value = "Evidence uploaded";
+      }
+      recordCheckerAnswer(doneButton.dataset.azSectionId, doneButton.dataset.azCardId, value);
+      renderGlobalScoreSurfaces();
       renderAzChecker();
-      showToast("Checker card updated.");
+      showToast(cardMeta?.control === "upload" ? "Evidence context recorded. Prototype evidence score updated." : "Checker card updated. Prototype readiness score updated.");
+      clearCheckerPulseSoon();
       return;
     }
 
     if (event.target.closest("[data-az-run-single]")) {
+      setCheckerActive();
       renderAzChecker();
       showToast("A-Z check refreshed using prototype readiness logic.");
       return;
     }
 
     if (event.target.closest("[data-az-ask]")) {
+      setCheckerActive();
       const property = azSelectedProperty();
-      openAssistant(`${property.address}: CMP is showing ${azStatusForProperty(property).toLowerCase()} because the compliance score is ${property.complianceScore}% and the evidence score is ${property.evidenceScore}%. This is prototype readiness guidance only, not legal advice.`, { flash: true });
+      openAssistant(`${property.address}: CMP is showing ${azStatusForProperty(property).toLowerCase()} because the compliance score is ${effectiveComplianceScore(property)}% and the evidence score is ${effectiveEvidenceScore(property)}%. This is prototype readiness guidance only, not legal advice.`, { flash: true });
       return;
     }
 
     if (event.target.closest("[data-az-apply-all]")) {
+      setCheckerActive();
       showToast("Shared answers applied across the portfolio matrix in this prototype.");
       return;
     }
 
     if (event.target.closest("[data-az-copy-first]")) {
+      setCheckerActive();
       showToast("Copied the fully compliant pattern as a comparison reference.");
       return;
     }
 
     const answer = event.target.closest("[data-az-answer]");
     if (answer) {
+      setCheckerActive();
       const cycle = ["yes", "no", "unsure", "na"];
       const labels = { yes: "Yes", no: "No", unsure: "Unsure", na: "N/A" };
       const current = cycle.findIndex((item) => answer.classList.contains(item));
@@ -6451,12 +6611,25 @@ function bindAzChecker() {
       cycle.forEach((item) => answer.classList.remove(item));
       answer.classList.add(next);
       answer.textContent = labels[next];
+      const scope = "portfolio";
+      setCheckerAnswer(answer.dataset.azSectionId || "portfolio-matrix", answer.dataset.azCardId || "matrix", labels[next], scope);
+      const currentBoost = checkerScoreBoost(scope);
+      labsState.checkerScoreBoosts[scope] = {
+        compliance: Math.min(100, currentBoost.compliance + 1),
+        evidence: currentBoost.evidence
+      };
+      labsState.scorePulse = { scope, compliance: 1, evidence: 0 };
+      renderGlobalScoreSurfaces();
+      renderAzChecker();
+      showToast("Matrix answer updated. Portfolio readiness score nudged.");
+      clearCheckerPulseSoon();
     }
   });
 
   document.addEventListener("change", (event) => {
     const propertySelect = event.target.closest("[data-az-property-select]");
     if (propertySelect) {
+      setCheckerActive();
       labsState.azPropertyId = propertySelect.value;
       labsState.editingCheckerCard = "";
       renderAzChecker();
@@ -6464,10 +6637,24 @@ function bindAzChecker() {
 
     const scenarioSelect = event.target.closest("[data-az-scenario-select]");
     if (scenarioSelect) {
+      setCheckerActive();
       labsState.azScenario = scenarioSelect.value;
+      syncScenarioJourneyAnswer();
       labsState.activeCheckerSection = scenarioTargetSection(labsState.azScenario);
       labsState.editingCheckerCard = "";
       renderAzChecker();
+    }
+  });
+
+  document.addEventListener("input", (event) => {
+    const range = event.target.closest("[data-az-range-card]");
+    if (!range) {
+      return;
+    }
+    const card = azCardById(activeAzSection().id, range.dataset.azRangeCard);
+    const live = range.closest(".az-edit-field")?.querySelector("[data-az-live-value]");
+    if (card && live) {
+      live.textContent = formatAzRangeValue(card, range.value);
     }
   });
 }

@@ -165,21 +165,100 @@ Browser QA:
 - Review five-property matrix density on mobile.
 - Confirm the dark edit card contrast subjectively against the Wix reference intent.
 
+## 12. Checker Interaction Polish Pass
+
+Slider behaviour fixed:
+
+- Bedrooms and Storeys sliders now initialise from the current/saved card value.
+- Range controls show a live value while dragging.
+- Bedrooms format as `Not set yet`, `1 bedroom`, `2 bedrooms`, etc.
+- Storeys format as `1 floor`, `2 floors`, etc.
+- Done saves the formatted value into local checker state and returns the card to the white summary state.
+- Cancel exits edit mode without saving.
+
+Edit controls now update white cards:
+
+- Yes / No / Not sure / N/A choices record immediately.
+- Select controls save the selected value on Done.
+- Date controls save a selected date on Done.
+- Note controls save local note text on Done.
+- Upload/edit evidence prompts save a simulated `Evidence uploaded` state on Done.
+- Portfolio matrix answers persist after cycling between Yes / No / Unsure / N/A.
+
+Score animation:
+
+- The checker keeps local prototype score boosts in `checkerScoreBoosts`.
+- Recorded answers nudge compliance score by a small amount.
+- Evidence/upload-related cards nudge evidence score more strongly.
+- Scores are clamped at 100 and leave the underlying demo property data unchanged.
+- Changed score cards pulse subtly and show micro-feedback such as `+3 readiness` or `+4 evidence`.
+- Score bar widths transition smoothly, with reduced-motion support.
+
+Active checker state:
+
+- Compliance Centre and checker interactions add `checker-is-active` to the body.
+- The checker module gains a richer forest-green active background/halo.
+- White summary cards remain readable; only active edit cards are dark.
+
+Visible formatting fixes:
+
+- Left rail uses stable icon, text and percentage columns.
+- Long rail labels wrap as readable two-line labels instead of breaking awkwardly.
+- Output score cards stack in the right panel to avoid percentage overlap.
+- Bottom Previous / Next spacing was increased.
+- Card min-height and spacing were tightened to reduce empty space.
+
+Copy and clarity improvements:
+
+- Header helper now explains that CMP separates missing answers from missing evidence.
+- Progress helper says users can skip questions and return later.
+- Section intros were rewritten in plainer landlord-facing language.
+- Score explanation clarifies compliance score vs evidence score.
+- Edit helper copy encourages choosing `Not sure` rather than guessing.
+
+Latest validation:
+
+- `node --check dashboard-labs.js`: passed.
+- `git diff --check`: passed.
+- `curl -I http://localhost:8000/dashboard-labs.html?fresh=checker-interaction-polish`: returned `200 OK`.
+- Browser QA: manual browser/responsive click-through still required; no dependencies were installed.
+
+## 13. Compliance Mode Background
+
+Implementation:
+
+- Compliance Centre dark mode uses the existing `checker-is-active` body class.
+- `checker-is-active` is added by the active Compliance Centre page state and removed when other portfolio pages are activated.
+- CSS now darkens the page/workspace backdrop into a richer forest-green treatment while preserving white checker cards, sidebar readability and right Ask CMP rail readability.
+- No JavaScript changes were required for this pass.
+
+Files changed:
+
+- `dashboard-labs.css`
+- `DESIGN_POLISH_REPORT.md`
+
+Validation:
+
+- `git diff --check`: passed.
+- `git status --short --untracked-files=all`: allowed Labs changes only.
+- `curl -I http://localhost:8000/dashboard-labs.html?fresh=compliance-mode-background`: returned `200 OK`.
+
 ## Final Confirmation
 
-- Wix-inspired checker layout implemented: yes
-- Default cards are white summary cards: yes
-- Dark grey/glass cards only appear in edit state: yes
-- Section rail works: yes
-- Previous/Next works: yes
-- Edit/Answer card state works: yes
-- Single-property mode works: yes
-- Portfolio sweep mode works: yes
-- Empty portfolio state works: yes
-- Five-property state works: yes
-- Compliance score preserved: yes
-- Evidence score preserved: yes
-- No Wix/editor artifacts included: yes
+- Bedroom slider updates value: yes
+- Storeys slider updates value: yes
+- Edit answers update white cards: yes
+- Compliance score visually updates when answering: yes
+- Evidence score visually updates for evidence answers: yes
+- Dark green checker active state added: yes
+- Left rail formatting improved: yes
+- Output score cards fixed: yes
+- Bottom nav spacing fixed: yes
+- First-time-user copy improved: yes
+- Empty portfolio state still works: yes
+- Five-property state still works: yes
+- Single-property checker still works: yes
+- Portfolio sweep still works: yes
 - Business logic/API/auth/routing changed: no
 - Stable files changed: no
 - Dependencies added: no

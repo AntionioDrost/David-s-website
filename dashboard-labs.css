@@ -10582,3 +10582,443 @@ textarea:focus-visible,
     grid-template-columns: 1fr;
   }
 }
+
+/* Checker interaction polish: active engine state, cleaner rails, live controls and score feedback. */
+body.checker-is-active .az-checker-section {
+  position: relative;
+  padding: clamp(18px, 2.4vw, 28px);
+  border-color: rgba(179, 224, 192, 0.28);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(160, 218, 178, 0.2), transparent 34%),
+    linear-gradient(135deg, #0c2c23 0%, #143f31 44%, #08251e 100%);
+  box-shadow:
+    0 30px 80px rgba(7, 30, 24, 0.24),
+    0 0 0 1px rgba(179, 224, 192, 0.1) inset;
+  transition: background 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+}
+
+body.checker-is-active .az-checker-header {
+  color: #f7fff9;
+}
+
+body.checker-is-active .az-checker-header p {
+  color: rgba(247, 255, 249, 0.78);
+}
+
+body.checker-is-active .az-product-header,
+body.checker-is-active .az-control-strip,
+body.checker-is-active .az-scenario-pills,
+body.checker-is-active .az-workspace-grid {
+  position: relative;
+  z-index: 1;
+}
+
+body.checker-is-active .az-product-header {
+  border-color: rgba(179, 224, 192, 0.22);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 249, 244, 0.94));
+}
+
+body.checker-is-active .az-control-strip {
+  border-color: rgba(179, 224, 192, 0.2);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+body.checker-is-active .az-active-panel,
+body.checker-is-active .az-section-rail,
+body.checker-is-active .az-output-panel {
+  border-color: rgba(179, 224, 192, 0.2);
+  box-shadow: 0 18px 52px rgba(4, 18, 14, 0.18);
+}
+
+.az-product-header-copy small {
+  display: block;
+  max-width: 760px;
+  color: #587068;
+  line-height: 1.45;
+}
+
+.az-workspace-grid {
+  grid-template-columns: minmax(220px, 0.34fr) minmax(420px, 1fr) minmax(300px, 0.46fr);
+}
+
+.az-workspace-grid.is-portfolio {
+  grid-template-columns: minmax(220px, 0.3fr) minmax(0, 1fr);
+}
+
+.az-section-rail {
+  gap: 6px;
+}
+
+.az-section-rail button {
+  grid-template-columns: 28px minmax(118px, 1fr) 42px;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 9px;
+}
+
+.az-section-rail button span:nth-child(2) {
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  line-height: 1.12;
+}
+
+.az-section-rail button strong {
+  justify-self: end;
+  min-width: 38px;
+  text-align: right;
+}
+
+.az-card-grid {
+  gap: 14px;
+}
+
+.az-check-card {
+  min-height: 152px;
+  padding: 13px;
+}
+
+.az-check-card h4 {
+  font-size: 0.94rem;
+}
+
+.az-check-card .az-card-value {
+  font-size: 1rem;
+}
+
+.az-check-card.is-editing {
+  gap: 12px;
+  min-height: 190px;
+}
+
+.az-range-live {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(167, 228, 189, 0.3);
+  border-radius: 999px;
+  color: #ffffff;
+  background: rgba(167, 228, 189, 0.12);
+  font-size: 0.94rem;
+}
+
+.az-edit-field input[type="range"] {
+  accent-color: #a7e4bd;
+  padding: 0;
+}
+
+.az-step-nav {
+  margin-top: 4px;
+  padding: 14px 0 2px;
+  border-top: 1px solid rgba(20, 39, 36, 0.07);
+}
+
+.az-step-nav small {
+  flex: 1 1 100%;
+  text-align: right;
+}
+
+.az-output-panel {
+  padding: 18px;
+  overflow: hidden;
+}
+
+.az-output-panel .score-pair-grid {
+  grid-template-columns: 1fr;
+  gap: 10px;
+}
+
+.az-output-panel .score-card {
+  min-width: 0;
+  padding: 13px;
+}
+
+.az-output-panel .score-card > div:first-child {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: start;
+}
+
+.az-output-panel .score-card strong {
+  white-space: nowrap;
+}
+
+.az-output-panel .score-card em,
+.az-results-grid article p {
+  font-style: normal;
+}
+
+.az-output-panel .score-card em {
+  display: inline-flex;
+  justify-self: start;
+  padding: 3px 8px;
+  border-radius: 999px;
+  color: #0f4f3a;
+  background: #dff5e7;
+  font-size: 0.72rem;
+  font-weight: 850;
+}
+
+.az-score-explainer,
+.az-score-note {
+  margin: 0;
+  color: #60756e;
+  line-height: 1.42;
+}
+
+.az-score-note {
+  padding: 10px;
+  border-radius: 12px;
+  background: #f5faf7;
+  font-size: 0.82rem;
+}
+
+.score-card.is-pulsing,
+.az-results-grid article.is-pulsing {
+  animation: scorePulse 900ms ease;
+}
+
+.score-meter span {
+  transition: width 420ms ease;
+}
+
+@keyframes scorePulse {
+  0% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 rgba(31, 122, 83, 0);
+  }
+  35% {
+    transform: translateY(-2px);
+    box-shadow: 0 0 0 4px rgba(167, 228, 189, 0.28), 0 18px 42px rgba(17, 74, 54, 0.18);
+  }
+  100% {
+    transform: translateY(0);
+    box-shadow: 0 0 0 rgba(31, 122, 83, 0);
+  }
+}
+
+@media (max-width: 1320px) {
+  .az-workspace-grid {
+    grid-template-columns: minmax(210px, 0.32fr) minmax(0, 1fr);
+  }
+
+  .az-output-panel {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 1120px) {
+  .az-card-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .az-output-panel .score-pair-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 940px) {
+  .az-workspace-grid,
+  .az-workspace-grid.is-portfolio {
+    grid-template-columns: 1fr;
+  }
+
+  .az-output-panel {
+    grid-column: auto;
+  }
+
+  .az-section-rail button {
+    min-width: 230px;
+  }
+}
+
+@media (max-width: 680px) {
+  .az-output-panel .score-pair-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .az-step-nav small {
+    text-align: left;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .score-card.is-pulsing,
+  .az-results-grid article.is-pulsing {
+    animation: none;
+  }
+
+  .score-meter span,
+  body.checker-is-active .az-checker-section {
+    transition: none;
+  }
+}
+
+/* Targeted A-Z rail containment repair. */
+.az-section-rail {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  padding: 10px;
+}
+
+.az-section-rail button {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  grid-template-columns: 28px minmax(0, 1fr) 44px;
+  gap: 9px;
+  padding: 8px;
+  overflow: hidden;
+  transform: none;
+}
+
+.az-section-rail button.is-active {
+  box-shadow:
+    inset 0 0 0 1px rgba(31, 122, 83, 0.08),
+    0 8px 18px rgba(17, 54, 43, 0.08);
+}
+
+.az-section-rail button span:nth-child(2) {
+  min-width: 0;
+  max-width: 100%;
+  overflow: hidden;
+  overflow-wrap: normal;
+  word-break: normal;
+  hyphens: none;
+  line-height: 1.12;
+}
+
+.az-section-rail button strong {
+  justify-self: end;
+  width: 44px;
+  min-width: 44px;
+  max-width: 44px;
+  overflow: hidden;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.az-section-icon {
+  justify-self: center;
+  flex: 0 0 auto;
+}
+
+@media (max-width: 940px) {
+  .az-section-rail {
+    overflow-x: auto;
+    overflow-y: hidden;
+  }
+
+  .az-section-rail button {
+    min-width: 224px;
+    width: 224px;
+  }
+}
+
+/* Targeted scenario chip row containment repair. */
+.az-scenario-pills {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 2px 4px 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  overscroll-behavior-inline: contain;
+  scroll-padding-inline: 4px;
+}
+
+.az-scenario-pills button {
+  flex: 0 0 auto;
+  max-width: min(260px, calc(100vw - 64px));
+  box-sizing: border-box;
+  white-space: nowrap;
+}
+
+body.checker-is-active .az-scenario-pills {
+  border-radius: 18px;
+  background: rgba(7, 32, 25, 0.18);
+}
+
+body.checker-is-active .az-scenario-pills button.is-active {
+  box-shadow: inset 0 0 0 1px rgba(31, 122, 83, 0.08);
+}
+
+/* Compliance Centre page mode: elevate the whole workspace without changing checker structure. */
+body {
+  transition: background 240ms ease, background-color 240ms ease;
+}
+
+body.checker-is-active {
+  background:
+    linear-gradient(rgba(185, 226, 197, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(185, 226, 197, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 18% -8%, rgba(159, 218, 178, 0.24), transparent 34%),
+    radial-gradient(circle at 84% 8%, rgba(207, 157, 67, 0.1), transparent 26%),
+    linear-gradient(180deg, #09251e 0%, #123a2d 42%, #071f19 100%);
+  background-size: 48px 48px, 48px 48px, auto, auto, auto;
+}
+
+body.checker-is-active .workspace {
+  position: relative;
+  padding: 14px;
+  border: 1px solid rgba(181, 225, 194, 0.14);
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(167, 228, 189, 0.16), transparent 30%),
+    linear-gradient(180deg, rgba(17, 61, 47, 0.86), rgba(9, 38, 30, 0.9));
+  box-shadow:
+    0 30px 86px rgba(3, 17, 13, 0.28),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+  transition: background 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+}
+
+body.checker-is-active .demo-state-strip {
+  position: relative;
+  z-index: 1;
+}
+
+body.checker-is-active .demo-state-button {
+  border-color: rgba(204, 235, 214, 0.28);
+  color: #f4fbf7;
+  background: rgba(255, 255, 255, 0.1);
+  box-shadow: none;
+}
+
+body.checker-is-active [data-global-nav="Compliance centre"].is-active {
+  border-color: rgba(31, 122, 83, 0.32);
+  background:
+    linear-gradient(90deg, rgba(31, 122, 83, 0.16), rgba(227, 241, 233, 0.72));
+  box-shadow: inset 4px 0 0 #1f7a53, 0 12px 28px rgba(31, 122, 83, 0.12);
+}
+
+body.checker-is-active .assistant-rail,
+body.checker-is-active .labs-sidebar {
+  box-shadow: 0 24px 64px rgba(2, 17, 13, 0.24);
+}
+
+@media (max-width: 768px) {
+  body.checker-is-active .workspace {
+    padding: 10px;
+    border-radius: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body,
+  body.checker-is-active .workspace {
+    transition: none;
+  }
+}
