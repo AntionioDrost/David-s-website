@@ -184,20 +184,22 @@
           <article class="portfolio-autopilot-card">
             <div>
               <p class="section-kicker">CMP Autopilot</p>
-              <h2>Your portfolio has one clear next step</h2>
-              <p>CMP has reviewed the information currently stored for your property and highlighted the most useful action to take next.</p>
+              <h2 data-home-autopilot-title>Your portfolio has one clear next step</h2>
+              <p data-home-autopilot-body>CMP has reviewed the information currently stored for your property and highlighted the most useful action to take next.</p>
             </div>
             <div class="portfolio-summary-panel">
               <span class="tile-icon" data-icon="shield"></span>
               <div>
                 <h3 data-home-summary-title>Check whether 57 The Butts has a current EICR</h3>
                 <p data-home-summary-body>Electrical Safety is the clearest evidence gap in the property file.</p>
+                <div class="priority-rank-list" data-home-priority-rank-list hidden></div>
                 <div class="button-row">
                   <button class="primary-button" type="button" data-home-open-action>Open property action</button>
                   <button class="secondary-button" type="button" data-home-why>Ask CMP why this matters</button>
                 </div>
               </div>
             </div>
+            <span class="assistant-inline-status" data-home-assistant-status hidden>Assistant updated</span>
             <div class="portfolio-prompt-row" aria-label="Portfolio Ask CMP prompts">
               <button type="button" data-home-prompt="Summarise my portfolio">Summarise my portfolio</button>
               <button type="button" data-home-prompt="What should I do today?">What should I do today?</button>
@@ -214,7 +216,7 @@
             </article>
             <article class="portfolio-pulse-card">
               <span>Priority actions</span>
-              <strong>1</strong>
+              <strong data-home-priority-count>1</strong>
               <small data-home-priority-detail>clear next step</small>
             </article>
             <article class="portfolio-pulse-card">
@@ -402,9 +404,12 @@
               <button type="button" data-properties-filter="vacant">Vacant</button>
               <button type="button" data-properties-filter="requests">Open requests</button>
             </div>
-            <div class="properties-view-toggle" aria-label="Properties view">
-              <button class="is-active" type="button" data-properties-view="cards">Cards</button>
-              <button type="button" data-properties-view="compact">Compact</button>
+            <div class="properties-view-control">
+              <span>View</span>
+              <div class="properties-view-toggle" aria-label="Properties view">
+                <button class="is-active" type="button" data-properties-view="cards">Cards</button>
+                <button type="button" data-properties-view="compact">Compact</button>
+              </div>
             </div>
           </section>
 
@@ -705,6 +710,12 @@
               <span class="nav-icon" data-icon="file"></span>
               <input type="search" data-evidence-search placeholder="Search documents, properties or sources..." autocomplete="off">
             </label>
+            <div class="evidence-property-filter" aria-label="Evidence property filter">
+              <span>Property</span>
+              <button class="is-active" type="button" data-evidence-property-filter="all">All properties</button>
+              <button type="button" data-evidence-property-filter="the-butts">57 The Butts</button>
+              <button type="button" data-evidence-property-filter="willow-brook">18 Willow Brook Drive</button>
+            </div>
             <div class="properties-filter-row" aria-label="Evidence filters">
               <button class="is-active" type="button" data-evidence-filter="all">All</button>
               <button type="button" data-evidence-filter="verified">Verified</button>
@@ -1061,7 +1072,7 @@
           <section class="commercial-services-section" aria-labelledby="commercialServicesTitle">
             <div class="service-section-heading">
               <p class="section-kicker">PROPERTY SERVICES</p>
-              <h2 id="commercialServicesTitle">Useful support for this property</h2>
+              <h2 id="commercialServicesTitle" data-global-service-section-title>Useful support for this property</h2>
             </div>
             <div class="utility-grid service-card-grid" data-global-service-cards aria-label="Support options"></div>
           </section>
@@ -1070,7 +1081,7 @@
             <div class="utility-card-header">
               <div>
                 <p class="section-kicker">OPEN REQUESTS</p>
-                <h2>Support requests</h2>
+                <h2 data-global-requests-title>Support requests</h2>
               </div>
               <span class="doc-status status-neutral-text" data-global-service-request-count>0 open</span>
             </div>
@@ -2188,6 +2199,7 @@
 
         <div class="assistant-response" data-assistant-response>
           <span>Prototype assistant preview</span>
+          <small class="assistant-update-label" data-assistant-update-label hidden>Assistant updated</small>
           <p>Your most useful next step is to check whether you have a current EICR. Your EPC and Gas Safety evidence are already recorded.</p>
         </div>
 
