@@ -18,10 +18,11 @@
         <div class="sidebar-top">
           <a class="brand-lockup" href="dashboard-labs.html" aria-label="CMP Labs dashboard home" data-home-link>
             <span class="brand-mark" aria-hidden="true">
-              <svg viewBox="0 0 48 48" role="presentation">
-                <path d="M8.5 18.2C8.5 10.9 14.4 5 21.7 5h5.6c7.3 0 13.2 5.9 13.2 13.2v2c0 6-2.6 11.6-7.1 15.5L24 43.5l-9.4-7.8C10.1 31.8 7.5 26.2 7.5 20.2v-2h1Z" fill="currentColor"/>
-                <path d="m15 23.4 6.7 6.7L33.8 17.8" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.6"/>
-                <path d="m21.7 18.7 3-3 4 4v7.2h-7v-8.2Z" fill="#eff8f2"/>
+              <svg class="cmp-logo" viewBox="0 0 64 64" role="presentation">
+                <path class="cmp-logo-boundary" d="M44.7 15.4A21 21 0 1 0 45 48.2"/>
+                <path class="cmp-logo-roof" d="M21.2 33.2 32 23.5l10.8 9.7"/>
+                <path class="cmp-logo-home" d="M24.2 32.1v12.2h15.6V32.1"/>
+                <path class="cmp-logo-check" d="m28 38.2 4.5 4.5 10.2-13.1"/>
               </svg>
             </span>
             <span>
@@ -113,9 +114,11 @@
         </button>
         <a class="mobile-brand" href="dashboard-labs.html" data-home-link>
           <span class="brand-mark" aria-hidden="true">
-            <svg viewBox="0 0 48 48" role="presentation">
-              <path d="M8.5 18.2C8.5 10.9 14.4 5 21.7 5h5.6c7.3 0 13.2 5.9 13.2 13.2v2c0 6-2.6 11.6-7.1 15.5L24 43.5l-9.4-7.8C10.1 31.8 7.5 26.2 7.5 20.2v-2h1Z" fill="currentColor"/>
-              <path d="m15 23.4 6.7 6.7L33.8 17.8" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round" stroke-width="3.6"/>
+            <svg class="cmp-logo" viewBox="0 0 64 64" role="presentation">
+              <path class="cmp-logo-boundary" d="M44.7 15.4A21 21 0 1 0 45 48.2"/>
+              <path class="cmp-logo-roof" d="M21.2 33.2 32 23.5l10.8 9.7"/>
+              <path class="cmp-logo-home" d="M24.2 32.1v12.2h15.6V32.1"/>
+              <path class="cmp-logo-check" d="m28 38.2 4.5 4.5 10.2-13.1"/>
             </svg>
           </span>
           <span>ComplyMyProperty</span>
@@ -993,9 +996,24 @@
           </section>
 
           <section class="utility-two-column ask-response-context-grid">
-            <article class="utility-response-card">
+            <article class="utility-response-card assistant-response-panel">
               <p class="section-kicker">ASSISTANT RESPONSE</p>
               <h2>Assistant response</h2>
+              <div class="assistant-response-visual" aria-hidden="true">
+                <svg viewBox="0 0 360 190" role="presentation">
+                  <path class="response-visual-card" d="M48 38h140c12 0 22 10 22 22v78c0 12-10 22-22 22H48c-12 0-22-10-22-22V60c0-12 10-22 22-22Z"/>
+                  <path class="response-visual-doc" d="M225 28h72l34 34v94c0 10-8 18-18 18h-88c-10 0-18-8-18-18V46c0-10 8-18 18-18Z"/>
+                  <path class="response-visual-fold" d="M297 29v34h33"/>
+                  <path class="response-visual-roof" d="m64 99 47-42 47 42"/>
+                  <path class="response-visual-home" d="M76 96v41h70V96"/>
+                  <path class="response-visual-check" d="m95 115 14 14 32-40"/>
+                  <path class="response-visual-line" d="M232 83h62M232 104h76M232 125h48"/>
+                  <path class="response-visual-node" d="M187 78c24 0 37 8 51 25M187 122c22 0 35-4 51-19"/>
+                  <circle class="response-visual-dot" cx="188" cy="78" r="5"/>
+                  <circle class="response-visual-dot" cx="188" cy="122" r="5"/>
+                  <circle class="response-visual-dot" cx="238" cy="103" r="6"/>
+                </svg>
+              </div>
               <p data-utility-ask-response>The clearest next step is to upload or arrange an EICR for 57 The Butts. Electrical Safety is the main missing evidence area.</p>
             </article>
             <article class="utility-list-card ask-source-panel">
