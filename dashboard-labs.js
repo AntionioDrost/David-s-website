@@ -73,8 +73,15 @@ const labsState = {
   activityFilter: "all",
   utilityAskPrompt: "",
   inspectionStatusRecorded: false,
-  portfolioMode: "single",
-  selectedServicePropertyId: "the-butts",
+  demoState: "starter-portfolio",
+  portfolioMode: "two",
+  azMode: "single",
+  azPropertyId: "the-butts",
+  azScenario: "general",
+  activeCheckerSection: "property-basics",
+  editingCheckerCard: "",
+  checkerAnswers: {},
+  selectedServicePropertyId: "all",
   pendingServiceRequestType: "eicr",
   pendingServicePropertyId: "the-butts",
   addPropertyStep: 1,
@@ -111,7 +118,7 @@ const iconPaths = {
   message: '<path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4Z"/>',
   more: '<path d="M12 12h.01"/><path d="M19 12h.01"/><path d="M5 12h.01"/>',
   send: '<path d="m22 2-7 20-4-9-9-4 20-7Z"/><path d="M22 2 11 13"/>',
-  settings: '<path d="M12.2 2h-.4l-1 3a7 7 0 0 0-1.7.7l-2.8-1.4-.3.3-2 3.4.1.4 2.5 1.8a7 7 0 0 0 0 1.8l-2.5 1.8-.1.4 2 3.4.3.3 2.8-1.4a7 7 0 0 0 1.7.7l1 3h.4l4-.1.3-.3 1-2.9a7 7 0 0 0 1.6-.9l3 .9.3-.3 1.8-3.5-.1-.4-2.7-1.5a7 7 0 0 0-.1-1.9l2.3-2 .1-.4-2.3-3.3-.4-.1-2.7 1.6a7 7 0 0 0-1.7-.6l-1.2-2.8-.3-.2-4 .1Z"/><circle cx="12" cy="12" r="3"/>',
+  settings: '<path d="M12 2.75a2.1 2.1 0 0 0-2.05 1.65l-.22 1.01a7.45 7.45 0 0 0-1.38.8l-.98-.32a2.1 2.1 0 0 0-2.48.96L3.93 8.5a2.1 2.1 0 0 0 .42 2.62l.77.68a7.58 7.58 0 0 0 0 1.6l-.77.68a2.1 2.1 0 0 0-.42 2.62l.96 1.65a2.1 2.1 0 0 0 2.48.96l.98-.32c.43.31.9.58 1.38.8l.22 1.01A2.1 2.1 0 0 0 12 22.25h1.9a2.1 2.1 0 0 0 2.05-1.65l.22-1.01c.49-.22.95-.49 1.38-.8l.98.32a2.1 2.1 0 0 0 2.48-.96l.96-1.65a2.1 2.1 0 0 0-.42-2.62l-.77-.68a7.58 7.58 0 0 0 0-1.6l.77-.68a2.1 2.1 0 0 0 .42-2.62l-.96-1.65a2.1 2.1 0 0 0-2.48-.96l-.98.32a7.45 7.45 0 0 0-1.38-.8l-.22-1.01A2.1 2.1 0 0 0 13.9 2.75H12Z"/><circle cx="12.95" cy="12.6" r="3.15"/>',
   shield: '<path d="M12 2 20 5v6c0 5-3.2 9.4-8 11-4.8-1.6-8-6-8-11V5l8-3Z"/><path d="m9 12 2 2 4-5"/>',
   upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5"/><path d="M12 3v12"/>',
   zap: '<path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z"/>'
@@ -216,8 +223,95 @@ const addPropertyAddresses = [
   "12 Station Road, B37 7BA"
 ];
 
+const portfolioFivePropertyDefinitions = [
+  {
+    id: "maple-court",
+    address: "24 Maple Court",
+    postcode: "B15 2QT",
+    location: "Birmingham, B15 2QT",
+    occupancy: "Currently tenanted",
+    journey: "Full compliance",
+    complianceScore: 100,
+    evidenceScore: 100,
+    focus: "Keep evidence current",
+    focusArea: "Fully compliant",
+    state: "Fully compliant",
+    statusDetail: "All core checks and evidence recorded",
+    priority: "Monitor renewal dates",
+    priorityBody: "CMP has all core evidence for this property. Keep renewal reminders active and continue routine inspections.",
+    serviceType: "review",
+    verifiedEvidence: 8,
+    reviewCount: 0,
+    missingEvidence: [],
+    recommendedService: "None needed",
+    workspaceAvailable: false,
+    mostUrgent: false,
+    search: "24 maple court fully compliant all evidence complete gas eicr epc alarms tenancy licensing inspection"
+  },
+  {
+    id: "canal-view",
+    address: "9 Canal View",
+    postcode: "M4 6AG",
+    location: "Manchester, M4 6AG",
+    occupancy: "HMO / licensing review",
+    journey: "Licensing review",
+    complianceScore: 68,
+    evidenceScore: 76,
+    focus: "Licensing position",
+    focusArea: "Local licensing",
+    state: "Licensing unclear",
+    statusDetail: "HMO/selective licensing answer unresolved",
+    priority: "Confirm licensing route",
+    priorityBody: "Evidence is decent, but CMP needs a property-specific licensing answer before treating this file as ready.",
+    serviceType: "licensing",
+    verifiedEvidence: 6,
+    reviewCount: 3,
+    missingEvidence: ["Licensing decision", "Occupancy evidence"],
+    recommendedService: "Licensing review support",
+    workspaceAvailable: false,
+    mostUrgent: false,
+    search: "9 canal view manchester hmo licensing selective local authority watch evidence decent compliance uncertain"
+  },
+  {
+    id: "station-road",
+    address: "3 Station Road",
+    postcode: "CV2 4FN",
+    location: "Coventry, CV2 4FN",
+    occupancy: "New purchase review",
+    journey: "New purchase review",
+    complianceScore: 34,
+    evidenceScore: 24,
+    focus: "Onboarding essentials",
+    focusArea: "New purchase setup",
+    state: "Setup incomplete",
+    statusDetail: "Core setup and evidence missing",
+    priority: "Run A-Z onboarding check",
+    priorityBody: "CMP needs tenancy setup, alarm answers, core certificates and initial evidence before this property can be treated as ready.",
+    serviceType: "bundle",
+    verifiedEvidence: 1,
+    reviewCount: 7,
+    missingEvidence: ["Gas Safety", "EICR", "Alarm evidence", "Tenancy setup", "Inspection record"],
+    recommendedService: "Move-in readiness pack",
+    workspaceAvailable: false,
+    mostUrgent: false,
+    search: "3 station road new purchase onboarding missing tenancy alarms certificates low evidence low compliance"
+  }
+];
+
+function isEmptyPortfolioMode() {
+  return labsState.portfolioMode === "empty";
+}
+
 function isTwoPropertyMode() {
-  return labsState.portfolioMode === "two";
+  return labsState.portfolioMode === "two" || labsState.portfolioMode === "five";
+}
+
+function isFivePropertyMode() {
+  return labsState.portfolioMode === "five";
+}
+
+function hasPortfolioProperties() {
+  return !isEmptyPortfolioMode() && getPortfolioProperties().length > 0;
 }
 
 function buttsPortfolioProperty() {
@@ -234,6 +328,8 @@ function buttsPortfolioProperty() {
     occupancy: labsState.propertyDetails.occupancy,
     journey: labsState.propertyDetails.goal,
     strength: eicrAdded ? 58 : 42,
+    evidenceScore: eicrAdded ? 58 : 42,
+    complianceScore: eicrAdded ? 72 : 56,
     focus: eicrAdded ? "Inspection evidence" : "Electrical Safety evidence",
     focusArea: eicrAdded ? "Property inspection" : "Electrical Safety",
     state: eicrAdded ? "Useful next step" : "Needs checking",
@@ -246,6 +342,7 @@ function buttsPortfolioProperty() {
     verifiedEvidence: eicrAdded ? 3 : 2,
     reviewCount: eicrAdded ? 2 : 3,
     missingEvidence: eicrAdded ? ["Inspection evidence"] : ["EICR", "Inspection evidence"],
+    recommendedService: eicrAdded ? "Property inspection support" : "EICR support",
     currentRequest: request,
     workspaceAvailable: true,
     mostUrgent: !isTwoPropertyMode(),
@@ -266,6 +363,8 @@ function willowPortfolioProperty() {
     occupancy: "Currently tenanted",
     journey: "Tenanted property review",
     strength: 64,
+    evidenceScore: 82,
+    complianceScore: 74,
     focus: "Gas Safety renewal",
     focusArea: "Gas Safety",
     state: "Expiring soon",
@@ -276,6 +375,7 @@ function willowPortfolioProperty() {
     verifiedEvidence: 3,
     reviewCount: 4,
     missingEvidence: ["Gas Safety renewal evidence", "Alarm evidence", "Inspection evidence", "Tenancy document evidence"],
+    recommendedService: "Gas Safety support",
     currentRequest: request,
     workspaceAvailable: false,
     mostUrgent: isTwoPropertyMode(),
@@ -285,15 +385,22 @@ function willowPortfolioProperty() {
 }
 
 function getPortfolioProperties() {
+  if (isEmptyPortfolioMode()) {
+    return [];
+  }
+
   const properties = [buttsPortfolioProperty()];
   if (isTwoPropertyMode()) {
     properties.push(willowPortfolioProperty());
+  }
+  if (isFivePropertyMode()) {
+    properties.push(...portfolioFivePropertyDefinitions.map((property) => ({ ...property })));
   }
   return properties;
 }
 
 function getPortfolioPropertyById(propertyId = "the-butts") {
-  return getPortfolioProperties().find((property) => property.id === propertyId) || buttsPortfolioProperty();
+  return getPortfolioProperties().find((property) => property.id === propertyId) || getPortfolioProperties()[0] || buttsPortfolioProperty();
 }
 
 function selectedServicePropertyId() {
@@ -313,6 +420,10 @@ function isAllServicePropertiesMode() {
 }
 
 function serviceActionPropertyId() {
+  if (isEmptyPortfolioMode()) {
+    return "the-butts";
+  }
+
   return isAllServicePropertiesMode() ? portfolioUrgentProperty().id : selectedServicePropertyId();
 }
 
@@ -346,6 +457,90 @@ function openRequestsForProperty(propertyId) {
 
 function portfolioUrgentProperty() {
   return getPortfolioProperties().find((property) => property.mostUrgent) || getPortfolioProperties()[0];
+}
+
+function averageScore(properties, key) {
+  if (!properties.length) {
+    return 0;
+  }
+
+  return Math.round(properties.reduce((sum, property) => sum + Number(property[key] || property.strength || 0), 0) / properties.length);
+}
+
+function portfolioComplianceScore() {
+  return averageScore(getPortfolioProperties(), "complianceScore");
+}
+
+function portfolioEvidenceScore() {
+  return averageScore(getPortfolioProperties(), "evidenceScore");
+}
+
+function portfolioEvidenceGapCount() {
+  return getPortfolioProperties().reduce((sum, property) => sum + (property.missingEvidence?.length || 0), 0);
+}
+
+function portfolioUrgentActionCount() {
+  return getPortfolioProperties().filter((property) => property.mostUrgent || property.state === "Expiring soon" || property.complianceScore < 60).length;
+}
+
+function fullyCompliantProperties() {
+  return getPortfolioProperties().filter((property) => property.complianceScore === 100 && property.evidenceScore === 100);
+}
+
+function scoreClass(score) {
+  if (score >= 85) {
+    return "is-good";
+  }
+  if (score >= 60) {
+    return "is-watch";
+  }
+  return "is-risk";
+}
+
+function renderScoreCards(container, scores, { compact = false } = {}) {
+  if (!container) {
+    return;
+  }
+
+  container.innerHTML = scores.map((score) => `
+    <article class="score-card ${scoreClass(score.value)}${compact ? " is-compact" : ""}">
+      <div>
+        <span>${escapeHtml(score.label)}</span>
+        <strong>${score.value}%</strong>
+      </div>
+      <div class="score-meter" aria-hidden="true"><span style="width: ${score.value}%"></span></div>
+      <small>${escapeHtml(score.help)}</small>
+    </article>
+  `).join("");
+}
+
+function renderGlobalScoreSurfaces() {
+  const properties = getPortfolioProperties();
+  const compliance = portfolioComplianceScore();
+  const evidence = portfolioEvidenceScore();
+  const portfolioScores = [
+    {
+      label: "Portfolio compliance score",
+      value: compliance,
+      help: "Readiness against required checks and scenario answers."
+    },
+    {
+      label: "Portfolio evidence score",
+      value: evidence,
+      help: "Documents and proof currently stored in CMP."
+    }
+  ];
+
+  renderScoreCards(document.querySelector("[data-home-score-grid]"), portfolioScores);
+  renderScoreCards(document.querySelector("[data-properties-score-grid]"), portfolioScores);
+  renderScoreCards(document.querySelector("[data-compliance-score-grid]"), portfolioScores);
+
+  if (!properties.length) {
+    renderScoreCards(document.querySelector("[data-home-score-grid]"), [
+      { label: "Portfolio compliance score", value: 0, help: "Add a property to begin scoring." },
+      { label: "Portfolio evidence score", value: 0, help: "Upload evidence once a property exists." }
+    ]);
+  }
 }
 
 const utilityAskPromptMeta = {
@@ -740,6 +935,10 @@ function renderAssistantActivity() {
 }
 
 function getRecentActivityItems() {
+  if (isEmptyPortfolioMode()) {
+    return ["No property activity yet", "A-Z setup path ready", "Evidence upload available after setup"];
+  }
+
   const dynamicItems = [...labsState.serviceEvents, ...labsState.propertyEvents]
     .filter((event) => event.activityLabel)
     .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
@@ -757,9 +956,10 @@ function getRecentActivityItems() {
 }
 
 function openPropertyFromPortfolio(propertyId = "the-butts") {
-  if (propertyId === "willow-brook") {
+  if (propertyId !== "the-butts") {
+    const property = getPortfolioPropertyById(propertyId);
     openTimelineModal("[data-second-property-modal]");
-    setAssistantResponse("Second property workspace preview — CMP Labs is showing portfolio-level behaviour for 18 Willow Brook Drive while the full workspace remains focused on 57 The Butts.");
+    setAssistantResponse(`${property.address} is shown as a portfolio-level preview in CMP Labs. Use Properties, Compliance Centre, Evidence Vault and Book a Service to review its scores and actions while the full workspace remains focused on 57 The Butts.`);
     return;
   }
 
@@ -774,6 +974,16 @@ function renderSidebarProperties() {
   }
 
   const properties = getPortfolioProperties();
+  if (!properties.length) {
+    list.innerHTML = `
+      <article class="sidebar-empty-state">
+        <strong>No properties yet</strong>
+        <small>Add a property to start building compliance and evidence scores.</small>
+      </article>
+    `;
+    return;
+  }
+
   list.innerHTML = properties.map((property) => `
     <button class="property-option${property.id === "the-butts" ? " is-current" : ""}" type="button" data-open-property-id="${escapeHtml(property.id)}">
       <span class="status-dot" aria-hidden="true"></span>
@@ -781,7 +991,7 @@ function renderSidebarProperties() {
         <strong>${escapeHtml(property.address)}</strong>
         <small>${escapeHtml(property.location)}</small>
       </span>
-      ${property.id === "willow-brook" ? '<em class="sidebar-property-count">Gas renewal</em>' : ""}
+      <em class="sidebar-property-count">${property.complianceScore === 100 ? "Compliant" : escapeHtml(property.focusArea)}</em>
     </button>
   `).join("");
 }
@@ -941,6 +1151,8 @@ function renderAllState() {
   renderPortfolioTasksState();
   renderPortfolioActivityState();
   renderPortfolioUtilityState();
+  renderGlobalScoreSurfaces();
+  renderAzChecker();
   hydrateIcons();
 }
 
@@ -968,7 +1180,14 @@ function resetDemoState() {
   labsState.activityFilter = "all";
   labsState.utilityAskPrompt = "";
   labsState.inspectionStatusRecorded = false;
+  labsState.demoState = "before-eicr";
   labsState.portfolioMode = "single";
+  labsState.azMode = "single";
+  labsState.azPropertyId = "the-butts";
+  labsState.azScenario = "general";
+  labsState.activeCheckerSection = "property-basics";
+  labsState.editingCheckerCard = "";
+  labsState.checkerAnswers = {};
   labsState.selectedServicePropertyId = "the-butts";
   labsState.pendingServiceRequestType = "eicr";
   labsState.pendingServicePropertyId = "the-butts";
@@ -1064,6 +1283,9 @@ function ensureDemoQuickWin() {
 
 function applyDemoState(state) {
   const labels = {
+    "empty-portfolio": "Empty portfolio",
+    "starter-portfolio": "Starter portfolio",
+    "five-property": "Five-property portfolio",
     reset: "Reset demo",
     "before-eicr": "Before EICR",
     "after-eicr": "After EICR",
@@ -1073,6 +1295,24 @@ function applyDemoState(state) {
   };
 
   resetDemoState();
+  labsState.demoState = state;
+
+  if (state === "empty-portfolio") {
+    labsState.portfolioMode = "empty";
+    labsState.selectedServicePropertyId = "the-butts";
+    labsState.azMode = "single";
+  }
+
+  if (state === "starter-portfolio") {
+    labsState.portfolioMode = "two";
+    labsState.selectedServicePropertyId = "all";
+  }
+
+  if (state === "five-property") {
+    labsState.portfolioMode = "five";
+    labsState.selectedServicePropertyId = "all";
+    labsState.azMode = "portfolio";
+  }
 
   if (state === "two-property") {
     labsState.portfolioMode = "two";
@@ -1101,6 +1341,18 @@ function applyDemoState(state) {
 }
 
 function getPortfolioAssistantResponse(prompt) {
+  if (isFivePropertyMode()) {
+    const responses = {
+      "Summarise my portfolio": `You have five properties in this Labs portfolio. ${fullyCompliantProperties().length} is fully compliant, portfolio compliance is ${portfolioComplianceScore()}%, and portfolio evidence is ${portfolioEvidenceScore()}%.`,
+      "What should I do today?": "Start with 3 Station Road onboarding gaps, then handle 18 Willow Brook Drive Gas Safety renewal and 9 Canal View licensing uncertainty.",
+      "Which property needs attention?": "3 Station Road has the lowest readiness score. 18 Willow Brook Drive has the urgent renewal item, while 24 Maple Court is fully compliant.",
+      "What evidence am I missing?": `${portfolioEvidenceGapCount()} evidence gaps remain across the five-property portfolio. Station Road has the largest setup gap; Canal View needs licensing evidence.`,
+      "Ask CMP why this matters": "CMP separates compliance score from evidence score so a property can have decent paperwork but still need scenario-specific answers.",
+      "Ask CMP what I need": "Run Portfolio Sweep, resolve Station Road onboarding evidence, confirm Canal View licensing, then review Willow Brook renewal evidence."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   if (isTwoPropertyMode()) {
     const responses = {
       "Summarise my portfolio": labsState.eicrAdded ? "You have two properties in this Labs portfolio. 18 Willow Brook Drive needs Gas Safety renewal soon, while 57 The Butts now has EICR evidence verified and should move to inspection evidence." : "You have two properties in this Labs portfolio. 18 Willow Brook Drive needs Gas Safety renewal soon, while 57 The Butts is missing EICR evidence.",
@@ -1118,6 +1370,16 @@ function getPortfolioAssistantResponse(prompt) {
 }
 
 function getPropertiesAssistantResponse(prompt) {
+  if (isFivePropertyMode()) {
+    const responses = {
+      "Which property needs attention?": "3 Station Road needs attention first because both compliance and evidence scores are low. 18 Willow Brook Drive and 9 Canal View also need targeted review.",
+      "Summarise my properties": "The portfolio contains five properties in different states, including one fully compliant file: 24 Maple Court.",
+      "What should I open first?": "Open the A-Z Checker or focus 3 Station Road to show the new-purchase onboarding state.",
+      "How do I add another property?": "Use Add property to preview onboarding; this five-property state is static demo data."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   if (isTwoPropertyMode()) {
     const responses = {
       "Which property needs attention?": "18 Willow Brook Drive needs attention first because Gas Safety renewal is due soon. 57 The Butts remains important for Electrical Safety or inspection evidence depending on the demo state.",
@@ -1133,6 +1395,16 @@ function getPropertiesAssistantResponse(prompt) {
 }
 
 function getComplianceCentreAssistantResponse(prompt) {
+  if (isFivePropertyMode()) {
+    const responses = {
+      "What should I fix first?": "Fix 3 Station Road first because it has the lowest compliance and evidence scores. Then confirm Willow Brook Gas Safety renewal and Canal View licensing.",
+      "Which evidence is missing?": `${portfolioEvidenceGapCount()} evidence gaps remain. Station Road is missing the largest set; Canal View has licensing-specific uncertainty.`,
+      "What expires soon?": "18 Willow Brook Drive has the clearest upcoming renewal item: Gas Safety evidence is needed soon.",
+      "Summarise my compliance position": `Portfolio compliance is ${portfolioComplianceScore()}% and evidence is ${portfolioEvidenceScore()}%. 24 Maple Court is fully compliant.`
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   if (isTwoPropertyMode()) {
     const responses = {
       "What should I fix first?": "Fix Gas Safety renewal for 18 Willow Brook Drive first because it is expiring soon. 57 The Butts should still be reviewed for EICR or inspection evidence.",
@@ -1148,6 +1420,16 @@ function getComplianceCentreAssistantResponse(prompt) {
 }
 
 function getEvidenceVaultAssistantResponse(prompt) {
+  if (isFivePropertyMode()) {
+    const responses = {
+      "What evidence is missing?": `The five-property portfolio has ${portfolioEvidenceGapCount()} evidence gaps. Station Road needs onboarding evidence; Canal View needs licensing evidence.`,
+      "Which documents are verified?": "24 Maple Court has a complete evidence pack. Willow Brook and The Butts have several verified core records.",
+      "How should I upload paperwork?": "Use Smart Upload for property-specific files, or run Portfolio Sweep first to decide which evidence matters by property.",
+      "Summarise my evidence vault": `Portfolio evidence score is ${portfolioEvidenceScore()}%. One property is complete, and the remaining gaps are grouped by address.`
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   if (isTwoPropertyMode()) {
     const responses = {
       "What evidence is missing?": labsState.eicrAdded ? "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts mainly needs inspection evidence now." : "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts still needs EICR evidence.",
@@ -1163,6 +1445,20 @@ function getEvidenceVaultAssistantResponse(prompt) {
 }
 
 function getTasksAssistantResponse(prompt) {
+  if (isEmptyPortfolioMode()) {
+    return "There are no tasks yet because no properties are connected. Add a property and run the A-Z Checker to create tasks.";
+  }
+
+  if (isFivePropertyMode()) {
+    const responses = {
+      "What should I do first?": "Start with 3 Station Road: run the onboarding A-Z check and collect missing certificates, alarms and tenancy setup evidence.",
+      "Why is this a task?": "CMP created these from the five-property scores and grouped them by the property-specific gaps.",
+      "Which tasks are evidence-related?": "Station Road onboarding, Willow Brook renewal evidence and Canal View licensing evidence are the main evidence-related tasks.",
+      "What can I leave for later?": "24 Maple Court only needs monitoring. Lower-risk review items can wait until Station Road, Willow Brook and Canal View are handled."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   if (isTwoPropertyMode()) {
     const responses = {
       "What should I do first?": "Do the Gas Safety renewal task for 18 Willow Brook Drive first. It is the most time-sensitive item in the two-property portfolio.",
@@ -1178,6 +1474,20 @@ function getTasksAssistantResponse(prompt) {
 }
 
 function getActivityAssistantResponse(prompt) {
+  if (isEmptyPortfolioMode()) {
+    return "No property activity has been recorded yet. Add a property to start the activity timeline.";
+  }
+
+  if (isFivePropertyMode()) {
+    const responses = {
+      "What changed recently?": "CMP prepared a five-property Portfolio Sweep and identified 24 Maple Court as fully compliant.",
+      "What still needs attention?": "3 Station Road onboarding, Willow Brook Gas Safety renewal and Canal View licensing are the main items.",
+      "Summarise portfolio activity": "The activity feed shows the portfolio sweep, fully compliant property, renewal items and evidence gaps by property.",
+      "Why was this recorded?": "CMP records the portfolio sweep so the landlord can see why property-specific actions were created."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   if (isTwoPropertyMode()) {
     const responses = {
       "What changed recently?": "CMP flagged Gas Safety renewal for 18 Willow Brook Drive and kept 57 The Butts evidence status visible in the same activity feed.",
@@ -1193,6 +1503,10 @@ function getActivityAssistantResponse(prompt) {
 }
 
 function getGlobalAskDefaultResponse() {
+  if (isEmptyPortfolioMode()) {
+    return "No properties are connected yet. Add a property first, then CMP can personalise the A-Z Checker, compliance score, evidence score, tasks and service recommendations.";
+  }
+
   const activeRequest = activeSupportRequestForActivity();
 
   if (activeRequest) {
@@ -1217,6 +1531,18 @@ function getGlobalAskDefaultResponse() {
 }
 
 function getGlobalAskAssistantResponse(prompt) {
+  if (isEmptyPortfolioMode()) {
+    const responses = {
+      "What should I do today?": "Add your first property, then run the A-Z Compliance Checker. If you already have certificates, keep them ready for Evidence Vault upload after setup.",
+      "Which property needs attention?": "No property needs attention yet because the portfolio is empty.",
+      "What evidence is missing?": "CMP cannot identify missing evidence until a property and scenario are added. Typical starting evidence includes EPC, Gas Safety, EICR, alarms, tenancy documents and licensing answers.",
+      "Explain this property file": "There is no property file yet. CMP will create one from the first address and then attach evidence, answers, tasks and services to it.",
+      "Summarise my portfolio": "The portfolio currently has 0 properties. Scores and readiness checks will appear after setup.",
+      "What can wait until later?": "Detailed service recommendations can wait until the first property is added. Start with address, occupancy/scenario and any certificates you already hold."
+    };
+    return responses[prompt] || getGlobalAskDefaultResponse();
+  }
+
   const activeRequest = activeSupportRequestForActivity();
 
   if (activeRequest) {
@@ -1609,35 +1935,119 @@ function renderPortfolioHomeState() {
   const properties = getPortfolioProperties();
   const urgentProperty = portfolioUrgentProperty();
   const latestActivity = getRecentActivityItems();
-  const activeRequest = urgentProperty.currentRequest;
-  const propertyCountLabel = properties.length === 1 ? "property tracked" : "properties tracked";
   const autopilotTitle = document.querySelector("[data-home-autopilot-title]");
   const autopilotBody = document.querySelector("[data-home-autopilot-body]");
   const rankList = document.querySelector("[data-home-priority-rank-list]");
+  if (!properties.length) {
+    document.querySelector("[data-home-property-count]").textContent = "0";
+    document.querySelector("[data-home-property-count-detail]").textContent = "properties tracked";
+    document.querySelector("[data-home-priority-count]").textContent = "0";
+    document.querySelector("[data-home-priority-detail]").textContent = "add a property first";
+    document.querySelector("[data-home-verified-count]").textContent = "0";
+    document.querySelector("[data-home-review-count]").textContent = "0";
+    document.querySelector("[data-home-summary-title]").textContent = "Start from scratch";
+    document.querySelector("[data-home-summary-body]").textContent = "Add your first property, run the A-Z Checker, upload existing certificates, or ask CMP what to do first.";
+    document.querySelector("[data-home-priority-area]").textContent = "Onboarding";
+    document.querySelector("[data-home-priority-status]").textContent = "No properties yet";
+    document.querySelector("[data-home-priority-body]").textContent = "CMP needs at least one property before it can personalise compliance checks, evidence scores or service recommendations.";
+    document.querySelector("[data-home-upload-priority]").textContent = "Upload certificates later";
+    document.querySelector("[data-home-arrange-priority]").textContent = "Add first property";
+    if (autopilotTitle) {
+      autopilotTitle.textContent = "Build your CMP workspace from scratch";
+    }
+    if (autopilotBody) {
+      autopilotBody.textContent = "No properties are connected yet. CMP can still guide setup, explain what evidence to gather and prepare the first A-Z check.";
+    }
+    if (rankList) {
+      rankList.hidden = false;
+      rankList.innerHTML = `
+        <article class="priority-rank-item is-primary">
+          <span>Step 1</span>
+          <strong>Add your first property</strong>
+          <p>Start with an address and postcode so CMP can create the property file.</p>
+        </article>
+        <article class="priority-rank-item">
+          <span>Step 2</span>
+          <strong>Run the A-Z Compliance Checker</strong>
+          <p>Use the checker to discover which answers and evidence are needed.</p>
+        </article>
+      `;
+    }
+    const propertyList = document.querySelector("[data-home-property-list]");
+    if (propertyList) {
+      propertyList.innerHTML = `
+        <article class="empty-portfolio-card">
+          <span class="tile-icon" data-icon="building"></span>
+          <h3>No properties yet</h3>
+          <p>Add your first property to unlock compliance scoring, evidence tracking, tasks and service recommendations.</p>
+          <div class="button-row">
+            <button class="primary-button" type="button" data-home-add-property>Add your first property</button>
+            <button class="secondary-button" type="button" data-az-mode="single">Preview A-Z Checker</button>
+          </div>
+        </article>
+      `;
+    }
+    const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
+    if (upcomingGrid) {
+      upcomingGrid.innerHTML = [
+        ["Add first property", "Create the first CMP property file."],
+        ["Run A-Z Compliance Checker", "Answer setup questions before evidence is available."],
+        ["Upload existing certificates", "Keep EPC, Gas Safety, EICR and tenancy documents ready."],
+        ["Ask CMP what to do first", "Use the assistant for setup guidance."]
+      ].map(([title, body]) => `
+        <article class="portfolio-upcoming-card">
+          <span class="source-badge">Setup</span>
+          <h3>${title}</h3>
+          <p>${body}</p>
+          <button class="text-button" type="button" data-home-add-property>Start setup</button>
+        </article>
+      `).join("");
+    }
+    document.querySelector("[data-home-activity-list]").innerHTML = "<li>No property activity yet</li>";
+    return;
+  }
+  const activeRequest = urgentProperty.currentRequest;
+  const propertyCountLabel = properties.length === 1 ? "property tracked" : "properties tracked";
 
   if (autopilotTitle) {
-    autopilotTitle.textContent = isTwoPropertyMode()
+    autopilotTitle.textContent = isFivePropertyMode()
+      ? "Your five-property portfolio has two urgent actions"
+      : isTwoPropertyMode()
       ? "Your portfolio has a clear priority"
       : "Your portfolio has one clear next step";
   }
   if (autopilotBody) {
-    autopilotBody.textContent = isTwoPropertyMode()
+    autopilotBody.textContent = isFivePropertyMode()
+      ? "CMP has compared five properties, separated compliance readiness from evidence completeness and found one fully compliant file."
+      : isTwoPropertyMode()
       ? "CMP has compared both properties and found the most time-sensitive action first, while keeping other evidence gaps visible."
       : "CMP has reviewed the information currently stored for your property and highlighted the most useful action to take next.";
   }
   document.querySelector("[data-home-summary-title]").textContent = isTwoPropertyMode()
-    ? "Priority 1: Gas Safety renewal — 18 Willow Brook Drive"
+    ? isFivePropertyMode()
+      ? "Portfolio sweep: 1 fully compliant, 2 urgent actions"
+      : "Priority 1: Gas Safety renewal — 18 Willow Brook Drive"
     : labsState.eicrAdded
       ? "Add recent inspection evidence for 57 The Butts"
       : "Check whether 57 The Butts has a current EICR";
   document.querySelector("[data-home-summary-body]").textContent = isTwoPropertyMode()
-    ? "Gas Safety renewal is approaching sooner, so this is the first portfolio action to deal with."
+    ? isFivePropertyMode()
+      ? `${fullyCompliantProperties().length} property is fully compliant. ${portfolioUrgentActionCount()} urgent actions and ${portfolioEvidenceGapCount()} evidence gaps remain across the portfolio.`
+      : "Gas Safety renewal is approaching sooner, so this is the first portfolio action to deal with."
     : labsState.eicrAdded
       ? "Electrical Safety is recorded. Inspection evidence is the next useful improvement."
       : "Electrical Safety is the clearest evidence gap in the property file.";
   if (rankList) {
-    rankList.hidden = !isTwoPropertyMode();
-    rankList.innerHTML = isTwoPropertyMode()
+    rankList.hidden = !(isTwoPropertyMode() || isFivePropertyMode());
+    rankList.innerHTML = isFivePropertyMode()
+      ? getPortfolioProperties().slice().sort((a, b) => (a.complianceScore || 0) - (b.complianceScore || 0)).slice(0, 3).map((property, index) => `
+        <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
+          <span>${index === 0 ? "Priority 1" : "Watch"}</span>
+          <strong>${escapeHtml(property.focus)} — ${escapeHtml(property.address)}</strong>
+          <p>${escapeHtml(property.priorityBody)}</p>
+        </article>
+      `).join("")
+      : isTwoPropertyMode()
       ? `
         <article class="priority-rank-item is-primary">
           <span>Priority 1</span>
@@ -1654,15 +2064,17 @@ function renderPortfolioHomeState() {
   }
   document.querySelector("[data-home-property-count]").textContent = String(properties.length);
   document.querySelector("[data-home-property-count-detail]").textContent = propertyCountLabel;
-  document.querySelector("[data-home-priority-count]").textContent = isTwoPropertyMode() ? "2" : "1";
+  document.querySelector("[data-home-priority-count]").textContent = String(isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1);
   document.querySelector("[data-home-priority-detail]").textContent = activeRequest
     ? "request awaiting review"
     : isTwoPropertyMode() ? "ranked by urgency" : "clear next step";
   document.querySelector("[data-home-verified-count]").textContent = String(properties.reduce((sum, property) => sum + property.verifiedEvidence, 0));
-  document.querySelector("[data-home-review-count]").textContent = String(properties.reduce((sum, property) => sum + property.reviewCount, 0));
+  document.querySelector("[data-home-review-count]").textContent = String(isFivePropertyMode() ? portfolioEvidenceGapCount() : properties.reduce((sum, property) => sum + property.reviewCount, 0));
   document.querySelector("[data-home-priority-area]").textContent = urgentProperty.focusArea;
   document.querySelector("[data-home-priority-status]").textContent = urgentProperty.state;
-  document.querySelector("[data-home-priority-body]").textContent = isTwoPropertyMode()
+  document.querySelector("[data-home-priority-body]").textContent = isFivePropertyMode()
+    ? `${urgentProperty.label}: ${urgentProperty.priorityBody} Portfolio-wide: ${fullyCompliantProperties().length} property is fully compliant and ${portfolioEvidenceGapCount()} evidence gaps remain.`
+    : isTwoPropertyMode()
     ? `Priority 1: ${urgentProperty.focus} — ${urgentProperty.address}. ${urgentProperty.priorityBody} Also watch: 57 The Butts ${labsState.eicrAdded ? "needs inspection evidence next." : "still needs Electrical Safety evidence."}`
     : `${urgentProperty.label}: ${urgentProperty.priorityBody}`;
   document.querySelector("[data-home-upload-priority]").textContent = urgentProperty.id === "willow-brook"
@@ -1692,9 +2104,12 @@ function renderPortfolioHomeState() {
           </div>
         </div>
         <div class="portfolio-property-progress">
-          <span>Evidence strength</span>
-          <strong>${property.strength}% evidenced</strong>
-          <div class="strength-meter"><span style="width: ${property.strength}%"></span></div>
+          <span>Compliance score</span>
+          <strong>${property.complianceScore}% ready</strong>
+          <div class="strength-meter score-compliance"><span style="width: ${property.complianceScore}%"></span></div>
+          <span>Evidence score</span>
+          <strong>${property.evidenceScore}% evidenced</strong>
+          <div class="strength-meter"><span style="width: ${property.evidenceScore}%"></span></div>
           <small>${escapeHtml(property.statusDetail)}</small>
         </div>
         <div class="button-row">
@@ -1708,7 +2123,19 @@ function renderPortfolioHomeState() {
 
   const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
   if (upcomingGrid) {
-    const upcomingItems = [
+    const upcomingItems = isFivePropertyMode()
+      ? getPortfolioProperties()
+        .filter((property) => property.complianceScore < 100 || property.mostUrgent)
+        .slice(0, 4)
+        .map((property) => ({
+          badge: property.mostUrgent ? "Urgent" : property.state,
+          title: property.focus,
+          property: property.label || `${property.address} · ${property.postcode}`,
+          body: property.priorityBody,
+          action: `azSingle:${property.id}`,
+          label: "Run A-Z check"
+        }))
+      : [
       ...(isTwoPropertyMode()
         ? [{
             badge: "Renewal in 21 days",
@@ -1825,9 +2252,11 @@ function renderPropertiesCard(property) {
           </div>
         </div>
         <div class="properties-evidence">
-          <span>Evidence strength</span>
-          <strong>${property.strength}% evidenced</strong>
-          <div class="strength-meter"><span style="width: ${property.strength}%"></span></div>
+          <span>Scores</span>
+          <strong>${property.complianceScore}% compliance</strong>
+          <div class="strength-meter score-compliance"><span style="width: ${property.complianceScore}%"></span></div>
+          <small>${property.evidenceScore}% evidence</small>
+          <div class="strength-meter"><span style="width: ${property.evidenceScore}%"></span></div>
         </div>
       </div>
       <div class="properties-card-status">
@@ -1866,8 +2295,13 @@ function renderPropertiesCompactRow(property) {
       </div>
       <div>
         <span>Evidence</span>
-        <strong>${property.strength}% evidenced</strong>
-        <div class="strength-meter"><span style="width: ${property.strength}%"></span></div>
+        <strong>${property.evidenceScore}% evidence</strong>
+        <div class="strength-meter"><span style="width: ${property.evidenceScore}%"></span></div>
+      </div>
+      <div>
+        <span>Compliance</span>
+        <strong>${property.complianceScore}% ready</strong>
+        <div class="strength-meter score-compliance"><span style="width: ${property.complianceScore}%"></span></div>
       </div>
       <div>
         <span>Priority</span>
@@ -1894,11 +2328,36 @@ function renderPortfolioPropertiesState() {
   const results = properties.filter(propertyMatchesCurrentView);
   const cardView = labsState.propertiesView === "cards";
 
+  if (!properties.length) {
+    document.querySelector("[data-properties-count-badge]").textContent = "0 properties tracked";
+    document.querySelector("[data-properties-count]").textContent = "0";
+    document.querySelector("[data-properties-count-detail]").textContent = "properties tracked";
+    document.querySelector("[data-properties-attention-detail]").textContent = "Add first property";
+    document.querySelector("[data-properties-summary-strength]").textContent = "0%";
+    document.querySelector("[data-properties-open-requests]").textContent = "0";
+    const resultsContainer = document.querySelector("[data-properties-results]");
+    if (resultsContainer) {
+      resultsContainer.innerHTML = `
+        <article class="empty-portfolio-card">
+          <span class="tile-icon" data-icon="building"></span>
+          <h2>No properties yet</h2>
+          <p>Add a property to create a compliance workspace. CMP will then show per-property compliance and evidence scores.</p>
+          <div class="button-row">
+            <button class="primary-button" type="button" data-properties-add>Add property</button>
+            <button class="secondary-button" type="button" data-az-mode="single">Preview A-Z Checker</button>
+          </div>
+        </article>
+      `;
+    }
+    document.querySelector("[data-properties-empty]").hidden = true;
+    return;
+  }
+
   document.querySelector("[data-properties-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} tracked`;
   document.querySelector("[data-properties-count]").textContent = String(properties.length);
   document.querySelector("[data-properties-count-detail]").textContent = properties.length === 1 ? "property tracked" : "properties tracked";
   document.querySelector("[data-properties-attention-detail]").textContent = urgentProperty.focusArea;
-  document.querySelector("[data-properties-summary-strength]").textContent = `${Math.round(properties.reduce((sum, property) => sum + property.strength, 0) / properties.length)}%`;
+  document.querySelector("[data-properties-summary-strength]").textContent = `${portfolioEvidenceScore()}%`;
   document.querySelector("[data-properties-open-requests]").textContent = String(openRequests);
 
   const searchInput = document.querySelector("[data-properties-search]");
@@ -1943,6 +2402,26 @@ function currentComplianceRequest() {
 
 function renderComplianceMatrixRows(properties) {
   return properties.map((property) => {
+    if (!["the-butts", "willow-brook"].includes(property.id)) {
+      const scoreStatus = property.complianceScore === 100 ? "Confirmed" : property.complianceScore < 60 ? "Needs checking" : "Review";
+      const scoreClassName = property.complianceScore === 100 ? "status-good-text" : property.complianceScore < 60 ? "status-review-text" : "status-watch-text";
+      return `
+        <tr>
+          <th scope="row">
+            <strong>${escapeHtml(property.address)}</strong>
+            <span>${escapeHtml(property.location)}</span>
+          </th>
+          <td><span class="matrix-pill status-good-text">Confirmed</span><small>Record present</small></td>
+          <td><span class="matrix-pill ${scoreClassName}">${scoreStatus}</span><small>${escapeHtml(property.focusArea)}</small></td>
+          <td><span class="matrix-pill ${property.evidenceScore >= 80 ? "status-good-text" : "status-review-text"}">${property.evidenceScore >= 80 ? "Verified" : "Missing"}</span><small>${property.evidenceScore}% evidence</small></td>
+          <td><span class="matrix-pill ${scoreClassName}">${scoreStatus}</span><small>${property.complianceScore}% compliance</small></td>
+          <td><span class="matrix-pill ${property.id === "station-road" ? "status-review-text" : "status-watch-text"}">${property.id === "station-road" ? "Missing" : "Review"}</span><small>${escapeHtml(property.occupancy)}</small></td>
+          <td><span class="matrix-pill ${property.id === "canal-view" ? "status-review-text" : "status-good-text"}">${property.id === "canal-view" ? "Unresolved" : "Checked"}</span><small>Local authority watch</small></td>
+          <td><span class="matrix-pill ${property.evidenceScore === 100 ? "status-good-text" : "status-review-text"}">${property.evidenceScore === 100 ? "Stored" : "Gap"}</span><small>${property.missingEvidence.length} missing</small></td>
+        </tr>
+      `;
+    }
+
     if (property.id === "willow-brook") {
       return `
         <tr>
@@ -1986,17 +2465,59 @@ function renderPortfolioComplianceState() {
     return;
   }
 
-  const activeRequest = currentComplianceRequest();
   const properties = getPortfolioProperties();
   const urgentProperty = portfolioUrgentProperty();
+
+  if (!properties.length) {
+    document.querySelector("[data-compliance-count-badge]").textContent = "0 properties monitored";
+    document.querySelector("[data-compliance-property-count]").textContent = "0";
+    document.querySelector("[data-compliance-property-count-detail]").textContent = "properties tracked";
+    document.querySelector("[data-compliance-confirmed-count]").textContent = "0";
+    document.querySelector("[data-compliance-review-count]").textContent = "0";
+    document.querySelector("[data-compliance-open-count]").textContent = "0";
+    document.querySelector("[data-compliance-upcoming-count]").textContent = "0";
+    document.querySelector("[data-compliance-open-action-detail]").textContent = "setup";
+    document.querySelector("[data-compliance-priority-title]").textContent = "No properties yet";
+    document.querySelector("[data-compliance-priority-body]").textContent = "Add a property to run the A-Z Compliance Checker, create required evidence lists and generate readiness scores.";
+    document.querySelector("[data-compliance-priority-upload]").textContent = "Add property first";
+    document.querySelector("[data-compliance-priority-support]").textContent = "Ask CMP what to prepare";
+    const matrixBody = document.querySelector("[data-compliance-matrix-body]");
+    if (matrixBody) {
+      matrixBody.innerHTML = `
+        <tr>
+          <td colspan="8">
+            <article class="empty-inline-state">
+              <strong>No properties to check</strong>
+              <span>Use Add property or preview the A-Z setup questions.</span>
+            </article>
+          </td>
+        </tr>
+      `;
+    }
+    const forecastGrid = document.querySelector("[data-compliance-forecast-grid]");
+    if (forecastGrid) {
+      forecastGrid.innerHTML = `
+        <article>
+          <span>Setup</span>
+          <strong>No forecast yet</strong>
+          <p>Add a property before CMP can show 90-day compliance watch items.</p>
+        </article>
+      `;
+    }
+    renderComplianceGaps();
+    renderAzChecker();
+    return;
+  }
+
+  const activeRequest = currentComplianceRequest();
 
   document.querySelector("[data-compliance-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} monitored`;
   document.querySelector("[data-compliance-property-count]").textContent = String(properties.length);
   document.querySelector("[data-compliance-property-count-detail]").textContent = properties.length === 1 ? "property tracked" : "properties tracked";
-  document.querySelector("[data-compliance-confirmed-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "7" : "6") : labsState.eicrAdded ? "3" : "2";
-  document.querySelector("[data-compliance-review-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "7") : labsState.eicrAdded ? "2" : "3";
-  document.querySelector("[data-compliance-open-count]").textContent = String(isTwoPropertyMode() ? 2 : 1);
-  document.querySelector("[data-compliance-upcoming-count]").textContent = String(isTwoPropertyMode() ? 3 : 2);
+  document.querySelector("[data-compliance-confirmed-count]").textContent = isFivePropertyMode() ? "19" : isTwoPropertyMode() ? (labsState.eicrAdded ? "7" : "6") : labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-compliance-review-count]").textContent = isFivePropertyMode() ? String(portfolioEvidenceGapCount()) : isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "7") : labsState.eicrAdded ? "2" : "3";
+  document.querySelector("[data-compliance-open-count]").textContent = String(isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1);
+  document.querySelector("[data-compliance-upcoming-count]").textContent = String(isFivePropertyMode() ? 5 : isTwoPropertyMode() ? 3 : 2);
   document.querySelector("[data-compliance-open-action-detail]").textContent = urgentProperty.focusArea;
   document.querySelector("[data-compliance-priority-title]").textContent = `${urgentProperty.address} needs ${urgentProperty.focus.toLowerCase()}`;
   document.querySelector("[data-compliance-priority-body]").textContent = urgentProperty.priorityBody;
@@ -2066,12 +2587,60 @@ function renderPortfolioComplianceState() {
   }
 
   renderComplianceGaps();
+  renderAzChecker();
 }
 
 function renderComplianceGaps() {
   const list = document.querySelector("[data-compliance-gap-list]");
 
   if (!list) {
+    return;
+  }
+
+  if (isEmptyPortfolioMode()) {
+    list.innerHTML = `
+      <article class="compliance-gap-card">
+        <div>
+          <h3>No compliance gaps yet</h3>
+          <p>Add a property to generate required actions, evidence gaps and service recommendations.</p>
+        </div>
+        <div class="compliance-gap-actions">
+          <button class="primary-button" type="button" data-properties-add>Add property</button>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  if (isFivePropertyMode()) {
+    const gaps = getPortfolioProperties()
+      .filter((property) => property.complianceScore < 100 || property.evidenceScore < 100)
+      .slice()
+      .sort((a, b) => (a.complianceScore + a.evidenceScore) - (b.complianceScore + b.evidenceScore))
+      .map((property) => ({
+        title: `${property.address}: ${property.focus}`,
+        detail: `${property.location} · ${property.state} · ${property.missingEvidence.length} evidence gaps`,
+        actions: [
+          { label: "Run A-Z check", action: `azSingle:${property.id}`, primary: property.complianceScore < 60 },
+          { label: property.recommendedService || "Review support", action: `service:${property.id}` }
+        ]
+      }));
+
+    list.innerHTML = gaps.map((gap) => `
+      <article class="compliance-gap-card">
+        <div>
+          <h3>${escapeHtml(gap.title)}</h3>
+          <p>${escapeHtml(gap.detail)}</p>
+        </div>
+        <div class="compliance-gap-actions">
+          ${gap.actions.map((action) => `
+            <button class="${action.primary ? "primary-button" : "text-button"}" type="button" data-compliance-action="${escapeHtml(action.action)}">
+              ${escapeHtml(action.label)}
+            </button>
+          `).join("")}
+        </div>
+      </article>
+    `).join("");
     return;
   }
 
@@ -2129,6 +2698,846 @@ function renderComplianceGaps() {
       </div>
     </article>
   `).join("");
+}
+
+const azScenarioLabels = {
+  general: "General compliance check",
+  ready: "Ready to let",
+  tenanted: "Currently tenanted",
+  purchase: "New purchase review",
+  hmo: "HMO / licensing review",
+  possession: "Possession readiness",
+  evidence_pack: "Compliance evidence pack"
+};
+
+const azSections = [
+  {
+    id: "property-basics",
+    title: "Property basics",
+    icon: "home",
+    completion: 36,
+    description: "Confirm the property setup, journey context and core facts CMP uses to decide what applies."
+  },
+  {
+    id: "epc",
+    title: "EPC",
+    icon: "energy",
+    completion: 36,
+    description: "Review rating, expiry, reference and whether evidence has been pulled from records or uploaded."
+  },
+  {
+    id: "gas-safety",
+    title: "Gas Safety",
+    icon: "flame",
+    completion: 98,
+    description: "Check whether gas appliances apply, certificate dates, tenant service and certificate evidence."
+  },
+  {
+    id: "electrical-safety",
+    title: "Electrical Safety",
+    icon: "bolt",
+    completion: 36,
+    description: "Track EICR status, issue date, tenant service and missing electrical evidence."
+  },
+  {
+    id: "alarms",
+    title: "Alarms",
+    icon: "bell",
+    completion: 98,
+    description: "Record smoke and carbon monoxide alarm answers, tenancy-start tests and supporting photos."
+  },
+  {
+    id: "tenancy-deposit",
+    title: "Tenancy & deposit",
+    icon: "file",
+    completion: 36,
+    description: "Check tenancy agreements, deposit protection, prescribed information and served documents."
+  },
+  {
+    id: "licensing",
+    title: "Licensing",
+    icon: "badge",
+    completion: 98,
+    description: "Capture local licensing, HMO/selective licensing watch items, expiry dates and evidence."
+  },
+  {
+    id: "inspections-maintenance",
+    title: "Inspections and maintenance",
+    icon: "tools",
+    completion: 36,
+    description: "Organise inspection dates, repairs, maintenance notes and condition evidence."
+  },
+  {
+    id: "evidence-pack",
+    title: "Evidence pack",
+    icon: "vault",
+    completion: 98,
+    description: "Bring certificate and document gaps into one evidence pack view."
+  },
+  {
+    id: "possession-prep",
+    title: "Possession preparation evidence",
+    icon: "shield",
+    completion: 98,
+    description: "Prepare notice evidence, tenant communications and repair history for a possession-readiness pack."
+  },
+  {
+    id: "mould-damp",
+    title: "Mould and damp",
+    icon: "droplet",
+    completion: 36,
+    description: "Check damp or mould reports, repair records, communications and photos."
+  },
+  {
+    id: "summary",
+    title: "Summary",
+    icon: "check",
+    completion: 98,
+    description: "Review completed checks, unanswered items, missing proof, renewals and next actions."
+  }
+];
+
+function azSelectedProperty() {
+  const properties = getPortfolioProperties();
+  return properties.find((property) => property.id === labsState.azPropertyId) || properties[0] || buttsPortfolioProperty();
+}
+
+function azStatusForProperty(property) {
+  if (!getPortfolioProperties().length) {
+    return "Setup needed";
+  }
+  if (property.complianceScore === 100 && property.evidenceScore === 100) {
+    return "Ready";
+  }
+  if (property.complianceScore < 55 || property.evidenceScore < 45) {
+    return "Blocked";
+  }
+  return "Needs review";
+}
+
+function scenarioPriorityList(scenario, property) {
+  const defaults = {
+    ready: ["EICR, Gas Safety and EPC", "Alarm-test evidence", "Tenant-facing documents"],
+    tenanted: ["Renewal dates", "Tenant-facing evidence", "Inspection and repair history"],
+    purchase: ["Seller certificates", "Initial inspection", "Licensing and permissions"],
+    hmo: ["Occupancy answers", "HMO/selective licensing", "Fire and amenity evidence"],
+    possession: ["Evidence pack", "Tenancy documents", "Repair and communication history"],
+    evidence_pack: ["Export-ready certificates", "Activity timeline", "Landlord answers"],
+    general: ["Six essential checks", "Missing evidence", "Recommended services"]
+  };
+
+  return property.missingEvidence?.length
+    ? [...new Set([...property.missingEvidence.slice(0, 3), ...(defaults[scenario] || defaults.general).slice(0, 2)])]
+    : defaults[scenario] || defaults.general;
+}
+
+function activeAzSection() {
+  return azSections.find((section) => section.id === labsState.activeCheckerSection) || azSections[0];
+}
+
+function activeAzSectionIndex() {
+  return Math.max(0, azSections.findIndex((section) => section.id === activeAzSection().id));
+}
+
+function scenarioTargetSection(scenario) {
+  const targets = {
+    ready: "gas-safety",
+    tenanted: "tenancy-deposit",
+    purchase: "property-basics",
+    hmo: "licensing",
+    possession: "possession-prep",
+    evidence_pack: "evidence-pack",
+    general: "property-basics"
+  };
+  return targets[scenario] || "property-basics";
+}
+
+function scenarioPriorityCopy(property) {
+  const copies = {
+    ready: `CMP is prioritising certificates, alarms and tenant-facing documents before ${property.address} is marked ready to let.`,
+    tenanted: `CMP is checking tenant-serving evidence, renewal dates and inspection records for ${property.address}.`,
+    purchase: `CMP is treating ${property.address} as an onboarding review, so seller evidence and initial setup questions stay prominent.`,
+    hmo: `CMP is focusing on licensing/HMO answers and local-authority uncertainty for ${property.address}.`,
+    possession: `CMP is organising notices, communications and repair evidence before any possession pathway is progressed.`,
+    evidence_pack: `CMP is building an evidence pack view so gaps can be uploaded or confirmed without repeating questions.`,
+    general: `CMP is checking the six essential compliance areas and separating missing answers from missing evidence.`
+  };
+  return copies[labsState.azScenario] || copies.general;
+}
+
+function checkerScopeKey() {
+  return labsState.azMode === "portfolio" ? "portfolio" : azSelectedProperty().id;
+}
+
+function checkerAnswerKey(sectionId, cardId, scope = checkerScopeKey()) {
+  return `${scope}:${sectionId}:${cardId}`;
+}
+
+function checkerAnswer(sectionId, cardId, fallback) {
+  return labsState.checkerAnswers[checkerAnswerKey(sectionId, cardId)] || fallback;
+}
+
+function setCheckerAnswer(sectionId, cardId, value, scope = checkerScopeKey()) {
+  labsState.checkerAnswers[checkerAnswerKey(sectionId, cardId, scope)] = value;
+}
+
+function propertyCheckerFacts(property) {
+  const facts = {
+    "the-butts": {
+      type: "Terraced house",
+      bedrooms: "2 bedrooms",
+      storeys: "2 floors",
+      tenanted: "Yes",
+      epcRating: "C",
+      epcExpiry: "10 Feb 2034",
+      epcRef: "EPC-57TB-CV1",
+      gasAppliances: "No",
+      gasIssue: "Not applicable",
+      gasGiven: "N/A",
+      eicrIssue: "Setup needed",
+      eicrResult: "Missing",
+      eicrGiven: "Unknown",
+      alarmSmoke: "Yes",
+      alarmFuel: "Not sure",
+      coAlarm: "Not sure",
+      alarmTest: "Setup needed",
+      tenancyAgreement: "Present",
+      depositProtected: "Confirmed",
+      prescribedInfo: "Confirmed",
+      tenantDocs: "Part confirmed",
+      licensingChecked: "Checking",
+      licenceExpiry: "Unknown",
+      inspectionDate: "Setup needed",
+      possessionActive: labsState.azScenario === "possession" ? "Yes" : "No",
+      dampReport: "Not answered yet"
+    },
+    "willow-brook": {
+      type: "Semi-detached house",
+      bedrooms: "3 bedrooms",
+      storeys: "2 floors",
+      tenanted: "Yes",
+      epcRating: "B",
+      epcExpiry: "18 Nov 2031",
+      epcRef: "EPC-WBD-B37",
+      gasAppliances: "Yes",
+      gasIssue: "Renewal due soon",
+      gasGiven: "Yes",
+      eicrIssue: "12 Mar 2022",
+      eicrResult: "Satisfactory",
+      eicrGiven: "Yes",
+      alarmSmoke: "Yes",
+      alarmFuel: "Yes",
+      coAlarm: "Yes",
+      alarmTest: "Confirmed",
+      tenancyAgreement: "Present",
+      depositProtected: "Confirmed",
+      prescribedInfo: "Confirmed",
+      tenantDocs: "Confirmed",
+      licensingChecked: "No local issue found",
+      licenceExpiry: "N/A",
+      inspectionDate: "16 Apr 2026",
+      possessionActive: "No",
+      dampReport: "No issue recorded"
+    },
+    "maple-court": {
+      type: "Apartment",
+      bedrooms: "2 bedrooms",
+      storeys: "1 floor",
+      tenanted: "Yes",
+      epcRating: "A",
+      epcExpiry: "10 Feb 2034",
+      epcRef: "EPC-24MC-B1",
+      gasAppliances: "No",
+      gasIssue: "N/A",
+      gasGiven: "N/A",
+      eicrIssue: "20 Jan 2026",
+      eicrResult: "Satisfactory",
+      eicrGiven: "Yes",
+      alarmSmoke: "Yes",
+      alarmFuel: "No",
+      coAlarm: "N/A",
+      alarmTest: "Confirmed",
+      tenancyAgreement: "Present",
+      depositProtected: "Confirmed",
+      prescribedInfo: "Confirmed",
+      tenantDocs: "Confirmed",
+      licensingChecked: "Confirmed",
+      licenceExpiry: "N/A",
+      inspectionDate: "03 May 2026",
+      possessionActive: "No",
+      dampReport: "No issue recorded"
+    },
+    "canal-view": {
+      type: "Flat above commercial",
+      bedrooms: "4 bedrooms",
+      storeys: "2 floors",
+      tenanted: "Yes",
+      epcRating: "C",
+      epcExpiry: "22 Aug 2030",
+      epcRef: "EPC-9CV-B18",
+      gasAppliances: "Yes",
+      gasIssue: "14 Sep 2025",
+      gasGiven: "Yes",
+      eicrIssue: "09 Oct 2023",
+      eicrResult: "Satisfactory",
+      eicrGiven: "Yes",
+      alarmSmoke: "Yes",
+      alarmFuel: "Yes",
+      coAlarm: "Yes",
+      alarmTest: "Confirmed",
+      tenancyAgreement: "Present",
+      depositProtected: "Confirmed",
+      prescribedInfo: "Confirmed",
+      tenantDocs: "Confirmed",
+      licensingChecked: "Unresolved",
+      licenceExpiry: "Answer needed",
+      inspectionDate: "21 Mar 2026",
+      possessionActive: "No",
+      dampReport: "Not answered yet"
+    },
+    "station-road": {
+      type: "New purchase",
+      bedrooms: "Setup needed",
+      storeys: "Setup needed",
+      tenanted: "Unknown",
+      epcRating: "Missing",
+      epcExpiry: "Unknown",
+      epcRef: "Missing",
+      gasAppliances: "Unknown",
+      gasIssue: "Setup needed",
+      gasGiven: "Unknown",
+      eicrIssue: "Setup needed",
+      eicrResult: "Missing",
+      eicrGiven: "Unknown",
+      alarmSmoke: "Not answered yet",
+      alarmFuel: "Not answered yet",
+      coAlarm: "Not answered yet",
+      alarmTest: "Setup needed",
+      tenancyAgreement: "Missing",
+      depositProtected: "Not started",
+      prescribedInfo: "Not started",
+      tenantDocs: "Not started",
+      licensingChecked: "Setup needed",
+      licenceExpiry: "Unknown",
+      inspectionDate: "Setup needed",
+      possessionActive: "No",
+      dampReport: "Not answered yet"
+    }
+  };
+
+  return facts[property.id] || facts["the-butts"];
+}
+
+function azSourceForValue(value, defaultSource = "Property record") {
+  const missingValues = ["Setup needed", "Not answered yet", "Unknown", "Missing", "Answer needed", "Not started"];
+  return missingValues.includes(value) ? "Setup needed" : defaultSource;
+}
+
+function azCard(sectionId, card) {
+  return {
+    sectionId,
+    action: "Edit",
+    control: "choice",
+    helper: "Prototype answer only. You can change it later.",
+    options: ["Yes", "No", "Not sure", "N/A"],
+    ...card
+  };
+}
+
+function azCardsForSection(sectionId, property) {
+  const facts = propertyCheckerFacts(property);
+  const status = azStatusForProperty(property);
+  const evidenceSource = property.evidenceScore >= 90 ? "Evidence Vault" : "Evidence missing";
+  const gasEvidence = facts.gasIssue === "N/A" || facts.gasIssue === "Not applicable" ? "Not applicable" : property.id === "willow-brook" ? "Expiring soon" : property.id === "station-road" ? "Evidence missing" : "Uploaded";
+  const eicrEvidence = facts.eicrResult === "Missing" ? "Evidence missing" : "Uploaded";
+
+  const sections = {
+    "property-basics": [
+      azCard(sectionId, { id: "journey", eyebrow: "Journey context", label: "Current journey", value: labsState.azScenario === "possession" ? "Build a possession evidence pack before progressing." : azScenarioLabels[labsState.azScenario], source: "Journey context", action: "Edit", control: "select", options: Object.values(azScenarioLabels), helper: "This changes the checks CMP prioritises for this property." }),
+      azCard(sectionId, { id: "type", eyebrow: "Property record", label: "Property type", value: facts.type, source: azSourceForValue(facts.type), action: "Edit", control: "select", options: ["Terraced house", "Semi-detached house", "Apartment", "Flat above commercial", "New purchase", "HMO / shared house"] }),
+      azCard(sectionId, { id: "bedrooms", eyebrow: "Property record", label: "Bedrooms", value: facts.bedrooms, source: azSourceForValue(facts.bedrooms), action: "Edit", control: "range", min: 0, max: 8, suffix: " bedrooms", helper: "Use 0 if CMP should ask for this later." }),
+      azCard(sectionId, { id: "storeys", eyebrow: "Property record", label: "Storeys", value: facts.storeys, source: azSourceForValue(facts.storeys), action: "Edit", control: "range", min: 1, max: 5, suffix: " floors" }),
+      azCard(sectionId, { id: "tenanted", eyebrow: "Occupancy", label: "Is the property currently tenanted?", value: facts.tenanted, source: azSourceForValue(facts.tenanted), action: "Answer" })
+    ],
+    epc: [
+      azCard(sectionId, { id: "rating", eyebrow: "EPC data", label: "Current EPC rating", value: facts.epcRating, source: facts.epcRating === "Missing" ? "Evidence missing" : "EPC data pulled automatically", action: facts.epcRating === "Missing" ? "Add" : "Review", control: "select", options: ["A", "B", "C", "D", "E", "F", "G", "Missing", "Not sure"] }),
+      azCard(sectionId, { id: "expiry", eyebrow: "EPC data", label: "EPC expiry", value: facts.epcExpiry, source: azSourceForValue(facts.epcExpiry, "EPC data pulled automatically"), action: "Edit", control: "date" }),
+      azCard(sectionId, { id: "reference", eyebrow: "Certificate", label: "Certificate reference", value: facts.epcRef, source: azSourceForValue(facts.epcRef, "EPC data pulled automatically"), action: "Review", control: "note", helper: "Correct the reference if the automatic record does not match the certificate." }),
+      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload EPC certificate", value: facts.epcRating === "Missing" ? "Evidence missing" : `Rating ${facts.epcRating} · expires ${facts.epcExpiry}`, source: facts.epcRating === "Missing" ? "Evidence Vault" : "EPC data pulled automatically", action: facts.epcRating === "Missing" ? "Upload" : "Replace", control: "upload", helper: "Upload is simulated in this Labs prototype." })
+    ],
+    "gas-safety": [
+      azCard(sectionId, { id: "appliances", eyebrow: "Landlord answer", label: "Does the property have gas appliances?", value: facts.gasAppliances, source: azSourceForValue(facts.gasAppliances, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "issue-date", eyebrow: "Certificate", label: "Gas certificate issue date", value: facts.gasIssue, source: azSourceForValue(facts.gasIssue, "Evidence Vault"), action: "Edit", control: "date" }),
+      azCard(sectionId, { id: "given-tenant", eyebrow: "Tenant service", label: "Was the gas safety certificate given to the tenant?", value: facts.gasGiven, source: azSourceForValue(facts.gasGiven, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "engineer", eyebrow: "Certificate detail", label: "Engineer or registration note", value: property.id === "station-road" ? "Scan should fill this in automatically" : "Record held in evidence pack", source: property.id === "station-road" ? "Setup needed" : "Evidence Vault", action: "Add", control: "note" }),
+      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload Gas Safety certificate", value: gasEvidence, source: gasEvidence === "Evidence missing" ? "Evidence missing" : "Evidence Vault", action: gasEvidence === "Evidence missing" ? "Upload" : "Replace", control: "upload" })
+    ],
+    "electrical-safety": [
+      azCard(sectionId, { id: "issue-date", eyebrow: "Certificate", label: "EICR issue date", value: facts.eicrIssue, source: azSourceForValue(facts.eicrIssue, "Evidence Vault"), action: "Edit", control: "date" }),
+      azCard(sectionId, { id: "result", eyebrow: "Certificate", label: "EICR result", value: facts.eicrResult, source: facts.eicrResult === "Missing" ? "Evidence missing" : "Evidence Vault", action: facts.eicrResult === "Missing" ? "Add" : "Review", control: "select", options: ["Satisfactory", "Unsatisfactory", "Remedial work completed", "Missing", "Not sure"] }),
+      azCard(sectionId, { id: "given-tenant", eyebrow: "Tenant service", label: "Was the EICR given to the tenant?", value: facts.eicrGiven, source: azSourceForValue(facts.eicrGiven, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload EICR evidence", value: eicrEvidence, source: eicrEvidence === "Evidence missing" ? "Evidence missing" : "Evidence Vault", action: eicrEvidence === "Evidence missing" ? "Upload" : "Replace", control: "upload" })
+    ],
+    alarms: [
+      azCard(sectionId, { id: "smoke", eyebrow: "Alarm check", label: "Smoke alarm on each storey used as living accommodation?", value: facts.alarmSmoke, source: azSourceForValue(facts.alarmSmoke, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "combustion", eyebrow: "Alarm check", label: "Any fixed combustion appliance, excluding gas cookers?", value: facts.alarmFuel, source: azSourceForValue(facts.alarmFuel, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "co", eyebrow: "Alarm check", label: "CO alarm present where required?", value: facts.coAlarm, source: azSourceForValue(facts.coAlarm, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "tested", eyebrow: "Tenancy start", label: "Alarms tested at tenancy start?", value: facts.alarmTest, source: azSourceForValue(facts.alarmTest, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload alarm photos or report", value: property.evidenceScore > 75 ? "Uploaded document" : "Evidence missing", source: evidenceSource, action: property.evidenceScore > 75 ? "Replace" : "Upload", control: "upload" })
+    ],
+    "tenancy-deposit": [
+      azCard(sectionId, { id: "agreement", eyebrow: "Document", label: "Tenancy agreement present?", value: facts.tenancyAgreement, source: azSourceForValue(facts.tenancyAgreement, "Evidence Vault"), action: "Review" }),
+      azCard(sectionId, { id: "deposit", eyebrow: "Deposit", label: "Deposit protected?", value: facts.depositProtected, source: azSourceForValue(facts.depositProtected, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "prescribed", eyebrow: "Deposit", label: "Prescribed information served?", value: facts.prescribedInfo, source: azSourceForValue(facts.prescribedInfo, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "tenant-docs", eyebrow: "Tenant service", label: "Tenant received relevant documents?", value: facts.tenantDocs, source: azSourceForValue(facts.tenantDocs, "Confirmed by answer"), action: "Answer" }),
+      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload tenancy/deposit documents", value: facts.tenancyAgreement === "Missing" ? "Evidence missing" : "Uploaded document", source: evidenceSource, action: facts.tenancyAgreement === "Missing" ? "Upload" : "Replace", control: "upload" })
+    ],
+    licensing: [
+      azCard(sectionId, { id: "checked", eyebrow: "Local authority", label: "Local licensing checked?", value: facts.licensingChecked, source: azSourceForValue(facts.licensingChecked, "Local authority / PRS watch item"), action: facts.licensingChecked === "Unresolved" ? "Review" : "Edit", control: "select", options: ["Confirmed", "No local issue found", "Unresolved", "Setup needed", "Not sure"] }),
+      azCard(sectionId, { id: "expiry", eyebrow: "Licence", label: "Licence expiry date", value: facts.licenceExpiry, source: azSourceForValue(facts.licenceExpiry, "Property record"), action: "Edit", control: "date" }),
+      azCard(sectionId, { id: "evidence", eyebrow: "Evidence", label: "Licence evidence", value: facts.licensingChecked === "Unresolved" || facts.licensingChecked === "Setup needed" ? "Evidence missing" : "Official record", source: facts.licensingChecked === "Unresolved" ? "Evidence missing" : "Property record", action: facts.licensingChecked === "Unresolved" ? "Upload" : "Review", control: "upload" }),
+      azCard(sectionId, { id: "watch", eyebrow: "PRS watch", label: "Local authority / PRS watch item", value: property.id === "canal-view" ? "Licensing question unresolved" : "No active watch item", source: property.id === "canal-view" ? "CMP watch list" : "Property record", action: "Review", control: "note" })
+    ],
+    "inspections-maintenance": [
+      azCard(sectionId, { id: "last-inspection", eyebrow: "Inspection", label: "Last inspection date", value: facts.inspectionDate, source: azSourceForValue(facts.inspectionDate, "Property record"), action: "Edit", control: "date" }),
+      azCard(sectionId, { id: "repair-notes", eyebrow: "Maintenance", label: "Repair or maintenance notes", value: property.id === "station-road" ? "Setup needed" : "Notes stored", source: property.id === "station-road" ? "Setup needed" : "Activity timeline", action: "Add", control: "note" }),
+      azCard(sectionId, { id: "inspection-report", eyebrow: "Evidence", label: "Upload inspection report", value: property.missingEvidence.some((gap) => gap.toLowerCase().includes("inspection")) ? "Evidence missing" : "Uploaded document", source: evidenceSource, action: "Upload", control: "upload" }),
+      azCard(sectionId, { id: "inspection-pics", eyebrow: "Evidence", label: "Upload latest inspection pics", value: property.evidenceScore > 80 ? "Uploaded document" : "Evidence not uploaded", source: evidenceSource, action: "Upload", control: "upload" })
+    ],
+    "evidence-pack": [
+      azCard(sectionId, { id: "upload-docs", eyebrow: "Evidence", label: "Upload property documents", value: property.evidenceScore === 100 ? "Complete" : `${property.missingEvidence.length} gaps still showing`, source: "Evidence Vault", action: "Upload", control: "upload" }),
+      azCard(sectionId, { id: "gaps", eyebrow: "Evidence", label: "Evidence gaps still showing", value: property.missingEvidence.length ? property.missingEvidence.join(", ") : "None", source: "Evidence Vault", action: property.missingEvidence.length ? "Review" : "Confirm", control: "note" }),
+      azCard(sectionId, { id: "gas-status", eyebrow: "Certificate", label: "Gas Safety evidence status", value: gasEvidence, source: "Evidence Vault", action: "Review", control: "upload" }),
+      azCard(sectionId, { id: "eicr-status", eyebrow: "Certificate", label: "Electrical Safety evidence status", value: eicrEvidence, source: "Evidence Vault", action: "Review", control: "upload" }),
+      azCard(sectionId, { id: "deposit-status", eyebrow: "Tenancy", label: "Deposit protection evidence status", value: facts.depositProtected === "Confirmed" ? "Confirmed" : "Evidence missing", source: "Evidence Vault", action: "Review", control: "upload" })
+    ],
+    "possession-prep": [
+      azCard(sectionId, { id: "active", eyebrow: "Journey", label: "Is a possession or eviction workflow active?", value: facts.possessionActive, source: "Journey context", action: "Answer" }),
+      azCard(sectionId, { id: "notices", eyebrow: "Evidence", label: "Notice evidence organised?", value: facts.possessionActive === "Yes" ? "Setup needed" : "N/A", source: "Evidence pack", action: "Add", control: "upload" }),
+      azCard(sectionId, { id: "communications", eyebrow: "Evidence", label: "Tenant communications organised?", value: facts.possessionActive === "Yes" ? "Part organised" : "N/A", source: "Activity timeline", action: "Review", control: "note" }),
+      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload notices or possession evidence", value: facts.possessionActive === "Yes" ? "Evidence missing" : "Not required yet", source: "Evidence Vault", action: "Upload", control: "upload" })
+    ],
+    "mould-damp": [
+      azCard(sectionId, { id: "report", eyebrow: "Hazards", label: "Do you have a damp or mould report?", value: facts.dampReport, source: azSourceForValue(facts.dampReport, "Property record"), action: "Answer" }),
+      azCard(sectionId, { id: "repair-history", eyebrow: "Repairs", label: "Repair history organised?", value: property.id === "station-road" ? "Setup needed" : "Organised", source: property.id === "station-road" ? "Setup needed" : "Activity timeline", action: "Review", control: "note" }),
+      azCard(sectionId, { id: "communications", eyebrow: "Tenant comms", label: "Tenant communications organised?", value: property.id === "station-road" ? "Not started" : "Organised", source: "Activity timeline", action: "Review", control: "note" }),
+      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload mould report or photos", value: facts.dampReport === "No issue recorded" ? "N/A" : "Evidence missing", source: "Evidence Vault", action: "Upload", control: "upload" })
+    ],
+    summary: [
+      azCard(sectionId, { id: "completed", eyebrow: "Summary", label: "Completed checks", value: property.complianceScore === 100 ? "All core checks complete" : `${Math.round(property.complianceScore / 10)} of 10 core checks ready`, source: "CMP readiness model", action: "Review", control: "note" }),
+      azCard(sectionId, { id: "unanswered", eyebrow: "Summary", label: "Still unanswered", value: property.complianceScore === 100 ? "None" : property.id === "station-road" ? "Property setup, certificates, tenancy" : "Some answers can be double-checked later", source: "Landlord answers", action: "Review", control: "note" }),
+      azCard(sectionId, { id: "proof", eyebrow: "Summary", label: "Known missing proof", value: property.missingEvidence.length ? property.missingEvidence.join(", ") : "None", source: "Evidence Vault", action: property.missingEvidence.length ? "Upload" : "Confirm", control: "upload" }),
+      azCard(sectionId, { id: "renewals", eyebrow: "Summary", label: "Renewals", value: property.id === "willow-brook" ? "Gas Safety renewal soon" : property.complianceScore === 100 ? "No urgent renewals" : "Review expiry dates", source: "Timeline forecast", action: "Review", control: "date" }),
+      azCard(sectionId, { id: "next", eyebrow: "Summary", label: "Possible next steps", value: property.recommendedService || "No service needed", source: "Scenario builder", action: "Review", control: "note" })
+    ]
+  };
+
+  return sections[sectionId] || sections["property-basics"];
+}
+
+function renderAzPropertySelector(properties) {
+  return `
+    <label class="az-field">
+      <span>Property</span>
+      <select data-az-property-select>
+        ${properties.map((property) => `
+          <option value="${escapeHtml(property.id)}" ${property.id === azSelectedProperty().id ? "selected" : ""}>
+            ${escapeHtml(property.address)} · ${property.complianceScore}% compliance
+          </option>
+        `).join("")}
+      </select>
+    </label>
+  `;
+}
+
+function renderAzScenarioSelector() {
+  return `
+    <label class="az-field">
+      <span>Scenario</span>
+      <select data-az-scenario-select>
+        ${Object.entries(azScenarioLabels).map(([key, label]) => `
+          <option value="${key}" ${key === labsState.azScenario ? "selected" : ""}>${escapeHtml(label)}</option>
+        `).join("")}
+      </select>
+    </label>
+  `;
+}
+
+function renderAzProgressHeader({ property, modeLabel }) {
+  const section = activeAzSection();
+  const step = activeAzSectionIndex() + 1;
+  const completeSections = azSections.filter((item) => item.completion >= 90).length;
+  const remainingAnswers = labsState.azMode === "portfolio" ? 33 : Math.max(6, Math.round((100 - property.complianceScore) / 2));
+  const progress = Math.round(azSections.reduce((total, item) => total + item.completion, 0) / azSections.length);
+
+  return `
+    <div class="az-product-header">
+      <div class="az-product-header-copy">
+        <p class="section-kicker">A-Z Compliance Check</p>
+        <h3>Answer what you know. CMP organises the rest.</h3>
+        <p>${escapeHtml(modeLabel)} · ${escapeHtml(azScenarioLabels[labsState.azScenario])} · ${escapeHtml(section.title)}</p>
+      </div>
+      <div class="az-progress-panel" aria-label="Checker progress">
+        <strong>Step ${step} of ${azSections.length}</strong>
+        <span>${completeSections}/11 sections complete</span>
+        <small>${completeSections} of 11 sections recorded so far · ${remainingAnswers} answers can still be double-checked later</small>
+        <div class="az-progress-track"><span style="width: ${progress}%"></span></div>
+      </div>
+    </div>
+  `;
+}
+
+function renderAzSectionRail() {
+  return `
+    <nav class="az-section-rail" aria-label="A-Z checker sections">
+      ${azSections.map((section) => `
+        <button type="button" class="${section.id === activeAzSection().id ? "is-active" : ""}" data-az-section="${escapeHtml(section.id)}">
+          <span class="az-section-icon" data-az-icon="${escapeHtml(section.icon)}"></span>
+          <span>${escapeHtml(section.title)}</span>
+          <strong>${section.completion}%</strong>
+        </button>
+      `).join("")}
+    </nav>
+  `;
+}
+
+function renderAzScenarioPills() {
+  return `
+    <div class="az-scenario-pills" aria-label="Checker scenario">
+      ${Object.entries(azScenarioLabels).map(([key, label]) => `
+        <button type="button" class="${key === labsState.azScenario ? "is-active" : ""}" data-az-scenario-button="${escapeHtml(key)}">${escapeHtml(label)}</button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderAzEditControl(card) {
+  if (card.control === "select") {
+    return `
+      <label class="az-edit-field">
+        <span>${escapeHtml(card.label)}</span>
+        <select data-az-edit-value>
+          ${(card.options || []).map((option) => `<option value="${escapeHtml(option)}">${escapeHtml(option)}</option>`).join("")}
+        </select>
+      </label>
+    `;
+  }
+
+  if (card.control === "date") {
+    return `
+      <label class="az-edit-field">
+        <span>${escapeHtml(card.label)}</span>
+        <input type="date" data-az-edit-value>
+      </label>
+    `;
+  }
+
+  if (card.control === "range") {
+    return `
+      <label class="az-edit-field">
+        <span>${escapeHtml(card.label)}</span>
+        <input type="range" min="${card.min || 0}" max="${card.max || 10}" value="${card.min || 1}" data-az-edit-value data-az-edit-suffix="${escapeHtml(card.suffix || "")}">
+      </label>
+    `;
+  }
+
+  if (card.control === "upload") {
+    return `
+      <div class="az-upload-prompt">
+        <strong>Upload or link evidence</strong>
+        <span>This is a prototype upload prompt. Existing upload hooks elsewhere in Labs remain unchanged.</span>
+      </div>
+    `;
+  }
+
+  if (card.control === "note") {
+    return `
+      <label class="az-edit-field">
+        <span>${escapeHtml(card.label)}</span>
+        <textarea rows="3" data-az-edit-value placeholder="Add a short note for CMP to use in the evidence pack"></textarea>
+      </label>
+    `;
+  }
+
+  return `
+    <div class="az-choice-stack" role="group" aria-label="${escapeHtml(card.label)}">
+      ${(card.options || ["Yes", "No", "Not sure", "N/A"]).map((option) => `
+        <button type="button" data-az-card-option="${escapeHtml(option)}" data-az-section-id="${escapeHtml(card.sectionId)}" data-az-card-id="${escapeHtml(card.id)}">${escapeHtml(option)}</button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderAzCard(card) {
+  const value = checkerAnswer(card.sectionId, card.id, card.value);
+  const isEditing = labsState.editingCheckerCard === `${card.sectionId}:${card.id}`;
+  const isRecorded = value !== card.value;
+
+  if (isEditing) {
+    return `
+      <article class="az-check-card is-editing" data-az-card="${escapeHtml(card.id)}">
+        <div class="az-card-topline">
+          <span>${escapeHtml(card.eyebrow)}</span>
+          <button type="button" data-az-card-cancel>Cancel</button>
+        </div>
+        <h4>${escapeHtml(card.label)}</h4>
+        ${renderAzEditControl(card)}
+        <p>${escapeHtml(card.helper || "Record what you know now. CMP can keep unanswered items open for later.")}</p>
+        ${card.control === "choice" ? "" : `
+          <button class="az-edit-done" type="button" data-az-card-done data-az-section-id="${escapeHtml(card.sectionId)}" data-az-card-id="${escapeHtml(card.id)}">Done</button>
+        `}
+      </article>
+    `;
+  }
+
+  return `
+    <article class="az-check-card">
+      <div class="az-card-topline">
+        <span>${escapeHtml(card.eyebrow)}</span>
+        ${isRecorded ? "<strong>Recorded</strong>" : ""}
+      </div>
+      <h4>${escapeHtml(card.label)}</h4>
+      <p class="az-card-value">${escapeHtml(value)}</p>
+      <p>${escapeHtml(card.source)}</p>
+      <button type="button" data-az-edit-card="${escapeHtml(card.id)}" data-az-section-id="${escapeHtml(card.sectionId)}">${escapeHtml(isRecorded ? "Change" : card.action)}</button>
+    </article>
+  `;
+}
+
+function renderAzCards(sectionId, property) {
+  return `
+    <div class="az-card-grid">
+      ${azCardsForSection(sectionId, property).map(renderAzCard).join("")}
+    </div>
+  `;
+}
+
+function renderAzSectionNav() {
+  const index = activeAzSectionIndex();
+  const previous = azSections[Math.max(0, index - 1)];
+  const next = azSections[Math.min(azSections.length - 1, index + 1)];
+
+  return `
+    <div class="az-step-nav">
+      <button class="secondary-button" type="button" data-az-prev ${index === 0 ? "disabled" : ""}>Previous</button>
+      <span>${index + 1} / ${azSections.length}</span>
+      <button class="primary-button" type="button" data-az-next ${index === azSections.length - 1 ? "disabled" : ""}>Next</button>
+      <small>${escapeHtml(previous.title)} / ${escapeHtml(next.title)}</small>
+    </div>
+  `;
+}
+
+function renderAzOutputPanel(property) {
+  const priorities = scenarioPriorityList(labsState.azScenario, property);
+  return `
+    <aside class="az-output-panel">
+      <p class="section-kicker">Checker output</p>
+      <h3>${escapeHtml(azStatusForProperty(property))}</h3>
+      <div class="score-pair-grid">
+        <article class="score-card ${scoreClass(property.complianceScore)} is-compact">
+          <div><span>Compliance score</span><strong>${property.complianceScore}%</strong></div>
+          <div class="score-meter"><span style="width: ${property.complianceScore}%"></span></div>
+          <small>Readiness against required checks.</small>
+        </article>
+        <article class="score-card ${scoreClass(property.evidenceScore)} is-compact">
+          <div><span>Evidence score</span><strong>${property.evidenceScore}%</strong></div>
+          <div class="score-meter"><span style="width: ${property.evidenceScore}%"></span></div>
+          <small>Documents and proof currently stored.</small>
+        </article>
+      </div>
+      <dl>
+        <div><dt>Required actions</dt><dd>${escapeHtml(priorities.slice(0, 3).join(", "))}</dd></div>
+        <div><dt>Evidence gaps</dt><dd>${property.missingEvidence.length ? escapeHtml(property.missingEvidence.join(", ")) : "None"}</dd></div>
+        <div><dt>Recommended service</dt><dd>${escapeHtml(property.recommendedService || "No service needed")}</dd></div>
+      </dl>
+      <button class="secondary-button" type="button" data-az-ask>Ask CMP to explain</button>
+    </aside>
+  `;
+}
+
+function renderSingleAzCheck(properties) {
+  const property = azSelectedProperty();
+  const section = activeAzSection();
+
+  return `
+    <div class="az-workspace-shell">
+      ${renderAzProgressHeader({ property, modeLabel: `Single property · ${property.address}` })}
+      <div class="az-control-strip">
+        ${renderAzPropertySelector(properties)}
+        ${renderAzScenarioSelector()}
+      </div>
+      ${renderAzScenarioPills()}
+      <div class="az-workspace-grid">
+        ${renderAzSectionRail()}
+        <main class="az-active-panel">
+          <div class="az-current-heading">
+            <p class="section-kicker">Current priority</p>
+            <h3>${escapeHtml(section.title)}</h3>
+            <p>${escapeHtml(section.description)}</p>
+            <div class="az-scenario-context">
+              <strong>${escapeHtml(azScenarioLabels[labsState.azScenario])}</strong>
+              <span>${escapeHtml(scenarioPriorityCopy(property))}</span>
+            </div>
+          </div>
+          ${renderAzCards(section.id, property)}
+          ${renderAzSectionNav()}
+        </main>
+        ${renderAzOutputPanel(property)}
+      </div>
+    </div>
+  `;
+}
+
+function renderPortfolioAzSweep(properties) {
+  const selected = properties.filter((property) => property.complianceScore < 100 || property.evidenceScore < 100);
+  const matrixQuestions = ["Gas", "EICR", "Alarms", "Tenancy docs", "Licensing", "Inspection"];
+  const property = azSelectedProperty();
+  const sharedCards = [
+    azCard("portfolio-shared", { id: "england-wales", eyebrow: "Shared answer", label: "All properties are in England/Wales", value: "Yes", source: "Portfolio setup", action: "Edit", helper: "Apply this answer once instead of repeating it for every property." }),
+    azCard("portfolio-shared", { id: "same-process", eyebrow: "Shared answer", label: "Same letting process used", value: "Yes", source: "Landlord process", action: "Edit", helper: "CMP can apply this across the sweep and only ask where property-specific differences appear." }),
+    azCard("portfolio-shared", { id: "central-docs", eyebrow: "Shared answer", label: "Tenancy documents managed centrally", value: "Yes", source: "Evidence workflow", action: "Edit" }),
+    azCard("portfolio-shared", { id: "scan-evidence", eyebrow: "Shared answer", label: "Check evidence from uploaded documents", value: "Only where evidence exists", source: "Evidence Vault", action: "Edit", control: "select", options: ["Yes", "No", "Only where evidence exists", "Ask me first"] })
+  ];
+
+  return `
+    <div class="az-workspace-shell">
+      ${renderAzProgressHeader({ property, modeLabel: "Portfolio Sweep" })}
+      <div class="az-control-strip">
+        ${renderAzScenarioSelector()}
+        <button class="secondary-button" type="button" data-az-apply-all>Apply shared answers to all</button>
+        <button class="text-button" type="button" data-az-copy-first>Copy from 24 Maple Court</button>
+      </div>
+      ${renderAzScenarioPills()}
+      <div class="az-workspace-grid is-portfolio">
+        ${renderAzSectionRail()}
+        <main class="az-active-panel">
+          <div class="az-current-heading">
+            <p class="section-kicker">Portfolio Sweep</p>
+            <h3>Answer shared questions once, then handle only property-specific unknowns</h3>
+            <p>CMP applies shared answers across the portfolio and uses the matrix for checks that differ by property.</p>
+            <div class="az-scenario-context">
+              <strong>Scope</strong>
+              <span>${properties.length} properties · ${fullyCompliantProperties().map((item) => item.address).join(", ") || "No"} fully compliant · ${selected.length} need review</span>
+            </div>
+          </div>
+          <div class="az-card-grid is-shared">
+            ${sharedCards.map(renderAzCard).join("")}
+          </div>
+          <div class="az-matrix-wrap">
+            <div class="az-matrix-toolbar">
+              <span>Only ask where unknown</span>
+              <small>Rows stay property-specific; shared answers remain above.</small>
+            </div>
+            <table class="az-property-matrix">
+              <thead>
+                <tr>
+                  <th>Property</th>
+                  ${matrixQuestions.map((question) => `<th>${question}</th>`).join("")}
+                </tr>
+              </thead>
+              <tbody>
+                ${properties.map((property) => `
+                  <tr>
+                    <th>
+                      <strong>${escapeHtml(property.address)}</strong>
+                      <span>${escapeHtml(property.complianceScore === 100 ? "Fully compliant" : property.priority)}</span>
+                    </th>
+                    ${matrixQuestions.map((question) => {
+                      const lower = question.toLowerCase();
+                      const missing = property.missingEvidence.some((gap) => gap.toLowerCase().includes(lower) || (lower === "eicr" && gap.toLowerCase().includes("electrical")));
+                      const answer = property.complianceScore === 100 ? "Yes" : missing ? "No" : property.id === "canal-view" && lower === "licensing" ? "Unsure" : "Yes";
+                      return `<td><button class="az-answer ${answer.toLowerCase()}" type="button" data-az-answer>${answer}</button></td>`;
+                    }).join("")}
+                  </tr>
+                `).join("")}
+              </tbody>
+            </table>
+          </div>
+          <div class="az-results-grid">
+            <article>
+              <span>Portfolio compliance score</span>
+              <strong>${portfolioComplianceScore()}%</strong>
+              <p>${fullyCompliantProperties().length} property fully compliant. ${selected.length} properties need review.</p>
+            </article>
+            <article>
+              <span>Portfolio evidence score</span>
+              <strong>${portfolioEvidenceScore()}%</strong>
+              <p>${portfolioEvidenceGapCount()} evidence gaps across the portfolio.</p>
+            </article>
+            <article>
+              <span>Top actions</span>
+              <strong>${portfolioUrgentActionCount()}</strong>
+              <p>${selected.slice(0, 3).map((item) => item.priority).join("; ")}</p>
+            </article>
+            <article>
+              <span>Report summary preview</span>
+              <strong>Ready</strong>
+              <p>Download/export placeholder only. No legal advice or official approval is implied.</p>
+            </article>
+          </div>
+          ${renderAzSectionNav()}
+        </main>
+      </div>
+    </div>
+  `;
+}
+
+function renderAzChecker() {
+  const body = document.querySelector("[data-az-checker-body]");
+  if (!body) {
+    return;
+  }
+
+  document.querySelectorAll("[data-az-mode]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.azMode === labsState.azMode);
+  });
+
+  const properties = getPortfolioProperties();
+  if (!properties.length) {
+    body.innerHTML = `
+      <div class="az-workspace-shell is-empty">
+        <div class="az-product-header">
+          <div class="az-product-header-copy">
+            <p class="section-kicker">A-Z Compliance Check</p>
+            <h3>Add your first property to run the A-Z checker.</h3>
+            <p>Preview the checker structure, ask CMP what to prepare, then add a property for personalised scores.</p>
+          </div>
+          <div class="az-progress-panel">
+            <strong>Preview mode</strong>
+            <span>0 properties connected</span>
+            <small>No property-specific compliance or evidence score is available yet.</small>
+            <div class="az-progress-track"><span style="width: 8%"></span></div>
+          </div>
+        </div>
+        <div class="az-empty-preview">
+          ${renderAzSectionRail()}
+          <article class="empty-portfolio-card">
+            <span class="tile-icon" data-icon="shield"></span>
+            <h3>Preview the checker structure</h3>
+            <p>CMP will ask for property basics, certificates, tenancy/deposit evidence, licensing answers, inspections and evidence-pack goals.</p>
+            <div class="az-card-grid">
+              ${[
+                azCard("empty-preview", { id: "property", eyebrow: "Setup needed", label: "Property basics", value: "Add address, type, bedrooms and occupancy", source: "Setup needed", action: "Add" }),
+                azCard("empty-preview", { id: "certificates", eyebrow: "Evidence", label: "Existing certificates", value: "Upload EPC, Gas Safety, EICR and alarm evidence", source: "Evidence Vault", action: "Upload", control: "upload" }),
+                azCard("empty-preview", { id: "goal", eyebrow: "Journey", label: "What are you trying to do?", value: "Let, renew, check a portfolio or build an evidence pack", source: "Journey context", action: "Edit", control: "select", options: Object.values(azScenarioLabels) })
+              ].map(renderAzCard).join("")}
+            </div>
+            <div class="button-row">
+              <button class="primary-button" type="button" data-properties-add>Add first property</button>
+              <button class="secondary-button" type="button" data-az-ask>Ask CMP what to prepare</button>
+            </div>
+          </article>
+        </div>
+      </div>
+    `;
+    hydrateIcons();
+    return;
+  }
+
+  body.innerHTML = labsState.azMode === "portfolio"
+    ? renderPortfolioAzSweep(properties)
+    : renderSingleAzCheck(properties);
+  hydrateIcons();
 }
 
 function showPortfolioCompliance({ scroll = false } = {}) {
@@ -2323,6 +3732,29 @@ function getEvidenceRows() {
     );
   }
 
+  if (isFivePropertyMode()) {
+    portfolioFivePropertyDefinitions.forEach((property) => {
+      rows.push({
+        id: `${property.id}-summary`,
+        title: property.complianceScore === 100 ? "Full compliance evidence pack" : property.focus,
+        document: property.missingEvidence.length ? property.missingEvidence.join(", ") : "All core evidence uploaded",
+        propertyId: property.id,
+        property: property.label || `${property.address} · ${property.postcode}`,
+        source: property.evidenceScore === 100 ? "Complete evidence pack" : "Mixed evidence",
+        sourceClass: property.evidenceScore === 100 ? "status-good-text" : "status-watch-text",
+        status: property.complianceScore === 100 ? "Fully compliant" : property.state,
+        statusClass: property.complianceScore === 100 ? "status-good-text" : property.complianceScore < 60 ? "status-review-text" : "status-watch-text",
+        keyDate: property.complianceScore === 100 ? "No action due" : property.priority,
+        filters: property.evidenceScore === 100 ? ["verified", "uploaded"] : ["missing", "review"],
+        search: property.search,
+        actions: [
+          { label: "Run A-Z", action: `az:${property.id}` },
+          { label: "Service path", action: `service:${property.id}` }
+        ]
+      });
+    });
+  }
+
   return rows;
 }
 
@@ -2365,16 +3797,51 @@ function renderPortfolioEvidenceState() {
   }
 
   const properties = getPortfolioProperties();
+  if (!properties.length) {
+    document.querySelector("[data-evidence-count-badge]").textContent = "0 properties connected";
+    document.querySelector("[data-evidence-verified-count]").textContent = "0";
+    document.querySelector("[data-evidence-review-count]").textContent = "0";
+    document.querySelector("[data-evidence-review-detail]").textContent = "nothing to review";
+    document.querySelector("[data-evidence-missing-count]").textContent = "0";
+    document.querySelector("[data-evidence-missing-detail]").textContent = "add a property first";
+    document.querySelector("[data-evidence-health-strength]").textContent = "No score yet";
+    document.querySelector("[data-evidence-health-verified]").textContent = "No evidence stored";
+    document.querySelector("[data-evidence-health-missing]").textContent = "No properties connected";
+    document.querySelector("[data-evidence-health-focus]").textContent = "Add a property before uploading evidence.";
+    const healthCard = document.querySelector(".property-evidence-health-card");
+    if (healthCard) {
+      healthCard.querySelector("h2").textContent = "Evidence Vault is empty";
+      healthCard.querySelector("p").textContent = "No properties connected";
+    }
+    const listCard = document.querySelector("[data-evidence-list-card]");
+    const list = document.querySelector("[data-evidence-list]");
+    const empty = document.querySelector("[data-evidence-empty]");
+    if (listCard) {
+      listCard.hidden = true;
+    }
+    if (list) {
+      list.innerHTML = "";
+    }
+    if (empty) {
+      empty.hidden = false;
+      empty.querySelector("h2").textContent = "No evidence yet";
+      empty.querySelector("p").textContent = "Add a property before uploading certificates or documents.";
+    }
+    renderEvidenceMissingList();
+    return;
+  }
   document.querySelector("[data-evidence-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} connected`;
-  document.querySelector("[data-evidence-verified-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
-  document.querySelector("[data-evidence-review-count]").textContent = isTwoPropertyMode() ? "2" : labsState.eicrAdded ? "0" : "1";
-  document.querySelector("[data-evidence-review-detail]").textContent = isTwoPropertyMode() ? "Gas renewal and tenancy evidence" : labsState.eicrAdded ? "nothing waiting" : "EICR extraction";
-  document.querySelector("[data-evidence-missing-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "3" : "4") : labsState.eicrAdded ? "1" : "2";
-  document.querySelector("[data-evidence-missing-detail]").textContent = isTwoPropertyMode() ? "property-specific gaps" : labsState.eicrAdded ? "inspection record" : "EICR and inspection";
-  document.querySelector("[data-evidence-health-strength]").textContent = isTwoPropertyMode() ? "2 properties tracked" : labsState.eicrAdded ? "58% evidenced" : "42% evidenced";
-  document.querySelector("[data-evidence-health-verified]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified records" : "5 verified records") : labsState.eicrAdded ? "3 verified records" : "2 verified records";
-  document.querySelector("[data-evidence-health-missing]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "3 evidence gaps visible" : "4 evidence gaps visible") : labsState.eicrAdded ? "Inspection evidence still missing" : "EICR evidence still missing";
-  document.querySelector("[data-evidence-health-focus]").textContent = isTwoPropertyMode()
+  document.querySelector("[data-evidence-verified-count]").textContent = isFivePropertyMode() ? String(properties.reduce((sum, property) => sum + property.verifiedEvidence, 0)) : isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-evidence-review-count]").textContent = isFivePropertyMode() ? String(portfolioEvidenceGapCount()) : isTwoPropertyMode() ? "2" : labsState.eicrAdded ? "0" : "1";
+  document.querySelector("[data-evidence-review-detail]").textContent = isFivePropertyMode() ? "portfolio evidence gaps" : isTwoPropertyMode() ? "Gas renewal and tenancy evidence" : labsState.eicrAdded ? "nothing waiting" : "EICR extraction";
+  document.querySelector("[data-evidence-missing-count]").textContent = isFivePropertyMode() ? String(portfolioEvidenceGapCount()) : isTwoPropertyMode() ? (labsState.eicrAdded ? "3" : "4") : labsState.eicrAdded ? "1" : "2";
+  document.querySelector("[data-evidence-missing-detail]").textContent = isFivePropertyMode() ? "across five properties" : isTwoPropertyMode() ? "property-specific gaps" : labsState.eicrAdded ? "inspection record" : "EICR and inspection";
+  document.querySelector("[data-evidence-health-strength]").textContent = isFivePropertyMode() ? `${portfolioEvidenceScore()}% evidence score` : isTwoPropertyMode() ? "2 properties tracked" : labsState.eicrAdded ? "58% evidenced" : "42% evidenced";
+  document.querySelector("[data-evidence-health-verified]").textContent = isFivePropertyMode() ? `${fullyCompliantProperties().length} fully compliant property` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified records" : "5 verified records") : labsState.eicrAdded ? "3 verified records" : "2 verified records";
+  document.querySelector("[data-evidence-health-missing]").textContent = isFivePropertyMode() ? `${portfolioEvidenceGapCount()} evidence gaps visible` : isTwoPropertyMode() ? (labsState.eicrAdded ? "3 evidence gaps visible" : "4 evidence gaps visible") : labsState.eicrAdded ? "Inspection evidence still missing" : "EICR evidence still missing";
+  document.querySelector("[data-evidence-health-focus]").textContent = isFivePropertyMode()
+    ? "Next gap: 3 Station Road onboarding evidence"
+    : isTwoPropertyMode()
     ? "Next gap: Gas Safety renewal for 18 Willow Brook Drive"
     : labsState.eicrAdded
       ? "Core certificates are recorded. Inspection evidence is still useful to add."
@@ -2384,10 +3851,10 @@ function renderPortfolioEvidenceState() {
     const title = healthCard.querySelector("h2");
     const body = healthCard.querySelector("p");
     if (title) {
-      title.textContent = isTwoPropertyMode() ? "Portfolio evidence health" : "57 The Butts";
+      title.textContent = isFivePropertyMode() ? "Five-property evidence health" : isTwoPropertyMode() ? "Portfolio evidence health" : "57 The Butts";
     }
     if (body) {
-      body.textContent = isTwoPropertyMode() ? "2 properties · Coventry and Birmingham" : "Coventry, CV1 3BJ";
+      body.textContent = isFivePropertyMode() ? "5 properties · mixed compliance states" : isTwoPropertyMode() ? "2 properties · Coventry and Birmingham" : "Coventry, CV1 3BJ";
     }
   }
 
@@ -2430,6 +3897,51 @@ function renderEvidenceMissingList() {
   const list = document.querySelector("[data-evidence-missing-list]");
 
   if (!list) {
+    return;
+  }
+
+  if (isEmptyPortfolioMode()) {
+    list.innerHTML = `
+      <article class="compliance-gap-card">
+        <div>
+          <h3>No missing evidence yet</h3>
+          <p>Add a property first; CMP will then create the evidence list for that address.</p>
+        </div>
+        <div class="compliance-gap-actions">
+          <button class="primary-button" type="button" data-properties-add>Add property</button>
+        </div>
+      </article>
+    `;
+    return;
+  }
+
+  if (isFivePropertyMode()) {
+    const items = getPortfolioProperties()
+      .filter((property) => property.missingEvidence.length)
+      .map((property) => ({
+        title: property.address,
+        detail: `${property.missingEvidence.join(", ")} · ${property.evidenceScore}% evidence`,
+        actions: [
+          { label: "Run A-Z", action: `az:${property.id}`, primary: property.evidenceScore < 50 },
+          { label: "Service path", action: `service:${property.id}` }
+        ]
+      }));
+
+    list.innerHTML = items.map((item) => `
+      <article class="compliance-gap-card">
+        <div>
+          <h3>${escapeHtml(item.title)}</h3>
+          <p>${escapeHtml(item.detail)}</p>
+        </div>
+        <div class="compliance-gap-actions">
+          ${item.actions.map((action) => `
+            <button class="${action.primary ? "primary-button" : "text-button"}" type="button" data-evidence-action="${escapeHtml(action.action)}">
+              ${escapeHtml(action.label)}
+            </button>
+          `).join("")}
+        </div>
+      </article>
+    `).join("");
     return;
   }
 
@@ -2500,6 +4012,35 @@ function showPortfolioEvidence({ scroll = false } = {}) {
 }
 
 function activeTaskItems() {
+  if (isEmptyPortfolioMode()) {
+    return [];
+  }
+
+  if (isFivePropertyMode()) {
+    return getPortfolioProperties()
+      .filter((property) => property.complianceScore < 100 || property.evidenceScore < 100)
+      .map((property) => ({
+        id: `${property.id}-priority`,
+        title: `${property.address}: ${property.priority}`,
+        property: `${property.address} · ${property.postcode}`,
+        propertyId: property.id,
+        category: property.complianceScore < 60 ? "Evidence" : property.focusArea,
+        priority: property.mostUrgent || property.complianceScore < 60 ? "High" : "Medium",
+        source: "A-Z Checker",
+        body: property.priorityBody,
+        status: property.state,
+        suggestedAction: property.priority,
+        board: property.complianceScore < 60 ? "todo" : "progress",
+        filters: [property.complianceScore < 60 ? "high" : "evidence", "evidence", property.focusArea.toLowerCase().includes("licensing") ? "licensing" : "inspection"],
+        detail: `CMP created this portfolio task from ${property.address}'s compliance score (${property.complianceScore}%) and evidence score (${property.evidenceScore}%).`,
+        search: property.search,
+        actions: [
+          { label: "Run A-Z check", action: `az:${property.id}`, primary: property.complianceScore < 60 },
+          { label: "Service path", action: `service:${property.id}` }
+        ]
+      }));
+  }
+
   return [
     ...(!labsState.eicrAdded
       ? [{
@@ -2923,6 +4464,10 @@ function makeActivityAction(label, action, primary = false) {
 }
 
 function getActivityEvents() {
+  if (isEmptyPortfolioMode()) {
+    return [];
+  }
+
   const property = "57 The Butts · CV1 3BJ";
   const activeSupportRequest = activeSupportRequestForActivity();
   const events = [];
@@ -3261,6 +4806,50 @@ function getActivityEvents() {
     );
   }
 
+  if (isFivePropertyMode()) {
+    events.push(
+      {
+        id: "portfolio-sweep-created",
+        group: "Today",
+        filter: "compliance",
+        category: "A-Z Checker",
+        title: "Portfolio sweep prepared",
+        property: "Five-property portfolio",
+        body: "CMP compared five properties, separated shared answers from property-specific unknowns and found one fully compliant property.",
+        source: "Compliance Centre",
+        status: "Ready to review",
+        statusClass: "status-watch-text",
+        search: "portfolio sweep a-z checker five properties fully compliant scores",
+        why: "CMP recorded this so the demo can show portfolio-wide compliance logic without repeated questions.",
+        nextAction: "Open the A-Z Checker and review the property matrix.",
+        route: "compliance",
+        actions: [
+          makeActivityAction("Open A-Z Checker", "openAz", true),
+          makeActivityAction("Open Compliance Centre", "reviewLicensing")
+        ]
+      },
+      {
+        id: "maple-fully-compliant",
+        group: "Today",
+        filter: "evidence",
+        category: "Evidence",
+        title: "24 Maple Court marked fully compliant",
+        property: "24 Maple Court · B15 2QT",
+        body: "All core checks and evidence are present in the five-property demo state.",
+        source: "Evidence Vault",
+        status: "Fully compliant",
+        statusClass: "status-good-text",
+        search: "24 maple court fully compliant evidence score compliance score 100",
+        why: "CMP recorded this to demonstrate the positive end-state alongside riskier properties.",
+        nextAction: "Keep renewal reminders active.",
+        route: "evidence",
+        actions: [
+          makeActivityAction("View evidence", "viewEvidence")
+        ]
+      }
+    );
+  }
+
   return events;
 }
 
@@ -3313,8 +4902,38 @@ function renderPortfolioActivityState() {
   }
 
   const allEvents = getActivityEvents();
+  if (isEmptyPortfolioMode()) {
+    document.querySelector("[data-activity-event-count]").textContent = "0";
+    document.querySelector("[data-activity-evidence-count]").textContent = "0";
+    document.querySelector("[data-activity-action-count]").textContent = "0";
+    document.querySelector("[data-activity-open-count]").textContent = "0";
+    document.querySelector("[data-activity-open-detail]").textContent = "add property first";
+    document.querySelector("[data-activity-visit-title]").textContent = "No activity yet";
+    document.querySelector("[data-activity-visit-list]").innerHTML = "<li>Add a property to start the activity history.</li>";
+    document.querySelector("[data-activity-watch-list]").innerHTML = "<li>No watch items yet</li>";
+    const feed = document.querySelector("[data-activity-feed]");
+    const empty = document.querySelector("[data-activity-empty]");
+    if (feed) {
+      feed.hidden = true;
+      feed.innerHTML = "";
+    }
+    if (empty) {
+      empty.hidden = false;
+      empty.querySelector("h2").textContent = "No activity yet";
+      empty.querySelector("p").textContent = "Property setup, evidence uploads, answers and service requests will appear here.";
+    }
+    renderActivitySummaryModalState();
+    return;
+  }
   const supportCreated = Boolean(activeSupportRequestForActivity());
-  const visitItems = isTwoPropertyMode()
+  const visitItems = isFivePropertyMode()
+    ? [
+        "Portfolio Sweep prepared for five properties",
+        "24 Maple Court marked fully compliant",
+        "3 Station Road onboarding gaps identified",
+        ...(supportCreated ? ["Support request was created"] : [])
+      ]
+    : isTwoPropertyMode()
     ? [
         "Gas Safety renewal flagged for 18 Willow Brook Drive",
         labsState.eicrAdded ? "EICR evidence verified for 57 The Butts" : "EICR gap remains open for 57 The Butts",
@@ -3332,17 +4951,21 @@ function renderPortfolioActivityState() {
         "Electrical Safety became the highest-priority evidence gap",
         ...(supportCreated ? ["Support request was created"] : [])
       ];
-  const watchItems = isTwoPropertyMode()
+  const watchItems = isFivePropertyMode()
+    ? ["3 Station Road onboarding", "18 Willow Brook Gas Safety renewal", "9 Canal View licensing answer"]
+    : isTwoPropertyMode()
     ? ["18 Willow Brook Gas Safety renewal", labsState.eicrAdded ? "57 The Butts inspection evidence" : "57 The Butts Electrical Safety", "Local licensing review"]
     : labsState.eicrAdded
     ? ["Inspection evidence", "Local licensing review"]
     : ["Electrical Safety evidence", "Inspection evidence", "Local licensing review"];
 
   document.querySelector("[data-activity-event-count]").textContent = String(allEvents.length);
-  document.querySelector("[data-activity-evidence-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
-  document.querySelector("[data-activity-action-count]").textContent = String((isTwoPropertyMode() ? 2 : 1) + (supportCreated ? 1 : 0) + (labsState.inspectionStatusRecorded ? 1 : 0));
-  document.querySelector("[data-activity-open-count]").textContent = String(isTwoPropertyMode() ? 2 : 1);
-  document.querySelector("[data-activity-open-detail]").textContent = isTwoPropertyMode()
+  document.querySelector("[data-activity-evidence-count]").textContent = isFivePropertyMode() ? String(getPortfolioProperties().reduce((sum, property) => sum + property.verifiedEvidence, 0)) : isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-activity-action-count]").textContent = String((isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1) + (supportCreated ? 1 : 0) + (labsState.inspectionStatusRecorded ? 1 : 0));
+  document.querySelector("[data-activity-open-count]").textContent = String(isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1);
+  document.querySelector("[data-activity-open-detail]").textContent = isFivePropertyMode()
+    ? "portfolio gaps"
+    : isTwoPropertyMode()
     ? labsState.eicrAdded ? "Gas renewal and inspection gap" : "Gas renewal and EICR gap"
     : labsState.eicrAdded ? "inspection evidence" : "EICR gap";
   document.querySelector("[data-activity-visit-title]").textContent = `${visitItems.length} useful updates`;
@@ -3394,6 +5017,11 @@ function showPortfolioActivity({ scroll = false } = {}) {
 }
 
 function recommendedServiceType(propertyId = serviceActionPropertyId()) {
+  const property = getPortfolioProperties().find((item) => item.id === propertyId);
+  if (property?.serviceType) {
+    return property.serviceType;
+  }
+
   if (propertyId === "willow-brook") {
     return "gas";
   }
@@ -3479,6 +5107,47 @@ function serviceBundleItems(propertyId = serviceActionPropertyId()) {
 
 function globalServiceCards(propertyId = serviceActionPropertyId()) {
   const property = getPortfolioPropertyById(propertyId);
+  if (isFivePropertyMode() && !["the-butts", "willow-brook"].includes(property.id)) {
+    return [
+      {
+        title: property.recommendedService || property.focus,
+        propertyLabel: property.label || `${property.address} · ${property.postcode}`,
+        body: property.priorityBody,
+        status: property.state,
+        statusClass: property.complianceScore < 60 ? "status-review-text" : property.complianceScore === 100 ? "status-good-text" : "status-watch-text",
+        why: `Compliance score ${property.complianceScore}%, evidence score ${property.evidenceScore}%.`,
+        primaryAction: property.serviceType === "licensing" ? `request:licensing:${property.id}` : property.serviceType === "bundle" ? "previewBundle" : `request:review:${property.id}`,
+        primaryLabel: property.serviceType === "bundle" ? "Preview bundle" : "Request support",
+        secondaryAction: `az:${property.id}`,
+        secondaryLabel: "Run A-Z check"
+      },
+      {
+        title: "Evidence pack review",
+        propertyLabel: property.label || `${property.address} · ${property.postcode}`,
+        body: property.missingEvidence.length ? `Missing evidence: ${property.missingEvidence.join(", ")}.` : "All core evidence is currently present.",
+        status: property.evidenceScore === 100 ? "Complete" : "Evidence gaps",
+        statusClass: property.evidenceScore === 100 ? "status-good-text" : "status-review-text",
+        why: "Evidence score tracks stored documents separately from compliance readiness.",
+        primaryAction: `az:${property.id}`,
+        primaryLabel: "Review in A-Z",
+        secondaryAction: "viewEvidence",
+        secondaryLabel: "Open Evidence Vault"
+      },
+      {
+        title: "Scenario check",
+        propertyLabel: property.label || `${property.address} · ${property.postcode}`,
+        body: `Current scenario: ${property.occupancy}. CMP can adapt the checker around this journey.`,
+        status: property.journey,
+        statusClass: "status-watch-text",
+        why: "The same evidence can mean different things depending on occupancy, letting goal and licensing context.",
+        primaryAction: `az:${property.id}`,
+        primaryLabel: "Run scenario check",
+        secondaryAction: "askReview",
+        secondaryLabel: "Ask CMP why"
+      }
+    ];
+  }
+
   const isWillow = property.id === "willow-brook";
   const eicrRequest = openSupportRequestForType("eicr", property.id);
   const gasRequest = openSupportRequestForType("gas", property.id);
@@ -3595,6 +5264,25 @@ function globalServiceCards(propertyId = serviceActionPropertyId()) {
 }
 
 function portfolioServiceCards() {
+  if (isFivePropertyMode()) {
+    return getPortfolioProperties()
+      .filter((property) => property.complianceScore < 100 || property.recommendedService !== "None needed")
+      .slice()
+      .sort((a, b) => (a.complianceScore + a.evidenceScore) - (b.complianceScore + b.evidenceScore))
+      .map((property) => ({
+        title: property.recommendedService || property.focus,
+        propertyLabel: property.label || `${property.address} · ${property.postcode}`,
+        body: property.priorityBody,
+        status: property.state,
+        statusClass: property.complianceScore < 60 ? "status-review-text" : property.complianceScore === 100 ? "status-good-text" : "status-watch-text",
+        why: `Compliance score ${property.complianceScore}%, evidence score ${property.evidenceScore}%.`,
+        primaryAction: property.serviceType === "gas" ? `request:gas:${property.id}` : property.serviceType === "licensing" ? `request:licensing:${property.id}` : property.serviceType === "bundle" ? "previewBundle" : `request:review:${property.id}`,
+        primaryLabel: property.serviceType === "bundle" ? "Preview bundle" : "Request support",
+        secondaryAction: `az:${property.id}`,
+        secondaryLabel: "Run A-Z check"
+      }));
+  }
+
   const willow = getPortfolioPropertyById("willow-brook");
   const butts = getPortfolioPropertyById("the-butts");
   const willowGasRequest = openSupportRequestForType("gas", willow.id);
@@ -3672,6 +5360,14 @@ function askChatStatusChips() {
     return ["Support request open", "CMP review pending", "Evidence checked", "No duplicate needed"];
   }
 
+  if (isEmptyPortfolioMode()) {
+    return ["No properties yet", "Setup guidance", "A-Z preview ready"];
+  }
+
+  if (isFivePropertyMode()) {
+    return ["5 properties compared", "1 fully compliant", "2 urgent actions", "Portfolio Sweep ready"];
+  }
+
   if (isTwoPropertyMode()) {
     return ["2 properties compared", "Gas renewal soon", "EICR gap checked", "Tasks checked", "Support requests checked"];
   }
@@ -3684,6 +5380,14 @@ function askChatStatusChips() {
 }
 
 function askContextSequenceItems() {
+  if (isEmptyPortfolioMode()) {
+    return ["Setup route", "Evidence checklist", "First property needed"];
+  }
+
+  if (isFivePropertyMode()) {
+    return ["Shared answers", "Property matrix", "Scores calculated", "Actions grouped"];
+  }
+
   if (isTwoPropertyMode()) {
     return ["Evidence compared", "Renewals checked", "Support requests reviewed", "Properties ranked"];
   }
@@ -3696,17 +5400,25 @@ function askContextSequenceItems() {
 }
 
 function askContextSources() {
+  if (isEmptyPortfolioMode()) {
+    return [
+      { name: "Property details", body: "No address or postcode is connected yet.", state: "Empty" },
+      { name: "A-Z Checker", body: "Can preview setup questions before property scoring.", state: "Ready" },
+      { name: "Evidence Vault", body: "Upload paths are available after property setup.", state: "Empty" }
+    ];
+  }
+
   const activeRequest = activeSupportRequestForActivity();
-  const evidenceState = isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified / 3 gaps" : "5 verified / 4 gaps") : labsState.eicrAdded ? "3 verified / inspection missing" : "2 verified / 1 missing";
-  const complianceState = isTwoPropertyMode() ? "Gas renewal first" : labsState.eicrAdded ? "Inspection next" : "EICR priority";
-  const taskState = activeRequest ? "Support review open" : isTwoPropertyMode() ? "Gas renewal task" : labsState.eicrAdded ? "Inspection task" : "EICR task";
+  const evidenceState = isFivePropertyMode() ? `${portfolioEvidenceScore()}% portfolio score` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified / 3 gaps" : "5 verified / 4 gaps") : labsState.eicrAdded ? "3 verified / inspection missing" : "2 verified / 1 missing";
+  const complianceState = isFivePropertyMode() ? `${portfolioComplianceScore()}% portfolio score` : isTwoPropertyMode() ? "Gas renewal first" : labsState.eicrAdded ? "Inspection next" : "EICR priority";
+  const taskState = activeRequest ? "Support review open" : isFivePropertyMode() ? "Portfolio actions" : isTwoPropertyMode() ? "Gas renewal task" : labsState.eicrAdded ? "Inspection task" : "EICR task";
   const supportState = activeRequest ? "Awaiting review" : "No open requests";
 
   return [
     {
       name: "Property details",
       body: "Uses address, postcode, occupancy and compliance goal.",
-      state: isTwoPropertyMode() ? "2 properties" : "57 The Butts"
+      state: isFivePropertyMode() ? "5 properties" : isTwoPropertyMode() ? "2 properties" : "57 The Butts"
     },
     {
       name: "Evidence Vault",
@@ -3726,7 +5438,7 @@ function askContextSources() {
     {
       name: "Activity history",
       body: "Uses recent evidence, support and landlord-answer events.",
-      state: isTwoPropertyMode() ? "Both properties" : labsState.eicrAdded ? "EICR verified" : "EICR gap identified"
+      state: isFivePropertyMode() ? "Portfolio sweep" : isTwoPropertyMode() ? "Both properties" : labsState.eicrAdded ? "EICR verified" : "EICR gap identified"
     },
     {
       name: "Support requests",
@@ -3736,7 +5448,7 @@ function askContextSources() {
     {
       name: "Book a Service",
       body: "Uses the recommended support pathway for this property.",
-      state: isTwoPropertyMode() ? "Gas Safety support" : labsState.eicrAdded ? "Inspection support" : "EICR support"
+      state: isFivePropertyMode() ? "Grouped by property" : isTwoPropertyMode() ? "Gas Safety support" : labsState.eicrAdded ? "Inspection support" : "EICR support"
     }
   ];
 }
@@ -3749,6 +5461,20 @@ function askContextHighlight() {
     return {
       title: `${activeRequest.type} is awaiting review`,
       body: `CMP is keeping the open request tied to ${property.address} and will not suggest creating the same request again.`
+    };
+  }
+
+  if (isEmptyPortfolioMode()) {
+    return {
+      title: "No property file yet",
+      body: "CMP needs at least one property before it can personalise checks, evidence gaps or service recommendations."
+    };
+  }
+
+  if (isFivePropertyMode()) {
+    return {
+      title: "Portfolio Sweep is ready",
+      body: `CMP has compared five properties: ${fullyCompliantProperties().length} fully compliant, ${portfolioUrgentActionCount()} urgent actions and ${portfolioEvidenceGapCount()} evidence gaps.`
     };
   }
 
@@ -3861,7 +5587,11 @@ function renderPortfolioUtilityState() {
     `).join("");
   }
   if (chatTitle) {
-    chatTitle.textContent = isTwoPropertyMode() ? "Portfolio brain for 2 properties" : "Portfolio brain for 57 The Butts";
+    chatTitle.textContent = isEmptyPortfolioMode()
+      ? "Setup brain for a new landlord"
+      : isFivePropertyMode()
+        ? "Portfolio brain for 5 properties"
+        : isTwoPropertyMode() ? "Portfolio brain for 2 properties" : "Portfolio brain for 57 The Butts";
   }
 
   const highlightTitle = document.querySelector("[data-ask-context-highlight-title]");
@@ -3871,6 +5601,24 @@ function renderPortfolioUtilityState() {
   }
   if (highlightBody) {
     highlightBody.textContent = highlight.body;
+  }
+
+  const askAzShortcut = document.querySelector("[data-ask-az-shortcut]");
+  if (askAzShortcut) {
+    askAzShortcut.innerHTML = `
+      <article class="az-checker-section">
+        <div class="az-checker-header">
+          <div>
+            <p class="section-kicker">Suggested next workflow</p>
+            <h2>${isFivePropertyMode() ? "Run Portfolio Sweep" : "Run the Compliance A-Z Checker"}</h2>
+            <p>${isEmptyPortfolioMode() ? "Preview setup questions before the first property is added." : "Use the checker to turn CMP's context into scores, gaps and service recommendations."}</p>
+          </div>
+          <div class="button-row">
+            <button class="primary-button" type="button" data-az-mode="${isFivePropertyMode() ? "portfolio" : "single"}">${isFivePropertyMode() ? "Open Portfolio Sweep" : "Open A-Z Checker"}</button>
+          </div>
+        </div>
+      </article>
+    `;
   }
 
   renderGlobalServiceState();
@@ -3888,11 +5636,77 @@ function renderGlobalServiceState() {
   const properties = getPortfolioProperties();
   const selectedId = selectedServicePropertyId();
   const isAllMode = isAllServicePropertiesMode();
+
+  if (!properties.length) {
+    const context = document.querySelector("[data-service-property-context]");
+    if (context) {
+      context.classList.remove("is-portfolio-selector");
+      context.innerHTML = `
+        <div>
+          <p>Setup required</p>
+          <strong>No properties yet</strong>
+          <span>Add a property before CMP can recommend a service.</span>
+        </div>
+      `;
+    }
+    title.textContent = "Add a property before booking support";
+    document.querySelector("[data-global-service-body]").textContent = "CMP needs a property address, scenario and evidence baseline before it can recommend an EICR, Gas Safety, licensing or evidence-pack service.";
+    document.querySelector("[data-global-service-actions]").innerHTML = `
+      <button class="primary-button" type="button" data-properties-add>Add property</button>
+      <button class="secondary-button" type="button" data-az-mode="single">Preview A-Z setup</button>
+      <button class="text-button" type="button" data-global-service-action="ask">Ask CMP why</button>
+    `;
+    const cardGrid = document.querySelector("[data-global-service-cards]");
+    if (cardGrid) {
+      cardGrid.innerHTML = `
+        <article class="service-option-preview commercial-service-card">
+          <div class="service-card-top">
+            <h3>No service recommendation yet</h3>
+            <span class="doc-status status-neutral-text">Setup</span>
+          </div>
+          <p>Add a property so CMP can connect services to the right address and compliance context.</p>
+        </article>
+      `;
+    }
+    document.querySelector("[data-global-service-request-count]").textContent = "0 open";
+    const list = document.querySelector("[data-global-service-requests]");
+    if (list) {
+      list.innerHTML = "<p>No support request is open. Add a property first.</p>";
+    }
+    return;
+  }
+
   const property = selectedServiceProperty();
   const recommendationProperty = isAllMode ? portfolioUrgentProperty() : property;
   const recommendationType = recommendedServiceType(recommendationProperty.id);
   const existingRecommendationRequest = openSupportRequestForType(recommendationType, recommendationProperty.id);
   const isWillow = recommendationProperty.id === "willow-brook";
+  const serviceFocusTiles = isFivePropertyMode()
+    ? getPortfolioProperties().map((item, index) => `
+      <article class="service-focus-tile${selectedId === item.id ? " is-selected" : ""}">
+        <span class="source-badge">${item.complianceScore === 100 ? "Fully compliant" : index === 0 ? "Workspace" : item.state}</span>
+        <h3>${escapeHtml(item.address)}</h3>
+        <p>${escapeHtml(item.focus)}</p>
+        <strong>${item.complianceScore}% compliance · ${item.evidenceScore}% evidence</strong>
+        <button class="${item.mostUrgent || item.complianceScore < 60 ? "primary-button" : "secondary-button"}" type="button" data-service-property-select="${escapeHtml(item.id)}">Focus this property</button>
+      </article>
+    `).join("")
+    : `
+      <article class="service-focus-tile${selectedId === "willow-brook" ? " is-selected" : ""}">
+        <span class="source-badge">Most urgent</span>
+        <h3>18 Willow Brook Drive</h3>
+        <p>Gas Safety renewal</p>
+        <strong>Renewal needed in 21 days</strong>
+        <button class="primary-button" type="button" data-service-property-select="willow-brook">Focus this property</button>
+      </article>
+      <article class="service-focus-tile${selectedId === "the-butts" ? " is-selected" : ""}">
+        <span class="source-badge">Evidence gap</span>
+        <h3>57 The Butts</h3>
+        <p>${labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety evidence"}</p>
+        <strong>${labsState.eicrAdded ? "EICR verified" : "EICR still missing"}</strong>
+        <button class="secondary-button" type="button" data-service-property-select="the-butts">Focus this property</button>
+      </article>
+    `;
 
   const context = document.querySelector("[data-service-property-context]");
   if (context) {
@@ -3919,20 +5733,7 @@ function renderGlobalServiceState() {
           </button>
         </div>
         <div class="service-focus-tiles">
-          <article class="service-focus-tile${selectedId === "willow-brook" ? " is-selected" : ""}">
-            <span class="source-badge">Most urgent</span>
-            <h3>18 Willow Brook Drive</h3>
-            <p>Gas Safety renewal</p>
-            <strong>Renewal needed in 21 days</strong>
-            <button class="primary-button" type="button" data-service-property-select="willow-brook">Focus this property</button>
-          </article>
-          <article class="service-focus-tile${selectedId === "the-butts" ? " is-selected" : ""}">
-            <span class="source-badge">Evidence gap</span>
-            <h3>57 The Butts</h3>
-            <p>${labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety evidence"}</p>
-            <strong>${labsState.eicrAdded ? "EICR verified" : "EICR still missing"}</strong>
-            <button class="secondary-button" type="button" data-service-property-select="the-butts">Focus this property</button>
-          </article>
+          ${serviceFocusTiles}
         </div>
         <label class="service-property-search">
           <span>Find another property</span>
@@ -3949,12 +5750,14 @@ function renderGlobalServiceState() {
   }
 
   title.textContent = isAllMode
-    ? "Arrange Gas Safety renewal first"
+    ? isFivePropertyMode() ? "Resolve the portfolio's highest-risk gaps first" : "Arrange Gas Safety renewal first"
     : isWillow
     ? "Arrange Gas Safety renewal"
     : labsState.eicrAdded ? "Arrange or record a property inspection" : "Arrange an EICR";
   document.querySelector("[data-global-service-body]").textContent = isAllMode
-    ? `CMP has compared both properties and found Gas Safety renewal for 18 Willow Brook Drive as the most time-sensitive support item. ${labsState.eicrAdded ? "57 The Butts should move to inspection evidence next." : "57 The Butts still needs EICR evidence."}`
+    ? isFivePropertyMode()
+      ? `CMP has compared five properties. Start with 3 Station Road onboarding, Willow Brook renewal evidence and Canal View licensing; 24 Maple Court can stay on monitoring.`
+      : `CMP has compared both properties and found Gas Safety renewal for 18 Willow Brook Drive as the most time-sensitive support item. ${labsState.eicrAdded ? "57 The Butts should move to inspection evidence next." : "57 The Butts still needs EICR evidence."}`
     : isWillow
     ? "Gas Safety evidence is approaching its renewal window for 18 Willow Brook Drive. CMP can help you upload the new certificate or request support arranging a check."
     : labsState.eicrAdded
@@ -4243,7 +6046,12 @@ function bindPortfolioHome() {
     button.addEventListener("click", () => {
       const target = button.dataset.homeUpcoming;
 
-      if (target === "inspection") {
+      if (target.startsWith("azSingle:")) {
+        labsState.azMode = "single";
+        labsState.azPropertyId = target.split(":")[1] || "the-butts";
+        showPortfolioCompliance({ scroll: true });
+        window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
+      } else if (target === "inspection") {
         openPropertyWorkspace("timeline", "[data-timeline-action-body]");
       } else if (target === "gas") {
         openPropertyWorkspace("documents", "[data-vault-list]");
@@ -4508,6 +6316,158 @@ function bindPortfolioCompliance() {
       openPropertyWorkspace("compliance", "[data-compliance-licensing-card]");
     } else if (action === "askLicensing") {
       openAssistant(assistantResponses["Why is licensing still checking?"]);
+    } else if (action.startsWith("azSingle:")) {
+      labsState.azMode = "single";
+      labsState.azPropertyId = action.split(":")[1] || "the-butts";
+      renderAzChecker();
+      scrollToPanel("[data-az-checker]");
+    } else if (action.startsWith("service:")) {
+      labsState.selectedServicePropertyId = action.split(":")[1] || serviceActionPropertyId();
+      showGlobalServicePage({ scroll: true });
+    }
+  });
+}
+
+function bindAzChecker() {
+  document.addEventListener("click", (event) => {
+    const modeButton = event.target.closest("[data-az-mode]");
+    if (modeButton) {
+      labsState.azMode = modeButton.dataset.azMode;
+      labsState.editingCheckerCard = "";
+      if (labsState.azMode === "portfolio" && getPortfolioProperties().length < 2) {
+        showToast("Portfolio Sweep is best with multiple properties. Showing the available scope.");
+      }
+      showPortfolioCompliance({ scroll: true });
+      window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
+      return;
+    }
+
+    const sectionButton = event.target.closest("[data-az-section]");
+    if (sectionButton) {
+      labsState.activeCheckerSection = sectionButton.dataset.azSection;
+      labsState.editingCheckerCard = "";
+      renderAzChecker();
+      return;
+    }
+
+    const scenarioButton = event.target.closest("[data-az-scenario-button]");
+    if (scenarioButton) {
+      labsState.azScenario = scenarioButton.dataset.azScenarioButton;
+      labsState.activeCheckerSection = scenarioTargetSection(labsState.azScenario);
+      labsState.editingCheckerCard = "";
+      renderAzChecker();
+      return;
+    }
+
+    if (event.target.closest("[data-az-prev]")) {
+      const index = activeAzSectionIndex();
+      if (index > 0) {
+        labsState.activeCheckerSection = azSections[index - 1].id;
+        labsState.editingCheckerCard = "";
+        renderAzChecker();
+      }
+      return;
+    }
+
+    if (event.target.closest("[data-az-next]")) {
+      const index = activeAzSectionIndex();
+      if (index < azSections.length - 1) {
+        labsState.activeCheckerSection = azSections[index + 1].id;
+        labsState.editingCheckerCard = "";
+        renderAzChecker();
+      }
+      return;
+    }
+
+    const editButton = event.target.closest("[data-az-edit-card]");
+    if (editButton) {
+      labsState.editingCheckerCard = `${editButton.dataset.azSectionId}:${editButton.dataset.azEditCard}`;
+      renderAzChecker();
+      return;
+    }
+
+    if (event.target.closest("[data-az-card-cancel]")) {
+      labsState.editingCheckerCard = "";
+      renderAzChecker();
+      return;
+    }
+
+    const optionButton = event.target.closest("[data-az-card-option]");
+    if (optionButton) {
+      setCheckerAnswer(optionButton.dataset.azSectionId, optionButton.dataset.azCardId, optionButton.dataset.azCardOption);
+      labsState.editingCheckerCard = "";
+      renderAzChecker();
+      showToast("Answer recorded in this prototype. You can change it later.");
+      return;
+    }
+
+    const doneButton = event.target.closest("[data-az-card-done]");
+    if (doneButton) {
+      const card = doneButton.closest(".az-check-card");
+      const input = card?.querySelector("[data-az-edit-value]");
+      let value = input?.value?.trim() || "Recorded";
+      const suffix = input?.dataset?.azEditSuffix || "";
+      if (input?.type === "range") {
+        value = `${value}${suffix}`;
+      }
+      if (input?.tagName === "TEXTAREA" && !value) {
+        value = "Note added";
+      }
+      setCheckerAnswer(doneButton.dataset.azSectionId, doneButton.dataset.azCardId, value);
+      labsState.editingCheckerCard = "";
+      renderAzChecker();
+      showToast("Checker card updated.");
+      return;
+    }
+
+    if (event.target.closest("[data-az-run-single]")) {
+      renderAzChecker();
+      showToast("A-Z check refreshed using prototype readiness logic.");
+      return;
+    }
+
+    if (event.target.closest("[data-az-ask]")) {
+      const property = azSelectedProperty();
+      openAssistant(`${property.address}: CMP is showing ${azStatusForProperty(property).toLowerCase()} because the compliance score is ${property.complianceScore}% and the evidence score is ${property.evidenceScore}%. This is prototype readiness guidance only, not legal advice.`, { flash: true });
+      return;
+    }
+
+    if (event.target.closest("[data-az-apply-all]")) {
+      showToast("Shared answers applied across the portfolio matrix in this prototype.");
+      return;
+    }
+
+    if (event.target.closest("[data-az-copy-first]")) {
+      showToast("Copied the fully compliant pattern as a comparison reference.");
+      return;
+    }
+
+    const answer = event.target.closest("[data-az-answer]");
+    if (answer) {
+      const cycle = ["yes", "no", "unsure", "na"];
+      const labels = { yes: "Yes", no: "No", unsure: "Unsure", na: "N/A" };
+      const current = cycle.findIndex((item) => answer.classList.contains(item));
+      const next = cycle[(current + 1) % cycle.length];
+      cycle.forEach((item) => answer.classList.remove(item));
+      answer.classList.add(next);
+      answer.textContent = labels[next];
+    }
+  });
+
+  document.addEventListener("change", (event) => {
+    const propertySelect = event.target.closest("[data-az-property-select]");
+    if (propertySelect) {
+      labsState.azPropertyId = propertySelect.value;
+      labsState.editingCheckerCard = "";
+      renderAzChecker();
+    }
+
+    const scenarioSelect = event.target.closest("[data-az-scenario-select]");
+    if (scenarioSelect) {
+      labsState.azScenario = scenarioSelect.value;
+      labsState.activeCheckerSection = scenarioTargetSection(labsState.azScenario);
+      labsState.editingCheckerCard = "";
+      renderAzChecker();
     }
   });
 }
@@ -4527,7 +6487,15 @@ function copyEvidenceInboxAddress() {
 }
 
 function handleEvidenceAction(action) {
-  if (action === "openProperty") {
+  if (action?.startsWith("az:")) {
+    labsState.azMode = "single";
+    labsState.azPropertyId = action.split(":")[1] || "the-butts";
+    showPortfolioCompliance({ scroll: true });
+    window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
+  } else if (action?.startsWith("service:")) {
+    labsState.selectedServicePropertyId = action.split(":")[1] || serviceActionPropertyId();
+    showGlobalServicePage({ scroll: true });
+  } else if (action === "openProperty") {
     openPropertyWorkspace("overview");
   } else if (action === "openWillowProperty") {
     openPropertyFromPortfolio("willow-brook");
@@ -4673,7 +6641,15 @@ function markInspectionTaskNotCompleted() {
 }
 
 function handleTaskAction(action) {
-  if (action === "uploadEicr") {
+  if (action?.startsWith("az:")) {
+    labsState.azMode = "single";
+    labsState.azPropertyId = action.split(":")[1] || "the-butts";
+    showPortfolioCompliance({ scroll: true });
+    window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
+  } else if (action?.startsWith("service:")) {
+    labsState.selectedServicePropertyId = action.split(":")[1] || serviceActionPropertyId();
+    showGlobalServicePage({ scroll: true });
+  } else if (action === "uploadEicr") {
     openPropertySmartUpload();
   } else if (action === "requestSupport") {
     openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
@@ -4832,6 +6808,33 @@ function renderActivitySummaryModalState() {
     return;
   }
 
+  if (isEmptyPortfolioMode()) {
+    evidenceList.innerHTML = "<li>No evidence updates yet</li>";
+    document.querySelector("[data-activity-summary-open-list]").innerHTML = "<li>Add a property to create actions</li>";
+    document.querySelector("[data-activity-summary-resolved]").innerHTML = "<li>No resolved items yet</li>";
+    document.querySelector("[data-activity-summary-next]").textContent = "Add your first property, then run the A-Z Compliance Checker.";
+    return;
+  }
+
+  if (isFivePropertyMode()) {
+    evidenceList.innerHTML = `
+      <li>24 Maple Court · fully compliant evidence pack</li>
+      <li>18 Willow Brook Drive · Gas Safety renewal flagged</li>
+      <li>3 Station Road · onboarding evidence missing</li>
+    `;
+    document.querySelector("[data-activity-summary-open-list]").innerHTML = `
+      <li>3 Station Road · new purchase onboarding</li>
+      <li>18 Willow Brook Drive · Gas Safety renewal</li>
+      <li>9 Canal View · licensing answer needed</li>
+    `;
+    document.querySelector("[data-activity-summary-resolved]").innerHTML = `
+      <li>24 Maple Court · fully compliant</li>
+      <li>18 Willow Brook Drive · EICR verified</li>
+    `;
+    document.querySelector("[data-activity-summary-next]").textContent = "Run Portfolio Sweep, resolve Station Road onboarding gaps, then confirm Canal View licensing.";
+    return;
+  }
+
   if (isTwoPropertyMode()) {
     evidenceList.innerHTML = `
       <li>18 Willow Brook Drive · EICR verified</li>
@@ -4923,6 +6926,10 @@ function handleActivityAction(action) {
     showPortfolioProperties({ scroll: true });
   } else if (action === "openWillowProperty") {
     openPropertyFromPortfolio("willow-brook");
+  } else if (action === "openAz") {
+    labsState.azMode = "portfolio";
+    showPortfolioCompliance({ scroll: true });
+    window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
   } else if (action === "askGasRenewal") {
     openAssistant("18 Willow Brook Drive needs Gas Safety renewal soon. CMP would prioritise upload or support for that certificate before lower-risk follow-up evidence.");
   }
@@ -5094,7 +7101,12 @@ function openLearnGuide(index) {
 }
 
 function handleGlobalServiceAction(action) {
-  if (action.startsWith("request:")) {
+  if (action.startsWith("az:")) {
+    labsState.azMode = "single";
+    labsState.azPropertyId = action.split(":")[1] || "the-butts";
+    showPortfolioCompliance({ scroll: true });
+    window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
+  } else if (action.startsWith("request:")) {
     const [, requestType, propertyId] = action.split(":");
     openServiceRequestModal(requestType, propertyId || serviceActionPropertyId());
   } else if (action === "support") {
@@ -5159,6 +7171,11 @@ function handleGlobalServiceAction(action) {
 
 function bindUtilityPages() {
   document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-properties-add], [data-home-add-property]")) {
+      openAddPropertyModal();
+      return;
+    }
+
     if (event.target.closest("[data-open-global-service]")) {
       showGlobalServicePage({ scroll: true });
       return;
@@ -6984,6 +9001,7 @@ bindTabs();
 bindPortfolioHome();
 bindPortfolioProperties();
 bindPortfolioCompliance();
+bindAzChecker();
 bindPortfolioEvidence();
 bindPortfolioTasks();
 bindPortfolioActivity();

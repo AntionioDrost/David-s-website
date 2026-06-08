@@ -19,10 +19,11 @@
           <a class="brand-lockup" href="dashboard-labs.html" aria-label="CMP Labs dashboard home" data-home-link>
             <span class="brand-mark" aria-hidden="true">
               <svg class="cmp-logo" viewBox="0 0 64 64" role="presentation">
-                <path class="cmp-logo-boundary" d="M44.7 15.4A21 21 0 1 0 45 48.2"/>
-                <path class="cmp-logo-roof" d="M21.2 33.2 32 23.5l10.8 9.7"/>
-                <path class="cmp-logo-home" d="M24.2 32.1v12.2h15.6V32.1"/>
-                <path class="cmp-logo-check" d="m28 38.2 4.5 4.5 10.2-13.1"/>
+                <rect class="cmp-logo-seal" x="8" y="8" width="48" height="48" rx="14"/>
+                <path class="cmp-logo-file" d="M23 18h16l9 9v19a4 4 0 0 1-4 4H23a4 4 0 0 1-4-4V22a4 4 0 0 1 4-4Z"/>
+                <path class="cmp-logo-fold" d="M39 18v9h9"/>
+                <path class="cmp-logo-roof" d="m24 35 8-7 8 7"/>
+                <path class="cmp-logo-check" d="m25 41 5 5 12-15"/>
               </svg>
             </span>
             <span>
@@ -115,10 +116,11 @@
         <a class="mobile-brand" href="dashboard-labs.html" data-home-link>
           <span class="brand-mark" aria-hidden="true">
             <svg class="cmp-logo" viewBox="0 0 64 64" role="presentation">
-              <path class="cmp-logo-boundary" d="M44.7 15.4A21 21 0 1 0 45 48.2"/>
-              <path class="cmp-logo-roof" d="M21.2 33.2 32 23.5l10.8 9.7"/>
-              <path class="cmp-logo-home" d="M24.2 32.1v12.2h15.6V32.1"/>
-              <path class="cmp-logo-check" d="m28 38.2 4.5 4.5 10.2-13.1"/>
+              <rect class="cmp-logo-seal" x="8" y="8" width="48" height="48" rx="14"/>
+              <path class="cmp-logo-file" d="M23 18h16l9 9v19a4 4 0 0 1-4 4H23a4 4 0 0 1-4-4V22a4 4 0 0 1 4-4Z"/>
+              <path class="cmp-logo-fold" d="M39 18v9h9"/>
+              <path class="cmp-logo-roof" d="m24 35 8-7 8 7"/>
+              <path class="cmp-logo-check" d="m25 41 5 5 12-15"/>
             </svg>
           </span>
           <span>ComplyMyProperty</span>
@@ -234,6 +236,8 @@
               <small>areas still checking</small>
             </article>
           </section>
+
+          <section class="score-pair-grid" aria-label="Portfolio readiness scores" data-home-score-grid></section>
 
           <article class="home-priority-card">
             <div>
@@ -397,6 +401,8 @@
             </article>
           </section>
 
+          <section class="score-pair-grid" aria-label="Properties score summary" data-properties-score-grid></section>
+
           <section class="properties-toolbar" aria-label="Properties search and filters">
             <label class="properties-search">
               <span class="nav-icon" data-icon="home"></span>
@@ -538,6 +544,8 @@
             </article>
           </section>
 
+          <section class="score-pair-grid" aria-label="Compliance and evidence scores" data-compliance-score-grid></section>
+
           <article class="compliance-start-card" data-compliance-start-card tabindex="-1">
             <div>
               <p class="section-kicker">START HERE</p>
@@ -551,6 +559,21 @@
               <button class="text-button" type="button" data-compliance-open-property>Open property</button>
             </div>
           </article>
+
+          <section class="az-checker-section" aria-labelledby="azCheckerTitle" data-az-checker>
+            <div class="az-checker-header">
+              <div>
+                <p class="section-kicker">A-Z Compliance Check</p>
+                <h2 id="azCheckerTitle">Answer what you know. CMP organises the rest.</h2>
+                <p>Choose a single-property check or a portfolio sweep. Prototype readiness logic only — this is not legal advice.</p>
+              </div>
+              <div class="az-mode-toggle" aria-label="A-Z checker mode">
+                <button class="is-active" type="button" data-az-mode="single">Single property</button>
+                <button type="button" data-az-mode="portfolio">Portfolio sweep</button>
+              </div>
+            </div>
+            <div class="az-checker-body" data-az-checker-body></div>
+          </section>
 
           <section class="compliance-centre-section" aria-labelledby="portfolioMatrixTitle">
             <div class="section-heading">
@@ -1022,6 +1045,8 @@
               <div class="ask-source-grid" data-ask-source-grid></div>
             </article>
           </section>
+
+          <section class="ask-az-shortcut" data-ask-az-shortcut></section>
         </section>
 
         <section class="portfolio-utility-page portfolio-service-page" data-portfolio-service hidden aria-labelledby="portfolioServiceTitle">
@@ -2807,6 +2832,9 @@
         </div>
         <p class="modal-note">Switch the local demo between common landlord journey states.</p>
         <div class="demo-state-options" role="list">
+          <button class="secondary-button" type="button" data-demo-state-option="empty-portfolio">Empty portfolio</button>
+          <button class="secondary-button" type="button" data-demo-state-option="starter-portfolio">Starter portfolio</button>
+          <button class="secondary-button" type="button" data-demo-state-option="five-property">Five-property portfolio</button>
           <button class="secondary-button" type="button" data-demo-state-option="reset">Reset demo</button>
           <button class="secondary-button" type="button" data-demo-state-option="before-eicr">Before EICR</button>
           <button class="secondary-button" type="button" data-demo-state-option="after-eicr">After EICR</button>
