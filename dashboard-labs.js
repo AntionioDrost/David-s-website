@@ -475,7 +475,7 @@ const assistantResponses = {
   "What evidence am I missing?": "Your most useful missing document is currently an EICR. You can upload an existing report, enter the details manually or arrange an inspection.",
   "Is this property ready to let?": "Not yet. CMP would first need Electrical Safety evidence and a stronger alarm record before this property can be treated as ready.",
   "What should I upload next?": "Upload an EICR first. It is the highest-value missing evidence item for this property file.",
-  "How does document scanning work?": "In this Labs preview, CMP simulates reading document names, identifying the type, extracting useful dates and matching the paperwork to 57 The Butts.",
+  "How does document scanning work?": "In this demo, CMP simulates reading document names, identifying the type, extracting useful dates and matching the paperwork to 57 The Butts.",
   "Can CMP organise mixed paperwork?": "Yes, the future workflow is designed for mixed paperwork. CMP would group certificates, tenancy documents and unclear files for review.",
   "What changes in the next 90 days?": "There are no confirmed urgent deadlines this week. CMP recommends reviewing inspection evidence and preparing for the Gas Safety renewal window.",
   "Why is licensing still checking?": "Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed.",
@@ -602,9 +602,9 @@ const learnAssistantResponses = {
 
 const settingsAssistantResponses = {
   "What can CMP notify me about?": "CMP could notify you about compliance reminders, evidence expiry alerts, support request updates and weekly portfolio summaries.",
-  "What data does CMP use?": "This Labs preview uses local prototype state. A final CMP account would use secure account storage and database-backed property records.",
-  "How does demo reset work?": "Reset demo returns the Labs preview to the initial pre-EICR state without connecting to any backend.",
-  "What is compact mode?": "Compact mode reduces spacing in the Labs preview so repeated cards and lists feel tighter during demos."
+  "What data does CMP use?": "This demo uses local prototype state. A live CMP account would use secure account storage and database-backed property records.",
+  "How does demo reset work?": "Reset demo returns the walkthrough to the initial pre-EICR state without connecting to any backend.",
+  "What is compact mode?": "Compact mode reduces spacing so repeated cards and lists feel tighter during demos."
 };
 
 const guidePreviews = [
@@ -646,7 +646,7 @@ const guidePreviews = [
   }
 ];
 
-const defaultAssistantResponse = "This is a static Labs preview. CMP can organise evidence, identify gaps and suggest the next useful action for this property.";
+const defaultAssistantResponse = "CMP can organise evidence, identify gaps and suggest the next useful action for this property.";
 
 const scanStages = [
   "Reading documents...",
@@ -830,7 +830,7 @@ function renderOverviewNextAction() {
       </div>
       <div class="action-controls">
         <button class="primary-button" type="button" data-global-service-action="uploadInspection">Upload inspection evidence</button>
-        <button class="secondary-button" type="button" data-toast="Inspection status recorded for this Labs preview.">Mark as not yet completed</button>
+        <button class="secondary-button" type="button" data-toast="Inspection status recorded locally for this walkthrough.">Mark as not yet completed</button>
         <button class="text-button" type="button" data-assistant-message="Your EICR is now verified. The next useful improvement is inspection evidence, because it helps keep the property file current.">Ask CMP why this matters</button>
       </div>
     `
@@ -842,7 +842,7 @@ function renderOverviewNextAction() {
       </div>
       <div class="action-controls">
         <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-        <button class="secondary-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+        <button class="secondary-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
         <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
         <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
       </div>
@@ -885,12 +885,12 @@ function renderDocumentsState() {
   document.querySelector("[data-eicr-document-row]")?.classList.toggle("is-missing", !labsState.eicrAdded);
   document.querySelector("[data-eicr-actions]").innerHTML = labsState.eicrAdded
     ? `
-      <button class="text-button" type="button" data-toast="Document preview is static in CMP Labs.">View</button>
+      <button class="text-button" type="button" data-toast="Preview only — document viewing is not connected to live storage.">View</button>
       <button class="text-button" type="button" data-upload-trigger>Replace</button>
     `
     : `
       <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-      <button class="text-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+      <button class="text-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
     `;
 }
 
@@ -915,12 +915,12 @@ function renderComplianceState() {
     : "CMP does not yet have a current EICR stored for this property.";
   document.querySelector("[data-compliance-eicr-actions]").innerHTML = labsState.eicrAdded
     ? `
-      <button class="secondary-button" type="button" data-toast="EICR certificate preview is static in CMP Labs.">View certificate</button>
+      <button class="secondary-button" type="button" data-toast="Preview only — certificate viewing is not connected to live storage.">View certificate</button>
       <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
     `
     : `
       <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-      <button class="secondary-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+      <button class="secondary-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
       <button class="text-button" type="button" data-open-global-service>Arrange an EICR</button>
     `;
 }
@@ -1275,7 +1275,7 @@ function getGlobalAskAssistantResponse(prompt) {
     "What evidence is missing?": labsState.eicrAdded
       ? "Core certificates are recorded. Inspection evidence is still useful to add."
       : "The main missing evidence is an EICR. Inspection evidence is also useful to add when available.",
-    "Explain this property file": "57 The Butts has matched EPC information, verified Gas Safety evidence, landlord alarm information, tasks and activity history in this Labs preview.",
+    "Explain this property file": "57 The Butts has matched EPC information, verified Gas Safety evidence, landlord alarm information, tasks and activity history in this demo.",
     "Summarise my portfolio": labsState.eicrAdded
       ? "Your portfolio has one property. EPC, Gas Safety and EICR evidence are recorded; inspection evidence and licensing review remain useful follow-up items."
       : "Your portfolio has one property. EPC and Gas Safety evidence are recorded; Electrical Safety is the clearest gap.",
@@ -1298,7 +1298,7 @@ function getGlobalServiceAssistantResponse(prompt) {
       const responsesWithRequests = {
         "What should I book first?": `Across the portfolio, CMP has ${activeRequests.length} open support ${activeRequests.length === 1 ? "request" : "requests"} awaiting review: ${requestSummary}. Avoid duplicating those and handle any remaining evidence uploads you already have.`,
         "Why is this recommended?": "CMP is using property-specific open requests so the same support item is not requested twice for the same address.",
-        "Can CMP help arrange it?": "This Labs preview can record local support requests per property and service type. The final workflow would connect those to CMP support handling.",
+        "Can CMP help arrange it?": "This demo can record local support requests per property and service type. The final workflow would connect those to CMP support handling.",
         "What can wait until later?": "Licensing and tenancy document review can stay visible while open support requests and urgent renewal evidence are handled first."
       };
 
@@ -1308,7 +1308,7 @@ function getGlobalServiceAssistantResponse(prompt) {
     const responses = {
       "What should I book first?": "Across the portfolio, book or upload Gas Safety renewal evidence for 18 Willow Brook Drive first. 57 The Butts still needs EICR evidence, but the Gas Safety renewal is the most time-sensitive item.",
       "Why is this recommended?": "CMP compared both properties and ranked the renewal window ahead of the 57 The Butts evidence gap, while keeping both visible.",
-      "Can CMP help arrange it?": "This Labs preview can create a local Gas Safety support request for 18 Willow Brook Drive or an EICR support request for 57 The Butts.",
+      "Can CMP help arrange it?": "This demo can create a local Gas Safety support request for 18 Willow Brook Drive or an EICR support request for 57 The Butts.",
       "What can wait until later?": "Inspection evidence, alarm evidence and licensing should stay visible, but Gas Safety renewal and the EICR gap are the higher-value actions."
     };
 
@@ -1323,7 +1323,7 @@ function getGlobalServiceAssistantResponse(prompt) {
       "What should I book first": `${activeRequest.type} is already open for ${property.label}. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
       "What should I book first?": `${activeRequest.type} is already open for ${property.label}. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
       "Why is this recommended?": "CMP is avoiding duplicate support requests and keeping the open item visible so the property file stays clear.",
-      "Can CMP help arrange it?": "A local demo support request is already open. In the final workflow this would notify CMP or a connected supplier process.",
+      "Can CMP help arrange it?": "A support request is already open in this demo. In the final workflow this would notify CMP or a connected supplier process.",
       "What can wait until later?": property.id === "willow-brook"
         ? "Inspection, alarms and licensing can stay visible while the Gas Safety renewal request is reviewed."
         : labsState.eicrAdded
@@ -1338,7 +1338,7 @@ function getGlobalServiceAssistantResponse(prompt) {
     const responses = {
       "What should I book first?": "Gas Safety support is the most useful service for 18 Willow Brook Drive because renewal evidence is approaching its window.",
       "Why is this recommended?": "CMP is recommending Gas Safety renewal because this tenanted property has a renewal item due soon, while EICR and EPC are already recorded.",
-      "Can CMP help arrange it?": "This Labs preview can record a local Gas Safety support request for 18 Willow Brook Drive. The final workflow would connect it to support handling.",
+      "Can CMP help arrange it?": "This demo can record a local Gas Safety support request for 18 Willow Brook Drive. The final workflow would connect it to support handling.",
       "What can wait until later?": "Inspection evidence, alarm evidence and licensing review should stay visible, but Gas Safety renewal comes first."
     };
 
@@ -1352,7 +1352,7 @@ function getGlobalServiceAssistantResponse(prompt) {
     "Why is this recommended?": labsState.eicrAdded
       ? "CMP is recommending inspection support because it is the next useful evidence item after the core certificates."
       : "CMP is recommending EICR support because no current Electrical Safety evidence is stored for 57 The Butts.",
-    "Can CMP help arrange it?": "This Labs preview can record a local demo support request. The finished product would connect that request to CMP support workflows.",
+    "Can CMP help arrange it?": "This demo can record a local support request. The finished product would connect that request to CMP support workflows.",
     "What can wait until later?": labsState.eicrAdded
       ? "Gas Safety and EPC are already recorded. Licensing can keep checking while inspection evidence is reviewed."
       : "Gas Safety and EPC are already recorded, so EICR support should come before optional document review."
@@ -1366,7 +1366,7 @@ function getLearnAssistantResponse(prompt) {
 }
 
 function getSettingsAssistantResponse(prompt) {
-  return settingsAssistantResponses[prompt] || "Settings in this Labs preview are local controls for presentation and prototype preferences.";
+  return settingsAssistantResponses[prompt] || "Settings are local controls for presentation and prototype preferences.";
 }
 
 function getAssistantResponse(prompt) {
@@ -2684,8 +2684,8 @@ function completedTaskItems() {
           id: "inspection-recorded",
           title: "Inspection status recorded",
           status: "Dismissed",
-          source: "Tasks · Labs preview",
-          body: "Marked as not completed in this Labs preview.",
+          source: "Tasks · Demo action",
+          body: "Marked as not completed during the walkthrough.",
           property: "57 The Butts · CV1 3BJ",
           propertyId: "the-butts",
           category: "Inspection",
@@ -2787,7 +2787,7 @@ function renderTaskBoard(tasks) {
         <h3>${column.title}</h3>
         ${columnTasks.length
           ? columnTasks.map((task) => renderTaskCard(task, { compact: true })).join("")
-          : `<p>No tasks in this column.</p>`}
+          : `<p>No tasks sit in this column for the current view.</p>`}
       </section>
     `;
   }).join("");
@@ -2815,7 +2815,7 @@ function renderCompletedTasks() {
         <article class="completed-task-empty">
           <span>Nothing recorded yet</span>
           <h3>No completed or dismissed tasks</h3>
-          <p>Completed support, evidence and landlord-answer actions will appear here during this Labs session.</p>
+          <p>Completed support, evidence and landlord-answer actions will appear here during the walkthrough.</p>
         </article>
       `;
 }
@@ -2941,7 +2941,7 @@ function getActivityEvents() {
       status: "Awaiting review",
       statusClass: "status-watch-text",
       search: `${activeSupportRequest.type} support service request awaiting review ${supportProperty}`,
-      why: "CMP recorded this because a local demo support request was created from the Services workspace.",
+      why: "CMP recorded this because a walkthrough support request was created from the Services workspace.",
       nextAction: "Open Services to review the request.",
       route: "services",
       actions: [
@@ -2959,7 +2959,7 @@ function getActivityEvents() {
       category: "Tasks",
       title: "Inspection status recorded",
       property,
-      body: "Inspection evidence was marked as not yet completed in this Labs preview.",
+      body: "Inspection evidence was marked as not yet completed during the walkthrough.",
       source: "Tasks",
       status: "Recorded",
       statusClass: "status-neutral-text",
@@ -2990,7 +2990,7 @@ function getActivityEvents() {
         status: event.badge || "Recorded",
         statusClass: event.badgeClass || "status-watch-text",
         search: `${event.title} ${event.body} property details landlord answer alarm 57 butts`,
-        why: "CMP recorded this because property information changed in the Labs preview.",
+        why: "CMP recorded this because property information changed during the walkthrough.",
         nextAction: isAnswer ? "Review the property timeline or add supporting evidence." : "Open Property details to review the saved information.",
         route: isAnswer ? "timeline" : "details",
         actions: [
@@ -3250,7 +3250,7 @@ function getActivityEvents() {
         status: "Portfolio view",
         statusClass: "status-neutral-text",
         search: "tenanted property review created 18 willow brook drive b37",
-        why: "CMP recorded this so global pages can compare two property files in this Labs demo.",
+        why: "CMP recorded this so global pages can compare two property files in the demo.",
         nextAction: "Use Properties, Tasks or Book a Service to review the portfolio-level preview.",
         route: "properties",
         actions: [
@@ -4032,7 +4032,7 @@ function renderGlobalServiceState() {
           </div>
         </article>
       `).join("")
-      : "<p>No open support requests.</p>";
+      : "<p>No support request is open for this view. Use a recommended service when you want CMP to help coordinate support.</p>";
   }
 }
 
@@ -4196,7 +4196,7 @@ function bindPortfolioHome() {
   document.querySelector("[data-home-upload-priority]")?.addEventListener("click", () => {
     const urgentProperty = portfolioUrgentProperty();
     if (urgentProperty.id === "willow-brook") {
-      showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+      showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
       return;
     }
 
@@ -4257,7 +4257,7 @@ function bindPortfolioHome() {
 
   document.querySelector("[data-home-quick-win-open]")?.addEventListener("click", openHomeAlarmModal);
   document.querySelector("[data-home-quick-remind]")?.addEventListener("click", () => {
-    showToast("Quick win reminder is not scheduled in this Labs preview.");
+    showToast("Preview only — reminders are not scheduled in this demo.");
   });
   document.querySelector("[data-home-alarm-save]")?.addEventListener("click", saveHomeAlarmAnswer);
   document.querySelectorAll("[data-home-alarm-close]").forEach((button) => {
@@ -4331,7 +4331,7 @@ function bindPortfolioProperties() {
     const uploadButton = event.target.closest("[data-properties-upload-id], [data-properties-upload]");
     if (uploadButton) {
       if (uploadButton.dataset.propertiesUploadId === "willow-brook") {
-        showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+        showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
       } else {
         openPropertyWorkspace("documents", "[data-document-upload-panel]");
       }
@@ -4455,12 +4455,12 @@ function bindPortfolioCompliance() {
   document.querySelector("[data-compliance-priority-upload]")?.addEventListener("click", () => {
     const urgentProperty = portfolioUrgentProperty();
     if (urgentProperty.id === "willow-brook") {
-      showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+      showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
       return;
     }
 
     if (labsState.eicrAdded) {
-      showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
+      showToast("Preview only — inspection evidence upload is not connected to a live workflow.");
       return;
     }
 
@@ -4496,14 +4496,14 @@ function bindPortfolioCompliance() {
     } else if (action === "requestSupport") {
       openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
     } else if (action === "uploadGas") {
-      showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+      showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
     } else if (action === "requestGasSupport") {
       labsState.selectedServicePropertyId = "willow-brook";
       openServiceRequestModal("gas", "willow-brook");
     } else if (action === "uploadInspection") {
-      showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
+      showToast("Preview only — inspection evidence upload is not connected to a live workflow.");
     } else if (action === "markInspection") {
-      showToast("Inspection status marked as not completed for this Labs preview.");
+      showToast("Inspection status marked as not completed for this walkthrough.");
     } else if (action === "reviewLicensing") {
       openPropertyWorkspace("compliance", "[data-compliance-licensing-card]");
     } else if (action === "askLicensing") {
@@ -4536,22 +4536,22 @@ function handleEvidenceAction(action) {
   } else if (action === "arrangeEicr") {
     openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
   } else if (action === "uploadGas") {
-    showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
   } else if (action === "arrangeGas") {
     labsState.selectedServicePropertyId = "willow-brook";
     openServiceRequestModal("gas", "willow-brook");
   } else if (action === "uploadTenancy" || action === "uploadAlarms") {
-    showToast("Evidence upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — evidence upload is not connected to a live workflow.");
   } else if (action === "uploadInspection") {
-    showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — inspection evidence upload is not connected to a live workflow.");
   } else if (action === "markInspection") {
-    showToast("Inspection status recorded for this Labs preview.");
+    showToast("Inspection status recorded locally for this walkthrough.");
   } else if (action === "viewEpc") {
-    showToast("EPC record preview is static in CMP Labs.");
+    showToast("Preview only — official record viewing is not connected to live records.");
   } else if (action === "viewGas") {
-    showToast("Gas Safety certificate preview is static in CMP Labs.");
+    showToast("Preview only — certificate viewing is not connected to live storage.");
   } else if (action === "viewEicr") {
-    showToast("EICR certificate preview is static in CMP Labs.");
+    showToast("Preview only — certificate viewing is not connected to live storage.");
   }
 }
 
@@ -4643,7 +4643,7 @@ function bindPortfolioEvidence() {
 
 function markInspectionTaskNotCompleted() {
   if (labsState.inspectionStatusRecorded) {
-    showToast("Inspection status already recorded for this Labs preview.");
+    showToast("Inspection status is already recorded locally for this walkthrough.");
     return;
   }
 
@@ -4654,7 +4654,7 @@ function markInspectionTaskNotCompleted() {
     icon: "calendar",
     category: "Actions",
     title: "Inspection status recorded",
-    body: "Inspection evidence was marked as not completed in this Labs preview.",
+    body: "Inspection evidence was marked as not completed during the walkthrough.",
     badge: "Recorded",
     badgeClass: "status-neutral-text",
     activityLabel: "Inspection status recorded",
@@ -4669,7 +4669,7 @@ function markInspectionTaskNotCompleted() {
       note: "Prototype task action for layout testing."
     }
   });
-  showToast("Inspection status recorded for this Labs preview.");
+  showToast("Inspection status recorded locally for this walkthrough.");
 }
 
 function handleTaskAction(action) {
@@ -4685,11 +4685,11 @@ function handleTaskAction(action) {
   } else if (action === "openWillowProperty") {
     openPropertyFromPortfolio("willow-brook");
   } else if (action === "uploadGas") {
-    showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
   } else if (action === "uploadAlarms") {
-    showToast("Alarm evidence upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — alarm evidence upload is not connected to a live workflow.");
   } else if (action === "uploadInspection") {
-    showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — inspection evidence upload is not connected to a live workflow.");
   } else if (action === "markInspection") {
     markInspectionTaskNotCompleted();
   } else if (action === "reviewLicensing") {
@@ -4901,7 +4901,7 @@ function handleActivityAction(action) {
   } else if (action === "openTask") {
     showPortfolioTasks({ scroll: true });
   } else if (action === "uploadInspection") {
-    showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — inspection evidence upload is not connected to a live workflow.");
   } else if (action === "reviewLicensing") {
     openPropertyWorkspace("compliance", "[data-compliance-licensing-card]");
   } else if (action === "askLicensing") {
@@ -4962,7 +4962,7 @@ function bindPortfolioActivity() {
   });
 
   document.querySelector("[data-activity-preview-export]")?.addEventListener("click", () => {
-    showToast("Activity export is a static CMP Labs preview.");
+    showToast("Preview only — activity export is not connected to a live workflow.");
   });
 
   document.querySelector("[data-activity-detail-open]")?.addEventListener("click", (event) => {
@@ -4994,7 +4994,18 @@ function bindDemoState() {
     openTimelineModal("[data-demo-state-modal]");
   });
 
+  document.querySelector("[data-demo-guide-open]")?.addEventListener("click", () => {
+    openTimelineModal("[data-demo-guide-modal]");
+  });
+
   document.querySelector("[data-demo-state-close]")?.addEventListener("click", closeTimelineModals);
+  document.querySelectorAll("[data-demo-guide-close]").forEach((button) => {
+    button.addEventListener("click", closeTimelineModals);
+  });
+  document.querySelector("[data-demo-guide-start]")?.addEventListener("click", () => {
+    closeTimelineModals();
+    showPortfolioHome({ scroll: true });
+  });
 
   document.querySelectorAll("[data-demo-state-option]").forEach((button) => {
     button.addEventListener("click", () => {
@@ -5094,20 +5105,20 @@ function handleGlobalServiceAction(action) {
     openPropertyWorkspace("documents", action === "viewEicr" ? "[data-vault-list]" : "[data-document-upload-panel]");
   } else if (action === "uploadInspection" || action === "uploadRecommended") {
     if (serviceActionPropertyId() === "willow-brook" && action === "uploadRecommended") {
-      showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+      showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
       return;
     }
 
     if (labsState.eicrAdded || action === "uploadInspection") {
-      showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
+      showToast("Preview only — inspection evidence upload is not connected to a live workflow.");
     } else {
       openPropertyWorkspace("documents", "[data-document-upload-panel]");
       window.setTimeout(() => document.querySelector("[data-file-input]")?.click(), 180);
     }
   } else if (action === "uploadGas") {
-    showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
   } else if (action === "uploadAlarms") {
-    showToast("Alarm evidence upload is a prototype preview in CMP Labs.");
+    showToast("Preview only — alarm evidence upload is not connected to a live workflow.");
   } else if (action === "licensing") {
     showPortfolioCompliance({ scroll: true });
   } else if (action === "ask") {
@@ -5213,7 +5224,7 @@ function bindUtilityPages() {
     if (event.target.closest("[data-add-property-success]")) {
       labsState.addPropertyStep = 4;
       renderAddPropertyState();
-      showToast("Prototype preview only — no new property has been saved.");
+      showToast("Preview only — no new property has been saved.");
     }
 
     if (event.target.closest("[data-add-property-open-demo]")) {
@@ -5223,7 +5234,7 @@ function bindUtilityPages() {
 
     if (event.target.closest("[data-add-property-later]")) {
       closeTimelineModals();
-      showToast("Prototype preview only — no new property has been saved.");
+      showToast("Preview only — no new property has been saved.");
     }
 
     if (event.target.closest("[data-bundle-request]")) {
@@ -5559,7 +5570,7 @@ function renderServicesState() {
         <div><dt>Linked to</dt><dd>${escapeHtml(request.linkedTo)}</dd></div>
       </dl>
       <div class="button-row">
-        <button class="text-button" type="button" data-toast="Request detail is static in this Labs prototype.">View request</button>
+        <button class="text-button" type="button" data-toast="Preview only — request details are not connected to a live workflow.">View request</button>
         <button class="text-button" type="button" data-cancel-request="${request.id}">Cancel request</button>
       </div>
     </article>
@@ -5688,7 +5699,7 @@ function cancelSupportRequest(id) {
     return;
   }
 
-  if (!window.confirm("Cancel this local demo support request?")) {
+  if (!window.confirm("Cancel this walkthrough support request?")) {
     return;
   }
 
@@ -5832,7 +5843,7 @@ function bindServices() {
 
     if (event.target.closest("[data-service-upload-action]")) {
       if (labsState.eicrAdded) {
-        showToast("Inspection upload is simulated in this Labs preview.");
+        showToast("Preview only — inspection upload is not connected to a live workflow.");
       } else {
         document.querySelector("[data-file-input]")?.click();
       }
@@ -5950,7 +5961,7 @@ function renderPropertyDetailsState() {
     eicrAction.textContent = labsState.eicrAdded ? "View EICR" : "Upload EICR";
     eicrAction.toggleAttribute("data-upload-trigger", !labsState.eicrAdded);
     if (labsState.eicrAdded) {
-      eicrAction.dataset.toast = "EICR certificate preview is static in CMP Labs.";
+      eicrAction.dataset.toast = "Preview only — certificate viewing is not connected to live storage.";
     } else {
       delete eicrAction.dataset.toast;
     }
@@ -6295,7 +6306,7 @@ function getTimelineEvents() {
       body: "A satisfactory Electrical Installation Condition Report was reviewed and added to the property file.",
       badge: "Verified",
       badgeClass: "status-good-text",
-      actions: [{ label: "View evidence", toast: "EICR certificate preview is static in CMP Labs." }],
+      actions: [{ label: "View evidence", toast: "Preview only — certificate viewing is not connected to live storage." }],
       details: {
         title: "Document details",
         rows: [
@@ -6353,7 +6364,7 @@ function getTimelineEvents() {
       body: "Uploaded certificate reviewed and stored against 57 The Butts.",
       badge: "Verified",
       badgeClass: "status-good-text",
-      actions: [{ label: "View evidence", toast: "Document preview is static in CMP Labs." }],
+      actions: [{ label: "View evidence", toast: "Preview only — document viewing is not connected to live storage." }],
       details: {
         title: "Document details",
         rows: [
@@ -6376,7 +6387,7 @@ function getTimelineEvents() {
       body: "CMP matched an Energy Performance Certificate to this property.",
       badge: "Confirmed",
       badgeClass: "status-good-text",
-      actions: [{ label: "View record", toast: "Official record preview is static in CMP Labs." }],
+      actions: [{ label: "View record", toast: "Preview only — official record viewing is not connected to live records." }],
       details: {
         title: "Official record details",
         rows: [
@@ -6436,7 +6447,7 @@ function getTimelineEvents() {
       badgeClass: "status-watch-text",
       actions: [
         { label: "Add evidence", upload: true },
-        { label: "Review answer", toast: "Answer review is a static CMP Labs preview." }
+        { label: "Review answer", toast: "Preview only — answer review is not connected to a live workflow." }
       ],
       details: {
         title: "Answer details",
@@ -6498,7 +6509,7 @@ function renderTimelineEvent(event) {
       ? "data-upload-trigger"
       : action.assistant
         ? `data-assistant-message="${escapeHtml(action.assistant)}"`
-        : `data-toast="${escapeHtml(action.toast || "This action is static in CMP Labs.")}"`;
+        : `data-toast="${escapeHtml(action.toast || "Preview only — this action is not connected to a live workflow.")}"`;
     const className = action.primary ? "primary-button" : "text-button";
     return `<button class="${className}" type="button" ${attrs}>${escapeHtml(action.label)}</button>`;
   }).join("") || "";
@@ -6580,7 +6591,7 @@ function renderTimelineState() {
   document.querySelector("[data-timeline-action-buttons]").innerHTML = labsState.eicrAdded
     ? `
       <button class="primary-button" type="button" data-global-service-action="uploadInspection">Upload inspection evidence</button>
-      <button class="secondary-button" type="button" data-toast="Inspection status is recorded locally for this Labs preview.">Mark as not yet completed</button>
+      <button class="secondary-button" type="button" data-toast="Inspection status is recorded locally for this walkthrough.">Mark as not yet completed</button>
     `
     : `
       <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
@@ -6640,6 +6651,8 @@ function closeTimelineModals() {
     "[data-activity-detail-modal]",
     "[data-activity-summary-modal]",
     "[data-demo-state-modal]",
+    "[data-demo-guide-modal]",
+    "[data-second-property-modal]",
     "[data-add-property-modal]",
     "[data-bundle-modal]",
     "[data-learn-preview-modal]",
@@ -6844,7 +6857,7 @@ function renderSmartUploadState() {
     : "Property: 57 The Butts";
   actions.innerHTML = labsState.eicrAdded
     ? `
-      <button class="secondary-button" type="button" data-toast="EICR evidence is already stored in this Labs preview.">View current evidence</button>
+      <button class="secondary-button" type="button" data-toast="EICR evidence is already stored in this demo.">View current evidence</button>
       <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
       <button class="text-button" type="button" data-modal-close>Close</button>
     `
@@ -6863,7 +6876,7 @@ function showScanResults() {
 
 function showEicrReview() {
   if (labsState.eicrAdded) {
-    showToast("EICR evidence is already stored in this Labs preview.");
+    showToast("EICR evidence is already stored in this demo.");
     return;
   }
 
@@ -6960,7 +6973,7 @@ function confirmEicr() {
   setAssistantResponse(postEicrAssistantMessage);
   closeSmartModal();
   showToast(wasAlreadyConfirmed
-    ? "EICR evidence is already stored in this Labs preview."
+    ? "EICR evidence is already stored in this demo."
     : "Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
 }
 

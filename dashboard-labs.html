@@ -130,16 +130,17 @@
       <main class="workspace" aria-labelledby="propertyTitle">
         <div class="demo-state-strip" aria-label="Demo state controls">
           <button class="demo-state-button" type="button" data-demo-state-open>Demo state</button>
+          <button class="demo-state-button" type="button" data-demo-guide-open>Demo guide</button>
         </div>
 
         <div class="utility-bar">
           <div>
             <div class="breadcrumb">Properties / 57 The Butts</div>
-            <span class="prototype-badge">Prototype preview</span>
+            <span class="prototype-badge">Labs demo</span>
           </div>
           <div class="utility-actions">
-            <button class="secondary-button" type="button" data-toast="Property editing is not enabled in this Labs shell.">Edit property</button>
-            <button class="icon-button" type="button" aria-label="More actions" data-toast="More actions will be added later.">
+            <button class="secondary-button" type="button" data-toast="Preview only — property editing is not connected in this demo.">Edit property</button>
+            <button class="icon-button" type="button" aria-label="More actions" data-toast="Preview only — extra property actions are not connected in this demo.">
               <span class="nav-icon" data-icon="more"></span>
             </button>
           </div>
@@ -172,8 +173,8 @@
             <div>
               <p class="section-kicker">Portfolio Home</p>
               <h1 id="portfolioHomeTitle">Good morning, David</h1>
-              <p>See what needs attention, pick up where you left off and let CMP organise the next useful step.</p>
-              <span class="prototype-badge">Prototype portfolio preview</span>
+              <p>Use Home to see how CMP ranks your properties, explains the priority and gives the landlord a clear next action.</p>
+              <span class="prototype-badge">Demo-ready portfolio view</span>
             </div>
             <div class="portfolio-header-actions">
               <button class="primary-button" type="button" data-home-add-property>Add property</button>
@@ -194,7 +195,7 @@
                 <p data-home-summary-body>Electrical Safety is the clearest evidence gap in the property file.</p>
                 <div class="priority-rank-list" data-home-priority-rank-list hidden></div>
                 <div class="button-row">
-                  <button class="primary-button" type="button" data-home-open-action>Open property action</button>
+                  <button class="primary-button" type="button" data-home-open-action>Review next action</button>
                   <button class="secondary-button" type="button" data-home-why>Ask CMP why this matters</button>
                 </div>
               </div>
@@ -328,7 +329,7 @@
                 <button class="secondary-button" type="button" data-home-copy-inbox>Copy inbox address</button>
                 <button class="text-button" type="button" data-home-open-vault>Open Evidence Vault</button>
               </div>
-              <small>Prototype preview — forwarding is simulated in CMP Labs.</small>
+              <small>Preview only — forwarding is simulated locally.</small>
             </article>
 
             <article class="home-secondary-card">
@@ -361,7 +362,7 @@
             <div>
               <p class="section-kicker">PORTFOLIO</p>
               <h1 id="portfolioPropertiesTitle">Properties</h1>
-              <p>Manage your property workspaces, see which files need attention and open the right property in one click.</p>
+              <p>Compare property files by evidence strength, current focus and state, then open the workspace that needs attention.</p>
               <span class="prototype-badge" data-properties-count-badge>1 property tracked</span>
             </div>
             <div class="portfolio-header-actions">
@@ -478,7 +479,7 @@
 
           <article class="properties-empty-state" data-properties-empty hidden>
             <h2>No properties match this view</h2>
-            <p>Try clearing the search or switching back to all properties.</p>
+            <p>No property currently matches those filters. Clear the view to return to the full portfolio.</p>
             <button class="secondary-button" type="button" data-properties-clear>Clear filters</button>
           </article>
 
@@ -497,7 +498,7 @@
             <div>
               <p class="section-kicker">PORTFOLIO COMPLIANCE</p>
               <h1 id="portfolioComplianceTitle">Compliance Centre</h1>
-              <p>See the clearest risks, missing evidence and upcoming reviews across your property portfolio.</p>
+              <p>Use Compliance Centre to see confirmed checks, evidence gaps and upcoming reviews before choosing the next action.</p>
               <span class="prototype-badge" data-compliance-count-badge>1 property monitored</span>
             </div>
             <div class="portfolio-header-actions">
@@ -636,7 +637,7 @@
                 <span><i style="width: 68%"></i></span>
               </div>
               <p>CMP already holds useful property details and evidence that could make future registration tasks easier to organise.</p>
-              <small>Prototype preview — submission is not enabled.</small>
+              <small>Preview only — no submission is sent.</small>
             </div>
             <div>
               <ul class="compact-checklist">
@@ -658,7 +659,7 @@
             <div>
               <p class="section-kicker">PORTFOLIO EVIDENCE</p>
               <h1 id="portfolioEvidenceTitle">Evidence Vault</h1>
-              <p>View certificates, records and property paperwork across your portfolio, with clear source labels and next actions.</p>
+              <p>Use Evidence Vault to see which records are verified, which property they belong to and what evidence is still missing.</p>
               <span class="prototype-badge" data-evidence-count-badge>1 property connected</span>
             </div>
             <div class="portfolio-header-actions">
@@ -744,7 +745,7 @@
             </div>
             <article class="properties-empty-state" data-evidence-empty hidden>
               <h2>No evidence matches this view</h2>
-              <p>Try clearing the search or switching back to all evidence.</p>
+              <p>No evidence record matches those filters. Clear the view to return to the full vault.</p>
               <button class="secondary-button" type="button" data-evidence-clear>Clear filters</button>
             </article>
           </section>
@@ -796,7 +797,7 @@
             <div>
               <p class="section-kicker">PORTFOLIO ACTIVITY</p>
               <h1 id="portfolioActivityTitle">Activity</h1>
-              <p>See what changed across your portfolio, from imported records and uploaded evidence to support requests and landlord answers.</p>
+              <p>Use Activity to explain what changed, why CMP recorded it and which property or support action it affects.</p>
               <span class="prototype-badge">Portfolio flight recorder</span>
             </div>
             <div class="portfolio-header-actions">
@@ -870,7 +871,7 @@
             <div class="activity-feed" data-activity-feed></div>
             <article class="properties-empty-state" data-activity-empty hidden>
               <h2>No activity matches this view</h2>
-              <p>Try clearing the search or switching back to all activity.</p>
+              <p>No event matches those filters. Clear the view to return to the portfolio activity feed.</p>
               <button class="secondary-button" type="button" data-activity-clear>Clear filters</button>
             </article>
           </section>
@@ -881,8 +882,8 @@
             <div>
               <p class="section-kicker">CMP ASSISTANT</p>
               <h1 id="portfolioAskTitle">Ask CMP</h1>
-              <p>Ask plain-English questions about your portfolio, property files, evidence, tasks and next steps.</p>
-              <span class="prototype-badge">Prototype assistant preview</span>
+              <p>Ask CMP to read the property file, evidence, tasks, activity and support requests, then explain the next step.</p>
+              <span class="prototype-badge">Assistant command centre</span>
             </div>
           </header>
 
@@ -1010,7 +1011,7 @@
             <div>
               <p class="section-kicker">PROPERTY SUPPORT</p>
               <h1 id="portfolioServiceTitle">Book a service</h1>
-              <p>Arrange the right property support without hunting through certificates, rules or supplier emails.</p>
+              <p>Find the right support for each property, keep requests tied to the file and avoid repeating the same admin.</p>
             </div>
           </header>
 
@@ -1108,7 +1109,7 @@
             <div>
               <p class="section-kicker">LANDLORD GUIDES</p>
               <h1 id="portfolioLearnTitle">Learn</h1>
-              <p>Plain-English guidance connected to the evidence, tasks and compliance checks in CMP.</p>
+              <p>Use short landlord guidance to understand evidence, tasks and compliance checks before taking action.</p>
             </div>
           </header>
 
@@ -1120,7 +1121,7 @@
             <div>
               <p class="section-kicker">ACCOUNT</p>
               <h1 id="portfolioSettingsTitle">Settings</h1>
-              <p>Manage prototype preferences, notification ideas and account details for this Labs preview.</p>
+              <p>Adjust local demo preferences and notification examples so the walkthrough matches the story you want to show.</p>
             </div>
           </header>
 
@@ -1136,7 +1137,7 @@
             <article class="utility-list-card">
               <p class="section-kicker">DATA NOTE</p>
               <h2>Labs storage</h2>
-              <p>This Labs preview stores state locally for demonstration only. Final CMP would use secure account storage and database-backed property records.</p>
+              <p>This demo stores state locally for presentation. A live CMP account would use secure account storage and database-backed property records.</p>
             </article>
           </section>
 
@@ -1168,7 +1169,7 @@
             <div>
               <p class="section-kicker">PORTFOLIO TASKS</p>
               <h1 id="portfolioTasksTitle">Tasks</h1>
-              <p>Turn missing evidence, upcoming reviews and support requests into a clear list of useful next actions.</p>
+              <p>Use Tasks to turn missing evidence, upcoming reviews and support requests into a clear landlord action list.</p>
               <span class="prototype-badge" data-tasks-active-pill>3 active tasks</span>
             </div>
             <div class="portfolio-header-actions">
@@ -1248,7 +1249,7 @@
             <div class="tasks-board" data-task-board hidden></div>
             <article class="properties-empty-state" data-task-empty hidden>
               <h2>No tasks match this view</h2>
-              <p>Try clearing the search or switching back to all tasks.</p>
+              <p>No task matches those filters. Clear the view to return to the active action list.</p>
               <button class="secondary-button" type="button" data-task-clear>Clear filters</button>
             </article>
           </section>
@@ -1259,7 +1260,7 @@
               <h2 id="completedTasksTitle">Completed or dismissed</h2>
             </div>
             <div class="completed-task-list" data-completed-task-list>
-              <p>No completed tasks yet in this Labs session.</p>
+              <p>Completed and dismissed tasks will appear here during the walkthrough.</p>
             </div>
           </section>
         </section>
@@ -1277,7 +1278,7 @@
               </div>
               <p class="confidence-line">Evidence confidence: building</p>
               <div class="button-row">
-                <button class="primary-button" type="button" data-toast="Guided check preview is static in this Labs demo.">Continue guided check</button>
+                <button class="primary-button" type="button" data-toast="Preview only — guided checks are not connected to a live workflow.">Continue guided check</button>
                 <button class="secondary-button" type="button" data-findings-open>See what CMP found</button>
               </div>
             </div>
@@ -1308,7 +1309,7 @@
             </div>
             <div class="action-controls">
               <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-              <button class="secondary-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+              <button class="secondary-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
               <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
               <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
             </div>
@@ -1390,7 +1391,7 @@
               </div>
               <small>Based on the evidence currently stored in CMP.</small>
               <div class="button-row">
-                <button class="primary-button" type="button" data-toast="Guided check preview is static in this Labs demo.">Continue guided check</button>
+                <button class="primary-button" type="button" data-toast="Preview only — guided checks are not connected to a live workflow.">Continue guided check</button>
                 <button class="secondary-button" type="button" data-assistant-message="Your clearest next step is to add or arrange an EICR. Your EPC and Gas Safety evidence are already recorded.">Ask CMP what matters most</button>
               </div>
             </div>
@@ -1453,7 +1454,7 @@
                 <strong class="status-good-text">Confirmed</strong>
                 <p>Current EPC record found. Valid until 14 March 2031.</p>
                 <div class="card-actions">
-                  <button class="secondary-button" type="button" data-toast="EPC record preview is static in CMP Labs.">View record</button>
+                  <button class="secondary-button" type="button" data-toast="Preview only — official record viewing is not connected to live records.">View record</button>
                   <button class="text-button" type="button" data-assistant-message="CMP uses EPC data to confirm property context, match official records and support future compliance checks.">Why this matters</button>
                 </div>
               </article>
@@ -1467,7 +1468,7 @@
                 <strong class="status-good-text">Verified</strong>
                 <p>Certificate recorded. Valid until 18 June 2027.</p>
                 <div class="card-actions">
-                  <button class="secondary-button" type="button" data-toast="Gas Safety certificate preview is static in CMP Labs.">View certificate</button>
+                  <button class="secondary-button" type="button" data-toast="Preview only — certificate viewing is not connected to live storage.">View certificate</button>
                   <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
                 </div>
               </article>
@@ -1482,7 +1483,7 @@
                 <p data-compliance-eicr-details>CMP does not yet have a current EICR stored for this property.</p>
                 <div class="card-actions" data-compliance-eicr-actions>
                   <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-                  <button class="secondary-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+                  <button class="secondary-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
                   <button class="text-button" type="button" data-open-global-service>Arrange an EICR</button>
                 </div>
               </article>
@@ -1523,7 +1524,7 @@
                 <strong>Checking postcode</strong>
                 <p>CMP is still reviewing whether any local licensing requirements may affect this property.</p>
                 <div class="card-actions">
-                  <button class="secondary-button" type="button" data-toast="Licensing review is static in this Labs prototype.">Review licensing</button>
+                  <button class="secondary-button" type="button" data-toast="Preview only — licensing review is not connected to live records.">Review licensing</button>
                   <button class="text-button" type="button" data-assistant-message="Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed.">Ask CMP</button>
                 </div>
               </article>
@@ -1624,8 +1625,8 @@
               <p>Continue the step-by-step review when you are ready. You can answer what you know, skip uncertain questions and return later.</p>
             </div>
             <div class="button-row">
-              <button class="primary-button" type="button" data-toast="Guided check preview is static in this Labs demo.">Continue guided check</button>
-              <button class="text-button" type="button" data-toast="Next question preview is static in this Labs demo.">Preview the next question</button>
+              <button class="primary-button" type="button" data-toast="Preview only — guided checks are not connected to a live workflow.">Continue guided check</button>
+              <button class="text-button" type="button" data-toast="Preview only — the next question is shown as a demo step.">Preview the next question</button>
             </div>
           </article>
         </section>
@@ -1683,7 +1684,7 @@
                 <button class="secondary-button" type="button" data-copy-inbox>Copy inbox address</button>
                 <button class="text-button" type="button" data-toast="Forwarding will accept PDFs, photos and emails in a future CMP workflow.">How forwarding works</button>
               </div>
-              <small>Prototype preview — forwarding is simulated in CMP Labs.</small>
+              <small>Preview only — forwarding is simulated locally.</small>
             </article>
 
             <article class="upload-panel" data-document-upload-panel tabindex="-1">
@@ -1721,7 +1722,7 @@
                 <span class="doc-status status-good-text">Confirmed</span>
                 <span class="doc-date">Expires 14 March 2031</span>
                 <div class="row-actions">
-                  <button class="text-button" type="button" data-toast="Document preview is static in CMP Labs.">View</button>
+                  <button class="text-button" type="button" data-toast="Preview only — document viewing is not connected to live storage.">View</button>
                 </div>
               </article>
               <article class="document-row">
@@ -1733,7 +1734,7 @@
                 <span class="doc-status status-good-text">Verified</span>
                 <span class="doc-date">Expires 18 June 2027</span>
                 <div class="row-actions">
-                  <button class="text-button" type="button" data-toast="Document preview is static in CMP Labs.">View</button>
+                  <button class="text-button" type="button" data-toast="Preview only — document viewing is not connected to live storage.">View</button>
                   <button class="text-button" type="button" data-upload-trigger>Replace</button>
                 </div>
               </article>
@@ -1760,7 +1761,7 @@
             </div>
             <div class="button-row">
               <button class="secondary-button" type="button" data-global-service-action="uploadInspection">Upload inspection evidence</button>
-              <button class="text-button" type="button" data-toast="Inspection status is recorded locally for this Labs preview.">Mark as not yet completed</button>
+              <button class="text-button" type="button" data-toast="Inspection status is recorded locally for this walkthrough.">Mark as not yet completed</button>
             </div>
           </article>
 
@@ -1785,7 +1786,7 @@
                 <span><strong data-timeline-evidence-count>3</strong> evidence updates</span>
                 <span><strong data-timeline-open-count>1</strong> action still open</span>
               </div>
-              <small>Timeline entries reflect the information currently stored in this CMP Labs preview.</small>
+              <small>Timeline entries reflect the information currently stored in this local demo.</small>
               <div class="button-row">
                 <button class="primary-button" type="button" data-summary-open>Generate evidence summary</button>
                 <button class="secondary-button" type="button" data-note-open>Add a note</button>
@@ -1878,8 +1879,8 @@
             <div>
               <p class="section-kicker">Open requests</p>
               <h3>Support requests</h3>
-              <p data-open-requests-empty>No support requests have been created for this property yet.</p>
-              <small data-open-requests-note>Use the recommended action above when you want help.</small>
+              <p data-open-requests-empty>No support request is open for this property.</p>
+              <small data-open-requests-note>Use the recommended action when you want CMP to help coordinate support.</small>
             </div>
             <div class="request-list" data-request-list></div>
           </section>
@@ -2052,8 +2053,8 @@
                   <div><dt>Certificate number</dt><dd>CMP-LABS-EPC-573B</dd></div>
                 </dl>
                 <div class="button-row">
-                  <button class="secondary-button" type="button" data-toast="EPC record preview is static in CMP Labs.">View EPC record</button>
-                  <button class="text-button" type="button" data-toast="Imported-detail review is a static CMP Labs preview.">Review imported details</button>
+                  <button class="secondary-button" type="button" data-toast="Preview only — official record viewing is not connected to live records.">View EPC record</button>
+                  <button class="text-button" type="button" data-toast="Preview only — imported-detail review is not connected to live records.">Review imported details</button>
                 </div>
               </article>
               <article class="record-card">
@@ -2069,12 +2070,12 @@
                   <div><dt>UPRN</dt><dd>100000057573</dd></div>
                 </dl>
                 <div class="button-row">
-                  <button class="secondary-button" type="button" data-toast="Address review is static in this Labs preview.">Review address</button>
+                  <button class="secondary-button" type="button" data-toast="Preview only — address review is not connected to live records.">Review address</button>
                   <button class="text-button" type="button" data-assistant-message="CMP stores an address match so evidence, reminders and property questions stay connected to the right property file.">Why CMP stores this</button>
                 </div>
               </article>
             </div>
-            <small class="passport-note">CMP Labs preview - official-data connections are simulated.</small>
+            <small class="passport-note">Demo note — official-data connections are simulated.</small>
           </article>
 
           <article class="passport-card">
@@ -2266,7 +2267,7 @@
               <span class="nav-icon" data-icon="close"></span>
             </button>
           </div>
-          <p class="drawer-note">Prototype preview — submission is not enabled.</p>
+          <p class="drawer-note">Preview only — no submission is sent.</p>
           <div class="readiness-list">
             <article>
               <span class="tile-icon" data-icon="check"></span>
@@ -2317,7 +2318,7 @@
             <span data-scan-fill></span>
           </div>
           <h3 data-scan-title>Reading documents...</h3>
-          <p data-scan-body>Preparing a local CMP Labs preview. No files are uploaded or inspected.</p>
+          <p data-scan-body>Preparing a local demo review. No files are uploaded or inspected.</p>
           <ol class="scan-steps" data-scan-steps>
             <li class="is-active">Reading documents...</li>
             <li>Identifying document types...</li>
@@ -2363,8 +2364,8 @@
               </dl>
               <strong class="confidence-pill">Medium confidence</strong>
               <div class="button-row">
-                <button class="secondary-button" type="button" data-toast="Tenancy filing is a static CMP Labs preview.">Add to property file</button>
-                <button class="text-button" type="button" data-toast="Tenancy review is static in this prototype.">Review details</button>
+                <button class="secondary-button" type="button" data-toast="Preview only — tenancy filing is not connected to live storage.">Add to property file</button>
+                <button class="text-button" type="button" data-toast="Preview only — tenancy review is not connected to live storage.">Review details</button>
               </div>
             </article>
             <article class="result-card is-unclear">
@@ -2376,8 +2377,8 @@
               <p>Suggested match: 57 The Butts</p>
               <p>CMP could not confidently identify this document.</p>
               <div class="button-row">
-                <button class="secondary-button" type="button" data-toast="Classification controls will be added later.">Choose document type</button>
-                <button class="text-button" type="button" data-toast="Document left for later in this Labs preview.">Leave for later</button>
+                <button class="secondary-button" type="button" data-toast="Preview only — classification controls are not connected to a live workflow.">Choose document type</button>
+                <button class="text-button" type="button" data-toast="Document left for later in this walkthrough.">Leave for later</button>
               </div>
             </article>
           </div>
@@ -2440,9 +2441,9 @@
             </ul>
           </section>
         </div>
-        <small>Prototype preview — no PDF has been generated.</small>
+        <small>Preview only — no PDF has been generated.</small>
         <div class="button-row">
-          <button class="primary-button" type="button" data-toast="Export preview prepared">Preview report</button>
+          <button class="primary-button" type="button" data-toast="Preview report export prepared">Preview report export</button>
           <button class="secondary-button" type="button" data-summary-close>Close</button>
         </div>
       </section>
@@ -2479,7 +2480,7 @@
           </button>
         </div>
         <div data-service-form>
-          <p class="modal-note" data-service-modal-body>Tell CMP how you would like to proceed. This Labs preview stores the request locally for demonstration only.</p>
+          <p class="modal-note" data-service-modal-body>Tell CMP how you would like to proceed. This demo stores the request locally for presentation only.</p>
           <dl class="support-request-summary">
             <div><dt>Selected support type</dt><dd data-service-selected-type>EICR support</dd></div>
             <div><dt>Property</dt><dd data-service-selected-property>57 The Butts · CV1 3BJ</dd></div>
@@ -2641,7 +2642,7 @@
             <span class="nav-icon" data-icon="close"></span>
           </button>
         </div>
-        <p class="modal-note">In the finished product, forwarded documents could be matched to a property, classified by type and prepared for review. This Labs preview simulates that behaviour locally.</p>
+        <p class="modal-note">In the finished product, forwarded documents could be matched to a property, classified by type and prepared for review. This demo simulates that behaviour locally.</p>
         <div class="button-row">
           <button class="primary-button" type="button" data-evidence-inbox-close>Got it</button>
         </div>
@@ -2727,7 +2728,7 @@
           </section>
         </div>
         <div class="button-row">
-          <button class="primary-button" type="button" data-activity-detail-open>Open related page</button>
+          <button class="primary-button" type="button" data-activity-detail-open>Open related item</button>
           <button class="secondary-button" type="button" data-activity-detail-close>Close</button>
         </div>
       </section>
@@ -2771,7 +2772,7 @@
           </section>
         </div>
         <div class="button-row">
-          <button class="primary-button" type="button" data-activity-preview-export>Preview export</button>
+          <button class="primary-button" type="button" data-activity-preview-export>Preview activity export</button>
           <button class="secondary-button" type="button" data-activity-summary-close>Close</button>
         </div>
       </section>
@@ -2779,14 +2780,14 @@
       <section class="timeline-modal demo-state-modal" role="dialog" aria-modal="true" aria-labelledby="demoStateModalTitle" data-demo-state-modal hidden>
         <div class="modal-header">
           <div>
-            <p class="section-kicker">Labs preview</p>
+            <p class="section-kicker">Demo controls</p>
             <h2 id="demoStateModalTitle">Demo state</h2>
           </div>
           <button class="icon-button" type="button" aria-label="Close demo state" data-demo-state-close>
             <span class="nav-icon" data-icon="close"></span>
           </button>
         </div>
-        <p class="modal-note">Switch the Labs preview between common landlord journey states.</p>
+        <p class="modal-note">Switch the local demo between common landlord journey states.</p>
         <div class="demo-state-options" role="list">
           <button class="secondary-button" type="button" data-demo-state-option="reset">Reset demo</button>
           <button class="secondary-button" type="button" data-demo-state-option="before-eicr">Before EICR</button>
@@ -2794,6 +2795,67 @@
           <button class="secondary-button" type="button" data-demo-state-option="after-support">After support request</button>
           <button class="secondary-button" type="button" data-demo-state-option="after-quick-win">After quick win</button>
           <button class="secondary-button" type="button" data-demo-state-option="two-property">Two-property portfolio</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal demo-guide-modal" role="dialog" aria-modal="true" aria-labelledby="demoGuideModalTitle" data-demo-guide-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Walkthrough mode</p>
+            <h2 id="demoGuideModalTitle">CMP Labs demo guide</h2>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close demo guide" data-demo-guide-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note">A short guided route for presenting the prototype.</p>
+        <ol class="demo-guide-list">
+          <li>
+            <span>1</span>
+            <div>
+              <strong>Start on Home</strong>
+              <p>Explain how CMP ranks the portfolio and recommends the next useful action.</p>
+            </div>
+          </li>
+          <li>
+            <span>2</span>
+            <div>
+              <strong>Open Properties</strong>
+              <p>Show that each property has its own evidence strength, focus and state.</p>
+            </div>
+          </li>
+          <li>
+            <span>3</span>
+            <div>
+              <strong>Open Compliance Centre</strong>
+              <p>Show missing evidence, confirmed checks and upcoming reviews.</p>
+            </div>
+          </li>
+          <li>
+            <span>4</span>
+            <div>
+              <strong>Open Evidence Vault</strong>
+              <p>Show records across the portfolio and what is still missing.</p>
+            </div>
+          </li>
+          <li>
+            <span>5</span>
+            <div>
+              <strong>Open Book a Service</strong>
+              <p>Show how CMP turns missing evidence into a support request.</p>
+            </div>
+          </li>
+          <li>
+            <span>6</span>
+            <div>
+              <strong>Open Ask CMP</strong>
+              <p>Show how the assistant explains the portfolio in plain English.</p>
+            </div>
+          </li>
+        </ol>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-demo-guide-start>Start walkthrough</button>
+          <button class="secondary-button" type="button" data-demo-guide-close>Close</button>
         </div>
       </section>
 
@@ -2808,7 +2870,7 @@
             <span class="nav-icon" data-icon="close"></span>
           </button>
         </div>
-        <p class="modal-note">This Labs demo currently opens the full property workspace for 57 The Butts. Portfolio-level behaviour is shown for both properties so global tools can be tested with a realistic two-property view.</p>
+        <p class="modal-note">This demo currently opens the full property workspace for 57 The Butts. Portfolio-level behaviour is shown for both properties so global tools can be tested with a realistic two-property view.</p>
         <div class="summary-sections">
           <section>
             <h3>18 Willow Brook Drive</h3>
@@ -2908,7 +2970,7 @@
       <section class="timeline-modal learn-preview-modal" role="dialog" aria-modal="true" aria-labelledby="learnPreviewModalTitle" data-learn-preview-modal hidden>
         <div class="modal-header">
           <div>
-            <p class="section-kicker">Prototype guidance preview</p>
+            <p class="section-kicker">Guidance preview</p>
             <h2 id="learnPreviewModalTitle" data-learn-preview-title>What is an EICR?</h2>
           </div>
           <button class="icon-button" type="button" aria-label="Close guide preview" data-learn-preview-close>
@@ -2916,7 +2978,7 @@
           </button>
         </div>
         <p class="modal-note" data-learn-preview-body>An EICR records the condition of fixed electrical installations.</p>
-        <small>Prototype guidance preview — not legal advice.</small>
+        <small>Preview guidance — not legal advice.</small>
         <div class="button-row">
           <button class="primary-button" type="button" data-learn-preview-close>Close</button>
         </div>
@@ -3037,7 +3099,7 @@
             </div>
             <div class="button-row" data-memory-actions>
               <button class="primary-button" type="button" data-memory-add>Add observation</button>
-              <button class="text-button" type="button" data-toast="Observation marked as reviewed in this Labs preview.">Mark as reviewed</button>
+              <button class="text-button" type="button" data-toast="Observation marked as reviewed for this walkthrough.">Mark as reviewed</button>
             </div>
           </div>
         </div>

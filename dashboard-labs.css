@@ -369,6 +369,7 @@ a {
   display: flex;
   align-items: center;
   justify-content: flex-end;
+  gap: 8px;
   min-height: 32px;
   margin-bottom: 12px;
 }
@@ -5886,6 +5887,49 @@ body.prs-open .prs-drawer {
   display: grid;
   gap: 9px;
   margin-top: 16px;
+}
+
+.demo-guide-list {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.demo-guide-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 13px;
+  border: 1px solid rgba(67, 107, 124, 0.12);
+  border-radius: 16px;
+  background: rgba(249, 252, 250, 0.9);
+}
+
+.demo-guide-list li > span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  color: var(--labs-green-dark);
+  background: var(--labs-green-soft);
+  font-size: 0.82rem;
+  font-weight: 850;
+}
+
+.demo-guide-list strong {
+  color: var(--labs-ink);
+}
+
+.demo-guide-list p {
+  margin: 4px 0 0;
+  color: var(--labs-muted);
+  font-size: 0.88rem;
+  line-height: 1.45;
 }
 
 .demo-state-options .secondary-button {
