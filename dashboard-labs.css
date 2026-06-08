@@ -8969,3 +8969,65 @@ textarea:focus-visible,
     animation: none !important;
   }
 }
+
+/* QA repair: restore fixed overlay architecture after premium card polish. */
+.modal-backdrop,
+.timeline-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 95;
+}
+
+.smart-modal,
+.timeline-modal {
+  position: fixed;
+  left: 50%;
+  z-index: 100;
+  width: min(760px, calc(100vw - 32px));
+  max-height: min(86vh, 760px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  isolation: auto;
+  transform: translateX(-50%);
+}
+
+.smart-modal {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.timeline-modal {
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.smart-modal::before,
+.smart-modal::after,
+.timeline-modal::before,
+.timeline-modal::after,
+.drawer-panel::before,
+.drawer-panel::after {
+  pointer-events: none;
+}
+
+.drawer-panel {
+  overflow-x: hidden;
+  overflow-y: auto;
+  isolation: auto;
+}
+
+.drawer-backdrop {
+  pointer-events: auto;
+}
+
+@media (max-width: 820px) {
+  .smart-modal,
+  .timeline-modal {
+    top: auto;
+    bottom: 0;
+    width: 100%;
+    max-height: 88vh;
+    border-radius: 24px 24px 0 0;
+    transform: translateX(-50%);
+  }
+}
