@@ -2095,6 +2095,37 @@ body.portfolio-utility-active .tab-bar {
   animation: askPulse 1.8s ease-in-out infinite;
 }
 
+.ask-context-sequence {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.ask-context-sequence span {
+  min-width: 0;
+  padding: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 14px;
+  color: rgba(239, 248, 243, 0.9);
+  background: rgba(255, 255, 255, 0.08);
+  font-size: 0.72rem;
+  font-weight: 800;
+  line-height: 1.25;
+  animation: askBubbleIn 420ms ease both;
+}
+
+.ask-context-sequence span:nth-child(2) {
+  animation-delay: 80ms;
+}
+
+.ask-context-sequence span:nth-child(3) {
+  animation-delay: 160ms;
+}
+
+.ask-context-sequence span:nth-child(4) {
+  animation-delay: 240ms;
+}
+
 .chat-bubble-row {
   display: flex;
   gap: 10px;
@@ -2641,6 +2672,7 @@ body.portfolio-utility-active .tab-bar {
 @media (prefers-reduced-motion: reduce) {
   .ask-chat-surface::before,
   .ask-chat-status-row i,
+  .ask-context-sequence span,
   .ask-checking-line span,
   .chat-bubble-row {
     animation: none;
@@ -4358,6 +4390,38 @@ body.prs-open .prs-drawer {
   gap: 12px;
 }
 
+.services-header .service-property-label {
+  margin-top: 12px;
+}
+
+.service-hub-bridge {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 17px 18px;
+  border: 1px solid rgba(41, 122, 87, 0.14);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(239, 248, 243, 0.92), rgba(255, 255, 255, 0.94)),
+    var(--labs-surface);
+}
+
+.service-hub-bridge h3 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: 1.04rem;
+  line-height: 1.25;
+}
+
+.service-hub-bridge p:not(.section-kicker) {
+  max-width: 74ch;
+  margin: 7px 0 0;
+  color: var(--labs-muted);
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
 .primary-service-card {
   display: grid;
   grid-template-columns: minmax(0, 1fr) minmax(240px, 0.32fr);
@@ -5764,6 +5828,10 @@ body.assistant-open {
     justify-content: flex-start;
   }
 
+  .ask-context-sequence {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
   .autopilot-card,
   .next-action-card {
     grid-template-columns: 1fr;
@@ -6006,6 +6074,7 @@ body.assistant-open {
   .vault-list-card,
   .missing-evidence-card,
   .services-header,
+  .service-hub-bridge,
   .primary-service-card,
   .open-requests-panel,
   .service-option-card,
@@ -6249,6 +6318,10 @@ body.assistant-open {
 
   .property-header h1 {
     font-size: 1.62rem;
+  }
+
+  .ask-context-sequence {
+    grid-template-columns: 1fr;
   }
 
   .autopilot-card h2 {

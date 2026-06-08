@@ -886,6 +886,13 @@
                   <span><i></i>Compliance Centre checked</span>
                   <span><i></i>Tasks checked</span>
                   <span><i></i>Activity reviewed</span>
+                  <span><i></i>Support requests checked</span>
+                </div>
+                <div class="ask-context-sequence" aria-label="CMP context sequence">
+                  <span>1 · Evidence checked</span>
+                  <span>2 · Compliance matched</span>
+                  <span>3 · Tasks prioritised</span>
+                  <span>4 · Support requests checked</span>
                 </div>
                 <div class="chat-bubble-row is-user">
                   <p data-ask-chat-user>What should I do today?</p>
@@ -1255,7 +1262,7 @@
               </div>
               <p class="confidence-line">Evidence confidence: building</p>
               <div class="button-row">
-                <button class="primary-button" type="button" data-toast="Guided check will be wired in a later Labs pass.">Continue guided check</button>
+                <button class="primary-button" type="button" data-toast="Guided check preview is static in this Labs demo.">Continue guided check</button>
                 <button class="secondary-button" type="button" data-findings-open>See what CMP found</button>
               </div>
             </div>
@@ -1286,8 +1293,8 @@
             </div>
             <div class="action-controls">
               <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-              <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
-              <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+              <button class="secondary-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+              <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
               <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
             </div>
           </article>
@@ -1339,7 +1346,7 @@
                 <li>Gas Safety evidence was verified</li>
                 <li>Electrical Safety is now your highest-priority gap</li>
               </ul>
-              <button class="text-button" type="button" data-toast="Full activity view will be designed later.">View activity</button>
+              <button class="text-button" type="button" data-open-global-activity>View activity</button>
             </article>
             <article class="small-card">
               <p class="section-kicker">Quick win</p>
@@ -1368,7 +1375,7 @@
               </div>
               <small>Based on the evidence currently stored in CMP.</small>
               <div class="button-row">
-                <button class="primary-button" type="button" data-toast="The full guided check will be designed in a later Labs pass.">Continue guided check</button>
+                <button class="primary-button" type="button" data-toast="Guided check preview is static in this Labs demo.">Continue guided check</button>
                 <button class="secondary-button" type="button" data-assistant-message="Your clearest next step is to add or arrange an EICR. Your EPC and Gas Safety evidence are already recorded.">Ask CMP what matters most</button>
               </div>
             </div>
@@ -1431,8 +1438,8 @@
                 <strong class="status-good-text">Confirmed</strong>
                 <p>Current EPC record found. Valid until 14 March 2031.</p>
                 <div class="card-actions">
-                  <button class="secondary-button" type="button" data-toast="EPC record viewer is not connected in Labs.">View record</button>
-                  <button class="text-button" type="button" data-toast="EPC guidance will be added in a later Labs pass.">Why this matters</button>
+                  <button class="secondary-button" type="button" data-toast="EPC record preview is static in CMP Labs.">View record</button>
+                  <button class="text-button" type="button" data-assistant-message="CMP uses EPC data to confirm property context, match official records and support future compliance checks.">Why this matters</button>
                 </div>
               </article>
               <article class="essential-card status-good">
@@ -1445,7 +1452,7 @@
                 <strong class="status-good-text">Verified</strong>
                 <p>Certificate recorded. Valid until 18 June 2027.</p>
                 <div class="card-actions">
-                  <button class="secondary-button" type="button" data-toast="Gas Safety viewer is not connected in Labs.">View certificate</button>
+                  <button class="secondary-button" type="button" data-toast="Gas Safety certificate preview is static in CMP Labs.">View certificate</button>
                   <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
                 </div>
               </article>
@@ -1460,8 +1467,8 @@
                 <p data-compliance-eicr-details>CMP does not yet have a current EICR stored for this property.</p>
                 <div class="card-actions" data-compliance-eicr-actions>
                   <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-                  <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
-                  <button class="text-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+                  <button class="secondary-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+                  <button class="text-button" type="button" data-open-global-service>Arrange an EICR</button>
                 </div>
               </article>
               <article class="essential-card status-watch" data-compliance-licensing-card tabindex="-1">
@@ -1488,7 +1495,7 @@
                 <strong>Not applicable</strong>
                 <p>CMP will ask the relevant tenancy questions when a new tenancy is being prepared.</p>
                 <div class="card-actions">
-                  <button class="secondary-button" type="button" data-toast="Tenancy preparation will be designed in a later Labs pass.">Prepare for a tenancy</button>
+                  <button class="secondary-button" type="button" data-global-service-action="previewBundle">Prepare for a tenancy</button>
                 </div>
               </article>
               <article class="essential-card status-watch">
@@ -1602,8 +1609,8 @@
               <p>Continue the step-by-step review when you are ready. You can answer what you know, skip uncertain questions and return later.</p>
             </div>
             <div class="button-row">
-              <button class="primary-button" type="button" data-toast="The full guided check will be designed in a later Labs pass.">Continue guided check</button>
-              <button class="text-button" type="button" data-toast="Next question preview will be designed in a later Labs pass.">Preview the next question</button>
+              <button class="primary-button" type="button" data-toast="Guided check preview is static in this Labs demo.">Continue guided check</button>
+              <button class="text-button" type="button" data-toast="Next question preview is static in this Labs demo.">Preview the next question</button>
             </div>
           </article>
         </section>
@@ -1699,7 +1706,7 @@
                 <span class="doc-status status-good-text">Confirmed</span>
                 <span class="doc-date">Expires 14 March 2031</span>
                 <div class="row-actions">
-                  <button class="text-button" type="button" data-toast="Document viewer is not connected in Labs.">View</button>
+                  <button class="text-button" type="button" data-toast="Document preview is static in CMP Labs.">View</button>
                 </div>
               </article>
               <article class="document-row">
@@ -1711,7 +1718,7 @@
                 <span class="doc-status status-good-text">Verified</span>
                 <span class="doc-date">Expires 18 June 2027</span>
                 <div class="row-actions">
-                  <button class="text-button" type="button" data-toast="Document viewer is not connected in Labs.">View</button>
+                  <button class="text-button" type="button" data-toast="Document preview is static in CMP Labs.">View</button>
                   <button class="text-button" type="button" data-upload-trigger>Replace</button>
                 </div>
               </article>
@@ -1725,7 +1732,7 @@
                 <span class="doc-date" data-eicr-review-date>Review date unknown</span>
                 <div class="row-actions" data-eicr-actions>
                   <button class="text-button" type="button" data-upload-trigger>Upload</button>
-                  <button class="text-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange EICR</button>
+                  <button class="text-button" type="button" data-open-global-service>Arrange EICR</button>
                 </div>
               </article>
             </div>
@@ -1737,8 +1744,8 @@
               <p>Add inspection evidence or confirm that no inspection has been completed yet.</p>
             </div>
             <div class="button-row">
-              <button class="secondary-button" type="button" data-upload-trigger>Upload inspection evidence</button>
-              <button class="text-button" type="button" data-toast="Inspection status is not saved in this prototype.">Mark as not yet completed</button>
+              <button class="secondary-button" type="button" data-global-service-action="uploadInspection">Upload inspection evidence</button>
+              <button class="text-button" type="button" data-toast="Inspection status is recorded locally for this Labs preview.">Mark as not yet completed</button>
             </div>
           </article>
 
@@ -1803,7 +1810,7 @@
               <p data-timeline-action-body>Add or arrange an EICR to strengthen the Electrical Safety record.</p>
               <div class="button-row" data-timeline-action-buttons>
                 <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-                <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+                <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
               </div>
             </aside>
           </div>
@@ -1812,17 +1819,28 @@
           <header class="services-header">
             <div>
               <p class="section-kicker">Property support</p>
-              <h2>Recommended help for this property</h2>
-              <p>Only the most useful next actions, based on the current property file and the evidence CMP still needs.</p>
+              <h2>Property-specific support for 57 The Butts</h2>
+              <p>Only the most useful next actions for this workspace, based on the current property file and the evidence CMP still needs.</p>
+              <span class="service-property-label">57 The Butts · CV1 3BJ</span>
             </div>
             <div class="services-header-side">
               <small>Recommendations update as your property file becomes stronger.</small>
               <div class="button-row">
                 <button class="primary-button" type="button" data-assistant-message="Electrical Safety is your clearest unresolved evidence area. You can upload an existing EICR or request help arranging an inspection.">Ask CMP what to prioritise</button>
+                <button class="secondary-button" type="button" data-open-global-service>Open Book a service</button>
                 <button class="secondary-button" type="button" data-scroll-target="[data-open-requests-panel]">View open requests</button>
               </div>
             </div>
           </header>
+
+          <article class="service-hub-bridge">
+            <div>
+              <p class="section-kicker">Global support hub</p>
+              <h3>Use Book a service for the full commercial pathway</h3>
+              <p>This property tab keeps the immediate workspace action visible. The global Book a service page shows all service cards, bundle previews and open request context for 57 The Butts.</p>
+            </div>
+            <button class="text-button" type="button" data-open-global-service>Open the hub</button>
+          </article>
 
           <article class="primary-service-card" data-service-primary-card tabindex="-1">
             <div class="service-card-main">
@@ -1863,7 +1881,7 @@
                 <h3>Review local licensing</h3>
                 <p>CMP is still checking whether local rules may affect this address.</p>
                 <div class="button-row">
-                  <button class="secondary-button" type="button" data-toast="Licensing support request will be designed in a later Labs pass.">Request licensing support</button>
+                  <button class="secondary-button" type="button" data-global-service-action="request:licensing">Request licensing support</button>
                   <button class="text-button" type="button" data-assistant-message="Local licensing requirements can vary by area and property setup. CMP is showing this as a review item until the position is confirmed.">Ask CMP</button>
                 </div>
               </article>
@@ -1872,7 +1890,7 @@
                 <h3>Prepare for a future tenancy</h3>
                 <p>Build a clear checklist for evidence, alarm testing and tenant-facing documents before move-in.</p>
                 <div class="button-row">
-                  <button class="secondary-button" type="button" data-toast="Tenancy checklist preview will be designed in a later Labs pass.">Preview tenancy checklist</button>
+                  <button class="secondary-button" type="button" data-global-service-action="previewBundle">Preview tenancy checklist</button>
                   <button class="text-button" type="button" data-assistant-message="Before letting, CMP would help review EICR evidence, alarm-test confirmation and tenancy-document readiness.">Ask CMP</button>
                 </div>
               </article>
@@ -1881,7 +1899,7 @@
                 <h3>Request a property-file review</h3>
                 <p>Ask for a human review when you want extra reassurance about the evidence already stored in CMP.</p>
                 <div class="button-row">
-                  <button class="secondary-button" type="button" data-toast="Property-file review request will be designed in a later Labs pass.">Request a review</button>
+                  <button class="secondary-button" type="button" data-global-service-action="request:review">Request a review</button>
                   <button class="text-button" type="button" data-assistant-message="A property-file review would look at the evidence and next steps shown in this prototype. No legal approval is implied.">What will be reviewed?</button>
                 </div>
               </article>
@@ -2019,8 +2037,8 @@
                   <div><dt>Certificate number</dt><dd>CMP-LABS-EPC-573B</dd></div>
                 </dl>
                 <div class="button-row">
-                  <button class="secondary-button" type="button" data-toast="EPC record viewer is not connected in CMP Labs.">View EPC record</button>
-                  <button class="text-button" type="button" data-toast="Imported-detail review will be designed in a later Labs pass.">Review imported details</button>
+                  <button class="secondary-button" type="button" data-toast="EPC record preview is static in CMP Labs.">View EPC record</button>
+                  <button class="text-button" type="button" data-toast="Imported-detail review is a static CMP Labs preview.">Review imported details</button>
                 </div>
               </article>
               <article class="record-card">
@@ -2329,7 +2347,7 @@
               </dl>
               <strong class="confidence-pill">Medium confidence</strong>
               <div class="button-row">
-                <button class="secondary-button" type="button" data-toast="Tenancy filing will be designed in a later Labs pass.">Add to property file</button>
+                <button class="secondary-button" type="button" data-toast="Tenancy filing is a static CMP Labs preview.">Add to property file</button>
                 <button class="text-button" type="button" data-toast="Tenancy review is static in this prototype.">Review details</button>
               </div>
             </article>
@@ -2445,7 +2463,7 @@
           </button>
         </div>
         <div data-service-form>
-          <p class="modal-note" data-service-modal-body>Tell CMP how you would like to proceed. This Labs preview will create a prototype support request only.</p>
+          <p class="modal-note" data-service-modal-body>Tell CMP how you would like to proceed. This Labs preview stores the request locally for demonstration only.</p>
           <dl class="support-request-summary">
             <div><dt>Selected support type</dt><dd data-service-selected-type>EICR support</dd></div>
             <div><dt>Property</dt><dd>57 The Butts · CV1 3BJ</dd></div>

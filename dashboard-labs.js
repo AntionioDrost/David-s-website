@@ -539,6 +539,8 @@ function showToast(message) {
     return;
   }
 
+  region.querySelectorAll(".toast").forEach((existingToast) => existingToast.remove());
+
   const toast = document.createElement("div");
   toast.className = "toast";
   toast.textContent = message;
@@ -628,7 +630,7 @@ function renderOverviewNextAction() {
         <p>Electrical Safety evidence is now recorded. The next useful improvement is your latest property inspection record.</p>
       </div>
       <div class="action-controls">
-        <button class="primary-button" type="button" data-toast="Inspection evidence upload will be connected in a later Labs pass.">Upload inspection evidence</button>
+        <button class="primary-button" type="button" data-global-service-action="uploadInspection">Upload inspection evidence</button>
         <button class="secondary-button" type="button" data-toast="Inspection status recorded for this Labs preview.">Mark as not yet completed</button>
         <button class="text-button" type="button" data-assistant-message="Your EICR is now verified. The next useful improvement is inspection evidence, because it helps keep the property file current.">Ask CMP why this matters</button>
       </div>
@@ -641,8 +643,8 @@ function renderOverviewNextAction() {
       </div>
       <div class="action-controls">
         <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-        <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
-        <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+        <button class="secondary-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+        <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
         <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
       </div>
     `;
@@ -684,12 +686,12 @@ function renderDocumentsState() {
   document.querySelector("[data-eicr-document-row]")?.classList.toggle("is-missing", !labsState.eicrAdded);
   document.querySelector("[data-eicr-actions]").innerHTML = labsState.eicrAdded
     ? `
-      <button class="text-button" type="button" data-toast="Document viewer is not connected in Labs.">View</button>
+      <button class="text-button" type="button" data-toast="Document preview is static in CMP Labs.">View</button>
       <button class="text-button" type="button" data-upload-trigger>Replace</button>
     `
     : `
       <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-      <button class="text-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
+      <button class="text-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
     `;
 }
 
@@ -714,13 +716,13 @@ function renderComplianceState() {
     : "CMP does not yet have a current EICR stored for this property.";
   document.querySelector("[data-compliance-eicr-actions]").innerHTML = labsState.eicrAdded
     ? `
-      <button class="secondary-button" type="button" data-toast="EICR viewer is not connected in Labs.">View certificate</button>
+      <button class="secondary-button" type="button" data-toast="EICR certificate preview is static in CMP Labs.">View certificate</button>
       <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
     `
     : `
       <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-      <button class="secondary-button" type="button" data-toast="Manual EICR entry will be designed later.">Enter details manually</button>
-      <button class="text-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+      <button class="secondary-button" type="button" data-toast="Manual certificate entry is a static CMP Labs preview.">Enter details manually</button>
+      <button class="text-button" type="button" data-open-global-service>Arrange an EICR</button>
     `;
 }
 
@@ -812,7 +814,7 @@ function ensureDemoSupportRequest() {
           ["Status", "Awaiting review"],
           ["Created", "Just now"]
         ],
-        note: "Prototype support request for layout testing."
+        note: "Local demo support request for layout testing."
       }
     });
   }
@@ -982,7 +984,7 @@ function getGlobalServiceAssistantResponse(prompt) {
       "What should I book first": `${activeRequest.type} is already open for 57 The Butts. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
       "What should I book first?": `${activeRequest.type} is already open for 57 The Butts. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
       "Why is this recommended?": "CMP is avoiding duplicate support requests and keeping the open item visible so the property file stays clear.",
-      "Can CMP help arrange it?": "A prototype support request is already open. In the final workflow this would notify CMP or a connected supplier process.",
+      "Can CMP help arrange it?": "A local demo support request is already open. In the final workflow this would notify CMP or a connected supplier process.",
       "What can wait until later?": labsState.eicrAdded
         ? "Gas Safety, EPC and EICR are recorded. Keep licensing and tenancy document review visible while inspection support is reviewed."
         : "Gas Safety and EPC are recorded. Keep licensing and document review visible while the open support request is reviewed."
@@ -998,7 +1000,7 @@ function getGlobalServiceAssistantResponse(prompt) {
     "Why is this recommended?": labsState.eicrAdded
       ? "CMP is recommending inspection support because it is the next useful evidence item after the core certificates."
       : "CMP is recommending EICR support because no current Electrical Safety evidence is stored for 57 The Butts.",
-    "Can CMP help arrange it?": "This Labs preview can record a prototype support request. The finished product would connect that request to CMP support workflows.",
+    "Can CMP help arrange it?": "This Labs preview can record a local demo support request. The finished product would connect that request to CMP support workflows.",
     "What can wait until later?": labsState.eicrAdded
       ? "Gas Safety and EPC are already recorded. Licensing can keep checking while inspection evidence is reviewed."
       : "Gas Safety and EPC are already recorded, so EICR support should come before optional document review."
@@ -2075,12 +2077,12 @@ function getActivityEvents() {
       category: "Support",
       title: "Support request created",
       property,
-      body: "A prototype support request was created from the Services workspace.",
+      body: "A local demo support request was created from the Services workspace.",
       source: "Services",
       status: "Awaiting review",
       statusClass: "status-watch-text",
       search: `${activeSupportRequest.type} support service request awaiting review 57 butts`,
-      why: "CMP recorded this because a prototype support request was created from the Services workspace.",
+      why: "CMP recorded this because a local demo support request was created from the Services workspace.",
       nextAction: "Open Services to review the request.",
       route: "services",
       actions: [
@@ -2628,10 +2630,10 @@ function askChatStatusChips() {
   }
 
   if (labsState.eicrAdded) {
-    return ["EICR verified", "Inspection evidence missing", "Licensing still watching", "Tasks checked"];
+    return ["EICR verified", "Inspection evidence missing", "Licensing still watching", "Tasks checked", "Support requests checked"];
   }
 
-  return ["Evidence Vault checked", "Compliance Centre checked", "Tasks checked", "Activity reviewed"];
+  return ["Evidence Vault checked", "Compliance Centre checked", "Tasks checked", "Activity reviewed", "Support requests checked"];
 }
 
 function askContextSources() {
@@ -3205,7 +3207,7 @@ function bindTabs() {
         return;
       }
 
-      showToast("This Labs navigation item is a preview and is not connected yet.");
+      showToast("This Labs area is a static local preview.");
       document.body.classList.remove("menu-open");
     });
   });
@@ -3234,7 +3236,7 @@ function bindPortfolioCompliance() {
 
   document.querySelector("[data-compliance-priority-upload]")?.addEventListener("click", () => {
     if (labsState.eicrAdded) {
-      showToast("Inspection evidence upload will be connected in a later Labs pass.");
+      showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
       return;
     }
 
@@ -3263,7 +3265,7 @@ function bindPortfolioCompliance() {
     } else if (action === "requestSupport") {
       openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
     } else if (action === "uploadInspection") {
-      showToast("Inspection evidence upload will be connected in a later Labs pass.");
+      showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
     } else if (action === "markInspection") {
       showToast("Inspection status marked as not completed for this Labs preview.");
     } else if (action === "reviewLicensing") {
@@ -3296,15 +3298,15 @@ function handleEvidenceAction(action) {
   } else if (action === "arrangeEicr") {
     openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
   } else if (action === "uploadInspection") {
-    showToast("Inspection evidence upload will be connected in a later Labs pass.");
+    showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
   } else if (action === "markInspection") {
     showToast("Inspection status recorded for this Labs preview.");
   } else if (action === "viewEpc") {
-    showToast("EPC record viewer is not connected in Labs.");
+    showToast("EPC record preview is static in CMP Labs.");
   } else if (action === "viewGas") {
-    showToast("Gas Safety viewer is not connected in Labs.");
+    showToast("Gas Safety certificate preview is static in CMP Labs.");
   } else if (action === "viewEicr") {
-    showToast("EICR viewer is not connected in Labs.");
+    showToast("EICR certificate preview is static in CMP Labs.");
   }
 }
 
@@ -3425,7 +3427,7 @@ function handleTaskAction(action) {
   } else if (action === "openProperty") {
     openPropertyWorkspace("overview");
   } else if (action === "uploadInspection") {
-    showToast("Inspection evidence upload will be connected in a later Labs pass.");
+    showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
   } else if (action === "markInspection") {
     markInspectionTaskNotCompleted();
   } else if (action === "reviewLicensing") {
@@ -3607,7 +3609,7 @@ function handleActivityAction(action) {
   } else if (action === "openTask") {
     showPortfolioTasks({ scroll: true });
   } else if (action === "uploadInspection") {
-    showToast("Inspection evidence upload will be connected in a later Labs pass.");
+    showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
   } else if (action === "reviewLicensing") {
     openPropertyWorkspace("compliance", "[data-compliance-licensing-card]");
   } else if (action === "askLicensing") {
@@ -3659,7 +3661,7 @@ function bindPortfolioActivity() {
   });
 
   document.querySelector("[data-activity-preview-export]")?.addEventListener("click", () => {
-    showToast("Activity export will be connected in a later Labs pass.");
+    showToast("Activity export is a static CMP Labs preview.");
   });
 
   document.querySelector("[data-activity-detail-open]")?.addEventListener("click", (event) => {
@@ -3822,6 +3824,16 @@ function handleGlobalServiceAction(action) {
 
 function bindUtilityPages() {
   document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-open-global-service]")) {
+      showGlobalServicePage({ scroll: true });
+      return;
+    }
+
+    if (event.target.closest("[data-open-global-activity]")) {
+      showPortfolioActivity({ scroll: true });
+      return;
+    }
+
     const askPrompt = event.target.closest("[data-utility-ask-prompt]");
     if (askPrompt) {
       setUtilityAskPrompt(askPrompt.dataset.utilityAskPrompt);
@@ -4221,8 +4233,9 @@ function openServiceRequestModal(type = recommendedServiceType()) {
   const copy = serviceRequestConfig(type);
   const existingRequest = openSupportRequestForType(type);
 
+  closeTimelineModals();
+
   if (existingRequest) {
-    closeTimelineModals();
     if (labsState.currentView === "bookService") {
       scrollToPanel("[data-global-open-requests-panel]");
     } else {
@@ -4329,7 +4342,7 @@ function cancelSupportRequest(id) {
     return;
   }
 
-  if (!window.confirm("Cancel this prototype support request?")) {
+  if (!window.confirm("Cancel this local demo support request?")) {
     return;
   }
 
@@ -4590,7 +4603,7 @@ function renderPropertyDetailsState() {
     eicrAction.textContent = labsState.eicrAdded ? "View EICR" : "Upload EICR";
     eicrAction.toggleAttribute("data-upload-trigger", !labsState.eicrAdded);
     if (labsState.eicrAdded) {
-      eicrAction.dataset.toast = "EICR viewer is not connected in CMP Labs.";
+      eicrAction.dataset.toast = "EICR certificate preview is static in CMP Labs.";
     } else {
       delete eicrAction.dataset.toast;
     }
@@ -4935,7 +4948,7 @@ function getTimelineEvents() {
       body: "A satisfactory Electrical Installation Condition Report was reviewed and added to the property file.",
       badge: "Verified",
       badgeClass: "status-good-text",
-      actions: [{ label: "View evidence", toast: "EICR viewer is not connected in Labs." }],
+      actions: [{ label: "View evidence", toast: "EICR certificate preview is static in CMP Labs." }],
       details: {
         title: "Document details",
         rows: [
@@ -4993,7 +5006,7 @@ function getTimelineEvents() {
       body: "Uploaded certificate reviewed and stored against 57 The Butts.",
       badge: "Verified",
       badgeClass: "status-good-text",
-      actions: [{ label: "View evidence", toast: "Document viewer is not connected in Labs." }],
+      actions: [{ label: "View evidence", toast: "Document preview is static in CMP Labs." }],
       details: {
         title: "Document details",
         rows: [
@@ -5016,7 +5029,7 @@ function getTimelineEvents() {
       body: "CMP matched an Energy Performance Certificate to this property.",
       badge: "Confirmed",
       badgeClass: "status-good-text",
-      actions: [{ label: "View record", toast: "Official record viewer is not connected in Labs." }],
+      actions: [{ label: "View record", toast: "Official record preview is static in CMP Labs." }],
       details: {
         title: "Official record details",
         rows: [
@@ -5076,7 +5089,7 @@ function getTimelineEvents() {
       badgeClass: "status-watch-text",
       actions: [
         { label: "Add evidence", upload: true },
-        { label: "Review answer", toast: "Answer review is not connected in Labs." }
+        { label: "Review answer", toast: "Answer review is a static CMP Labs preview." }
       ],
       details: {
         title: "Answer details",
@@ -5219,12 +5232,12 @@ function renderTimelineState() {
     : "Add or arrange an EICR to strengthen the Electrical Safety record.";
   document.querySelector("[data-timeline-action-buttons]").innerHTML = labsState.eicrAdded
     ? `
-      <button class="primary-button" type="button" data-upload-trigger>Upload inspection evidence</button>
-      <button class="secondary-button" type="button" data-toast="Inspection status is not saved in this prototype.">Mark as not yet completed</button>
+      <button class="primary-button" type="button" data-global-service-action="uploadInspection">Upload inspection evidence</button>
+      <button class="secondary-button" type="button" data-toast="Inspection status is recorded locally for this Labs preview.">Mark as not yet completed</button>
     `
     : `
       <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-      <button class="secondary-button" type="button" data-toast="Service booking is not connected in Labs yet.">Arrange an EICR</button>
+      <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
     `;
 
   document.querySelector("[data-summary-confirmed]").innerHTML = labsState.eicrAdded
