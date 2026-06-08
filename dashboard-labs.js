@@ -72,7 +72,10 @@ const labsState = {
   activityFilter: "all",
   utilityAskPrompt: "",
   inspectionStatusRecorded: false,
+  portfolioMode: "single",
+  selectedServicePropertyId: "the-butts",
   pendingServiceRequestType: "eicr",
+  pendingServicePropertyId: "the-butts",
   addPropertyStep: 1,
   addPropertyAddress: "18 Willow Brook Drive, B37 7BA",
   settings: {
@@ -211,6 +214,122 @@ const addPropertyAddresses = [
   "Flat 42, 57 The Butts, CV1 3BJ",
   "12 Station Road, B37 7BA"
 ];
+
+function isTwoPropertyMode() {
+  return labsState.portfolioMode === "two";
+}
+
+function buttsPortfolioProperty() {
+  const eicrAdded = labsState.eicrAdded;
+  const request = openSupportRequestForType(eicrAdded ? "inspection" : "eicr", "the-butts");
+
+  return {
+    id: "the-butts",
+    address: "57 The Butts",
+    postcode: "CV1 3BJ",
+    location: "Coventry, CV1 3BJ",
+    label: "57 The Butts · CV1 3BJ",
+    inbox: "57-the-butts@inbox.complymyproperty.co.uk",
+    occupancy: labsState.propertyDetails.occupancy,
+    journey: labsState.propertyDetails.goal,
+    strength: eicrAdded ? 58 : 42,
+    focus: eicrAdded ? "Inspection evidence" : "Electrical Safety evidence",
+    focusArea: eicrAdded ? "Property inspection" : "Electrical Safety",
+    state: eicrAdded ? "Useful next step" : "Needs checking",
+    statusDetail: eicrAdded ? "2 areas still need review" : "3 areas need checking",
+    priority: eicrAdded ? "Add inspection evidence" : "Upload or arrange EICR",
+    priorityBody: eicrAdded
+      ? "Electrical Safety evidence is now recorded. Add recent inspection evidence or arrange a property inspection."
+      : "CMP could not find a current EICR. Upload an existing report or request help arranging one.",
+    serviceType: eicrAdded ? "inspection" : "eicr",
+    verifiedEvidence: eicrAdded ? 3 : 2,
+    reviewCount: eicrAdded ? 2 : 3,
+    missingEvidence: eicrAdded ? ["Inspection evidence"] : ["EICR", "Inspection evidence"],
+    currentRequest: request,
+    workspaceAvailable: true,
+    mostUrgent: !isTwoPropertyMode(),
+    search: `57 the butts coventry cv1 vacant eicr electrical inspection ${labsState.propertyDetails.occupancy} ${labsState.propertyDetails.goal} ${request ? "open request support" : ""}`
+  };
+}
+
+function willowPortfolioProperty() {
+  const request = openSupportRequestForType("gas", "willow-brook");
+
+  return {
+    id: "willow-brook",
+    address: "18 Willow Brook Drive",
+    postcode: "B37 7BA",
+    location: "Birmingham, B37 7BA",
+    label: "18 Willow Brook Drive · B37 7BA",
+    inbox: "18-willow-brook-drive@inbox.complymyproperty.co.uk",
+    occupancy: "Currently tenanted",
+    journey: "Tenanted property review",
+    strength: 64,
+    focus: "Gas Safety renewal",
+    focusArea: "Gas Safety",
+    state: "Expiring soon",
+    statusDetail: "Gas Safety renewal needed in 21 days",
+    priority: "Book or upload Gas Safety renewal evidence",
+    priorityBody: "Gas Safety evidence is approaching its renewal window. Upload the new certificate or request support arranging a check.",
+    serviceType: "gas",
+    verifiedEvidence: 3,
+    reviewCount: 4,
+    missingEvidence: ["Gas Safety renewal evidence", "Alarm evidence", "Inspection evidence", "Tenancy document evidence"],
+    currentRequest: request,
+    workspaceAvailable: false,
+    mostUrgent: isTwoPropertyMode(),
+    nextRenewal: "Renewal needed in 21 days",
+    search: `18 willow brook drive birmingham b37 gas safety renewal expiring soon tenanted inspection alarms licensing ${request ? "open request support" : ""}`
+  };
+}
+
+function getPortfolioProperties() {
+  const properties = [buttsPortfolioProperty()];
+  if (isTwoPropertyMode()) {
+    properties.push(willowPortfolioProperty());
+  }
+  return properties;
+}
+
+function getPortfolioPropertyById(propertyId = "the-butts") {
+  return getPortfolioProperties().find((property) => property.id === propertyId) || buttsPortfolioProperty();
+}
+
+function selectedServicePropertyId() {
+  if (!isTwoPropertyMode()) {
+    return "the-butts";
+  }
+
+  return labsState.selectedServicePropertyId === "willow-brook" ? "willow-brook" : "the-butts";
+}
+
+function selectedServiceProperty() {
+  return getPortfolioPropertyById(selectedServicePropertyId());
+}
+
+function requestPropertyId(request) {
+  return request?.propertyId || "the-butts";
+}
+
+function propertyLabelForId(propertyId = "the-butts") {
+  return getPortfolioPropertyById(propertyId).label;
+}
+
+function propertyLocationForId(propertyId = "the-butts") {
+  return getPortfolioPropertyById(propertyId).location;
+}
+
+function openRequestCountForProperty(propertyId) {
+  return labsState.serviceRequests.filter((request) => request.status !== "Cancelled" && requestPropertyId(request) === propertyId).length;
+}
+
+function openRequestsForProperty(propertyId) {
+  return labsState.serviceRequests.filter((request) => request.status !== "Cancelled" && requestPropertyId(request) === propertyId);
+}
+
+function portfolioUrgentProperty() {
+  return getPortfolioProperties().find((property) => property.mostUrgent) || getPortfolioProperties()[0];
+}
 
 const utilityAskPromptMeta = {
   "What should I do today?": {
@@ -577,6 +696,7 @@ function getRecentActivityItems() {
     .sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0))
     .map((event) => event.activityLabel);
   const baseItems = [
+    ...(isTwoPropertyMode() ? ["Gas Safety renewal flagged for 18 Willow Brook Drive"] : []),
     labsState.eicrAdded ? "EICR evidence verified" : "EICR gap identified",
     "Gas Safety certificate verified",
     "EPC record imported"
@@ -585,6 +705,36 @@ function getRecentActivityItems() {
   return [...dynamicItems, ...baseItems]
     .filter(Boolean)
     .slice(0, 3);
+}
+
+function openPropertyFromPortfolio(propertyId = "the-butts") {
+  if (propertyId === "willow-brook") {
+    openTimelineModal("[data-second-property-modal]");
+    setAssistantResponse("Second property workspace preview — CMP Labs is showing portfolio-level behaviour for 18 Willow Brook Drive while the full workspace remains focused on 57 The Butts.");
+    return;
+  }
+
+  openPropertyWorkspace("overview");
+}
+
+function renderSidebarProperties() {
+  const list = document.querySelector("[data-sidebar-property-list]");
+
+  if (!list) {
+    return;
+  }
+
+  const properties = getPortfolioProperties();
+  list.innerHTML = properties.map((property) => `
+    <button class="property-option${property.id === "the-butts" ? " is-current" : ""}" type="button" data-open-property-id="${escapeHtml(property.id)}">
+      <span class="status-dot" aria-hidden="true"></span>
+      <span>
+        <strong>${escapeHtml(property.address)}</strong>
+        <small>${escapeHtml(property.location)}</small>
+      </span>
+      ${property.id === "willow-brook" ? '<em class="sidebar-property-count">Gas renewal</em>' : ""}
+    </button>
+  `).join("");
 }
 
 function renderOverviewRecentActivity() {
@@ -733,6 +883,7 @@ function renderAllState() {
   renderTimelineState();
   renderServicesState();
   renderPropertyDetailsState();
+  renderSidebarProperties();
   renderAssistantActivity();
   renderPortfolioHomeState();
   renderPortfolioPropertiesState();
@@ -767,7 +918,10 @@ function resetDemoState() {
   labsState.activityFilter = "all";
   labsState.utilityAskPrompt = "";
   labsState.inspectionStatusRecorded = false;
+  labsState.portfolioMode = "single";
+  labsState.selectedServicePropertyId = "the-butts";
   labsState.pendingServiceRequestType = "eicr";
+  labsState.pendingServicePropertyId = "the-butts";
   labsState.addPropertyStep = 1;
   labsState.addPropertyAddress = addPropertyAddresses[0];
   labsState.propertyDetails = createInitialPropertyDetails();
@@ -777,12 +931,14 @@ function resetDemoState() {
 
 function ensureDemoSupportRequest() {
   const requestType = "Property inspection support";
-  const hasRequest = labsState.serviceRequests.some((request) => request.type === requestType && request.status !== "Cancelled");
+  const hasRequest = labsState.serviceRequests.some((request) => request.type === requestType && requestPropertyId(request) === "the-butts" && request.status !== "Cancelled");
 
   if (!hasRequest) {
     labsState.serviceRequests.unshift({
       id: "demo-support-request",
       type: requestType,
+      propertyId: "the-butts",
+      propertyLabel: "57 The Butts · CV1 3BJ",
       status: "Awaiting review",
       created: "Just now",
       linkedTo: "Inspection evidence"
@@ -862,10 +1018,16 @@ function applyDemoState(state) {
     "before-eicr": "Before EICR",
     "after-eicr": "After EICR",
     "after-support": "After support request",
-    "after-quick-win": "After quick win"
+    "after-quick-win": "After quick win",
+    "two-property": "Two-property portfolio"
   };
 
   resetDemoState();
+
+  if (state === "two-property") {
+    labsState.portfolioMode = "two";
+    labsState.selectedServicePropertyId = "willow-brook";
+  }
 
   if (state === "after-eicr" || state === "after-support") {
     labsState.eicrAdded = true;
@@ -889,31 +1051,93 @@ function applyDemoState(state) {
 }
 
 function getPortfolioAssistantResponse(prompt) {
+  if (isTwoPropertyMode()) {
+    const responses = {
+      "Summarise my portfolio": labsState.eicrAdded ? "You have two properties in this Labs portfolio. 18 Willow Brook Drive needs Gas Safety renewal soon, while 57 The Butts now has EICR evidence verified and should move to inspection evidence." : "You have two properties in this Labs portfolio. 18 Willow Brook Drive needs Gas Safety renewal soon, while 57 The Butts is missing EICR evidence.",
+      "What should I do today?": "Start with 18 Willow Brook Drive because Gas Safety renewal is needed in 21 days. Then return to 57 The Butts for the EICR or inspection follow-up.",
+      "Which property needs attention?": labsState.eicrAdded ? "18 Willow Brook Drive is most urgent because Gas Safety renewal is approaching. 57 The Butts should move to inspection evidence next." : "18 Willow Brook Drive is most urgent because Gas Safety renewal is approaching. 57 The Butts still has an Electrical Safety evidence gap.",
+      "What evidence am I missing?": labsState.eicrAdded ? "18 Willow Brook Drive needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts mainly needs inspection evidence now." : "18 Willow Brook Drive needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts needs EICR evidence.",
+      "Ask CMP why this matters": "CMP compares the portfolio and prioritises the item with the clearest timing risk. In this state, that is Gas Safety renewal for 18 Willow Brook Drive.",
+      "Ask CMP what I need": "Book or upload Gas Safety renewal evidence for 18 Willow Brook Drive, then review the remaining evidence gaps across both properties."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   const responses = labsState.eicrAdded ? portfolioPostEicrAssistantResponses : portfolioAssistantResponses;
   return responses[prompt] || defaultAssistantResponse;
 }
 
 function getPropertiesAssistantResponse(prompt) {
+  if (isTwoPropertyMode()) {
+    const responses = {
+      "Which property needs attention?": "18 Willow Brook Drive needs attention first because Gas Safety renewal is due soon. 57 The Butts remains important for Electrical Safety or inspection evidence depending on the demo state.",
+      "Summarise my properties": "The portfolio contains 57 The Butts in Coventry and 18 Willow Brook Drive in Birmingham. CMP is using both cards to compare evidence strength, occupancy and current focus.",
+      "What should I open first?": "Open the 18 Willow Brook Drive preview if you want to inspect the urgent portfolio item, or open 57 The Butts for the full property workspace.",
+      "How do I add another property?": "Use Add property to preview the onboarding flow. The second property here is a portfolio-level demo record rather than a full workspace."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   const responses = labsState.eicrAdded ? propertiesPostEicrAssistantResponses : propertiesAssistantResponses;
   return responses[prompt] || defaultAssistantResponse;
 }
 
 function getComplianceCentreAssistantResponse(prompt) {
+  if (isTwoPropertyMode()) {
+    const responses = {
+      "What should I fix first?": "Fix Gas Safety renewal for 18 Willow Brook Drive first because it is expiring soon. 57 The Butts should still be reviewed for EICR or inspection evidence.",
+      "Which evidence is missing?": labsState.eicrAdded ? "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts mainly needs inspection evidence now." : "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts needs EICR evidence.",
+      "What expires soon?": "Gas Safety renewal for 18 Willow Brook Drive is the clear upcoming item in this portfolio view.",
+      "Summarise my compliance position": labsState.eicrAdded ? "CMP is comparing two properties: Willow Brook has the urgent renewal item, while 57 The Butts has EICR verified and should move to inspection evidence." : "CMP is comparing two properties: Willow Brook has the urgent renewal item, while 57 The Butts carries the main evidence gap."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   const responses = labsState.eicrAdded ? complianceCentrePostEicrAssistantResponses : complianceCentreAssistantResponses;
   return responses[prompt] || defaultAssistantResponse;
 }
 
 function getEvidenceVaultAssistantResponse(prompt) {
+  if (isTwoPropertyMode()) {
+    const responses = {
+      "What evidence is missing?": labsState.eicrAdded ? "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts mainly needs inspection evidence now." : "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts still needs EICR evidence.",
+      "Which documents are verified?": "EPC and EICR are confirmed for Willow Brook, while 57 The Butts has EPC and Gas Safety recorded plus EICR once the after-EICR state is active.",
+      "How should I upload paperwork?": "Use Smart Upload for the 57 The Butts EICR flow. Gas Safety upload for Willow Brook is shown as a Labs prototype action.",
+      "Summarise my evidence vault": "The Evidence Vault now includes records and gaps for both properties, with each row labelled by address so portfolio evidence is easier to scan."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   const responses = labsState.eicrAdded ? evidenceVaultPostEicrAssistantResponses : evidenceVaultAssistantResponses;
   return responses[prompt] || defaultAssistantResponse;
 }
 
 function getTasksAssistantResponse(prompt) {
+  if (isTwoPropertyMode()) {
+    const responses = {
+      "What should I do first?": "Do the Gas Safety renewal task for 18 Willow Brook Drive first. It is the most time-sensitive item in the two-property portfolio.",
+      "Why is this a task?": "CMP created the task because Gas Safety renewal is approaching and the evidence needs to stay tied to the correct property.",
+      "Which tasks are evidence-related?": "Evidence tasks include Willow Brook Gas Safety renewal, alarm evidence and inspection evidence, plus 57 The Butts EICR or inspection evidence.",
+      "What can I leave for later?": "Local licensing can stay on watch while Gas Safety renewal and missing core evidence are handled first."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   const responses = labsState.eicrAdded ? tasksPostEicrAssistantResponses : tasksAssistantResponses;
   return responses[prompt] || defaultAssistantResponse;
 }
 
 function getActivityAssistantResponse(prompt) {
+  if (isTwoPropertyMode()) {
+    const responses = {
+      "What changed recently?": "CMP flagged Gas Safety renewal for 18 Willow Brook Drive and kept 57 The Butts evidence status visible in the same activity feed.",
+      "What still needs attention?": "Willow Brook Gas Safety renewal is most urgent. 57 The Butts still needs EICR evidence before the after-EICR state, then inspection evidence.",
+      "Summarise portfolio activity": "The feed now shows portfolio-level events across both properties, including renewal, evidence, property setup and support activity.",
+      "Why was this recorded?": "CMP records activity with property labels so landlords can see which address each evidence or support event belongs to."
+    };
+    return responses[prompt] || defaultAssistantResponse;
+  }
+
   const responses = labsState.eicrAdded ? activityPostEicrAssistantResponses : activityAssistantResponses;
   return responses[prompt] || defaultAssistantResponse;
 }
@@ -922,7 +1146,13 @@ function getGlobalAskDefaultResponse() {
   const activeRequest = activeSupportRequestForActivity();
 
   if (activeRequest) {
-    return `${activeRequest.type} is already open for 57 The Butts and awaiting CMP review. CMP will keep that request visible rather than prompting you to request the same support again.`;
+    return `${activeRequest.type} is already open for ${propertyLabelForId(requestPropertyId(activeRequest))} and awaiting CMP review. CMP will keep that request visible rather than prompting you to request the same support again.`;
+  }
+
+  if (isTwoPropertyMode()) {
+    return labsState.eicrAdded
+      ? "CMP has compared both properties. 18 Willow Brook Drive still needs Gas Safety renewal soon, while 57 The Butts now has EICR evidence verified and should move to inspection evidence."
+      : "CMP has compared both properties. 18 Willow Brook Drive needs Gas Safety renewal soon, while 57 The Butts is missing EICR evidence.";
   }
 
   if (labsState.alarmAnswer) {
@@ -940,18 +1170,34 @@ function getGlobalAskAssistantResponse(prompt) {
   const activeRequest = activeSupportRequestForActivity();
 
   if (activeRequest) {
+    const propertyLabel = propertyLabelForId(requestPropertyId(activeRequest));
     const requestResponses = {
-      "What should I do today?": `${activeRequest.type} is open for 57 The Butts. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
-      "Which property needs attention?": `57 The Butts is still the active property. CMP has ${activeRequest.type.toLowerCase()} awaiting review, so duplicate support is not needed.`,
+      "What should I do today?": `${activeRequest.type} is open for ${propertyLabel}. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
+      "Which property needs attention?": `${propertyLabel} has an open ${activeRequest.type.toLowerCase()} awaiting review, so duplicate support is not needed.`,
       "What evidence is missing?": labsState.eicrAdded
         ? "Inspection evidence is still the most useful document gap, and CMP already has a support request awaiting review."
         : "Electrical Safety evidence is still the clearest evidence gap, and CMP already has a support request awaiting review.",
-      "Explain this property file": `57 The Butts has EPC, Gas Safety, tasks, activity and an open ${activeRequest.type.toLowerCase()} connected to the property file.`,
-      "Summarise my portfolio": `Your portfolio has one property. CMP is tracking the open ${activeRequest.type.toLowerCase()} for 57 The Butts and keeping the next evidence gap visible.`,
+      "Explain this property file": `${propertyLabel} has an open ${activeRequest.type.toLowerCase()} connected to the property file and visible in support requests.`,
+      "Summarise my portfolio": isTwoPropertyMode()
+        ? `Your portfolio has two properties. CMP is tracking the open ${activeRequest.type.toLowerCase()} for ${propertyLabel} and comparing the remaining evidence gaps.`
+        : `Your portfolio has one property. CMP is tracking the open ${activeRequest.type.toLowerCase()} for 57 The Butts and keeping the next evidence gap visible.`,
       "What can wait until later?": "Avoid creating duplicate support requests. Licensing and document review can stay on watch while CMP reviews the open request."
     };
 
     return requestResponses[prompt] || getGlobalAskDefaultResponse();
+  }
+
+  if (isTwoPropertyMode()) {
+    const responses = {
+      "What should I do today?": "Start with Gas Safety renewal for 18 Willow Brook Drive. It is more time-sensitive than the 57 The Butts evidence follow-up.",
+      "Which property needs attention?": "18 Willow Brook Drive needs attention first because Gas Safety renewal is due soon. 57 The Butts still needs EICR evidence before the after-EICR state.",
+      "What evidence is missing?": labsState.eicrAdded ? "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts mainly needs inspection evidence now." : "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts needs EICR evidence until it is verified.",
+      "Explain this property file": "CMP is comparing 57 The Butts and 18 Willow Brook Drive using property details, evidence, compliance status, tasks, activity and support requests.",
+      "Summarise my portfolio": labsState.eicrAdded ? "Your two-property portfolio has one urgent renewal item and one follow-up evidence gap: Willow Brook Gas Safety renewal and 57 The Butts inspection evidence." : "Your two-property portfolio has one urgent renewal item and one core evidence gap: Willow Brook Gas Safety renewal and 57 The Butts EICR evidence.",
+      "What can wait until later?": "Local licensing and tenancy document review can stay on watch while Gas Safety renewal and the 57 The Butts EICR gap are handled first."
+    };
+
+    return responses[prompt] || getGlobalAskDefaultResponse();
   }
 
   const responses = {
@@ -977,20 +1223,34 @@ function getGlobalAskAssistantResponse(prompt) {
 }
 
 function getGlobalServiceAssistantResponse(prompt) {
-  const activeRequest = activeSupportRequestForActivity();
+  const property = selectedServiceProperty();
+  const activeRequest = openRequestsForProperty(property.id)[0];
 
   if (activeRequest) {
     const responsesWithRequest = {
-      "What should I book first": `${activeRequest.type} is already open for 57 The Butts. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
-      "What should I book first?": `${activeRequest.type} is already open for 57 The Butts. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
+      "What should I book first": `${activeRequest.type} is already open for ${property.label}. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
+      "What should I book first?": `${activeRequest.type} is already open for ${property.label}. The next useful step is to wait for CMP review or add any existing evidence you already have.`,
       "Why is this recommended?": "CMP is avoiding duplicate support requests and keeping the open item visible so the property file stays clear.",
       "Can CMP help arrange it?": "A local demo support request is already open. In the final workflow this would notify CMP or a connected supplier process.",
-      "What can wait until later?": labsState.eicrAdded
+      "What can wait until later?": property.id === "willow-brook"
+        ? "Inspection, alarms and licensing can stay visible while the Gas Safety renewal request is reviewed."
+        : labsState.eicrAdded
         ? "Gas Safety, EPC and EICR are recorded. Keep licensing and tenancy document review visible while inspection support is reviewed."
         : "Gas Safety and EPC are recorded. Keep licensing and document review visible while the open support request is reviewed."
     };
 
     return responsesWithRequest[prompt] || responsesWithRequest["What should I book first?"];
+  }
+
+  if (property.id === "willow-brook") {
+    const responses = {
+      "What should I book first?": "Gas Safety support is the most useful service for 18 Willow Brook Drive because renewal evidence is approaching its window.",
+      "Why is this recommended?": "CMP is recommending Gas Safety renewal because this tenanted property has a renewal item due soon, while EICR and EPC are already recorded.",
+      "Can CMP help arrange it?": "This Labs preview can record a local Gas Safety support request for 18 Willow Brook Drive. The final workflow would connect it to support handling.",
+      "What can wait until later?": "Inspection evidence, alarm evidence and licensing review should stay visible, but Gas Safety renewal comes first."
+    };
+
+    return responses[prompt] || responses["What should I book first?"];
   }
 
   const responses = {
@@ -1250,35 +1510,133 @@ function renderPortfolioHomeState() {
     return;
   }
 
-  const strength = labsState.eicrAdded ? 58 : 42;
+  const properties = getPortfolioProperties();
+  const urgentProperty = portfolioUrgentProperty();
   const latestActivity = getRecentActivityItems();
-  const activeRequest = currentServiceRequest();
+  const activeRequest = urgentProperty.currentRequest;
+  const propertyCountLabel = properties.length === 1 ? "property tracked" : "properties tracked";
 
-  document.querySelector("[data-home-summary-title]").textContent = labsState.eicrAdded
-    ? "Add recent inspection evidence for 57 The Butts"
-    : "Check whether 57 The Butts has a current EICR";
-  document.querySelector("[data-home-summary-body]").textContent = labsState.eicrAdded
-    ? "Electrical Safety is recorded. Inspection evidence is the next useful improvement."
-    : "Electrical Safety is the clearest evidence gap in the property file.";
+  document.querySelector("[data-home-summary-title]").textContent = isTwoPropertyMode()
+    ? "Gas Safety renewal is the most urgent portfolio item"
+    : labsState.eicrAdded
+      ? "Add recent inspection evidence for 57 The Butts"
+      : "Check whether 57 The Butts has a current EICR";
+  document.querySelector("[data-home-summary-body]").textContent = isTwoPropertyMode()
+    ? labsState.eicrAdded
+      ? "18 Willow Brook Drive is approaching its Gas Safety renewal window, while 57 The Butts has moved on to inspection evidence."
+      : "18 Willow Brook Drive is approaching its Gas Safety renewal window, while 57 The Butts still needs Electrical Safety evidence."
+    : labsState.eicrAdded
+      ? "Electrical Safety is recorded. Inspection evidence is the next useful improvement."
+      : "Electrical Safety is the clearest evidence gap in the property file.";
+  document.querySelector("[data-home-property-count]").textContent = String(properties.length);
+  document.querySelector("[data-home-property-count-detail]").textContent = propertyCountLabel;
   document.querySelector("[data-home-priority-detail]").textContent = activeRequest
     ? "request awaiting review"
     : "clear next step";
-  document.querySelector("[data-home-verified-count]").textContent = labsState.eicrAdded ? "3" : "2";
-  document.querySelector("[data-home-review-count]").textContent = labsState.eicrAdded ? "2" : "3";
-  document.querySelector("[data-home-priority-area]").textContent = labsState.eicrAdded ? "Property inspection" : "Electrical Safety";
-  document.querySelector("[data-home-priority-status]").textContent = labsState.eicrAdded ? "Useful next step" : "Evidence missing";
-  document.querySelector("[data-home-priority-body]").textContent = labsState.eicrAdded
-    ? "The Electrical Safety evidence is now recorded. The next useful action is to add recent inspection evidence or arrange a property inspection."
-    : "CMP could not find a current EICR for 57 The Butts. Upload an existing report or request help arranging an inspection.";
-  document.querySelector("[data-home-upload-priority]").textContent = labsState.eicrAdded ? "Upload inspection evidence" : "Upload EICR";
-  document.querySelector("[data-home-arrange-priority]").textContent = labsState.eicrAdded ? "Arrange an inspection" : "Arrange an EICR";
-  document.querySelector("[data-home-occupancy]").textContent = labsState.propertyDetails.occupancy;
-  document.querySelector("[data-home-goal]").textContent = labsState.propertyDetails.goal;
-  document.querySelector("[data-home-strength]").textContent = `${strength}% evidenced`;
-  document.querySelector("[data-home-strength-meter]").style.width = `${strength}%`;
-  document.querySelector("[data-home-status]").textContent = labsState.eicrAdded
-    ? "2 areas still need review"
-    : "3 areas need checking";
+  document.querySelector("[data-home-verified-count]").textContent = String(properties.reduce((sum, property) => sum + property.verifiedEvidence, 0));
+  document.querySelector("[data-home-review-count]").textContent = String(properties.reduce((sum, property) => sum + property.reviewCount, 0));
+  document.querySelector("[data-home-priority-area]").textContent = urgentProperty.focusArea;
+  document.querySelector("[data-home-priority-status]").textContent = urgentProperty.state;
+  document.querySelector("[data-home-priority-body]").textContent = `${urgentProperty.label}: ${urgentProperty.priorityBody}`;
+  document.querySelector("[data-home-upload-priority]").textContent = urgentProperty.id === "willow-brook"
+    ? "Upload Gas Safety certificate"
+    : labsState.eicrAdded ? "Upload inspection evidence" : "Upload EICR";
+  document.querySelector("[data-home-arrange-priority]").textContent = urgentProperty.id === "willow-brook"
+    ? "Request Gas Safety support"
+    : labsState.eicrAdded ? "Arrange an inspection" : "Arrange an EICR";
+
+  const propertyList = document.querySelector("[data-home-property-list]");
+  if (propertyList) {
+    propertyList.innerHTML = properties.map((property) => `
+      <article class="portfolio-property-card${property.mostUrgent ? " is-most-urgent" : ""}">
+        <div class="portfolio-property-main">
+          <span class="status-dot" aria-hidden="true"></span>
+          <div>
+            <div class="property-card-heading-row">
+              <h3>${escapeHtml(property.address)}</h3>
+              ${property.mostUrgent ? '<span class="source-badge">Most urgent</span>' : ""}
+            </div>
+            <p>${escapeHtml(property.location)}</p>
+            <div class="signal-row">
+              <span>${escapeHtml(property.occupancy)}</span>
+              <span>${escapeHtml(property.journey)}</span>
+              ${property.currentRequest ? '<span>Open request</span>' : ""}
+            </div>
+          </div>
+        </div>
+        <div class="portfolio-property-progress">
+          <span>Evidence strength</span>
+          <strong>${property.strength}% evidenced</strong>
+          <div class="strength-meter"><span style="width: ${property.strength}%"></span></div>
+          <small>${escapeHtml(property.statusDetail)}</small>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-home-open-property-id="${escapeHtml(property.id)}">Open workspace</button>
+          <button class="text-button" type="button" data-home-view-activity-id="${escapeHtml(property.id)}">View activity</button>
+          ${property.id === "the-butts" ? '<button class="secondary-button quiet-button" type="button" data-home-add-property>+ Add another property</button>' : ""}
+        </div>
+      </article>
+    `).join("");
+  }
+
+  const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
+  if (upcomingGrid) {
+    const upcomingItems = [
+      ...(isTwoPropertyMode()
+        ? [{
+            badge: "Renewal in 21 days",
+            title: "Gas Safety renewal",
+            property: "18 Willow Brook Drive · B37 7BA",
+            body: "Book or upload renewal evidence before the current certificate becomes a risk.",
+            action: "gas",
+            label: "Review renewal"
+          }]
+        : []),
+      {
+        badge: labsState.eicrAdded ? "Recommended" : "Follow-up",
+        title: "Inspection review",
+        property: "57 The Butts · CV1 3BJ",
+        body: "Confirm whether a recent inspection has been completed or schedule the next one.",
+        action: "inspection",
+        label: "Review inspection"
+      },
+      {
+        badge: labsState.eicrAdded ? "Verified" : "Missing",
+        title: "Electrical Safety",
+        property: "57 The Butts · CV1 3BJ",
+        body: labsState.eicrAdded ? "EICR evidence is now verified and linked to the property." : "Upload or arrange EICR evidence for the property file.",
+        action: "eicr",
+        label: labsState.eicrAdded ? "View evidence" : "Review EICR"
+      },
+      {
+        badge: "Checking postcode",
+        title: "Local licensing",
+        property: isTwoPropertyMode() ? "Both properties" : "57 The Butts · CV1 3BJ",
+        body: "CMP is reviewing whether local rules may affect the address and occupancy profile.",
+        action: "licensing",
+        label: "Review licensing"
+      },
+      {
+        badge: "Needs evidence",
+        title: "Alarm evidence",
+        property: isTwoPropertyMode() ? "18 Willow Brook Drive · B37 7BA" : "57 The Butts · CV1 3BJ",
+        body: isTwoPropertyMode() ? "Willow Brook still needs a landlord answer and supporting evidence." : "Smoke and CO alarms were reported as tested. Supporting evidence can be added later.",
+        action: "alarms",
+        label: "Add evidence"
+      }
+    ];
+
+    upcomingGrid.innerHTML = upcomingItems.slice(0, 4).map((item) => `
+      <article class="portfolio-upcoming-card">
+        <span class="source-badge">${escapeHtml(item.badge)}</span>
+        <h3>${escapeHtml(item.title)}</h3>
+        <small class="property-card-label">${escapeHtml(item.property)}</small>
+        <p>${escapeHtml(item.body)}</p>
+        <button class="text-button" type="button" data-home-upcoming="${escapeHtml(item.action)}">${escapeHtml(item.label)}</button>
+      </article>
+    `).join("");
+  }
+
   document.querySelector("[data-home-activity-list]").innerHTML = latestActivity
     .map((item) => `<li>${escapeHtml(item)}</li>`)
     .join("");
@@ -1309,32 +1667,91 @@ function showPortfolioHome({ scroll = false } = {}) {
   });
 }
 
-function propertySearchText() {
-  return [
-    "57",
-    "the butts",
-    "butts",
-    "coventry",
-    "cv1",
-    "eicr",
-    "inspection",
-    "vacant",
-    labsState.propertyDetails.occupancy,
-    labsState.propertyDetails.goal,
-    currentServiceRequest() ? "open requests support request" : ""
-  ].join(" ").toLowerCase();
-}
-
-function propertyMatchesCurrentView() {
+function propertyMatchesCurrentView(property) {
   const query = labsState.propertiesSearch.trim().toLowerCase();
-  const hasOpenRequest = Boolean(currentServiceRequest());
-  const matchesSearch = !query || propertySearchText().includes(query);
+  const hasOpenRequest = openRequestCountForProperty(property.id) > 0;
+  const matchesSearch = !query || property.search.toLowerCase().includes(query);
   const matchesFilter = labsState.propertiesFilter === "all"
     || (labsState.propertiesFilter === "attention")
-    || (labsState.propertiesFilter === "vacant" && labsState.propertyDetails.occupancy === "Vacant property")
+    || (labsState.propertiesFilter === "vacant" && property.occupancy === "Vacant property")
     || (labsState.propertiesFilter === "requests" && hasOpenRequest);
 
   return matchesSearch && matchesFilter;
+}
+
+function renderPropertiesCard(property) {
+  const openRequests = openRequestCountForProperty(property.id);
+
+  return `
+    <article class="properties-card${property.mostUrgent ? " is-most-urgent" : ""}" data-property-id="${escapeHtml(property.id)}">
+      <div class="properties-card-main">
+        <div>
+          <div class="property-card-heading-row">
+            <h2>${escapeHtml(property.address)}</h2>
+            ${property.mostUrgent ? '<span class="source-badge">Most urgent</span>' : ""}
+          </div>
+          <p>${escapeHtml(property.location)}</p>
+          <div class="signal-row">
+            <span>${escapeHtml(property.occupancy)}</span>
+            <span>${escapeHtml(property.journey)}</span>
+            ${openRequests ? '<span>Open request</span>' : ""}
+          </div>
+        </div>
+        <div class="properties-evidence">
+          <span>Evidence strength</span>
+          <strong>${property.strength}% evidenced</strong>
+          <div class="strength-meter"><span style="width: ${property.strength}%"></span></div>
+        </div>
+      </div>
+      <div class="properties-card-status">
+        <div>
+          <span>Current focus</span>
+          <strong>${escapeHtml(property.focus)}</strong>
+        </div>
+        <div>
+          <span>State</span>
+          <strong>${escapeHtml(property.state)}</strong>
+          ${property.nextRenewal ? `<small>${escapeHtml(property.nextRenewal)}</small>` : ""}
+        </div>
+      </div>
+      <div class="properties-card-actions">
+        <button class="primary-button" type="button" data-properties-open-property-id="${escapeHtml(property.id)}">Open workspace</button>
+        <button class="secondary-button" type="button" data-properties-upload-id="${escapeHtml(property.id)}">Upload evidence</button>
+        <button class="text-button" type="button" data-properties-timeline-id="${escapeHtml(property.id)}">View timeline</button>
+        <button class="text-button" type="button" data-properties-support-id="${escapeHtml(property.id)}">Request support</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderPropertiesCompactRow(property) {
+  return `
+    <article class="properties-compact-row" data-property-id="${escapeHtml(property.id)}">
+      <div>
+        <span>Property</span>
+        <strong>${escapeHtml(property.address)}</strong>
+        <small>${escapeHtml(property.location)}</small>
+      </div>
+      <div>
+        <span>Status</span>
+        <strong>${escapeHtml(property.state)}</strong>
+        <small>${escapeHtml(property.occupancy)}</small>
+      </div>
+      <div>
+        <span>Evidence</span>
+        <strong>${property.strength}% evidenced</strong>
+        <div class="strength-meter"><span style="width: ${property.strength}%"></span></div>
+      </div>
+      <div>
+        <span>Priority</span>
+        <strong>${escapeHtml(property.focus)}</strong>
+      </div>
+      <div>
+        <span>Next action</span>
+        <button class="text-button" type="button" data-properties-open-property-id="${escapeHtml(property.id)}">Open workspace</button>
+      </div>
+    </article>
+  `;
 }
 
 function renderPortfolioPropertiesState() {
@@ -1344,33 +1761,18 @@ function renderPortfolioPropertiesState() {
     return;
   }
 
-  const strength = labsState.eicrAdded ? 58 : 42;
-  const focus = labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety evidence";
-  const state = labsState.eicrAdded ? "Useful next step" : "Needs checking";
-  const attentionDetail = labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety";
-  const openRequests = currentServiceRequest() ? 1 : 0;
-  const hasResult = propertyMatchesCurrentView();
+  const properties = getPortfolioProperties();
+  const urgentProperty = portfolioUrgentProperty();
+  const openRequests = labsState.serviceRequests.filter((request) => request.status !== "Cancelled").length;
+  const results = properties.filter(propertyMatchesCurrentView);
   const cardView = labsState.propertiesView === "cards";
 
-  document.querySelector("[data-properties-attention-detail]").textContent = attentionDetail;
-  document.querySelector("[data-properties-summary-strength]").textContent = `${strength}%`;
+  document.querySelector("[data-properties-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} tracked`;
+  document.querySelector("[data-properties-count]").textContent = String(properties.length);
+  document.querySelector("[data-properties-count-detail]").textContent = properties.length === 1 ? "property tracked" : "properties tracked";
+  document.querySelector("[data-properties-attention-detail]").textContent = urgentProperty.focusArea;
+  document.querySelector("[data-properties-summary-strength]").textContent = `${Math.round(properties.reduce((sum, property) => sum + property.strength, 0) / properties.length)}%`;
   document.querySelector("[data-properties-open-requests]").textContent = String(openRequests);
-  document.querySelector("[data-properties-card-strength]").textContent = `${strength}% evidenced`;
-  document.querySelector("[data-properties-card-meter]").style.width = `${strength}%`;
-  document.querySelector("[data-properties-current-focus]").textContent = focus;
-  document.querySelector("[data-properties-current-state]").textContent = state;
-  document.querySelector("[data-properties-occupancy]").textContent = labsState.propertyDetails.occupancy;
-  document.querySelector("[data-properties-journey]").textContent = labsState.propertyDetails.goal;
-  document.querySelector("[data-properties-compact-status]").textContent = state;
-  document.querySelector("[data-properties-compact-occupancy]").textContent = labsState.propertyDetails.occupancy;
-  document.querySelector("[data-properties-compact-strength]").textContent = `${strength}% evidenced`;
-  document.querySelector("[data-properties-compact-meter]").style.width = `${strength}%`;
-  document.querySelector("[data-properties-compact-priority]").textContent = focus;
-
-  const requestIndicator = document.querySelector("[data-properties-request-indicator]");
-  if (requestIndicator) {
-    requestIndicator.hidden = !openRequests;
-  }
 
   const searchInput = document.querySelector("[data-properties-search]");
   if (searchInput && searchInput.value !== labsState.propertiesSearch) {
@@ -1384,9 +1786,11 @@ function renderPortfolioPropertiesState() {
     button.classList.toggle("is-active", button.dataset.propertiesView === labsState.propertiesView);
   });
 
-  document.querySelector("[data-properties-card]").hidden = !hasResult || !cardView;
-  document.querySelector("[data-properties-compact]").hidden = !hasResult || cardView;
-  document.querySelector("[data-properties-empty]").hidden = hasResult;
+  const resultsContainer = document.querySelector("[data-properties-results]");
+  if (resultsContainer) {
+    resultsContainer.innerHTML = results.map((property) => cardView ? renderPropertiesCard(property) : renderPropertiesCompactRow(property)).join("");
+  }
+  document.querySelector("[data-properties-empty]").hidden = Boolean(results.length);
 }
 
 function showPortfolioProperties({ scroll = false } = {}) {
@@ -1401,12 +1805,51 @@ function showPortfolioProperties({ scroll = false } = {}) {
 }
 
 function compliancePriorityRequestType() {
-  return labsState.eicrAdded ? "Property inspection support" : "EICR support";
+  return serviceRequestConfig(portfolioUrgentProperty().serviceType, portfolioUrgentProperty().id).requestType;
 }
 
 function currentComplianceRequest() {
+  const property = portfolioUrgentProperty();
   const type = compliancePriorityRequestType();
-  return labsState.serviceRequests.find((request) => request.type === type && request.status !== "Cancelled");
+  return labsState.serviceRequests.find((request) => request.type === type && requestPropertyId(request) === property.id && request.status !== "Cancelled");
+}
+
+function renderComplianceMatrixRows(properties) {
+  return properties.map((property) => {
+    if (property.id === "willow-brook") {
+      return `
+        <tr>
+          <th scope="row">
+            <strong>18 Willow Brook Drive</strong>
+            <span>Birmingham, B37 7BA</span>
+          </th>
+          <td><span class="matrix-pill status-good-text">Confirmed</span><small>Official record</small></td>
+          <td><span class="matrix-pill status-watch-text">Expiring soon</span><small>Renewal needed in 21 days</small></td>
+          <td><span class="matrix-pill status-good-text">Verified</span><small>Uploaded document</small></td>
+          <td><span class="matrix-pill status-review-text">Needs checking</span><small>Landlord answer missing</small></td>
+          <td><span class="matrix-pill status-watch-text">Landlord confirmed</span><small>Evidence not uploaded</small></td>
+          <td><span class="matrix-pill status-watch-text">Checking</span><small>Postcode review</small></td>
+          <td><span class="matrix-pill status-review-text">Missing</span><small>No recent evidence</small></td>
+        </tr>
+      `;
+    }
+
+    return `
+      <tr>
+        <th scope="row">
+          <strong>57 The Butts</strong>
+          <span>Coventry, CV1 3BJ</span>
+        </th>
+        <td><span class="matrix-pill status-good-text">Confirmed</span><small>Official record</small></td>
+        <td><span class="matrix-pill status-good-text">Verified</span><small>Uploaded document</small></td>
+        <td><span class="matrix-pill ${labsState.eicrAdded ? "status-good-text" : "status-review-text"}">${labsState.eicrAdded ? "Verified" : "Needs checking"}</span><small>${labsState.eicrAdded ? "Uploaded document" : "No EICR evidence"}</small></td>
+        <td><span class="matrix-pill status-watch-text">Landlord confirmed</span><small>Evidence not uploaded</small></td>
+        <td><span class="matrix-pill status-neutral-text">Not applicable</span><small>Vacant</small></td>
+        <td><span class="matrix-pill status-watch-text">Checking</span><small>Postcode review</small></td>
+        <td><span class="matrix-pill status-review-text">Missing</span><small>No recent evidence</small></td>
+      </tr>
+    `;
+  }).join("");
 }
 
 function renderPortfolioComplianceState() {
@@ -1417,17 +1860,25 @@ function renderPortfolioComplianceState() {
   }
 
   const activeRequest = currentComplianceRequest();
-  document.querySelector("[data-compliance-confirmed-count]").textContent = labsState.eicrAdded ? "3" : "2";
-  document.querySelector("[data-compliance-review-count]").textContent = labsState.eicrAdded ? "2" : "3";
-  document.querySelector("[data-compliance-open-action-detail]").textContent = labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety";
-  document.querySelector("[data-compliance-priority-title]").textContent = labsState.eicrAdded
-    ? "57 The Butts needs inspection evidence"
-    : "57 The Butts needs Electrical Safety evidence";
-  document.querySelector("[data-compliance-priority-body]").textContent = labsState.eicrAdded
-    ? "Electrical Safety evidence is now recorded. The next useful improvement is a recent property-inspection record."
-    : "CMP has EPC and Gas Safety evidence recorded, but no current EICR is stored for this property.";
-  document.querySelector("[data-compliance-priority-upload]").textContent = labsState.eicrAdded ? "Upload inspection evidence" : "Upload EICR";
-  document.querySelector("[data-compliance-priority-support]").textContent = labsState.eicrAdded ? "Request inspection support" : "Request EICR support";
+  const properties = getPortfolioProperties();
+  const urgentProperty = portfolioUrgentProperty();
+
+  document.querySelector("[data-compliance-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} monitored`;
+  document.querySelector("[data-compliance-property-count]").textContent = String(properties.length);
+  document.querySelector("[data-compliance-property-count-detail]").textContent = properties.length === 1 ? "property tracked" : "properties tracked";
+  document.querySelector("[data-compliance-confirmed-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "7" : "6") : labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-compliance-review-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "7") : labsState.eicrAdded ? "2" : "3";
+  document.querySelector("[data-compliance-open-count]").textContent = String(isTwoPropertyMode() ? 2 : 1);
+  document.querySelector("[data-compliance-upcoming-count]").textContent = String(isTwoPropertyMode() ? 3 : 2);
+  document.querySelector("[data-compliance-open-action-detail]").textContent = urgentProperty.focusArea;
+  document.querySelector("[data-compliance-priority-title]").textContent = `${urgentProperty.address} needs ${urgentProperty.focus.toLowerCase()}`;
+  document.querySelector("[data-compliance-priority-body]").textContent = urgentProperty.priorityBody;
+  document.querySelector("[data-compliance-priority-upload]").textContent = urgentProperty.id === "willow-brook"
+    ? "Upload Gas Safety certificate"
+    : labsState.eicrAdded ? "Upload inspection evidence" : "Upload EICR";
+  document.querySelector("[data-compliance-priority-support]").textContent = urgentProperty.id === "willow-brook"
+    ? "Request Gas Safety support"
+    : labsState.eicrAdded ? "Request inspection support" : "Request EICR support";
 
   const requestIndicator = document.querySelector("[data-compliance-request-indicator]");
   if (requestIndicator) {
@@ -1446,6 +1897,47 @@ function renderPortfolioComplianceState() {
     eicrSource.textContent = labsState.eicrAdded ? "Uploaded document" : "No EICR evidence";
   }
 
+  const matrixBody = document.querySelector("[data-compliance-matrix-body]");
+  if (matrixBody) {
+    matrixBody.innerHTML = renderComplianceMatrixRows(properties);
+  }
+
+  const forecastGrid = document.querySelector("[data-compliance-forecast-grid]");
+  if (forecastGrid) {
+    const forecastItems = [
+      ...(isTwoPropertyMode()
+        ? [{
+            time: "In 21 days",
+            title: "Gas Safety renewal",
+            body: "18 Willow Brook Drive · Upload or arrange renewal evidence"
+          }]
+        : []),
+      {
+        time: labsState.eicrAdded ? "In 34 days" : "This week",
+        title: labsState.eicrAdded ? "Inspection review recommended" : "Electrical Safety evidence",
+        body: labsState.eicrAdded ? "57 The Butts · Confirm inspection status" : "57 The Butts · Upload or arrange an EICR"
+      },
+      {
+        time: "Local watch",
+        title: "Licensing review in progress",
+        body: isTwoPropertyMode() ? "Both properties · Postcode reviews" : "57 The Butts · Postcode review"
+      },
+      {
+        time: "Evidence watch",
+        title: isTwoPropertyMode() ? "Alarm and inspection evidence" : "Alarm evidence",
+        body: isTwoPropertyMode() ? "18 Willow Brook Drive · Add supporting records" : "57 The Butts · Add supporting record"
+      }
+    ];
+
+    forecastGrid.innerHTML = forecastItems.map((item) => `
+      <article>
+        <span>${escapeHtml(item.time)}</span>
+        <strong>${escapeHtml(item.title)}</strong>
+        <p>${escapeHtml(item.body)}</p>
+      </article>
+    `).join("");
+  }
+
   renderComplianceGaps();
 }
 
@@ -1457,6 +1949,16 @@ function renderComplianceGaps() {
   }
 
   const gaps = [
+    ...(isTwoPropertyMode()
+      ? [{
+          title: "Gas Safety renewal approaching",
+          detail: "18 Willow Brook Drive · Renewal needed in 21 days",
+          actions: [
+            { label: "Upload certificate", action: "uploadGas", primary: true },
+            { label: "Request support", action: "requestGasSupport" }
+          ]
+        }]
+      : []),
     ...(!labsState.eicrAdded
       ? [{
           title: "EICR missing",
@@ -1514,7 +2016,7 @@ function showPortfolioCompliance({ scroll = false } = {}) {
 }
 
 function getEvidenceRows() {
-  return [
+  const rows = [
     {
       id: "epc",
       title: "EPC",
@@ -1593,6 +2095,99 @@ function getEvidenceRows() {
       ]
     }
   ];
+
+  if (isTwoPropertyMode()) {
+    rows.push(
+      {
+        id: "willow-epc",
+        title: "EPC",
+        document: "Energy Performance Certificate",
+        property: "18 Willow Brook Drive · B37 7BA",
+        source: "Official record",
+        sourceClass: "status-good-text",
+        status: "Confirmed",
+        statusClass: "status-good-text",
+        keyDate: "Valid until 2030",
+        filters: ["verified", "official"],
+        search: "epc energy performance certificate 18 willow brook drive b37 official confirmed valid 2030",
+        actions: [
+          { label: "View", action: "viewEpc" },
+          { label: "Open preview", action: "openWillowProperty" }
+        ]
+      },
+      {
+        id: "willow-gas",
+        title: "Gas Safety",
+        document: "Gas Safety Certificate",
+        property: "18 Willow Brook Drive · B37 7BA",
+        source: "Uploaded document",
+        sourceClass: "status-watch-text",
+        status: "Expiring soon",
+        statusClass: "status-watch-text",
+        keyDate: "Renewal needed in 21 days",
+        filters: ["verified", "uploaded", "review"],
+        search: "gas safety certificate 18 willow brook drive b37 uploaded expiring soon renewal needed 21 days",
+        actions: [
+          { label: "Upload renewal", action: "uploadGas", primary: true },
+          { label: "Request support", action: "arrangeGas" },
+          { label: "Open preview", action: "openWillowProperty" }
+        ]
+      },
+      {
+        id: "willow-eicr",
+        title: "EICR",
+        document: "Electrical Installation Condition Report",
+        property: "18 Willow Brook Drive · B37 7BA",
+        source: "Uploaded document",
+        sourceClass: "status-good-text",
+        status: "Verified",
+        statusClass: "status-good-text",
+        keyDate: "Valid until 2029",
+        filters: ["verified", "uploaded"],
+        search: "eicr electrical installation condition report 18 willow brook drive b37 verified uploaded valid 2029",
+        actions: [
+          { label: "View", action: "viewEicr" },
+          { label: "Open preview", action: "openWillowProperty" }
+        ]
+      },
+      {
+        id: "willow-inspection",
+        title: "Inspection evidence",
+        document: "Property inspection record",
+        property: "18 Willow Brook Drive · B37 7BA",
+        source: "No evidence uploaded",
+        sourceClass: "status-review-text",
+        status: "Missing",
+        statusClass: "status-review-text",
+        keyDate: "No recent record",
+        filters: ["missing"],
+        search: "inspection property inspection record 18 willow brook drive b37 missing no evidence",
+        actions: [
+          { label: "Upload", action: "uploadInspection" },
+          { label: "Open preview", action: "openWillowProperty" }
+        ]
+      },
+      {
+        id: "willow-tenancy",
+        title: "Deposit and tenancy",
+        document: "Tenancy document evidence",
+        property: "18 Willow Brook Drive · B37 7BA",
+        source: "Landlord confirmed",
+        sourceClass: "status-watch-text",
+        status: "Evidence not uploaded",
+        statusClass: "status-watch-text",
+        keyDate: "No document stored",
+        filters: ["missing", "review"],
+        search: "deposit tenancy document landlord confirmed evidence not uploaded 18 willow brook drive b37",
+        actions: [
+          { label: "Upload", action: "uploadTenancy" },
+          { label: "Open preview", action: "openWillowProperty" }
+        ]
+      }
+    );
+  }
+
+  return rows;
 }
 
 function evidenceMatchesCurrentView(row) {
@@ -1632,17 +2227,32 @@ function renderPortfolioEvidenceState() {
     return;
   }
 
-  document.querySelector("[data-evidence-verified-count]").textContent = labsState.eicrAdded ? "3" : "2";
-  document.querySelector("[data-evidence-review-count]").textContent = labsState.eicrAdded ? "0" : "1";
-  document.querySelector("[data-evidence-review-detail]").textContent = labsState.eicrAdded ? "nothing waiting" : "EICR extraction";
-  document.querySelector("[data-evidence-missing-count]").textContent = labsState.eicrAdded ? "1" : "2";
-  document.querySelector("[data-evidence-missing-detail]").textContent = labsState.eicrAdded ? "inspection record" : "EICR and inspection";
-  document.querySelector("[data-evidence-health-strength]").textContent = labsState.eicrAdded ? "58% evidenced" : "42% evidenced";
-  document.querySelector("[data-evidence-health-verified]").textContent = labsState.eicrAdded ? "3 verified" : "2 verified";
-  document.querySelector("[data-evidence-health-missing]").textContent = labsState.eicrAdded ? "0 missing in core certificates" : "1 missing";
-  document.querySelector("[data-evidence-health-focus]").textContent = labsState.eicrAdded
-    ? "Core certificates are recorded. Inspection evidence is still useful to add."
-    : "Electrical Safety needs evidence";
+  const properties = getPortfolioProperties();
+  document.querySelector("[data-evidence-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} connected`;
+  document.querySelector("[data-evidence-verified-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-evidence-review-count]").textContent = isTwoPropertyMode() ? "2" : labsState.eicrAdded ? "0" : "1";
+  document.querySelector("[data-evidence-review-detail]").textContent = isTwoPropertyMode() ? "Gas renewal and tenancy evidence" : labsState.eicrAdded ? "nothing waiting" : "EICR extraction";
+  document.querySelector("[data-evidence-missing-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "3" : "4") : labsState.eicrAdded ? "1" : "2";
+  document.querySelector("[data-evidence-missing-detail]").textContent = isTwoPropertyMode() ? "property-specific gaps" : labsState.eicrAdded ? "inspection record" : "EICR and inspection";
+  document.querySelector("[data-evidence-health-strength]").textContent = isTwoPropertyMode() ? "2 properties tracked" : labsState.eicrAdded ? "58% evidenced" : "42% evidenced";
+  document.querySelector("[data-evidence-health-verified]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified" : "5 verified") : labsState.eicrAdded ? "3 verified" : "2 verified";
+  document.querySelector("[data-evidence-health-missing]").textContent = isTwoPropertyMode() ? "portfolio gaps visible" : labsState.eicrAdded ? "0 missing in core certificates" : "1 missing";
+  document.querySelector("[data-evidence-health-focus]").textContent = isTwoPropertyMode()
+    ? "57 The Butts and 18 Willow Brook Drive are both included in the evidence view."
+    : labsState.eicrAdded
+      ? "Core certificates are recorded. Inspection evidence is still useful to add."
+      : "Electrical Safety needs evidence";
+  const healthCard = document.querySelector(".property-evidence-health-card");
+  if (healthCard) {
+    const title = healthCard.querySelector("h2");
+    const body = healthCard.querySelector("p");
+    if (title) {
+      title.textContent = isTwoPropertyMode() ? "Portfolio evidence health" : "57 The Butts";
+    }
+    if (body) {
+      body.textContent = isTwoPropertyMode() ? "2 properties · Coventry and Birmingham" : "Coventry, CV1 3BJ";
+    }
+  }
 
   const searchInput = document.querySelector("[data-evidence-search]");
   if (searchInput && searchInput.value !== labsState.evidenceSearch) {
@@ -1682,6 +2292,23 @@ function renderEvidenceMissingList() {
   }
 
   const items = [
+    ...(isTwoPropertyMode()
+      ? [{
+          title: "Gas Safety renewal",
+          detail: "18 Willow Brook Drive · Renewal evidence needed in 21 days",
+          actions: [
+            { label: "Upload certificate", action: "uploadGas", primary: true },
+            { label: "Request support", action: "arrangeGas" }
+          ]
+        }, {
+          title: "Alarm evidence",
+          detail: "18 Willow Brook Drive · Landlord answer missing",
+          actions: [
+            { label: "Add evidence", action: "uploadAlarms" },
+            { label: "Open preview", action: "openWillowProperty" }
+          ]
+        }]
+      : []),
     ...(!labsState.eicrAdded
       ? [{
           title: "EICR",
@@ -1737,6 +2364,7 @@ function activeTaskItems() {
           id: "eicr",
           title: "Upload or arrange an EICR",
           property: "57 The Butts · CV1 3BJ",
+          propertyId: "the-butts",
           category: "Evidence",
           priority: "High",
           source: "Compliance Centre",
@@ -1760,6 +2388,7 @@ function activeTaskItems() {
           id: "inspection",
           title: "Confirm inspection evidence",
           property: "57 The Butts · CV1 3BJ",
+          propertyId: "the-butts",
           category: "Inspection",
           priority: "Medium",
           source: "Evidence Vault",
@@ -1782,6 +2411,7 @@ function activeTaskItems() {
       id: "licensing",
       title: "Review local licensing position",
       property: "57 The Butts · CV1 3BJ",
+      propertyId: "the-butts",
       category: "Licensing",
       priority: "Medium",
       source: "Compliance Centre",
@@ -1797,7 +2427,93 @@ function activeTaskItems() {
         { label: "Ask CMP", action: "askLicensing" },
         { label: "Open property", action: "openProperty" }
       ]
-    }
+    },
+    ...(isTwoPropertyMode()
+      ? [
+          {
+            id: "willow-gas-renewal",
+            title: "18 Willow Brook Drive: book or upload Gas Safety renewal",
+            property: "18 Willow Brook Drive · B37 7BA",
+            propertyId: "willow-brook",
+            category: "Evidence",
+            priority: "High",
+            source: "Compliance Centre",
+            body: "Gas Safety evidence is approaching its renewal window for this tenanted property.",
+            status: "Expiring soon",
+            suggestedAction: "Upload the new certificate or request Gas Safety support",
+            board: "todo",
+            filters: ["high", "evidence"],
+            requestType: "Gas Safety support",
+            detail: "CMP created this task because Gas Safety renewal evidence is needed soon for 18 Willow Brook Drive.",
+            search: "gas safety renewal 18 willow brook drive b37 expiring soon high evidence",
+            actions: [
+              { label: "Upload certificate", action: "uploadGas", primary: true },
+              { label: "Request support", action: "requestGasSupport" },
+              { label: "Open preview", action: "openWillowProperty" }
+            ]
+          },
+          {
+            id: "willow-alarm-check",
+            title: "18 Willow Brook Drive: confirm alarm evidence",
+            property: "18 Willow Brook Drive · B37 7BA",
+            propertyId: "willow-brook",
+            category: "Evidence",
+            priority: "Medium",
+            source: "Property details",
+            body: "Smoke and CO alarm answer is still missing for this property.",
+            status: "Needs checking",
+            suggestedAction: "Add alarm evidence or record the landlord answer",
+            board: "todo",
+            filters: ["evidence"],
+            detail: "CMP created this task because alarm evidence is not yet recorded for 18 Willow Brook Drive.",
+            search: "alarm evidence smoke co 18 willow brook drive b37 needs checking",
+            actions: [
+              { label: "Add evidence", action: "uploadAlarms" },
+              { label: "Open preview", action: "openWillowProperty" }
+            ]
+          },
+          {
+            id: "willow-inspection",
+            title: "18 Willow Brook Drive: add inspection evidence",
+            property: "18 Willow Brook Drive · B37 7BA",
+            propertyId: "willow-brook",
+            category: "Inspection",
+            priority: "Medium",
+            source: "Evidence Vault",
+            body: "No recent inspection evidence is stored for the tenanted property review.",
+            status: "Missing",
+            suggestedAction: "Upload inspection evidence when available",
+            board: "todo",
+            filters: ["inspection", "evidence"],
+            detail: "CMP created this task because no recent inspection record is stored for 18 Willow Brook Drive.",
+            search: "inspection evidence 18 willow brook drive b37 missing",
+            actions: [
+              { label: "Upload inspection evidence", action: "uploadInspection" },
+              { label: "Open preview", action: "openWillowProperty" }
+            ]
+          },
+          {
+            id: "willow-licensing",
+            title: "18 Willow Brook Drive: review local licensing",
+            property: "18 Willow Brook Drive · B37 7BA",
+            propertyId: "willow-brook",
+            category: "Licensing",
+            priority: "Medium",
+            source: "Compliance Centre",
+            body: "CMP is checking postcode and occupancy rules for this address.",
+            status: "Checking",
+            suggestedAction: "Review local licensing when the postcode check completes",
+            board: "progress",
+            filters: ["licensing"],
+            detail: "CMP created this task because local rules can depend on postcode and tenancy setup.",
+            search: "licensing local review 18 willow brook drive b37 checking",
+            actions: [
+              { label: "Ask CMP", action: "askLicensing" },
+              { label: "Open preview", action: "openWillowProperty" }
+            ]
+          }
+        ]
+      : [])
   ];
 }
 
@@ -1811,6 +2527,7 @@ function completedTaskItems() {
           source: "Documents · Smart Upload",
           body: "Electrical Safety evidence was verified and linked to 57 The Butts.",
           property: "57 The Butts · CV1 3BJ",
+          propertyId: "the-butts",
           category: "Evidence",
           priority: "High",
           suggestedAction: "Review the next useful task",
@@ -1828,6 +2545,7 @@ function completedTaskItems() {
           source: "Tasks · Labs preview",
           body: "Marked as not completed in this Labs preview.",
           property: "57 The Butts · CV1 3BJ",
+          propertyId: "the-butts",
           category: "Inspection",
           priority: "Medium",
           suggestedAction: "Return when inspection evidence is available",
@@ -1845,6 +2563,7 @@ function completedTaskItems() {
           source: "Home · Quick win",
           body: "Landlord confirmed.",
           property: "57 The Butts · CV1 3BJ",
+          propertyId: "the-butts",
           category: "Evidence",
           priority: "Medium",
           suggestedAction: "Add supporting evidence later if useful",
@@ -1876,7 +2595,7 @@ function activeRequestForTask(task) {
     return null;
   }
 
-  return labsState.serviceRequests.find((request) => request.type === task.requestType && request.status !== "Cancelled");
+  return labsState.serviceRequests.find((request) => request.type === task.requestType && requestPropertyId(request) === (task.propertyId || "the-butts") && request.status !== "Cancelled");
 }
 
 function renderTaskCard(task, { compact = false } = {}) {
@@ -1968,29 +2687,26 @@ function renderPortfolioTasksState() {
 
   const activeTasks = activeTaskItems();
   const completedTasks = completedTaskItems();
-  const highestPriority = activeTasks.find((task) => task.id === "eicr")
+  const highestPriority = activeTasks.find((task) => task.id === "willow-gas-renewal")
+    || activeTasks.find((task) => task.id === "eicr")
     || activeTasks.find((task) => task.id === "inspection")
     || activeTasks[0];
   const activeRequest = highestPriority ? activeRequestForTask(highestPriority) : null;
 
   document.querySelector("[data-tasks-active-pill]").textContent = `${activeTasks.length} active ${activeTasks.length === 1 ? "task" : "tasks"}`;
   document.querySelector("[data-tasks-active-count]").textContent = String(activeTasks.length);
-  document.querySelector("[data-tasks-priority-label]").textContent = highestPriority?.id === "eicr" ? "EICR" : highestPriority?.id === "inspection" ? "Inspection" : "Licensing";
+  document.querySelector("[data-tasks-priority-label]").textContent = highestPriority?.id === "willow-gas-renewal" ? "Gas Safety" : highestPriority?.id === "eicr" ? "EICR" : highestPriority?.id === "inspection" ? "Inspection" : "Licensing";
   document.querySelector("[data-tasks-completed-count]").textContent = String(completedTasks.length);
-  document.querySelector("[data-tasks-start-title]").textContent = highestPriority?.id === "eicr" ? "Upload or arrange an EICR" : highestPriority?.id === "inspection" ? "Add inspection evidence" : "Review local licensing position";
-  document.querySelector("[data-tasks-start-body]").textContent = highestPriority?.id === "eicr"
-    ? "Electrical Safety is the clearest evidence gap in this property file."
-    : highestPriority?.id === "inspection"
-      ? "Electrical Safety evidence is now verified. A recent property inspection record is the next useful evidence item."
-      : "CMP is still checking whether local rules may affect this address.";
-  document.querySelector("[data-tasks-start-source]").textContent = highestPriority?.id === "eicr"
-    ? "Source: Compliance Centre · Evidence Vault"
-    : highestPriority?.id === "inspection"
-      ? "Source: Evidence Vault · Compliance Centre"
-      : "Source: Compliance Centre";
+  document.querySelector("[data-tasks-start-title]").textContent = highestPriority?.title || "Review open tasks";
+  const startProperty = document.querySelector(".tasks-start-card .property-card-label");
+  if (startProperty) {
+    startProperty.textContent = highestPriority?.property || "57 The Butts · CV1 3BJ";
+  }
+  document.querySelector("[data-tasks-start-body]").textContent = highestPriority?.body || "Review the next useful action.";
+  document.querySelector("[data-tasks-start-source]").textContent = highestPriority ? `Source: ${highestPriority.source}` : "Source: CMP";
   document.querySelector("[data-tasks-start-status]").textContent = highestPriority?.status || "Open";
-  document.querySelector("[data-tasks-start-status]").classList.toggle("status-review-text", highestPriority?.id === "eicr");
-  document.querySelector("[data-tasks-start-status]").classList.toggle("status-watch-text", highestPriority?.id !== "eicr");
+  document.querySelector("[data-tasks-start-status]").classList.toggle("status-review-text", ["eicr", "willow-alarm-check", "willow-inspection"].includes(highestPriority?.id));
+  document.querySelector("[data-tasks-start-status]").classList.toggle("status-watch-text", !["eicr", "willow-alarm-check", "willow-inspection"].includes(highestPriority?.id));
 
   const supportIndicator = document.querySelector("[data-tasks-support-indicator]");
   if (supportIndicator) {
@@ -2070,18 +2786,19 @@ function getActivityEvents() {
   const events = [];
 
   if (activeSupportRequest) {
+    const supportProperty = propertyLabelForId(requestPropertyId(activeSupportRequest));
     events.push({
       id: "support-request-created",
       group: "Today",
       filter: "support",
       category: "Support",
       title: "Support request created",
-      property,
-      body: "A local demo support request was created from the Services workspace.",
+      property: supportProperty,
+      body: `A local demo ${activeSupportRequest.type.toLowerCase()} request was created for this property.`,
       source: "Services",
       status: "Awaiting review",
       statusClass: "status-watch-text",
-      search: `${activeSupportRequest.type} support service request awaiting review 57 butts`,
+      search: `${activeSupportRequest.type} support service request awaiting review ${supportProperty}`,
       why: "CMP recorded this because a local demo support request was created from the Services workspace.",
       nextAction: "Open Services to review the request.",
       route: "services",
@@ -2336,6 +3053,72 @@ function getActivityEvents() {
     }
   );
 
+  if (isTwoPropertyMode()) {
+    events.push(
+      {
+        id: "willow-gas-renewal",
+        group: "Today",
+        filter: "compliance",
+        category: "Compliance",
+        title: "Gas Safety renewal flagged",
+        property: "18 Willow Brook Drive · B37 7BA",
+        body: "Gas Safety evidence is approaching its renewal window for this tenanted property.",
+        source: "Compliance Centre",
+        status: "Expiring soon",
+        statusClass: "status-watch-text",
+        open: true,
+        search: "gas safety renewal flagged expiring soon 18 willow brook drive b37",
+        why: "CMP recorded this because renewal evidence is needed soon and the property is currently tenanted.",
+        nextAction: "Upload the renewal certificate or request Gas Safety support.",
+        route: "bookService",
+        actions: [
+          makeActivityAction("Open Book a Service", "openGlobalServices"),
+          makeActivityAction("Ask CMP", "askGasRenewal")
+        ]
+      },
+      {
+        id: "willow-eicr-verified",
+        group: "Earlier this week",
+        filter: "evidence",
+        category: "Evidence",
+        title: "EICR evidence verified",
+        property: "18 Willow Brook Drive · B37 7BA",
+        body: "Uploaded Electrical Safety evidence is stored and valid until 2029.",
+        source: "Evidence Vault",
+        status: "Verified",
+        statusClass: "status-good-text",
+        search: "eicr evidence verified 18 willow brook drive b37",
+        why: "CMP recorded this because the EICR is available for the second property.",
+        nextAction: "Keep Gas Safety renewal and inspection evidence visible.",
+        route: "evidence",
+        actions: [
+          makeActivityAction("View evidence", "viewEvidence"),
+          makeActivityAction("Open preview", "openWillowProperty")
+        ]
+      },
+      {
+        id: "willow-tenanted-review",
+        group: "Earlier this week",
+        filter: "details",
+        category: "Property details",
+        title: "Tenanted review created",
+        property: "18 Willow Brook Drive · B37 7BA",
+        body: "CMP added a portfolio-level preview for a tenanted property review.",
+        source: "Property details",
+        status: "Portfolio view",
+        statusClass: "status-neutral-text",
+        search: "tenanted property review created 18 willow brook drive b37",
+        why: "CMP recorded this so global pages can compare two property files in this Labs demo.",
+        nextAction: "Use Properties, Tasks or Book a Service to review the portfolio-level preview.",
+        route: "properties",
+        actions: [
+          makeActivityAction("Open Properties", "openProperties"),
+          makeActivityAction("Open preview", "openWillowProperty")
+        ]
+      }
+    );
+  }
+
   return events;
 }
 
@@ -2389,7 +3172,13 @@ function renderPortfolioActivityState() {
 
   const allEvents = getActivityEvents();
   const supportCreated = Boolean(activeSupportRequestForActivity());
-  const visitItems = labsState.eicrAdded
+  const visitItems = isTwoPropertyMode()
+    ? [
+        "Gas Safety renewal flagged for 18 Willow Brook Drive",
+        labsState.eicrAdded ? "EICR evidence verified for 57 The Butts" : "EICR gap remains open for 57 The Butts",
+        ...(supportCreated ? ["Support request was created"] : [])
+      ]
+    : labsState.eicrAdded
     ? [
         "EICR evidence was verified",
         "Gas Safety evidence was verified",
@@ -2401,15 +3190,17 @@ function renderPortfolioActivityState() {
         "Electrical Safety became the highest-priority evidence gap",
         ...(supportCreated ? ["Support request was created"] : [])
       ];
-  const watchItems = labsState.eicrAdded
+  const watchItems = isTwoPropertyMode()
+    ? ["18 Willow Brook Gas Safety renewal", "57 The Butts Electrical Safety", "Inspection evidence", "Local licensing review"]
+    : labsState.eicrAdded
     ? ["Inspection evidence", "Local licensing review"]
     : ["Electrical Safety evidence", "Inspection evidence", "Local licensing review"];
 
   document.querySelector("[data-activity-event-count]").textContent = String(allEvents.length);
-  document.querySelector("[data-activity-evidence-count]").textContent = labsState.eicrAdded ? "3" : "2";
-  document.querySelector("[data-activity-action-count]").textContent = String(1 + (supportCreated ? 1 : 0) + (labsState.inspectionStatusRecorded ? 1 : 0));
-  document.querySelector("[data-activity-open-count]").textContent = "1";
-  document.querySelector("[data-activity-open-detail]").textContent = labsState.eicrAdded ? "inspection evidence" : "EICR gap";
+  document.querySelector("[data-activity-evidence-count]").textContent = isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-activity-action-count]").textContent = String((isTwoPropertyMode() ? 2 : 1) + (supportCreated ? 1 : 0) + (labsState.inspectionStatusRecorded ? 1 : 0));
+  document.querySelector("[data-activity-open-count]").textContent = String(isTwoPropertyMode() ? 2 : 1);
+  document.querySelector("[data-activity-open-detail]").textContent = isTwoPropertyMode() ? "Gas renewal and EICR gap" : labsState.eicrAdded ? "inspection evidence" : "EICR gap";
   document.querySelector("[data-activity-visit-title]").textContent = `${visitItems.length} useful updates`;
   document.querySelector("[data-activity-visit-list]").innerHTML = visitItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   document.querySelector("[data-activity-watch-list]").innerHTML = watchItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
@@ -2458,7 +3249,11 @@ function showPortfolioActivity({ scroll = false } = {}) {
   });
 }
 
-function recommendedServiceType() {
+function recommendedServiceType(propertyId = selectedServicePropertyId()) {
+  if (propertyId === "willow-brook") {
+    return "gas";
+  }
+
   return labsState.eicrAdded ? "inspection" : "eicr";
 }
 
@@ -2475,6 +3270,12 @@ function serviceRequestConfig(type = recommendedServiceType()) {
       eventTitle: "Property inspection support requested",
       eventBody: "CMP recorded a request to help arrange the next property-inspection step.",
       linkedTo: "Inspection evidence"
+    },
+    gas: {
+      requestType: "Gas Safety support",
+      eventTitle: "Gas Safety support requested",
+      eventBody: "CMP recorded a request to help arrange or upload Gas Safety renewal evidence for this property.",
+      linkedTo: "Gas Safety renewal"
     },
     review: {
       requestType: "Property file review",
@@ -2511,51 +3312,65 @@ function serviceRequestConfig(type = recommendedServiceType()) {
   return configs[type] || configs[recommendedServiceType()];
 }
 
-function openSupportRequestForType(type = recommendedServiceType()) {
+function openSupportRequestForType(type = recommendedServiceType(), propertyId = selectedServicePropertyId()) {
   const requestType = serviceRequestConfig(type).requestType;
-  return labsState.serviceRequests.find((request) => request.type === requestType && request.status !== "Cancelled");
+  return labsState.serviceRequests.find((request) => request.type === requestType && requestPropertyId(request) === propertyId && request.status !== "Cancelled");
 }
 
-function serviceBundleItems() {
+function serviceBundleItems(propertyId = selectedServicePropertyId()) {
+  if (propertyId === "willow-brook") {
+    return ["Gas Safety renewal", "Inspection evidence", "Alarm check", "Local licensing review"];
+  }
+
   return labsState.eicrAdded
     ? ["Inspection evidence", "Local licensing review", "Tenancy document checklist", "Human file review"]
     : ["EICR support", "Inspection evidence", "Local licensing review", "Tenancy document checklist"];
 }
 
-function globalServiceCards() {
-  const eicrRequest = openSupportRequestForType("eicr");
-  const inspectionRequest = openSupportRequestForType("inspection");
-  const reviewRequest = openSupportRequestForType("review");
-  const bundleRequest = openSupportRequestForType("bundle");
-  const licensingRequest = openSupportRequestForType("licensing");
-  const tenancyRequest = openSupportRequestForType("tenancy");
+function globalServiceCards(propertyId = selectedServicePropertyId()) {
+  const property = getPortfolioPropertyById(propertyId);
+  const isWillow = property.id === "willow-brook";
+  const eicrRequest = openSupportRequestForType("eicr", property.id);
+  const gasRequest = openSupportRequestForType("gas", property.id);
+  const inspectionRequest = openSupportRequestForType("inspection", property.id);
+  const reviewRequest = openSupportRequestForType("review", property.id);
+  const bundleRequest = openSupportRequestForType("bundle", property.id);
+  const licensingRequest = openSupportRequestForType("licensing", property.id);
+  const tenancyRequest = openSupportRequestForType("tenancy", property.id);
 
   return [
     {
       title: "EICR",
-      body: labsState.eicrAdded ? "Electrical Safety evidence is already verified for 57 The Butts." : "Arrange or upload Electrical Safety evidence for 57 The Butts.",
-      status: labsState.eicrAdded ? "Verified / uploaded" : eicrRequest ? "Request open" : "Recommended",
-      statusClass: labsState.eicrAdded ? "status-good-text" : "status-review-text",
-      why: "It is core evidence before CMP can treat Electrical Safety as recorded.",
-      primaryAction: labsState.eicrAdded ? "viewEicr" : eicrRequest ? "openRequests" : "request:eicr",
-      primaryLabel: labsState.eicrAdded ? "View evidence" : eicrRequest ? "View open request" : "Request EICR support",
-      secondaryAction: labsState.eicrAdded ? null : "uploadEicr",
-      secondaryLabel: labsState.eicrAdded ? "" : "Upload existing EICR"
+      propertyLabel: property.label,
+      body: isWillow
+        ? "Electrical Safety evidence is already verified and valid until 2029."
+        : labsState.eicrAdded ? "Electrical Safety evidence is already verified for 57 The Butts." : "Arrange or upload Electrical Safety evidence for 57 The Butts.",
+      status: isWillow ? "Verified" : labsState.eicrAdded ? "Verified / uploaded" : eicrRequest ? "Request open" : "Recommended",
+      statusClass: isWillow || labsState.eicrAdded ? "status-good-text" : "status-review-text",
+      why: isWillow ? "It means Electrical Safety is not the urgent support item for this property." : "It is core evidence before CMP can treat Electrical Safety as recorded.",
+      primaryAction: isWillow || labsState.eicrAdded ? "viewEicr" : eicrRequest ? "openRequests" : "request:eicr",
+      primaryLabel: isWillow || labsState.eicrAdded ? "View evidence" : eicrRequest ? "View open request" : "Request EICR support",
+      secondaryAction: isWillow || labsState.eicrAdded ? null : "uploadEicr",
+      secondaryLabel: isWillow || labsState.eicrAdded ? "" : "Upload existing EICR"
     },
     {
       title: "Gas Safety",
-      body: "Gas Safety evidence is already verified and stored in the property file.",
-      status: "Verified",
-      statusClass: "status-good-text",
-      why: "It keeps the property file ready for renewal tracking and tenant-facing evidence.",
-      primaryAction: "viewEvidence",
-      primaryLabel: "View evidence",
-      secondaryAction: "askGas",
-      secondaryLabel: "Ask CMP why"
+      propertyLabel: property.label,
+      body: isWillow
+        ? "Gas Safety evidence is approaching its renewal window for 18 Willow Brook Drive."
+        : "Gas Safety evidence is already verified and stored in the property file.",
+      status: isWillow ? gasRequest ? "Request open" : "Recommended / expiring soon" : "Verified",
+      statusClass: isWillow ? "status-watch-text" : "status-good-text",
+      why: isWillow ? "It is the most time-sensitive portfolio item in this two-property demo." : "It keeps the property file ready for renewal tracking and tenant-facing evidence.",
+      primaryAction: isWillow ? gasRequest ? "openRequests" : "request:gas" : "viewEvidence",
+      primaryLabel: isWillow ? gasRequest ? "View open request" : "Request Gas Safety support" : "View evidence",
+      secondaryAction: isWillow ? "uploadGas" : "askGas",
+      secondaryLabel: isWillow ? "Upload Gas Safety certificate" : "Ask CMP why"
     },
     {
       title: "EPC",
-      body: "CMP has matched an EPC official record to this property.",
+      propertyLabel: property.label,
+      body: isWillow ? "CMP has an EPC official record confirmed for this address and valid until 2030." : "CMP has matched an EPC official record to this property.",
       status: "Confirmed",
       statusClass: "status-good-text",
       why: "It helps CMP understand the property and keeps the record tied to the address.",
@@ -2566,9 +3381,10 @@ function globalServiceCards() {
     },
     {
       title: "Property inspection",
-      body: "Add or arrange a recent inspection record to keep the property file current.",
-      status: inspectionRequest ? "Request open" : labsState.eicrAdded ? "Recommended" : "Follow-up",
-      statusClass: labsState.eicrAdded ? "status-review-text" : "status-watch-text",
+      propertyLabel: property.label,
+      body: isWillow ? "Add a recent inspection record to strengthen the tenanted property review." : "Add or arrange a recent inspection record to keep the property file current.",
+      status: inspectionRequest ? "Request open" : isWillow ? "Useful follow-up" : labsState.eicrAdded ? "Recommended" : "Follow-up",
+      statusClass: isWillow || labsState.eicrAdded ? "status-review-text" : "status-watch-text",
       why: "Inspection evidence explains what was checked and what needs follow-up.",
       primaryAction: inspectionRequest ? "openRequests" : "request:inspection",
       primaryLabel: inspectionRequest ? "View open request" : "Request inspection support",
@@ -2577,7 +3393,8 @@ function globalServiceCards() {
     },
     {
       title: "Licensing review",
-      body: "Review local rules and property setup before treating licensing as confirmed.",
+      propertyLabel: property.label,
+      body: isWillow ? "Review local rules for the Birmingham postcode and current tenancy setup." : "Review local rules and property setup before treating licensing as confirmed.",
       status: licensingRequest ? "Request open" : "Worth reviewing",
       statusClass: "status-watch-text",
       why: "Local licensing can depend on council area, occupancy and property setup.",
@@ -2588,8 +3405,9 @@ function globalServiceCards() {
     },
     {
       title: "Tenancy document review",
-      body: "Check tenancy paperwork, tenant-facing evidence and useful move-in documents.",
-      status: tenancyRequest ? "Request open" : "Useful before letting",
+      propertyLabel: property.label,
+      body: isWillow ? "Check tenant-facing documents and evidence that has been landlord-confirmed but not uploaded." : "Check tenancy paperwork, tenant-facing evidence and useful move-in documents.",
+      status: tenancyRequest ? "Request open" : isWillow ? "Useful for tenant evidence" : "Useful before letting",
       statusClass: tenancyRequest ? "status-watch-text" : "status-neutral-text",
       why: "It reduces repeated admin before advertising or move-in.",
       primaryAction: tenancyRequest ? "openRequests" : "request:tenancy",
@@ -2599,6 +3417,7 @@ function globalServiceCards() {
     },
     {
       title: "Full property compliance review",
+      propertyLabel: property.label,
       body: "A human review of the property file, evidence gaps and next recommended actions.",
       status: reviewRequest ? "Request open" : "Optional reassurance",
       statusClass: reviewRequest ? "status-watch-text" : "status-neutral-text",
@@ -2610,8 +3429,11 @@ function globalServiceCards() {
     },
     {
       title: "Move-in readiness pack",
-      body: "Prepare certificates, alarm checks, tenancy documents and inspection evidence before a new tenancy.",
-      status: bundleRequest ? "Request open" : "Useful before letting",
+      propertyLabel: property.label,
+      body: isWillow
+        ? "Less urgent unless you are preparing to re-let, but useful for certificates, alarm checks and tenant documents."
+        : "Prepare certificates, alarm checks, tenancy documents and inspection evidence before a new tenancy.",
+      status: bundleRequest ? "Request open" : isWillow ? "Less urgent" : "Useful before letting",
       statusClass: bundleRequest ? "status-watch-text" : "status-neutral-text",
       why: "It groups the practical items landlords usually need before move-in.",
       primaryAction: bundleRequest ? "openRequests" : "previewBundle",
@@ -2629,6 +3451,10 @@ function askChatStatusChips() {
     return ["Support request open", "CMP review pending", "Evidence checked", "No duplicate needed"];
   }
 
+  if (isTwoPropertyMode()) {
+    return ["2 properties compared", "Gas renewal soon", "EICR gap checked", "Tasks checked", "Support requests checked"];
+  }
+
   if (labsState.eicrAdded) {
     return ["EICR verified", "Inspection evidence missing", "Licensing still watching", "Tasks checked", "Support requests checked"];
   }
@@ -2638,16 +3464,16 @@ function askChatStatusChips() {
 
 function askContextSources() {
   const activeRequest = activeSupportRequestForActivity();
-  const evidenceState = labsState.eicrAdded ? "3 verified / inspection missing" : "2 verified / 1 missing";
-  const complianceState = labsState.eicrAdded ? "Inspection next" : "EICR priority";
-  const taskState = activeRequest ? "Support review open" : labsState.eicrAdded ? "Inspection task" : "EICR task";
+  const evidenceState = isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified / 3 gaps" : "5 verified / 4 gaps") : labsState.eicrAdded ? "3 verified / inspection missing" : "2 verified / 1 missing";
+  const complianceState = isTwoPropertyMode() ? "Gas renewal first" : labsState.eicrAdded ? "Inspection next" : "EICR priority";
+  const taskState = activeRequest ? "Support review open" : isTwoPropertyMode() ? "Gas renewal task" : labsState.eicrAdded ? "Inspection task" : "EICR task";
   const supportState = activeRequest ? "Awaiting review" : "No open requests";
 
   return [
     {
       name: "Property details",
       body: "Uses address, postcode, occupancy and compliance goal.",
-      state: "57 The Butts"
+      state: isTwoPropertyMode() ? "2 properties" : "57 The Butts"
     },
     {
       name: "Evidence Vault",
@@ -2667,7 +3493,7 @@ function askContextSources() {
     {
       name: "Activity history",
       body: "Uses recent evidence, support and landlord-answer events.",
-      state: labsState.eicrAdded ? "EICR verified" : "EICR gap identified"
+      state: isTwoPropertyMode() ? "Both properties" : labsState.eicrAdded ? "EICR verified" : "EICR gap identified"
     },
     {
       name: "Support requests",
@@ -2677,7 +3503,7 @@ function askContextSources() {
     {
       name: "Book a Service",
       body: "Uses the recommended support pathway for this property.",
-      state: labsState.eicrAdded ? "Inspection support" : "EICR support"
+      state: isTwoPropertyMode() ? "Gas Safety support" : labsState.eicrAdded ? "Inspection support" : "EICR support"
     }
   ];
 }
@@ -2686,9 +3512,17 @@ function askContextHighlight() {
   const activeRequest = activeSupportRequestForActivity();
 
   if (activeRequest) {
+    const property = getPortfolioPropertyById(requestPropertyId(activeRequest));
     return {
       title: `${activeRequest.type} is awaiting review`,
-      body: "CMP is keeping the open request tied to 57 The Butts and will not suggest creating the same request again."
+      body: `CMP is keeping the open request tied to ${property.address} and will not suggest creating the same request again.`
+    };
+  }
+
+  if (isTwoPropertyMode()) {
+    return {
+      title: "18 Willow Brook Drive needs attention first",
+      body: "CMP compared both properties and found Gas Safety renewal is more time-sensitive than the 57 The Butts evidence follow-up."
     };
   }
 
@@ -2765,6 +3599,7 @@ function renderPortfolioUtilityState() {
   const chatResponse = document.querySelector("[data-ask-chat-response]");
   const statusChips = document.querySelector("[data-ask-status-chips]");
   const sourceGrid = document.querySelector("[data-ask-source-grid]");
+  const chatTitle = document.querySelector(".ask-chat-topline h2");
   const highlight = askContextHighlight();
 
   if (chatUser) {
@@ -2786,6 +3621,9 @@ function renderPortfolioUtilityState() {
         <p>${escapeHtml(source.body)}</p>
       </article>
     `).join("");
+  }
+  if (chatTitle) {
+    chatTitle.textContent = isTwoPropertyMode() ? "Portfolio brain for 2 properties" : "Portfolio brain for 57 The Butts";
   }
 
   const highlightTitle = document.querySelector("[data-ask-context-highlight-title]");
@@ -2809,20 +3647,48 @@ function renderGlobalServiceState() {
     return;
   }
 
-  const recommendationType = recommendedServiceType();
-  const existingRecommendationRequest = openSupportRequestForType(recommendationType);
+  const properties = getPortfolioProperties();
+  const property = selectedServiceProperty();
+  const recommendationType = recommendedServiceType(property.id);
+  const existingRecommendationRequest = openSupportRequestForType(recommendationType, property.id);
+  const isWillow = property.id === "willow-brook";
 
-  title.textContent = labsState.eicrAdded ? "Arrange or record a property inspection" : "Arrange an EICR";
-  document.querySelector("[data-global-service-body]").textContent = labsState.eicrAdded
-    ? "Core certificates are now recorded. The next useful evidence item is a recent property inspection record."
-    : "Electrical Safety is the clearest missing evidence area for 57 The Butts. CMP can help you upload an existing report or request support arranging one.";
+  const context = document.querySelector("[data-service-property-context]");
+  if (context) {
+    context.innerHTML = `
+      <div>
+        <p>Current recommendation for</p>
+        <strong>${escapeHtml(property.label)}</strong>
+        <span>${escapeHtml(property.occupancy)} · ${escapeHtml(property.journey)}</span>
+      </div>
+      ${properties.length > 1 ? `
+        <div class="service-property-selector" aria-label="Choose service property">
+          ${properties.map((item) => `
+            <button class="${item.id === property.id ? "is-active" : ""}" type="button" data-service-property-select="${escapeHtml(item.id)}">
+              <span>${escapeHtml(item.address)}</span>
+              <small>${escapeHtml(item.postcode)}</small>
+            </button>
+          `).join("")}
+        </div>
+      ` : ""}
+    `;
+  }
+
+  title.textContent = isWillow
+    ? "Arrange Gas Safety renewal"
+    : labsState.eicrAdded ? "Arrange or record a property inspection" : "Arrange an EICR";
+  document.querySelector("[data-global-service-body]").textContent = isWillow
+    ? "Gas Safety evidence is approaching its renewal window for 18 Willow Brook Drive. CMP can help you upload the new certificate or request support arranging a check."
+    : labsState.eicrAdded
+      ? "Core certificates are now recorded. The next useful evidence item is a recent property inspection record."
+      : "Electrical Safety is the clearest missing evidence area for 57 The Butts. CMP can help you upload an existing report or request support arranging one.";
 
   const primaryLabel = existingRecommendationRequest
     ? "View open request"
-    : labsState.eicrAdded ? "Request inspection support" : "Request EICR support";
+    : isWillow ? "Request Gas Safety support" : labsState.eicrAdded ? "Request inspection support" : "Request EICR support";
   const primaryAction = existingRecommendationRequest ? "openRequests" : "support";
-  const secondaryAction = labsState.eicrAdded ? "uploadInspection" : "uploadEicr";
-  const secondaryLabel = labsState.eicrAdded ? "Upload inspection evidence" : "Upload existing EICR";
+  const secondaryAction = isWillow ? "uploadGas" : labsState.eicrAdded ? "uploadInspection" : "uploadEicr";
+  const secondaryLabel = isWillow ? "Upload Gas Safety certificate" : labsState.eicrAdded ? "Upload inspection evidence" : "Upload existing EICR";
 
   document.querySelector("[data-global-service-actions]").innerHTML = `
     <button class="primary-button" type="button" data-global-service-action="${primaryAction}">${primaryLabel}</button>
@@ -2832,13 +3698,16 @@ function renderGlobalServiceState() {
 
   const cardGrid = document.querySelector("[data-global-service-cards]");
   if (cardGrid) {
-    cardGrid.innerHTML = globalServiceCards().map((card) => `
+    cardGrid.innerHTML = globalServiceCards(property.id).map((card) => `
       <article class="service-option-preview commercial-service-card">
         <div class="service-card-top">
           <h3>${escapeHtml(card.title)}</h3>
           <span class="doc-status ${card.statusClass}">${escapeHtml(card.status)}</span>
         </div>
-        <span class="service-property-label">57 The Butts · CV1 3BJ</span>
+        <div class="service-card-property-row">
+          <span>Property</span>
+          <strong>${escapeHtml(card.propertyLabel)}</strong>
+        </div>
         <p>${escapeHtml(card.body)}</p>
         <div class="commercial-service-why">
           <strong>Why it matters</strong>
@@ -2852,7 +3721,7 @@ function renderGlobalServiceState() {
     `).join("");
   }
 
-  const requests = labsState.serviceRequests.filter((request) => request.status !== "Cancelled");
+  const requests = openRequestsForProperty(property.id);
   document.querySelector("[data-global-service-request-count]").textContent = requests.length === 1 ? "1 open" : `${requests.length} open`;
   const list = document.querySelector("[data-global-service-requests]");
   if (list) {
@@ -2864,7 +3733,7 @@ function renderGlobalServiceState() {
             <span class="doc-status status-watch-text">${escapeHtml(request.status)}</span>
           </div>
           <dl>
-            <div><dt>Property</dt><dd>57 The Butts · CV1 3BJ</dd></div>
+            <div><dt>Property</dt><dd>${escapeHtml(request.propertyLabel || propertyLabelForId(requestPropertyId(request)))}</dd></div>
             <div><dt>Created</dt><dd>${escapeHtml(request.created)}</dd></div>
             <div><dt>Next step</dt><dd>CMP review</dd></div>
             <div><dt>Linked to</dt><dd>${escapeHtml(request.linkedTo)}</dd></div>
@@ -3037,10 +3906,23 @@ function bindPortfolioHome() {
   });
 
   document.querySelector("[data-home-upload-priority]")?.addEventListener("click", () => {
-    openPropertyWorkspace(labsState.eicrAdded ? "documents" : "documents", labsState.eicrAdded ? "[data-inspection-upload-card]" : "[data-document-upload-panel]");
+    const urgentProperty = portfolioUrgentProperty();
+    if (urgentProperty.id === "willow-brook") {
+      showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+      return;
+    }
+
+    openPropertyWorkspace("documents", labsState.eicrAdded ? "[data-inspection-upload-card]" : "[data-document-upload-panel]");
   });
 
   document.querySelector("[data-home-arrange-priority]")?.addEventListener("click", () => {
+    const urgentProperty = portfolioUrgentProperty();
+    if (urgentProperty.id === "willow-brook") {
+      labsState.selectedServicePropertyId = "willow-brook";
+      showGlobalServicePage({ scroll: true });
+      return;
+    }
+
     openPropertyWorkspace("services", "[data-service-primary-card]");
   });
 
@@ -3093,6 +3975,28 @@ function bindPortfolioHome() {
   document.querySelectorAll("[data-home-alarm-close]").forEach((button) => {
     button.addEventListener("click", closeTimelineModals);
   });
+
+  document.addEventListener("click", (event) => {
+    if (event.target.closest("[data-home-property-list] [data-home-add-property]")) {
+      openAddPropertyModal();
+      return;
+    }
+
+    const openPropertyButton = event.target.closest("[data-home-open-property-id]");
+    if (openPropertyButton) {
+      openPropertyFromPortfolio(openPropertyButton.dataset.homeOpenPropertyId);
+      return;
+    }
+
+    const activityButton = event.target.closest("[data-home-view-activity-id]");
+    if (activityButton) {
+      if (activityButton.dataset.homeViewActivityId === "willow-brook") {
+        showPortfolioActivity({ scroll: true });
+      } else {
+        openPropertyWorkspace("timeline");
+      }
+    }
+  });
 }
 
 function bindPortfolioProperties() {
@@ -3131,20 +4035,38 @@ function bindPortfolioProperties() {
   });
 
   document.addEventListener("click", (event) => {
-    if (event.target.closest("[data-properties-open-workspace]")) {
-      openPropertyWorkspace("overview");
+    const openPropertyButton = event.target.closest("[data-properties-open-property-id], [data-properties-open-workspace]");
+    if (openPropertyButton) {
+      openPropertyFromPortfolio(openPropertyButton.dataset.propertiesOpenPropertyId || "the-butts");
     }
 
-    if (event.target.closest("[data-properties-upload]")) {
-      openPropertyWorkspace("documents", "[data-document-upload-panel]");
+    const uploadButton = event.target.closest("[data-properties-upload-id], [data-properties-upload]");
+    if (uploadButton) {
+      if (uploadButton.dataset.propertiesUploadId === "willow-brook") {
+        showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+      } else {
+        openPropertyWorkspace("documents", "[data-document-upload-panel]");
+      }
     }
 
-    if (event.target.closest("[data-properties-timeline]")) {
-      openPropertyWorkspace("timeline");
+    const timelineButton = event.target.closest("[data-properties-timeline-id], [data-properties-timeline]");
+    if (timelineButton) {
+      if (timelineButton.dataset.propertiesTimelineId === "willow-brook") {
+        showPortfolioActivity({ scroll: true });
+      } else {
+        openPropertyWorkspace("timeline");
+      }
     }
 
-    if (event.target.closest("[data-properties-support]")) {
-      openPropertyWorkspace("services", currentServiceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
+    const supportButton = event.target.closest("[data-properties-support-id], [data-properties-support]");
+    if (supportButton) {
+      const propertyId = supportButton.dataset.propertiesSupportId || "the-butts";
+      if (propertyId === "willow-brook") {
+        labsState.selectedServicePropertyId = "willow-brook";
+        showGlobalServicePage({ scroll: true });
+      } else {
+        openPropertyWorkspace("services", currentServiceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
+      }
     }
   });
 }
@@ -3219,8 +4141,16 @@ function bindTabs() {
     });
   });
 
-  document.querySelectorAll("[data-open-property]").forEach((button) => {
-    button.addEventListener("click", () => openPropertyWorkspace("overview"));
+  document.addEventListener("click", (event) => {
+    const propertyButton = event.target.closest("[data-open-property-id]");
+    if (propertyButton) {
+      openPropertyFromPortfolio(propertyButton.dataset.openPropertyId);
+      return;
+    }
+
+    if (event.target.closest("[data-open-property]")) {
+      openPropertyWorkspace("overview");
+    }
   });
 }
 
@@ -3235,6 +4165,12 @@ function bindPortfolioCompliance() {
   });
 
   document.querySelector("[data-compliance-priority-upload]")?.addEventListener("click", () => {
+    const urgentProperty = portfolioUrgentProperty();
+    if (urgentProperty.id === "willow-brook") {
+      showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+      return;
+    }
+
     if (labsState.eicrAdded) {
       showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
       return;
@@ -3244,11 +4180,18 @@ function bindPortfolioCompliance() {
   });
 
   document.querySelector("[data-compliance-priority-support]")?.addEventListener("click", () => {
+    const urgentProperty = portfolioUrgentProperty();
+    if (urgentProperty.id === "willow-brook") {
+      labsState.selectedServicePropertyId = "willow-brook";
+      openServiceRequestModal("gas", "willow-brook");
+      return;
+    }
+
     openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
   });
 
   document.querySelector("[data-compliance-open-property]")?.addEventListener("click", () => {
-    openPropertyWorkspace("overview");
+    openPropertyFromPortfolio(portfolioUrgentProperty().id);
   });
 
   document.addEventListener("click", (event) => {
@@ -3264,6 +4207,11 @@ function bindPortfolioCompliance() {
       openPropertyWorkspace("documents", "[data-document-upload-panel]");
     } else if (action === "requestSupport") {
       openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
+    } else if (action === "uploadGas") {
+      showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+    } else if (action === "requestGasSupport") {
+      labsState.selectedServicePropertyId = "willow-brook";
+      openServiceRequestModal("gas", "willow-brook");
     } else if (action === "uploadInspection") {
       showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
     } else if (action === "markInspection") {
@@ -3293,10 +4241,19 @@ function copyEvidenceInboxAddress() {
 function handleEvidenceAction(action) {
   if (action === "openProperty") {
     openPropertyWorkspace("overview");
+  } else if (action === "openWillowProperty") {
+    openPropertyFromPortfolio("willow-brook");
   } else if (action === "uploadEicr" || action === "replaceEicr" || action === "replaceGas") {
     openPropertySmartUpload();
   } else if (action === "arrangeEicr") {
     openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
+  } else if (action === "uploadGas") {
+    showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+  } else if (action === "arrangeGas") {
+    labsState.selectedServicePropertyId = "willow-brook";
+    openServiceRequestModal("gas", "willow-brook");
+  } else if (action === "uploadTenancy" || action === "uploadAlarms") {
+    showToast("Evidence upload is a prototype preview in CMP Labs.");
   } else if (action === "uploadInspection") {
     showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
   } else if (action === "markInspection") {
@@ -3424,8 +4381,17 @@ function handleTaskAction(action) {
     openPropertySmartUpload();
   } else if (action === "requestSupport") {
     openPropertyWorkspace("services", currentComplianceRequest() ? "[data-open-requests-panel]" : "[data-service-primary-card]");
+  } else if (action === "requestGasSupport") {
+    labsState.selectedServicePropertyId = "willow-brook";
+    openServiceRequestModal("gas", "willow-brook");
   } else if (action === "openProperty") {
     openPropertyWorkspace("overview");
+  } else if (action === "openWillowProperty") {
+    openPropertyFromPortfolio("willow-brook");
+  } else if (action === "uploadGas") {
+    showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+  } else if (action === "uploadAlarms") {
+    showToast("Alarm evidence upload is a prototype preview in CMP Labs.");
   } else if (action === "uploadInspection") {
     showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
   } else if (action === "markInspection") {
@@ -3503,8 +4469,10 @@ function bindPortfolioTasks() {
   });
 
   document.querySelector("[data-task-detail-open-property]")?.addEventListener("click", () => {
+    const taskId = document.querySelector("[data-task-detail-open-property]")?.dataset.taskDetailProperty;
+    const task = allTaskItems().find((item) => item.id === taskId);
     closeTimelineModals();
-    openPropertyWorkspace("overview");
+    openPropertyFromPortfolio(task?.propertyId || "the-butts");
   });
 
   document.querySelectorAll("[data-task-detail-close]").forEach((button) => {
@@ -3519,6 +4487,11 @@ function openActivityRelatedPage(event) {
 
   if (event.route === "services") {
     openPropertyWorkspace("services", "[data-open-requests-panel]");
+  } else if (event.route === "bookService") {
+    labsState.selectedServicePropertyId = "willow-brook";
+    showGlobalServicePage({ scroll: true });
+  } else if (event.route === "properties") {
+    showPortfolioProperties({ scroll: true });
   } else if (event.route === "tasks") {
     closeTimelineModals();
     showPortfolioTasks({ scroll: true });
@@ -3560,6 +4533,29 @@ function renderActivitySummaryModalState() {
   const evidenceList = document.querySelector("[data-activity-summary-evidence]");
 
   if (!evidenceList) {
+    return;
+  }
+
+  if (isTwoPropertyMode()) {
+    evidenceList.innerHTML = `
+      <li>18 Willow Brook Drive · EICR verified</li>
+      <li>18 Willow Brook Drive · Gas Safety renewal flagged</li>
+      <li>57 The Butts · ${labsState.eicrAdded ? "EICR evidence verified" : "EICR gap still visible"}</li>
+    `;
+    document.querySelector("[data-activity-summary-open-list]").innerHTML = `
+      <li>18 Willow Brook Drive · Gas Safety renewal</li>
+      <li>18 Willow Brook Drive · Alarm and inspection evidence</li>
+      <li>57 The Butts · ${labsState.eicrAdded ? "Inspection evidence" : "Electrical Safety evidence"}</li>
+    `;
+    document.querySelector("[data-activity-summary-resolved]").innerHTML = labsState.eicrAdded
+      ? `
+        <li>57 The Butts · Electrical Safety gap resolved</li>
+        <li>18 Willow Brook Drive · EICR verified</li>
+      `
+      : `
+        <li>18 Willow Brook Drive · EICR verified</li>
+      `;
+    document.querySelector("[data-activity-summary-next]").textContent = "Prioritise Gas Safety renewal for 18 Willow Brook Drive, then review the remaining evidence gaps by property.";
     return;
   }
 
@@ -3624,6 +4620,15 @@ function handleActivityAction(action) {
     openPropertyWorkspace("details");
   } else if (action === "openServices" || action === "viewRequest") {
     openPropertyWorkspace("services", "[data-open-requests-panel]");
+  } else if (action === "openGlobalServices") {
+    labsState.selectedServicePropertyId = "willow-brook";
+    showGlobalServicePage({ scroll: true });
+  } else if (action === "openProperties") {
+    showPortfolioProperties({ scroll: true });
+  } else if (action === "openWillowProperty") {
+    openPropertyFromPortfolio("willow-brook");
+  } else if (action === "askGasRenewal") {
+    openAssistant("18 Willow Brook Drive needs Gas Safety renewal soon. CMP would prioritise upload or support for that certificate before lower-risk follow-up evidence.");
   }
 }
 
@@ -3744,14 +4749,19 @@ function renderAddPropertyState() {
 }
 
 function openBundlePreviewModal() {
+  const property = selectedServiceProperty();
   const list = document.querySelector("[data-bundle-items]");
+  const context = document.querySelector("[data-bundle-property-context]");
+  if (context) {
+    context.textContent = `Bundle for · ${property.label}`;
+  }
   if (list) {
     list.innerHTML = `
       <article class="bundle-property-card">
         <span>Bundle for</span>
-        <strong>57 The Butts · CV1 3BJ</strong>
+        <strong>${escapeHtml(property.label)}</strong>
       </article>
-      ${serviceBundleItems().map((item) => `
+      ${serviceBundleItems(property.id).map((item) => `
         <article class="bundle-item">
           <span class="tile-icon" data-icon="check"></span>
           <strong>${escapeHtml(item)}</strong>
@@ -3778,20 +4788,27 @@ function openLearnGuide(index) {
 
 function handleGlobalServiceAction(action) {
   if (action.startsWith("request:")) {
-    openServiceRequestModal(action.replace("request:", ""));
+    openServiceRequestModal(action.replace("request:", ""), selectedServicePropertyId());
   } else if (action === "support") {
-    openServiceRequestModal(recommendedServiceType());
+    openServiceRequestModal(recommendedServiceType(selectedServicePropertyId()), selectedServicePropertyId());
   } else if (action === "openRequests") {
     scrollToPanel("[data-global-open-requests-panel]");
   } else if (action === "uploadEicr" || action === "viewEicr") {
     openPropertyWorkspace("documents", action === "viewEicr" ? "[data-vault-list]" : "[data-document-upload-panel]");
   } else if (action === "uploadInspection" || action === "uploadRecommended") {
+    if (selectedServicePropertyId() === "willow-brook" && action === "uploadRecommended") {
+      showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
+      return;
+    }
+
     if (labsState.eicrAdded || action === "uploadInspection") {
       showToast("Inspection evidence upload is a prototype preview in CMP Labs.");
     } else {
       openPropertyWorkspace("documents", "[data-document-upload-panel]");
       window.setTimeout(() => document.querySelector("[data-file-input]")?.click(), 180);
     }
+  } else if (action === "uploadGas") {
+    showToast("Gas Safety certificate upload is a prototype preview in CMP Labs.");
   } else if (action === "licensing") {
     showPortfolioCompliance({ scroll: true });
   } else if (action === "ask") {
@@ -3807,7 +4824,9 @@ function handleGlobalServiceAction(action) {
     document.querySelector("[data-callback-help]").value = "";
     openTimelineModal("[data-callback-modal]");
   } else if (action === "askBundle") {
-    openAssistant(labsState.eicrAdded
+    openAssistant(selectedServicePropertyId() === "willow-brook"
+      ? "CMP would include Gas Safety renewal first, then inspection evidence, alarm evidence and local licensing review for 18 Willow Brook Drive."
+      : labsState.eicrAdded
       ? "CMP would include inspection evidence, local licensing review, tenancy document readiness and a human file review."
       : "CMP would include EICR support first, then inspection evidence, local licensing review and a tenancy document checklist.");
     focusAssistantInput();
@@ -3846,6 +4865,14 @@ function bindUtilityPages() {
       return;
     }
 
+    const serviceProperty = event.target.closest("[data-service-property-select]");
+    if (serviceProperty) {
+      labsState.selectedServicePropertyId = serviceProperty.dataset.servicePropertySelect;
+      renderPortfolioUtilityState();
+      setAssistantResponse(getGlobalServiceAssistantResponse("What should I book first?"));
+      return;
+    }
+
     const guideButton = event.target.closest("[data-learn-guide]");
     if (guideButton) {
       openLearnGuide(guideButton.dataset.learnGuide);
@@ -3853,7 +4880,7 @@ function bindUtilityPages() {
     }
   });
 
-  document.querySelectorAll("[data-add-property-close], [data-learn-preview-close], [data-bundle-close]").forEach((button) => {
+  document.querySelectorAll("[data-add-property-close], [data-learn-preview-close], [data-bundle-close], [data-second-property-close]").forEach((button) => {
     button.addEventListener("click", closeTimelineModals);
   });
 
@@ -3896,7 +4923,12 @@ function bindUtilityPages() {
 
     if (event.target.closest("[data-bundle-request]")) {
       closeTimelineModals();
-      openServiceRequestModal("bundle");
+      openServiceRequestModal("bundle", selectedServicePropertyId());
+    }
+
+    if (event.target.closest("[data-second-property-open-demo]")) {
+      closeTimelineModals();
+      openPropertyWorkspace("overview");
     }
   });
 
@@ -4142,7 +5174,7 @@ function serviceCopy() {
 }
 
 function currentServiceRequest() {
-  return openSupportRequestForType(serviceMode());
+  return openSupportRequestForType(serviceMode(), "the-butts");
 }
 
 function renderChoiceList(container, options, name) {
@@ -4189,7 +5221,7 @@ function renderServicesState() {
     return;
   }
 
-  const activeRequests = labsState.serviceRequests.filter((request) => request.status !== "Cancelled");
+  const activeRequests = labsState.serviceRequests.filter((request) => request.status !== "Cancelled" && requestPropertyId(request) === "the-butts");
 
   if (!activeRequests.length) {
     if (empty) {
@@ -4216,7 +5248,7 @@ function renderServicesState() {
         <span class="doc-status status-watch-text">${escapeHtml(request.status)}</span>
       </div>
       <dl>
-        <div><dt>Property</dt><dd>57 The Butts · CV1 3BJ</dd></div>
+        <div><dt>Property</dt><dd>${escapeHtml(request.propertyLabel || propertyLabelForId(requestPropertyId(request)))}</dd></div>
         <div><dt>Created</dt><dd>${escapeHtml(request.created)}</dd></div>
         <div><dt>Next step</dt><dd>CMP review</dd></div>
         <div><dt>Linked to</dt><dd>${escapeHtml(request.linkedTo)}</dd></div>
@@ -4229,9 +5261,10 @@ function renderServicesState() {
   `).join("");
 }
 
-function openServiceRequestModal(type = recommendedServiceType()) {
+function openServiceRequestModal(type = recommendedServiceType("the-butts"), propertyId = labsState.currentView === "bookService" ? selectedServicePropertyId() : "the-butts") {
   const copy = serviceRequestConfig(type);
-  const existingRequest = openSupportRequestForType(type);
+  const property = getPortfolioPropertyById(propertyId);
+  const existingRequest = openSupportRequestForType(type, property.id);
 
   closeTimelineModals();
 
@@ -4246,8 +5279,12 @@ function openServiceRequestModal(type = recommendedServiceType()) {
   }
 
   labsState.pendingServiceRequestType = type;
+  labsState.pendingServicePropertyId = property.id;
   document.querySelector("[data-service-modal-title]").textContent = "Request support";
+  document.querySelector("[data-service-modal-property-context]").textContent = `Property · ${property.label}`;
   document.querySelector("[data-service-selected-type]").textContent = copy.requestType;
+  document.querySelector("[data-service-selected-property]").textContent = property.label;
+  document.querySelector("[data-service-success-property]").textContent = property.label;
   document.querySelector("[data-service-note]").value = "";
   document.querySelector("[data-service-form]").hidden = false;
   document.querySelector("[data-service-success]").hidden = true;
@@ -4278,7 +5315,8 @@ function addServiceTimelineEvent(event) {
 
 function createSupportRequest() {
   const copy = serviceRequestConfig(labsState.pendingServiceRequestType);
-  const existingRequest = openSupportRequestForType(labsState.pendingServiceRequestType);
+  const property = getPortfolioPropertyById(labsState.pendingServicePropertyId);
+  const existingRequest = openSupportRequestForType(labsState.pendingServiceRequestType, property.id);
 
   if (existingRequest) {
     closeTimelineModals();
@@ -4298,6 +5336,8 @@ function createSupportRequest() {
   const request = {
     id,
     type: copy.requestType,
+    propertyId: property.id,
+    propertyLabel: property.label,
     status: "Awaiting review",
     created: "Just now",
     linkedTo: copy.linkedTo,
@@ -4317,7 +5357,7 @@ function createSupportRequest() {
     details: {
       title: "Request details",
       rows: [
-        ["Property", "57 The Butts"],
+        ["Property", property.address],
         ["Request type", copy.requestType],
         ["Status", "Awaiting review"],
         ["Created", "Just now"],
@@ -4329,6 +5369,7 @@ function createSupportRequest() {
   });
   renderAllState();
   document.querySelector("[data-service-success-type]").textContent = copy.requestType;
+  document.querySelector("[data-service-success-property]").textContent = property.label;
   document.querySelector("[data-service-form]").hidden = true;
   document.querySelector("[data-service-success]").hidden = false;
   hydrateIcons();
@@ -4347,6 +5388,7 @@ function cancelSupportRequest(id) {
   }
 
   request.status = "Cancelled";
+  const property = getPortfolioPropertyById(requestPropertyId(request));
   addServiceTimelineEvent({
     type: "service-cancel",
     category: "Service request",
@@ -4358,7 +5400,7 @@ function cancelSupportRequest(id) {
     details: {
       title: "Cancellation details",
       rows: [
-        ["Property", "57 The Butts"],
+        ["Property", property.address],
         ["Request type", request.type],
         ["Status", "Cancelled"],
         ["Updated", "Just now"]
@@ -5600,6 +6642,7 @@ function updateStrength(percent) {
 
 function confirmEicr() {
   const wasAlreadyConfirmed = labsState.eicrAdded;
+  clearScanTimers();
   labsState.eicrAdded = true;
   renderAllState();
 

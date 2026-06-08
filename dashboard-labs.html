@@ -91,13 +91,15 @@
 
         <div class="property-switcher">
           <div class="switcher-label">Your properties</div>
-          <button class="property-option is-current" type="button" data-open-property>
-            <span class="status-dot" aria-hidden="true"></span>
-            <span>
-              <strong>57 The Butts</strong>
-              <small>Coventry, CV1 3BJ</small>
-            </span>
-          </button>
+          <div class="sidebar-property-list" data-sidebar-property-list>
+            <button class="property-option is-current" type="button" data-open-property>
+              <span class="status-dot" aria-hidden="true"></span>
+              <span>
+                <strong>57 The Butts</strong>
+                <small>Coventry, CV1 3BJ</small>
+              </span>
+            </button>
+          </div>
           <button class="quiet-add" type="button" data-home-add-property>
             <span aria-hidden="true">+</span>
             Add property
@@ -207,8 +209,8 @@
           <section class="portfolio-pulse-grid" aria-label="Portfolio summary">
             <article class="portfolio-pulse-card">
               <span>Properties</span>
-              <strong>1</strong>
-              <small>property tracked</small>
+              <strong data-home-property-count>1</strong>
+              <small data-home-property-count-detail>property tracked</small>
             </article>
             <article class="portfolio-pulse-card">
               <span>Priority actions</span>
@@ -248,30 +250,32 @@
               <h2 id="homePropertiesTitle">Your properties</h2>
               <p>Open a property workspace to review evidence, compliance checks, activity and useful next steps.</p>
             </div>
-            <article class="portfolio-property-card">
-              <div class="portfolio-property-main">
-                <span class="status-dot" aria-hidden="true"></span>
-                <div>
-                  <h3>57 The Butts</h3>
-                  <p>Coventry, CV1 3BJ</p>
-                  <div class="signal-row">
-                    <span data-home-occupancy>Vacant property</span>
-                    <span data-home-goal>General compliance check</span>
+            <div class="home-property-list" data-home-property-list>
+              <article class="portfolio-property-card">
+                <div class="portfolio-property-main">
+                  <span class="status-dot" aria-hidden="true"></span>
+                  <div>
+                    <h3>57 The Butts</h3>
+                    <p>Coventry, CV1 3BJ</p>
+                    <div class="signal-row">
+                      <span data-home-occupancy>Vacant property</span>
+                      <span data-home-goal>General compliance check</span>
+                    </div>
                   </div>
                 </div>
-              </div>
-              <div class="portfolio-property-progress">
-                <span>Evidence strength</span>
-                <strong data-home-strength>42% evidenced</strong>
-                <div class="strength-meter"><span data-home-strength-meter style="width: 42%"></span></div>
-                <small data-home-status>3 areas need checking</small>
-              </div>
-              <div class="button-row">
-                <button class="primary-button" type="button" data-home-open-property>Open property workspace</button>
-                <button class="text-button" type="button" data-home-view-activity>View activity</button>
-                <button class="secondary-button quiet-button" type="button" data-home-add-property>+ Add another property</button>
-              </div>
-            </article>
+                <div class="portfolio-property-progress">
+                  <span>Evidence strength</span>
+                  <strong data-home-strength>42% evidenced</strong>
+                  <div class="strength-meter"><span data-home-strength-meter style="width: 42%"></span></div>
+                  <small data-home-status>3 areas need checking</small>
+                </div>
+                <div class="button-row">
+                  <button class="primary-button" type="button" data-home-open-property>Open property workspace</button>
+                  <button class="text-button" type="button" data-home-view-activity>View activity</button>
+                  <button class="secondary-button quiet-button" type="button" data-home-add-property>+ Add another property</button>
+                </div>
+              </article>
+            </div>
           </section>
 
           <section class="portfolio-section" aria-labelledby="homeUpcomingTitle">
@@ -280,7 +284,7 @@
               <h2 id="homeUpcomingTitle">Upcoming compliance and reviews</h2>
               <p>CMP keeps a simple watchlist so important actions do not disappear into the background.</p>
             </div>
-            <div class="home-upcoming-grid">
+            <div class="home-upcoming-grid" data-home-upcoming-grid>
               <article class="portfolio-upcoming-card">
                 <span class="source-badge">Recommended</span>
                 <h3>Inspection review</h3>
@@ -356,7 +360,7 @@
               <p class="section-kicker">PORTFOLIO</p>
               <h1 id="portfolioPropertiesTitle">Properties</h1>
               <p>Manage your property workspaces, see which files need attention and open the right property in one click.</p>
-              <span class="prototype-badge">1 property tracked</span>
+              <span class="prototype-badge" data-properties-count-badge>1 property tracked</span>
             </div>
             <div class="portfolio-header-actions">
               <button class="primary-button" type="button" data-properties-add>Add property</button>
@@ -367,8 +371,8 @@
           <section class="properties-summary-grid" aria-label="Properties summary">
             <article class="portfolio-pulse-card">
               <span>Properties</span>
-              <strong>1</strong>
-              <small>property tracked</small>
+              <strong data-properties-count>1</strong>
+              <small data-properties-count-detail>property tracked</small>
             </article>
             <article class="portfolio-pulse-card">
               <span>Needs attention</span>
@@ -489,7 +493,7 @@
               <p class="section-kicker">PORTFOLIO COMPLIANCE</p>
               <h1 id="portfolioComplianceTitle">Compliance Centre</h1>
               <p>See the clearest risks, missing evidence and upcoming reviews across your property portfolio.</p>
-              <span class="prototype-badge">1 property monitored</span>
+              <span class="prototype-badge" data-compliance-count-badge>1 property monitored</span>
             </div>
             <div class="portfolio-header-actions">
               <button class="primary-button" type="button" data-compliance-ask>Ask CMP what matters most</button>
@@ -500,8 +504,8 @@
           <section class="compliance-centre-summary" aria-label="Portfolio compliance summary">
             <article class="portfolio-pulse-card">
               <span>Properties monitored</span>
-              <strong>1</strong>
-              <small>property tracked</small>
+              <strong data-compliance-property-count>1</strong>
+              <small data-compliance-property-count-detail>property tracked</small>
             </article>
             <article class="portfolio-pulse-card">
               <span>Confirmed checks</span>
@@ -515,12 +519,12 @@
             </article>
             <article class="portfolio-pulse-card">
               <span>Open actions</span>
-              <strong>1</strong>
+              <strong data-compliance-open-count>1</strong>
               <small data-compliance-open-action-detail>Electrical Safety</small>
             </article>
             <article class="portfolio-pulse-card">
               <span>Upcoming reviews</span>
-              <strong>2</strong>
+              <strong data-compliance-upcoming-count>2</strong>
               <small>next 90 days</small>
             </article>
           </section>
@@ -559,7 +563,7 @@
                     <th scope="col">Inspection</th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody data-compliance-matrix-body>
                   <tr>
                     <th scope="row">
                       <strong>57 The Butts</strong>
@@ -593,7 +597,7 @@
               <h2 id="portfolioForecastTitle">Portfolio forecast</h2>
               <p>Short-range watch items based on the information currently in CMP Labs.</p>
             </div>
-            <div class="compliance-forecast-grid">
+            <div class="compliance-forecast-grid" data-compliance-forecast-grid>
               <article>
                 <span>This week</span>
                 <strong>No confirmed urgent deadlines</strong>
@@ -650,7 +654,7 @@
               <p class="section-kicker">PORTFOLIO EVIDENCE</p>
               <h1 id="portfolioEvidenceTitle">Evidence Vault</h1>
               <p>View certificates, records and property paperwork across your portfolio, with clear source labels and next actions.</p>
-              <span class="prototype-badge">1 property connected</span>
+              <span class="prototype-badge" data-evidence-count-badge>1 property connected</span>
             </div>
             <div class="portfolio-header-actions">
               <button class="primary-button" type="button" data-evidence-upload>Upload evidence</button>
@@ -999,7 +1003,7 @@
             </div>
           </header>
 
-          <section class="service-property-context" aria-label="Current service recommendation property context">
+          <section class="service-property-context" aria-label="Current service recommendation property context" data-service-property-context>
             <p>Current recommendation for</p>
             <strong>57 The Butts · CV1 3BJ</strong>
             <span>Vacant property · General compliance check</span>
@@ -2456,7 +2460,7 @@
           <div>
             <p class="section-kicker">Property support</p>
             <h2 id="serviceModalTitle" data-service-modal-title>Request support</h2>
-            <p class="modal-property-context">Property · 57 The Butts · CV1 3BJ</p>
+            <p class="modal-property-context" data-service-modal-property-context>Property · 57 The Butts · CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close support request" data-service-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -2466,7 +2470,7 @@
           <p class="modal-note" data-service-modal-body>Tell CMP how you would like to proceed. This Labs preview stores the request locally for demonstration only.</p>
           <dl class="support-request-summary">
             <div><dt>Selected support type</dt><dd data-service-selected-type>EICR support</dd></div>
-            <div><dt>Property</dt><dd>57 The Butts · CV1 3BJ</dd></div>
+            <div><dt>Property</dt><dd data-service-selected-property>57 The Butts · CV1 3BJ</dd></div>
           </dl>
           <div class="support-choice-group">
             <p>Preferred contact method</p>
@@ -2490,7 +2494,7 @@
           <h3>Support request created</h3>
           <p>CMP has added this to your support requests. In the final product this would notify the CMP team or connected supplier workflow.</p>
           <dl>
-            <div><dt>Property</dt><dd>57 The Butts · CV1 3BJ</dd></div>
+            <div><dt>Property</dt><dd data-service-success-property>57 The Butts · CV1 3BJ</dd></div>
             <div><dt>Request type</dt><dd data-service-success-type>EICR support</dd></div>
             <div><dt>Status</dt><dd>Awaiting review</dd></div>
             <div><dt>Created</dt><dd>Just now</dd></div>
@@ -2507,7 +2511,7 @@
           <div>
             <p class="section-kicker">Service bundle</p>
             <h2 id="bundleModalTitle">Preview service bundle</h2>
-            <p class="modal-property-context">Bundle for · 57 The Butts · CV1 3BJ</p>
+            <p class="modal-property-context" data-bundle-property-context>Bundle for · 57 The Butts · CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close bundle preview" data-bundle-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -2777,6 +2781,43 @@
           <button class="secondary-button" type="button" data-demo-state-option="after-eicr">After EICR</button>
           <button class="secondary-button" type="button" data-demo-state-option="after-support">After support request</button>
           <button class="secondary-button" type="button" data-demo-state-option="after-quick-win">After quick win</button>
+          <button class="secondary-button" type="button" data-demo-state-option="two-property">Two-property portfolio</button>
+        </div>
+      </section>
+
+      <section class="timeline-modal property-preview-modal" role="dialog" aria-modal="true" aria-labelledby="secondPropertyModalTitle" data-second-property-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker">Portfolio preview</p>
+            <h2 id="secondPropertyModalTitle">Second property workspace preview</h2>
+            <p class="modal-property-context">18 Willow Brook Drive · B37 7BA</p>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close second property preview" data-second-property-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note">This Labs demo currently opens the full property workspace for 57 The Butts. Portfolio-level behaviour is shown for both properties so global tools can be tested with a realistic two-property view.</p>
+        <div class="summary-sections">
+          <section>
+            <h3>18 Willow Brook Drive</h3>
+            <ul>
+              <li>Birmingham, B37 7BA</li>
+              <li>Currently tenanted</li>
+              <li>Current focus: Gas Safety renewal</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Portfolio status</h3>
+            <ul>
+              <li>64% evidenced</li>
+              <li>Gas Safety renewal needed in 21 days</li>
+              <li>Inspection and alarms still need evidence</li>
+            </ul>
+          </section>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-second-property-open-demo>Open 57 The Butts workspace</button>
+          <button class="secondary-button" type="button" data-second-property-close>Close</button>
         </div>
       </section>
 
