@@ -1505,6 +1505,7 @@ function configureDemoState(state) {
     labsState.portfolioMode = "new";
     labsState.selectedServicePropertyId = "the-butts";
     labsState.azMode = "single";
+    labsState.evidencePropertyFilter = "the-butts";
     labsState.propertyDetails = {
       ...labsState.propertyDetails,
       propertyType: "Flat / apartment",
@@ -1561,7 +1562,9 @@ function applyDemoState(state) {
   renderAssistantPrompts();
   closeTimelineModals();
   const firstPrompt = document.querySelector(".prompt-stack [data-prompt]")?.dataset.prompt;
-  setAssistantResponse(getAssistantResponse(firstPrompt || "What changed recently?"));
+  setAssistantResponse(isEmptyPortfolioMode() || isNewPropertyMode()
+    ? getGlobalAskDefaultResponse()
+    : getAssistantResponse(firstPrompt || "What changed recently?"));
   showToast(`Demo state updated: ${labels[demoState] || "Before EICR"}`);
 }
 
@@ -1579,7 +1582,7 @@ function openCreatedPropertyWorkspace() {
   renderAllState();
   renderAssistantPrompts();
   showPortfolioHome({ scroll: true });
-  setAssistantResponse("CMP has created the property profile for 57 The Butts and found starting evidence signals. The next step is to confirm the property details, then add any Gas Safety or Electrical Safety evidence you already have.");
+  setAssistantResponse(getGlobalAskDefaultResponse());
   showToast("Property profile created — review what CMP found.");
 }
 
@@ -1843,7 +1846,7 @@ function getGlobalAskDefaultResponse() {
   }
 
   if (isNewPropertyMode()) {
-    return "CMP has created the property profile for 57 The Butts and found starting evidence signals. Confirm the property details, then add any Gas Safety or Electrical Safety evidence you already have.";
+    return "CMP matched 57 The Butts in Coventry, prepared an EPC record for review, created the property workspace and marked the postcode ready for local checks. The next step is to confirm the property type, bedrooms and occupancy before CMP scores compliance gaps as reliable.";
   }
 
   const activeRequest = activeSupportRequestForActivity();
@@ -1889,7 +1892,7 @@ function getGlobalAskAssistantResponse(prompt) {
 
   if (isNewPropertyMode()) {
     const responses = {
-      "What did CMP find automatically?": "CMP matched 57 The Butts in Coventry, prepared an EPC record for review, created the property workspace and marked the postcode ready for local checks.",
+      "What did CMP find automatically?": "CMP matched 57 The Butts in Coventry, prepared an EPC record for review, created the property workspace and marked the postcode ready for local checks. Review those details before relying on them.",
       "What should I confirm first?": "Confirm the property type, bedrooms and occupancy or tenancy status first. Those details decide which checks, evidence and reminders CMP should prioritise.",
       "What evidence should I upload next?": "Upload any Gas Safety certificate or EICR you already have. If you do not have them yet, continue the guided check so CMP can separate what is required from what can wait.",
       "Is the EPC okay?": "CMP has prepared an EPC match for review, but it should be treated as starting context until the landlord confirms the property details and checks the record.",
@@ -2410,6 +2413,20 @@ function renderPortfolioHomeState() {
         </article>
       `;
     }
+    const propertyHeading = document.querySelector("#homePropertiesTitle");
+    const propertyHeadingBlock = propertyHeading?.closest(".section-heading");
+    if (propertyHeadingBlock) {
+      propertyHeadingBlock.querySelector(".section-kicker").textContent = "Your properties";
+      propertyHeading.textContent = "Your properties";
+      propertyHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "Properties will appear here after setup.";
+    }
+    const upcomingHeading = document.querySelector("#homeUpcomingTitle");
+    const upcomingHeadingBlock = upcomingHeading?.closest(".section-heading");
+    if (upcomingHeadingBlock) {
+      upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Setup";
+      upcomingHeading.textContent = "What happens after adding a property";
+      upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "CMP starts with the address, then organises checks, evidence, tasks and support around that property.";
+    }
     const homePromptRow = document.querySelector(".portfolio-prompt-row");
     if (homePromptRow) {
       homePromptRow.innerHTML = emptyGlobalAskPrompts.slice(0, 4)
@@ -2462,10 +2479,10 @@ function renderPortfolioHomeState() {
       }
     });
     if (summaryPrimary) {
-      summaryPrimary.textContent = "Continue guided check";
+      summaryPrimary.textContent = "Confirm what CMP found";
     }
     if (summarySecondary) {
-      summarySecondary.textContent = "Ask CMP what matters first";
+      summarySecondary.textContent = "Continue guided check";
     }
     if (workspaceShortcut) {
       workspaceShortcut.hidden = false;
@@ -2484,12 +2501,23 @@ function renderPortfolioHomeState() {
     document.querySelector("[data-home-review-count]").textContent = "1";
     document.querySelector("[data-home-review-detail]").textContent = "EPC ready for review";
     document.querySelector("[data-home-summary-title]").textContent = "Your first property profile is ready";
-    document.querySelector("[data-home-summary-body]").textContent = "CMP has matched the address, prepared the first property workspace and found useful starting signals for 57 The Butts.";
-    document.querySelector("[data-home-priority-area]").textContent = "New property setup";
-    document.querySelector("[data-home-priority-status]").textContent = "Starting";
-    document.querySelector("[data-home-priority-body]").textContent = "Confirm property type, bedrooms and occupancy before CMP treats evidence gaps or service recommendations as reliable.";
-    document.querySelector("[data-home-upload-priority]").textContent = "Upload certificates";
-    document.querySelector("[data-home-arrange-priority]").textContent = "Ask CMP what matters first";
+    document.querySelector("[data-home-summary-body]").textContent = "CMP has matched 57 The Butts, prepared EPC context for review and created a starting workspace. Confirm the details before CMP scores the property or recommends services.";
+    const priorityKicker = document.querySelector(".home-priority-card .section-kicker");
+    const priorityTitle = document.querySelector(".home-priority-card h2");
+    if (priorityKicker) {
+      priorityKicker.textContent = "What CMP found";
+    }
+    if (priorityTitle) {
+      priorityTitle.textContent = "What CMP found automatically";
+    }
+    document.querySelector("[data-home-priority-area]").textContent = "Starting signals";
+    document.querySelector("[data-home-priority-status]").textContent = "Needs confirmation before scoring";
+    document.querySelector("[data-home-priority-body]").textContent = "CMP matched the address, prepared an EPC-style signal and created the workspace. Confirm these details before relying on scores or service recommendations.";
+    document.querySelector("[data-home-upload-priority]").textContent = "Confirm what CMP found";
+    document.querySelector("[data-home-arrange-priority]").textContent = "Upload certificates";
+    if (workspaceShortcut) {
+      workspaceShortcut.textContent = "Ask CMP what matters first";
+    }
     if (autopilotTitle) {
       autopilotTitle.textContent = "Your first property profile is ready";
     }
@@ -2513,6 +2541,11 @@ function renderPortfolioHomeState() {
           <span>Found</span>
           <strong>Postcode ready for local checks</strong>
           <p>Local licensing and postcode-based checks can continue once property details are confirmed.</p>
+        </article>
+        <article class="priority-rank-item">
+          <span>Created</span>
+          <strong>Property workspace created</strong>
+          <p>The property file is ready for evidence, answers and next steps.</p>
         </article>
       `;
     }
@@ -2555,6 +2588,20 @@ function renderPortfolioHomeState() {
         </article>
       `;
     }
+    const propertyHeading = document.querySelector("#homePropertiesTitle");
+    const propertyHeadingBlock = propertyHeading?.closest(".section-heading");
+    if (propertyHeadingBlock) {
+      propertyHeadingBlock.querySelector(".section-kicker").textContent = "Your property";
+      propertyHeading.textContent = "57 The Butts";
+      propertyHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "This card is secondary to setup. Use it to reopen the new property profile after reviewing what CMP found.";
+    }
+    const upcomingHeading = document.querySelector("#homeUpcomingTitle");
+    const upcomingHeadingBlock = upcomingHeading?.closest(".section-heading");
+    if (upcomingHeadingBlock) {
+      upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Confirm next";
+      upcomingHeading.textContent = "Confirm these details next";
+      upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "CMP needs these landlord confirmations before scores, tasks and recommendations become reliable.";
+    }
     const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
     if (upcomingGrid) {
       upcomingGrid.innerHTML = [
@@ -2583,6 +2630,20 @@ function renderPortfolioHomeState() {
 
   if (homeKicker) {
     homeKicker.textContent = "Portfolio Home";
+  }
+  const propertyHeading = document.querySelector("#homePropertiesTitle");
+  const propertyHeadingBlock = propertyHeading?.closest(".section-heading");
+  if (propertyHeadingBlock) {
+    propertyHeadingBlock.querySelector(".section-kicker").textContent = "Your portfolio";
+    propertyHeading.textContent = "Your properties";
+    propertyHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "Open a property workspace to review evidence, compliance checks, activity and useful next steps.";
+  }
+  const upcomingHeading = document.querySelector("#homeUpcomingTitle");
+  const upcomingHeadingBlock = upcomingHeading?.closest(".section-heading");
+  if (upcomingHeadingBlock) {
+    upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Looking ahead";
+    upcomingHeading.textContent = "Upcoming compliance and reviews";
+    upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "CMP keeps a simple watchlist so important actions do not disappear into the background.";
   }
   document.querySelectorAll("[data-home-add-property]").forEach((button) => {
     if (button.classList.contains("quiet-add")) {
@@ -3163,7 +3224,7 @@ function renderComplianceMatrixRows(properties) {
           </th>
           <td><span class="matrix-pill status-watch-text">Prepared</span><small>EPC ready for review</small></td>
           <td><span class="matrix-pill status-neutral-text">Unknown</span><small>No Gas Safety uploaded</small></td>
-          <td><span class="matrix-pill status-review-text">Missing</span><small>No EICR uploaded</small></td>
+          <td><span class="matrix-pill status-review-text">No document</span><small>No EICR uploaded</small></td>
           <td><span class="matrix-pill status-watch-text">Needs answer</span><small>Smoke and CO status</small></td>
           <td><span class="matrix-pill status-watch-text">Needs answer</span><small>Occupancy unknown</small></td>
           <td><span class="matrix-pill status-watch-text">Checking</span><small>Postcode review</small></td>
@@ -3237,6 +3298,41 @@ function renderPortfolioComplianceState() {
 
   const properties = getPortfolioProperties();
   const urgentProperty = portfolioUrgentProperty();
+  const complianceHeader = document.querySelector(".portfolio-compliance-header");
+  const complianceKicker = complianceHeader?.querySelector(".section-kicker");
+  const complianceBody = complianceHeader?.querySelector("p:not(.section-kicker)");
+  const complianceReviewActions = document.querySelector("[data-compliance-review-actions]");
+  const matrixTitle = document.querySelector("#portfolioMatrixTitle");
+  const matrixHeading = matrixTitle?.closest(".section-heading");
+  const gapsTitle = document.querySelector("#complianceGapsTitle");
+  const gapsHeading = gapsTitle?.closest(".section-heading");
+  const forecastTitle = document.querySelector("#portfolioForecastTitle");
+  const forecastHeading = forecastTitle?.closest(".section-heading");
+
+  if (complianceKicker) {
+    complianceKicker.textContent = properties.length ? "PORTFOLIO COMPLIANCE" : "Compliance Centre";
+  }
+  if (complianceBody) {
+    complianceBody.textContent = "See what CMP knows, what proof is missing, and which landlord action is most useful next.";
+  }
+  if (complianceReviewActions) {
+    complianceReviewActions.textContent = "Review open actions";
+  }
+  if (matrixHeading) {
+    matrixHeading.querySelector(".section-kicker").textContent = "Portfolio matrix";
+    matrixTitle.textContent = "Compliance by property";
+    matrixHeading.querySelector("p:not(.section-kicker)").textContent = "Confirmed means CMP has a record. Verified means proof is stored. Needs checking means CMP still needs an answer, evidence, or both.";
+  }
+  if (gapsHeading) {
+    gapsHeading.querySelector(".section-kicker").textContent = "EVIDENCE GAPS";
+    gapsTitle.textContent = "What still needs attention";
+    gapsHeading.querySelector("p:not(.section-kicker)").textContent = "These are the proof gaps and manual checks most likely to unblock your compliance picture.";
+  }
+  if (forecastHeading) {
+    forecastHeading.querySelector(".section-kicker").textContent = "Next 90 days";
+    forecastTitle.textContent = "Portfolio forecast";
+    forecastHeading.querySelector("p:not(.section-kicker)").textContent = "Short-range watch items based on the information currently in CMP Labs.";
+  }
 
   if (!properties.length) {
     document.querySelector("[data-compliance-review-actions]")?.setAttribute("hidden", "");
@@ -3287,7 +3383,16 @@ function renderPortfolioComplianceState() {
   }
 
   if (isNewPropertyMode()) {
-    document.querySelector("[data-compliance-review-actions]")?.removeAttribute("hidden");
+    if (complianceKicker) {
+      complianceKicker.textContent = "Compliance Centre";
+    }
+    if (complianceBody) {
+      complianceBody.textContent = "Confirm what CMP found for 57 The Butts before scores, gaps and services become reliable.";
+    }
+    if (complianceReviewActions) {
+      complianceReviewActions.removeAttribute("hidden");
+      complianceReviewActions.textContent = "Review setup actions";
+    }
     document.querySelector("[data-compliance-score-grid]")?.setAttribute("hidden", "");
     document.querySelector("[data-compliance-open-property]")?.removeAttribute("hidden");
     document.querySelector('[aria-labelledby="portfolioMatrixTitle"]')?.removeAttribute("hidden");
@@ -3302,8 +3407,8 @@ function renderPortfolioComplianceState() {
     document.querySelector("[data-compliance-open-count]").textContent = "4";
     document.querySelector("[data-compliance-upcoming-count]").textContent = "0";
     document.querySelector("[data-compliance-open-action-detail]").textContent = "setup";
-    document.querySelector("[data-compliance-priority-title]").textContent = "Continue the guided check for 57 The Butts";
-    document.querySelector("[data-compliance-priority-body]").textContent = "EPC context is prepared, but Gas Safety, Electrical Safety, alarm status, occupancy and licensing still need landlord confirmation.";
+    document.querySelector("[data-compliance-priority-title]").textContent = "Continue setup for 57 The Butts";
+    document.querySelector("[data-compliance-priority-body]").textContent = "CMP has prepared an EPC signal and address match. Confirm the property details, occupancy and available certificates before the compliance score becomes reliable.";
     document.querySelector("[data-compliance-priority-upload]").textContent = "Continue guided check";
     document.querySelector("[data-compliance-priority-support]").textContent = "Upload certificates";
     const requestIndicator = document.querySelector("[data-compliance-request-indicator]");
@@ -3313,6 +3418,16 @@ function renderPortfolioComplianceState() {
     const matrixBody = document.querySelector("[data-compliance-matrix-body]");
     if (matrixBody) {
       matrixBody.innerHTML = renderComplianceMatrixRows(properties);
+    }
+    if (matrixHeading) {
+      matrixHeading.querySelector(".section-kicker").textContent = "Property compliance snapshot";
+      matrixTitle.textContent = "Checks for 57 The Butts";
+      matrixHeading.querySelector("p:not(.section-kicker)").textContent = "Prepared means CMP found a starting signal. Needs confirmation means landlord input or documents are still required.";
+    }
+    if (gapsHeading) {
+      gapsHeading.querySelector(".section-kicker").textContent = "Setup gaps";
+      gapsTitle.textContent = "What CMP still needs";
+      gapsHeading.querySelector("p:not(.section-kicker)").textContent = "These confirmations unblock reliable scoring and later service recommendations.";
     }
     const forecastGrid = document.querySelector("[data-compliance-forecast-grid]");
     if (forecastGrid) {
@@ -3333,6 +3448,11 @@ function renderPortfolioComplianceState() {
           <p>Postcode review can continue once setup details are confirmed.</p>
         </article>
       `;
+    }
+    if (forecastHeading) {
+      forecastHeading.querySelector(".section-kicker").textContent = "Upcoming checks";
+      forecastTitle.textContent = "Upcoming checks";
+      forecastHeading.querySelector("p:not(.section-kicker)").textContent = "Light watch items based on the early setup context. Nothing is treated as fully assessed yet.";
     }
     renderComplianceGaps();
     renderAzChecker();
@@ -3712,6 +3832,69 @@ const azSections = [
   }
 ];
 
+const newPropertyAzSections = [
+  {
+    id: "property-basics",
+    title: "Review found property details",
+    icon: "home",
+    completion: 20,
+    description: "First, confirm the address, EPC signal and basic details CMP prepared from the setup flow."
+  },
+  {
+    id: "epc",
+    title: "Confirm occupancy / tenancy status",
+    icon: "file",
+    completion: 0,
+    description: "Tell CMP whether the property is vacant, ready to let, currently tenanted or under new-purchase review."
+  },
+  {
+    id: "gas-safety",
+    title: "Confirm Gas Safety relevance",
+    icon: "flame",
+    completion: 0,
+    description: "Confirm whether gas applies and whether any Gas Safety certificate is already available."
+  },
+  {
+    id: "electrical-safety",
+    title: "Confirm Electrical Safety / EICR",
+    icon: "bolt",
+    completion: 0,
+    description: "Confirm whether an EICR exists, whether it can be uploaded, and whether review dates are known."
+  },
+  {
+    id: "alarms",
+    title: "Confirm alarms",
+    icon: "bell",
+    completion: 0,
+    description: "Answer the smoke and CO alarm questions before CMP treats alarm status as confirmed."
+  },
+  {
+    id: "tenancy-deposit",
+    title: "Tenancy / deposit documents",
+    icon: "file",
+    completion: 0,
+    description: "Only confirm tenancy, deposit and prescribed information documents if the occupancy route needs them."
+  },
+  {
+    id: "licensing",
+    title: "Licensing / local checks",
+    icon: "badge",
+    completion: 10,
+    description: "Use the postcode context to continue local licensing checks once the property details are confirmed."
+  },
+  {
+    id: "inspections-maintenance",
+    title: "Inspection / maintenance evidence",
+    icon: "tools",
+    completion: 0,
+    description: "Add any inspection, repair or maintenance evidence once the setup facts are stable."
+  }
+];
+
+function activeAzSections() {
+  return isNewPropertyMode() ? newPropertyAzSections : azSections;
+}
+
 function azSelectedProperty() {
   const properties = getPortfolioProperties();
   return properties.find((property) => property.id === labsState.azPropertyId) || properties[0] || buttsPortfolioProperty();
@@ -3720,6 +3903,9 @@ function azSelectedProperty() {
 function azStatusForProperty(property) {
   if (!getPortfolioProperties().length) {
     return "Setup needed";
+  }
+  if (isNewPropertyMode()) {
+    return "Needs confirmation before scoring";
   }
   const compliance = effectiveComplianceScore(property);
   const evidence = effectiveEvidenceScore(property);
@@ -3749,11 +3935,12 @@ function scenarioPriorityList(scenario, property) {
 }
 
 function activeAzSection() {
-  return azSections.find((section) => section.id === labsState.activeCheckerSection) || azSections[0];
+  const sections = activeAzSections();
+  return sections.find((section) => section.id === labsState.activeCheckerSection) || sections[0];
 }
 
 function activeAzSectionIndex() {
-  return Math.max(0, azSections.findIndex((section) => section.id === activeAzSection().id));
+  return Math.max(0, activeAzSections().findIndex((section) => section.id === activeAzSection().id));
 }
 
 function scenarioTargetSection(scenario) {
@@ -3810,6 +3997,25 @@ function renderScenarioClarityPanel(mode = "single") {
 }
 
 function renderAnswerEvidenceGuide() {
+  if (isNewPropertyMode()) {
+    return `
+      <div class="az-evidence-legend" aria-label="Confirmation meaning">
+        <div>
+          <strong>Found automatically</strong>
+          <span>CMP has prepared a starting signal for you to review.</span>
+        </div>
+        <div>
+          <strong>Needs confirmation</strong>
+          <span>CMP needs your answer before scoring or recommending services.</span>
+        </div>
+        <div>
+          <strong>No document uploaded</strong>
+          <span>Upload evidence only if you already hold the document.</span>
+        </div>
+      </div>
+    `;
+  }
+
   return `
     <div class="az-evidence-legend" aria-label="Answer and evidence meaning">
       <div>
@@ -4077,11 +4283,44 @@ function propertyCheckerFacts(property) {
     }
   };
 
-  return facts[property.id] || facts["the-butts"];
+  const baseFacts = facts[property.id] || facts["the-butts"];
+  if (isNewPropertyMode() && property.id === "the-butts") {
+    return {
+      ...baseFacts,
+      type: "Needs confirmation",
+      bedrooms: "Needs confirmation",
+      storeys: "Needs confirmation",
+      tenanted: "Unknown",
+      epcRating: "Prepared for review",
+      epcExpiry: "Review before relying on it",
+      epcRef: "Prepared EPC signal",
+      gasAppliances: "Unknown",
+      gasIssue: "No document uploaded",
+      gasGiven: "Unknown",
+      eicrIssue: "No document uploaded",
+      eicrResult: "Needs landlord input",
+      eicrGiven: "Unknown",
+      alarmSmoke: "Needs landlord answer",
+      alarmFuel: "Needs landlord answer",
+      coAlarm: "Needs landlord answer",
+      alarmTest: "Needs landlord answer",
+      tenancyAgreement: "Depends on occupancy",
+      depositProtected: "Depends on occupancy",
+      prescribedInfo: "Depends on occupancy",
+      tenantDocs: "Depends on occupancy",
+      licensingChecked: "Postcode ready for local checks",
+      licenceExpiry: "Unknown",
+      inspectionDate: "Not assessed yet",
+      possessionActive: "No",
+      dampReport: "Not assessed yet"
+    };
+  }
+
+  return baseFacts;
 }
 
 function azSourceForValue(value, defaultSource = "Property record") {
-  const missingValues = ["Setup needed", "Not answered yet", "Unknown", "Missing", "Answer needed", "Not started"];
+  const missingValues = ["Setup needed", "Not answered yet", "Unknown", "Missing", "Answer needed", "Not started", "Needs confirmation", "Needs landlord input", "No document uploaded"];
   return missingValues.includes(value) ? "Setup needed" : defaultSource;
 }
 
@@ -4102,6 +4341,58 @@ function azCardsForSection(sectionId, property) {
   const evidenceSource = property.evidenceScore >= 90 ? "Evidence Vault" : "Evidence missing";
   const gasEvidence = facts.gasIssue === "N/A" || facts.gasIssue === "Not applicable" ? "Not applicable" : property.id === "willow-brook" ? "Expiring soon" : property.id === "station-road" ? "Evidence missing" : "Uploaded";
   const eicrEvidence = facts.eicrResult === "Missing" ? "Evidence missing" : "Uploaded";
+
+  if (isNewPropertyMode()) {
+    const newPropertySections = {
+      "property-basics": [
+        azCard(sectionId, { id: "address", eyebrow: "Found automatically", label: "Address matched", value: "Flat 42, 57 The Butts, Coventry, CV1 3BJ", source: "Address lookup", action: "Confirm", control: "note", helper: "Confirm this is the property you want CMP to use for checks, evidence and tasks." }),
+        azCard(sectionId, { id: "epc-signal", eyebrow: "Found automatically", label: "EPC record prepared for review", value: "Prepared for review", source: "EPC-style lookup", action: "Review", control: "note", helper: "Review before relying on this. CMP has prepared a starting signal, not legal verification." }),
+        azCard(sectionId, { id: "type", eyebrow: "Needs confirmation", label: "Property type", value: facts.type, source: "Landlord confirmation needed", action: "Edit", control: "select", options: ["Flat / apartment", "Terraced house", "Semi-detached house", "Detached house", "HMO / shared house", "Not sure"], helper: "Confirm or correct what CMP should use before scoring the property." }),
+        azCard(sectionId, { id: "bedrooms", eyebrow: "Needs confirmation", label: "Bedrooms", value: facts.bedrooms, source: "Landlord confirmation needed", action: "Answer", control: "range", min: 0, max: 8, suffix: " bedrooms", helper: "Use 0 if you want CMP to keep this open for later." }),
+        azCard(sectionId, { id: "occupancy", eyebrow: "Needs confirmation", label: "Occupancy / tenancy status", value: facts.tenanted, source: "Landlord answer needed", action: "Answer", options: ["Vacant", "Ready to let", "Currently tenanted", "New purchase review", "Not sure"], helper: "Occupancy decides which checks, evidence and reminders CMP should prioritise." }),
+        azCard(sectionId, { id: "postcode", eyebrow: "Ready", label: "Postcode / local check", value: "Ready for local checks", source: "Postcode context", action: "Review", control: "note", helper: "Local/licensing checks can continue once the property details are confirmed." })
+      ],
+      epc: [
+        azCard(sectionId, { id: "occupancy-route", eyebrow: "Step 2", label: "Which setup route applies?", value: facts.tenanted, source: "Landlord answer needed", action: "Answer", options: ["Vacant", "Ready to let", "Currently tenanted", "New purchase review", "Not sure"], helper: "This tells CMP whether tenancy/deposit documents matter now or can wait." }),
+        azCard(sectionId, { id: "move-in", eyebrow: "Tenancy timing", label: "Is anyone due to move in soon?", value: "Unknown", source: "Landlord answer needed", action: "Answer", options: ["Yes", "No", "Already occupied", "Not sure"], helper: "Move-in timing affects how quickly tenant-facing evidence becomes important." }),
+        azCard(sectionId, { id: "landlord-goal", eyebrow: "Goal", label: "What are you trying to do first?", value: "New property setup", source: "Setup flow", action: "Edit", control: "select", options: ["New property setup", "Ready to let", "Review existing tenancy", "New purchase review", "Build evidence pack"], helper: "CMP uses this to keep the guided check practical." })
+      ],
+      "gas-safety": [
+        azCard(sectionId, { id: "appliances", eyebrow: "Landlord answer", label: "Does the property have gas appliances?", value: facts.gasAppliances, source: "Landlord answer needed", action: "Answer" }),
+        azCard(sectionId, { id: "certificate", eyebrow: "Certificate", label: "Gas Safety certificate available?", value: facts.gasIssue, source: "No document uploaded", action: "Answer", options: ["Yes, I can upload it", "No", "Not applicable", "Not sure"], helper: "Only upload or arrange Gas Safety if it applies to this property." }),
+        azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload Gas Safety certificate", value: "No document uploaded", source: "Evidence Vault", action: "Upload", control: "upload", helper: "Upload only if you already hold a relevant certificate." })
+      ],
+      "electrical-safety": [
+        azCard(sectionId, { id: "available", eyebrow: "Certificate", label: "EICR report available?", value: facts.eicrResult, source: "No document uploaded", action: "Answer", options: ["Yes, I can upload it", "No", "Not sure"], helper: "CMP should not treat EICR as missing until this setup answer is confirmed." }),
+        azCard(sectionId, { id: "date-known", eyebrow: "Review date", label: "Expiry or review date known?", value: facts.eicrIssue, source: "Landlord answer needed", action: "Edit", control: "date", helper: "Add the date if you know it, or leave it open for later." }),
+        azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload EICR evidence", value: "No document uploaded", source: "Evidence Vault", action: "Upload", control: "upload" })
+      ],
+      alarms: [
+        azCard(sectionId, { id: "smoke", eyebrow: "Landlord answer", label: "Smoke alarms present where required?", value: facts.alarmSmoke, source: "Landlord answer needed", action: "Answer" }),
+        azCard(sectionId, { id: "co", eyebrow: "Landlord answer", label: "CO alarms present where relevant?", value: facts.coAlarm, source: "Landlord answer needed", action: "Answer" }),
+        azCard(sectionId, { id: "tested", eyebrow: "Tenancy start", label: "Alarms tested at tenancy start?", value: facts.alarmTest, source: "Landlord answer needed", action: "Answer" }),
+        azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload alarm photos or report", value: "Optional after answer", source: "Evidence Vault", action: "Upload", control: "upload" })
+      ],
+      "tenancy-deposit": [
+        azCard(sectionId, { id: "agreement", eyebrow: "Depends on occupancy", label: "Tenancy agreement needed now?", value: facts.tenancyAgreement, source: "Occupancy not confirmed", action: "Answer" }),
+        azCard(sectionId, { id: "deposit", eyebrow: "Depends on occupancy", label: "Deposit protection evidence needed?", value: facts.depositProtected, source: "Occupancy not confirmed", action: "Answer" }),
+        azCard(sectionId, { id: "prescribed", eyebrow: "Depends on occupancy", label: "Prescribed information needed?", value: facts.prescribedInfo, source: "Occupancy not confirmed", action: "Answer" }),
+        azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload tenancy/deposit documents", value: "Wait until occupancy is confirmed", source: "Evidence Vault", action: "Upload", control: "upload" })
+      ],
+      licensing: [
+        azCard(sectionId, { id: "postcode", eyebrow: "Postcode context", label: "Local licensing check", value: facts.licensingChecked, source: "Postcode ready", action: "Review", control: "note", helper: "CMP can continue local checks once the basic property facts are confirmed." }),
+        azCard(sectionId, { id: "hmo", eyebrow: "Landlord answer", label: "Could this be HMO/shared occupancy?", value: "Unknown", source: "Occupancy not confirmed", action: "Answer" }),
+        azCard(sectionId, { id: "licence", eyebrow: "Evidence", label: "Licence evidence available?", value: "Unknown", source: "Landlord answer needed", action: "Answer", options: ["Yes", "No", "Not applicable", "Not sure"] })
+      ],
+      "inspections-maintenance": [
+        azCard(sectionId, { id: "last-inspection", eyebrow: "Inspection", label: "Any recent inspection record?", value: facts.inspectionDate, source: "No record uploaded", action: "Answer" }),
+        azCard(sectionId, { id: "maintenance", eyebrow: "Maintenance", label: "Any known repairs or hazards?", value: facts.dampReport, source: "Landlord answer needed", action: "Answer" }),
+        azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload inspection or maintenance evidence", value: "Optional after setup", source: "Evidence Vault", action: "Upload", control: "upload" })
+      ]
+    };
+
+    return newPropertySections[sectionId] || newPropertySections["property-basics"];
+  }
 
   const sections = {
     "property-basics": [
@@ -4194,12 +4485,44 @@ function renderAzPropertySelector(properties) {
       <select data-az-property-select>
         ${properties.map((property) => `
           <option value="${escapeHtml(property.id)}" ${property.id === azSelectedProperty().id ? "selected" : ""}>
-            ${escapeHtml(property.address)} · ${effectiveComplianceScore(property)}% compliance
+            ${escapeHtml(property.address)}${isNewPropertyMode() ? " · new profile" : ` · ${effectiveComplianceScore(property)}% compliance`}
           </option>
         `).join("")}
       </select>
     </label>
   `;
+}
+
+function renderNewPropertyAzIntro() {
+  return `
+    <aside class="az-scenario-guide" aria-label="What CMP found automatically">
+      <div>
+        <p class="section-kicker">What CMP found first</p>
+        <h4>Starting profile prepared</h4>
+        <p>CMP matched 57 The Butts, prepared EPC context for review and created the property workspace.</p>
+      </div>
+      <dl>
+        <div><dt>Address</dt><dd>Flat 42, 57 The Butts, Coventry, CV1 3BJ</dd></div>
+        <div><dt>EPC</dt><dd>Prepared for review before relying on it</dd></div>
+        <div><dt>Next</dt><dd>Confirm property type, bedrooms and occupancy</dd></div>
+      </dl>
+      <small>Once confirmed, CMP can score evidence gaps and make better service recommendations.</small>
+    </aside>
+  `;
+}
+
+function newPropertySectionContext(section) {
+  const context = {
+    "property-basics": "This comes first because CMP should show what it found before asking unanswered landlord questions.",
+    epc: "Occupancy decides whether tenancy, deposit and tenant-serving evidence matter now or can wait.",
+    "gas-safety": "Gas Safety should only become an action once the landlord confirms whether gas applies and whether a certificate exists.",
+    "electrical-safety": "Electrical Safety becomes a clearer gap after CMP knows whether an EICR is already available.",
+    alarms: "Alarm status is a landlord answer first; supporting evidence can come after the answer.",
+    "tenancy-deposit": "These documents depend on the occupancy route selected earlier in the check.",
+    licensing: "Postcode context is ready, but local checks need property and occupancy details to be useful.",
+    "inspections-maintenance": "Inspection and maintenance evidence can be added once the core setup facts are stable."
+  };
+  return context[section.id] || "Confirm the setup details before CMP treats this as a reliable compliance score.";
 }
 
 function renderAzScenarioSelector() {
@@ -4218,9 +4541,29 @@ function renderAzScenarioSelector() {
 function renderAzProgressHeader({ property, modeLabel }) {
   const section = activeAzSection();
   const step = activeAzSectionIndex() + 1;
-  const completeSections = azSections.filter((item) => item.completion >= 90).length;
+  const sections = activeAzSections();
+  const completeSections = sections.filter((item) => item.completion >= 90).length;
   const remainingAnswers = labsState.azMode === "portfolio" ? Math.max(8, 33 - checkerScoreBoost("portfolio").compliance) : Math.max(4, Math.round((100 - effectiveComplianceScore(property)) / 2));
-  const progress = Math.round(azSections.reduce((total, item) => total + item.completion, 0) / azSections.length);
+  const progress = Math.round(sections.reduce((total, item) => total + item.completion, 0) / sections.length);
+
+  if (isNewPropertyMode()) {
+    return `
+      <div class="az-product-header">
+        <div class="az-product-header-copy">
+          <p class="section-kicker">A-Z Compliance Check</p>
+          <h3>Confirm what CMP found, then fill the gaps.</h3>
+          <p>${escapeHtml(modeLabel)} · ${escapeHtml(section.title)}</p>
+          <small>CMP has prepared a starting property profile from the address and EPC-style lookup. Confirm the details before CMP starts scoring evidence gaps.</small>
+        </div>
+        <div class="az-progress-panel" aria-label="Checker progress">
+          <strong>Step ${step} of ${sections.length}</strong>
+          <span>Awaiting confirmation</span>
+          <small>CMP can generate stronger scores once these setup details are confirmed.</small>
+          <div class="az-progress-track"><span style="width: ${progress}%"></span></div>
+        </div>
+      </div>
+    `;
+  }
 
   return `
     <div class="az-product-header">
@@ -4231,7 +4574,7 @@ function renderAzProgressHeader({ property, modeLabel }) {
         <small>CMP keeps two lists: answers you still need to confirm, and evidence that still needs to be uploaded or matched. You can skip uncertain answers and come back later.</small>
       </div>
       <div class="az-progress-panel" aria-label="Checker progress">
-        <strong>Step ${step} of ${azSections.length}</strong>
+        <strong>Step ${step} of ${sections.length}</strong>
         <span>${completeSections}/11 sections mostly complete</span>
         <small>${remainingAnswers} answers can still be checked later. Progress is a guide, not a legal approval.</small>
         <div class="az-progress-track"><span style="width: ${progress}%"></span></div>
@@ -4241,9 +4584,10 @@ function renderAzProgressHeader({ property, modeLabel }) {
 }
 
 function renderAzSectionRail() {
+  const sections = activeAzSections();
   return `
     <nav class="az-section-rail" aria-label="A-Z checker sections">
-      ${azSections.map((section) => `
+      ${sections.map((section) => `
         <button type="button" class="${section.id === activeAzSection().id ? "is-active" : ""}" data-az-section="${escapeHtml(section.id)}">
           <span class="az-section-icon" data-az-icon="${escapeHtml(section.icon)}"></span>
           <span>${escapeHtml(section.title)}</span>
@@ -4370,14 +4714,15 @@ function renderAzCards(sectionId, property) {
 
 function renderAzSectionNav() {
   const index = activeAzSectionIndex();
-  const previous = azSections[Math.max(0, index - 1)];
-  const next = azSections[Math.min(azSections.length - 1, index + 1)];
+  const sections = activeAzSections();
+  const previous = sections[Math.max(0, index - 1)];
+  const next = sections[Math.min(sections.length - 1, index + 1)];
 
   return `
     <div class="az-step-nav">
       <button class="secondary-button" type="button" data-az-prev ${index === 0 ? "disabled" : ""}>Previous</button>
-      <span>${index + 1} / ${azSections.length}</span>
-      <button class="primary-button" type="button" data-az-next ${index === azSections.length - 1 ? "disabled" : ""}>Next</button>
+      <span>${index + 1} / ${sections.length}</span>
+      <button class="primary-button" type="button" data-az-next ${index === sections.length - 1 ? "disabled" : ""}>Next</button>
       <small>${escapeHtml(previous.title)} / ${escapeHtml(next.title)}</small>
     </div>
   `;
@@ -4390,6 +4735,37 @@ function renderAzOutputPanel(property) {
   const pulse = labsState.scorePulse?.scope === scope ? labsState.scorePulse : null;
   const compliance = effectiveComplianceScore(property);
   const evidence = effectiveEvidenceScore(property);
+
+  if (isNewPropertyMode()) {
+    return `
+      <aside class="az-output-panel">
+        <p class="section-kicker">Checker output</p>
+        <h3>Needs confirmation before scoring</h3>
+        <p class="az-score-explainer">CMP can generate stronger scores once these setup details are confirmed.</p>
+        <div class="score-pair-grid">
+          <article class="score-card is-compact">
+            <div><span>Profile setup</span><strong>25%</strong></div>
+            <div class="score-meter"><span style="width: 25%"></span></div>
+            <small>Address and EPC context are prepared; landlord details still need confirmation.</small>
+          </article>
+          <article class="score-card is-compact">
+            <div><span>Evidence confidence</span><strong>8%</strong></div>
+            <div class="score-meter"><span style="width: 8%"></span></div>
+            <small>No uploaded certificates are stored yet. EPC is only prepared for review.</small>
+          </article>
+        </div>
+        <p class="az-score-note">Prepared data is useful starting context, not legal verification.</p>
+        <dl>
+          <div><dt>What CMP found</dt><dd>Address matched, EPC prepared for review, workspace created, postcode ready for local checks</dd></div>
+          <div><dt>Confirm next</dt><dd>Property type, bedrooms and occupancy / tenancy status</dd></div>
+          <div><dt>Documents not uploaded</dt><dd>Gas Safety, Electrical Safety / EICR, alarms and tenancy/deposit evidence if relevant</dd></div>
+          <div><dt>Recommended next step</dt><dd>Confirm what CMP found before scoring gaps or recommending services</dd></div>
+        </dl>
+        <button class="secondary-button" type="button" data-az-ask>Ask CMP to explain</button>
+      </aside>
+    `;
+  }
+
   return `
     <aside class="az-output-panel">
       <p class="section-kicker">Checker output</p>
@@ -4424,16 +4800,16 @@ function renderAzOutputPanel(property) {
 function renderSingleAzCheck(properties) {
   const property = azSelectedProperty();
   const section = activeAzSection();
+  const isNewSetup = isNewPropertyMode();
 
   return `
     <div class="az-workspace-shell">
       ${renderAzProgressHeader({ property, modeLabel: `Single property · ${property.address}` })}
       <div class="az-control-strip">
         ${renderAzPropertySelector(properties)}
-        ${renderAzScenarioSelector()}
+        ${isNewSetup ? "" : renderAzScenarioSelector()}
       </div>
-      ${renderAzScenarioPills()}
-      ${renderScenarioClarityPanel("single")}
+      ${isNewSetup ? renderNewPropertyAzIntro() : `${renderAzScenarioPills()}${renderScenarioClarityPanel("single")}`}
       <div class="az-workspace-grid">
         ${renderAzSectionRail()}
         <main class="az-active-panel">
@@ -4442,8 +4818,8 @@ function renderSingleAzCheck(properties) {
             <h3>${escapeHtml(section.title)}</h3>
             <p>${escapeHtml(section.description)}</p>
             <div class="az-scenario-context">
-              <strong>Why this section matters now</strong>
-              <span>${escapeHtml(scenarioPriorityCopy(property))}</span>
+              <strong>${isNewSetup ? "Why this comes now" : "Why this section matters now"}</strong>
+              <span>${escapeHtml(isNewSetup ? newPropertySectionContext(section) : scenarioPriorityCopy(property))}</span>
             </div>
           </div>
           ${renderAnswerEvidenceGuide()}
@@ -4823,16 +5199,17 @@ function renderAzChecker() {
 
   const properties = getPortfolioProperties();
   const isEmpty = !properties.length;
-  if (isEmpty && labsState.azMode === "portfolio") {
+  const isNewSetup = isNewPropertyMode();
+  if ((isEmpty || isNewSetup) && labsState.azMode === "portfolio") {
     labsState.azMode = "single";
   }
 
   document.querySelectorAll("[data-az-mode]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.azMode === labsState.azMode);
     if (button.dataset.azMode === "portfolio") {
-      button.hidden = isEmpty;
-      button.disabled = isEmpty;
-      button.setAttribute("aria-disabled", String(isEmpty));
+      button.hidden = isEmpty || isNewSetup;
+      button.disabled = isEmpty || isNewSetup;
+      button.setAttribute("aria-disabled", String(isEmpty || isNewSetup));
     } else {
       button.hidden = false;
       button.disabled = false;
@@ -4840,10 +5217,18 @@ function renderAzChecker() {
     }
   });
 
+  const checkerTitle = document.querySelector(".az-checker-header h2");
+  if (checkerTitle) {
+    checkerTitle.textContent = isNewSetup
+      ? "Confirm what CMP found first"
+      : "A guided check for answers, evidence and next steps.";
+  }
   const checkerIntro = document.querySelector(".az-checker-header h2 + p");
   if (checkerIntro) {
     checkerIntro.textContent = isEmpty
       ? "Add your first property to run the A-Z checker. You can preview the question structure before setup."
+      : isNewSetup
+      ? "CMP has prepared a starting profile from the address and EPC-style lookup. Confirm the details below before CMP scores evidence gaps or recommends services."
       : "Use Single property for one address, or Portfolio sweep to answer shared questions once and only review exceptions. Prototype readiness logic only — this is not legal advice.";
   }
 
@@ -5228,6 +5613,13 @@ function renderPortfolioEvidenceState() {
 
   const properties = getPortfolioProperties();
   const evidenceKicker = document.querySelector("[data-portfolio-evidence] .section-kicker");
+  const evidenceMissingTitle = document.querySelector("#evidenceMissingTitle");
+  const evidenceMissingHeading = evidenceMissingTitle?.closest(".section-heading");
+  if (evidenceMissingHeading) {
+    evidenceMissingHeading.querySelector(".section-kicker").textContent = "MISSING EVIDENCE";
+    evidenceMissingTitle.textContent = "What CMP still needs";
+    evidenceMissingHeading.querySelector("p:not(.section-kicker)").textContent = "A short list of evidence gaps across the portfolio.";
+  }
   if (!properties.length) {
     if (evidenceKicker) {
       evidenceKicker.textContent = "Evidence Vault";
@@ -5302,11 +5694,16 @@ function renderPortfolioEvidenceState() {
     document.querySelector("[data-evidence-health-strength]").textContent = "Starting";
     document.querySelector("[data-evidence-health-verified]").textContent = "No uploaded documents yet";
     document.querySelector("[data-evidence-health-missing]").textContent = "Gas Safety, EICR and occupancy evidence need input";
-    document.querySelector("[data-evidence-health-focus]").textContent = "EPC is prepared for review; upload certificates you already hold.";
+    document.querySelector("[data-evidence-health-focus]").textContent = "EPC is prepared for review; review before relying on it, then upload certificates you already hold.";
     document.querySelector(".evidence-inbox-panel")?.setAttribute("hidden", "");
     document.querySelector(".evidence-toolbar")?.removeAttribute("hidden");
     document.querySelector(".evidence-lower-grid")?.setAttribute("hidden", "");
     document.querySelector("[data-evidence-missing-section]")?.removeAttribute("hidden");
+    if (evidenceMissingHeading) {
+      evidenceMissingHeading.querySelector(".section-kicker").textContent = "57 The Butts";
+      evidenceMissingTitle.textContent = "What CMP still needs for 57 The Butts";
+      evidenceMissingHeading.querySelector("p:not(.section-kicker)").textContent = "Records that are prepared, unknown or waiting for landlord-uploaded documents.";
+    }
     const healthCard = document.querySelector(".property-evidence-health-card");
     if (healthCard) {
       const title = healthCard.querySelector("h2");
@@ -5320,7 +5717,7 @@ function renderPortfolioEvidenceState() {
     }
     document.querySelectorAll("[data-evidence-property-filter]").forEach((button) => {
       const propertyFilter = button.dataset.evidencePropertyFilter;
-      button.hidden = propertyFilter === "willow-brook";
+      button.hidden = propertyFilter !== "the-butts";
       button.classList.toggle("is-active", propertyFilter === labsState.evidencePropertyFilter);
     });
     document.querySelectorAll("[data-evidence-filter]").forEach((button) => {
@@ -5585,21 +5982,21 @@ function activeTaskItems() {
     return [
       {
         id: "new-details",
-        title: "Confirm property type and bedrooms",
+        title: "Confirm what CMP found",
         property: "57 The Butts · CV1 3BJ",
         propertyId: "the-butts",
         category: "Property setup",
         priority: "High",
         source: "Add property",
-        body: "CMP needs landlord confirmation before scoring the property file.",
+        body: "CMP matched the address and prepared EPC context. Confirm property type, bedrooms and occupancy before CMP scores the property file.",
         status: "Needs confirmation",
-        suggestedAction: "Continue guided check",
+        suggestedAction: "Confirm found details",
         board: "todo",
         filters: ["high"],
-        detail: "CMP created this setup task because the address is matched but property details are not confirmed.",
+        detail: "CMP created this setup task because the address and EPC signal are prepared, but the landlord still needs to confirm the details before scoring.",
         search: "property type bedrooms confirm setup 57 butts",
         actions: [
-          { label: "Continue guided check", action: "az:the-butts", primary: true },
+          { label: "Confirm what CMP found", action: "az:the-butts", primary: true },
           { label: "Open property", action: "openProperty" }
         ]
       },
@@ -6032,7 +6429,7 @@ function renderPortfolioTasksState() {
     tasksAsk.textContent = isEmptyTaskState ? "Ask CMP how tasks work" : "Ask CMP what to do first";
   }
   if (tasksKicker) {
-    tasksKicker.textContent = isEmptyTaskState ? "Tasks" : "PORTFOLIO TASKS";
+    tasksKicker.textContent = isEmptyTaskState || isNewPropertyMode() ? "Tasks" : "PORTFOLIO TASKS";
   }
 
   document.querySelector("[data-tasks-active-pill]").textContent = `${activeTasks.length} active ${activeTasks.length === 1 ? "task" : "tasks"}`;
@@ -6705,11 +7102,17 @@ function renderPortfolioActivityState() {
   }
   const activityBadge = document.querySelector("[data-portfolio-activity] .prototype-badge");
   if (activityBadge) {
-    activityBadge.textContent = "Portfolio activity";
+    activityBadge.textContent = isNewPropertyMode() ? "57 The Butts activity" : "Portfolio activity";
   }
   const activityKicker = document.querySelector("[data-portfolio-activity] .section-kicker");
   if (activityKicker) {
-    activityKicker.textContent = "PORTFOLIO ACTIVITY";
+    activityKicker.textContent = isNewPropertyMode() ? "Activity" : "PORTFOLIO ACTIVITY";
+  }
+  const activityHeaderBody = document.querySelector("[data-portfolio-activity] .portfolio-activity-header p:not(.section-kicker)");
+  if (activityHeaderBody) {
+    activityHeaderBody.textContent = isNewPropertyMode()
+      ? "Activity shows what CMP has added or changed in this property file."
+      : "Use Activity to explain what changed, why CMP recorded it and which property or support action it affects.";
   }
   const supportCreated = Boolean(activeSupportRequestForActivity());
   const visitItems = isFivePropertyMode()
@@ -7930,47 +8333,47 @@ function bindPortfolioHome() {
     focusAssistantInput();
   });
 
-	  document.querySelector("[data-home-open-action]")?.addEventListener("click", () => {
-	    if (isEmptyPortfolioMode()) {
-	      openAddPropertyModal();
-	      return;
-	    }
+  document.querySelector("[data-home-open-action]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAddPropertyModal();
+      return;
+    }
 
-	    if (isNewPropertyMode()) {
-	      openNewPropertyGuidedCheck();
-	      return;
-	    }
+    if (isNewPropertyMode()) {
+      openNewPropertyGuidedCheck();
+      return;
+    }
 
-	    openPropertyWorkspace(labsState.eicrAdded ? "timeline" : "overview", labsState.eicrAdded ? "[data-timeline-action-body]" : "[data-next-best-step]");
-	  });
+    openPropertyWorkspace(labsState.eicrAdded ? "timeline" : "overview", labsState.eicrAdded ? "[data-timeline-action-body]" : "[data-next-best-step]");
+  });
 
-	  document.querySelector("[data-home-why]")?.addEventListener("click", () => {
-	    if (isEmptyPortfolioMode()) {
-	      openAssistant(getGlobalAskAssistantResponse("What documents should I prepare?"), { flash: true });
-	      return;
-	    }
+  document.querySelector("[data-home-why]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAssistant(getGlobalAskAssistantResponse("What documents should I prepare?"), { flash: true });
+      return;
+    }
 
-	    if (isNewPropertyMode()) {
-	      openAssistant(getGlobalAskAssistantResponse("What should I confirm first?"), { flash: true });
-	      return;
-	    }
+    if (isNewPropertyMode()) {
+      openAssistant(getGlobalAskAssistantResponse("What should I confirm first?"), { flash: true });
+      return;
+    }
 
-	    openAssistant(getPortfolioAssistantResponse("Ask CMP why this matters"), { flash: true });
-	  });
+    openAssistant(getPortfolioAssistantResponse("Ask CMP why this matters"), { flash: true });
+  });
 
-	  document.querySelector("[data-home-upload-priority]")?.addEventListener("click", () => {
-	    if (isEmptyPortfolioMode()) {
-	      openAddPropertyModal();
-	      return;
-	    }
+  document.querySelector("[data-home-upload-priority]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAddPropertyModal();
+      return;
+    }
 
-	    if (isNewPropertyMode()) {
-	      openNewPropertyEvidence();
-	      return;
-	    }
+    if (isNewPropertyMode()) {
+      openNewPropertyGuidedCheck();
+      return;
+    }
 
-	    const urgentProperty = portfolioUrgentProperty();
-	    if (urgentProperty.id === "willow-brook") {
+    const urgentProperty = portfolioUrgentProperty();
+    if (urgentProperty.id === "willow-brook") {
       showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
       return;
     }
@@ -7978,18 +8381,18 @@ function bindPortfolioHome() {
     openPropertyWorkspace("documents", labsState.eicrAdded ? "[data-inspection-upload-card]" : "[data-document-upload-panel]");
   });
 
-	  document.querySelector("[data-home-arrange-priority]")?.addEventListener("click", () => {
-	    if (isEmptyPortfolioMode()) {
-	      openAssistant(getGlobalAskAssistantResponse("What information do I need to add a property?"), { flash: true });
-	      return;
-	    }
+  document.querySelector("[data-home-arrange-priority]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAssistant(getGlobalAskAssistantResponse("What information do I need to add a property?"), { flash: true });
+      return;
+    }
 
-	    if (isNewPropertyMode()) {
-	      openNewPropertyEvidence();
-	      return;
-	    }
+    if (isNewPropertyMode()) {
+      openNewPropertyEvidence();
+      return;
+    }
 
-	    const urgentProperty = portfolioUrgentProperty();
+    const urgentProperty = portfolioUrgentProperty();
     if (urgentProperty.id === "willow-brook") {
       labsState.selectedServicePropertyId = "willow-brook";
       showGlobalServicePage({ scroll: true });
@@ -8000,6 +8403,11 @@ function bindPortfolioHome() {
   });
 
   document.querySelector("[data-home-open-workspace]")?.addEventListener("click", () => {
+    if (isNewPropertyMode()) {
+      openAssistant(getGlobalAskAssistantResponse("What should I confirm first?"), { flash: true });
+      return;
+    }
+
     openPropertyWorkspace("overview");
   });
 
@@ -8433,8 +8841,9 @@ function bindAzChecker() {
     if (event.target.closest("[data-az-prev]")) {
       setCheckerActive();
       const index = activeAzSectionIndex();
+      const sections = activeAzSections();
       if (index > 0) {
-        labsState.activeCheckerSection = azSections[index - 1].id;
+        labsState.activeCheckerSection = sections[index - 1].id;
         labsState.editingCheckerCard = "";
         renderAzChecker();
       }
@@ -8444,8 +8853,9 @@ function bindAzChecker() {
     if (event.target.closest("[data-az-next]")) {
       setCheckerActive();
       const index = activeAzSectionIndex();
-      if (index < azSections.length - 1) {
-        labsState.activeCheckerSection = azSections[index + 1].id;
+      const sections = activeAzSections();
+      if (index < sections.length - 1) {
+        labsState.activeCheckerSection = sections[index + 1].id;
         labsState.editingCheckerCard = "";
         renderAzChecker();
       }
@@ -11279,5 +11689,8 @@ bindSmartUpload();
 bindServices();
 bindPropertyDetails();
 showPortfolioHome();
+if (isEmptyPortfolioMode() || isNewPropertyMode()) {
+  setAssistantResponse(getGlobalAskDefaultResponse());
+}
 
 window.labsDemoProperty = labsDemoProperty;
