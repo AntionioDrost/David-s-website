@@ -213,6 +213,14 @@ const globalAskPrompts = [
   "What can wait until later?"
 ];
 
+const emptyGlobalAskPrompts = [
+  "How do I get started?",
+  "What documents should I prepare?",
+  "What information do I need to add a property?",
+  "How does CMP help landlords?",
+  "What happens after I add my first property?"
+];
+
 const globalServicePrompts = [
   "What should I book first?",
   "Why is this recommended?",
@@ -609,6 +617,26 @@ function renderGlobalScoreSurfaces() {
 }
 
 const utilityAskPromptMeta = {
+  "How do I get started?": {
+    category: "Setup",
+    helper: "Start with the first property workflow."
+  },
+  "What documents should I prepare?": {
+    category: "Documents",
+    helper: "See which paperwork is useful after setup."
+  },
+  "What information do I need to add a property?": {
+    category: "Property setup",
+    helper: "Prepare the address and basic property details."
+  },
+  "How does CMP help landlords?": {
+    category: "CMP",
+    helper: "Understand checks, evidence, tasks and support."
+  },
+  "What happens after I add my first property?": {
+    category: "Next",
+    helper: "Preview the workspace CMP will build."
+  },
   "What should I do today?": {
     category: "Today",
     helper: "Get the next useful action for the active property."
@@ -634,6 +662,10 @@ const utilityAskPromptMeta = {
     helper: "Separate urgent gaps from watch items."
   }
 };
+
+function currentGlobalAskPrompts() {
+  return isEmptyPortfolioMode() ? emptyGlobalAskPrompts : globalAskPrompts;
+}
 
 const learnPrompts = [
   "Explain EICR",
@@ -1417,6 +1449,18 @@ function applyDemoState(state) {
 }
 
 function getPortfolioAssistantResponse(prompt) {
+  if (isEmptyPortfolioMode()) {
+    const responses = {
+      "Summarise my portfolio": "The portfolio is empty. Add your first property so CMP can create a compliance workspace and start organising evidence, tasks and support.",
+      "What should I do today?": "Add your first property. CMP will use the address to build the workspace, prepare checks and show what evidence to gather.",
+      "Which property needs attention?": "No property needs attention yet because no properties have been added.",
+      "What evidence am I missing?": "CMP cannot identify missing evidence until a property is added. You can prepare EPC, Gas Safety, EICR, inspection and tenancy records if you already have them.",
+      "Ask CMP why this matters": "A property address gives CMP the anchor it needs to organise checks, evidence, tasks and service support.",
+      "Ask CMP what I need": "Start with address and postcode, then gather any existing certificates or tenancy records you already hold."
+    };
+    return responses[prompt] || getGlobalAskDefaultResponse();
+  }
+
   if (isFivePropertyMode()) {
     const responses = {
       "Summarise my portfolio": `You have five properties in this Labs portfolio. ${fullyCompliantProperties().length} is fully compliant, portfolio compliance is ${portfolioComplianceScore()}%, and portfolio evidence is ${portfolioEvidenceScore()}%.`,
@@ -1446,6 +1490,16 @@ function getPortfolioAssistantResponse(prompt) {
 }
 
 function getPropertiesAssistantResponse(prompt) {
+  if (isEmptyPortfolioMode()) {
+    const responses = {
+      "Which property needs attention?": "No property needs attention yet because the portfolio is empty.",
+      "Summarise my properties": "No properties have been added yet. Add your first property to create the first CMP compliance workspace.",
+      "What should I open first?": "Start with Add your first property. Properties will appear here after setup.",
+      "How do I add another property?": "Use Add your first property to open the setup preview. CMP starts with the address and postcode."
+    };
+    return responses[prompt] || getGlobalAskDefaultResponse();
+  }
+
   if (isFivePropertyMode()) {
     const responses = {
       "Which property needs attention?": "3 Station Road needs attention first because both compliance and evidence scores are low. 18 Willow Brook Drive and 9 Canal View also need targeted review.",
@@ -1471,6 +1525,16 @@ function getPropertiesAssistantResponse(prompt) {
 }
 
 function getComplianceCentreAssistantResponse(prompt) {
+  if (isEmptyPortfolioMode()) {
+    const responses = {
+      "What should I fix first?": "There is nothing to fix yet. Add your first property so CMP can identify checks, evidence gaps and useful actions.",
+      "Which evidence is missing?": "CMP cannot identify missing evidence until a property is added.",
+      "What expires soon?": "No renewal dates are being tracked yet because the portfolio is empty.",
+      "Summarise my compliance position": "No compliance position has been created yet. Add a property to start the A-Z Compliance Checker and evidence baseline."
+    };
+    return responses[prompt] || getGlobalAskDefaultResponse();
+  }
+
   if (isFivePropertyMode()) {
     const responses = {
       "What should I fix first?": "Fix 3 Station Road first because it has the lowest compliance and evidence scores. Then confirm Willow Brook Gas Safety renewal and Canal View licensing.",
@@ -1496,6 +1560,16 @@ function getComplianceCentreAssistantResponse(prompt) {
 }
 
 function getEvidenceVaultAssistantResponse(prompt) {
+  if (isEmptyPortfolioMode()) {
+    const responses = {
+      "What evidence is missing?": "CMP cannot identify missing evidence until you add a property. Prepare any certificates and records you already have.",
+      "Which documents are verified?": "No documents are stored yet because no property has been added.",
+      "How should I upload paperwork?": "Add your first property first. CMP will then organise uploads against the correct address.",
+      "Summarise my evidence vault": "Evidence Vault is empty. After setup, it will hold certificates, inspection records and supporting documents for each property."
+    };
+    return responses[prompt] || getGlobalAskDefaultResponse();
+  }
+
   if (isFivePropertyMode()) {
     const responses = {
       "What evidence is missing?": `The five-property portfolio has ${portfolioEvidenceGapCount()} evidence gaps. Station Road needs onboarding evidence; Canal View needs licensing evidence.`,
@@ -1609,6 +1683,11 @@ function getGlobalAskDefaultResponse() {
 function getGlobalAskAssistantResponse(prompt) {
   if (isEmptyPortfolioMode()) {
     const responses = {
+      "How do I get started?": "Start by adding your first property. CMP will then help organise compliance checks, evidence, tasks and support around that address.",
+      "What documents should I prepare?": "Useful starting documents include any EPC, Gas Safety certificate, EICR, inspection records, tenancy paperwork, deposit records, alarm evidence and licensing information you already have.",
+      "What information do I need to add a property?": "Start with the property address and postcode. CMP can then build the workspace and ask for details such as occupancy, property type, landlord goal and existing evidence.",
+      "How does CMP help landlords?": "CMP turns a property address into a workspace for checks, evidence, tasks, activity and support requests, so a landlord can see what is known and what still needs attention.",
+      "What happens after I add my first property?": "CMP will create the property workspace, prepare the A-Z Compliance Checker, organise Evidence Vault around the address and create tasks when evidence or checks need attention.",
       "What should I do today?": "Add your first property, then run the A-Z Compliance Checker. If you already have certificates, keep them ready for Evidence Vault upload after setup.",
       "Which property needs attention?": "No property needs attention yet because the portfolio is empty.",
       "What evidence is missing?": "CMP cannot identify missing evidence until a property and scenario are added. Typical starting evidence includes EPC, Gas Safety, EICR, alarms, tenancy documents and licensing answers.",
@@ -1772,6 +1851,10 @@ function getSettingsAssistantResponse(prompt) {
 }
 
 function getAssistantResponse(prompt) {
+  if (isEmptyPortfolioMode() && emptyGlobalAskPrompts.includes(prompt)) {
+    return getGlobalAskAssistantResponse(prompt);
+  }
+
   if (labsState.currentView === "home") {
     return getPortfolioAssistantResponse(prompt);
   }
@@ -1821,22 +1904,35 @@ function getAssistantResponse(prompt) {
 
 function renderAssistantPrompts() {
   const stack = document.querySelector(".prompt-stack");
+  const assistantSubtitle = document.querySelector("[data-assistant] .assistant-header p");
+  const assistantInput = document.querySelector('[data-assistant-form] input[name="question"]');
   let prompts = overviewPrompts;
 
+  if (assistantSubtitle) {
+    assistantSubtitle.textContent = isEmptyPortfolioMode()
+      ? "Your setup assistant"
+      : "Your property compliance assistant";
+  }
+  if (assistantInput) {
+    assistantInput.placeholder = isEmptyPortfolioMode()
+      ? "Ask what to prepare before adding a property..."
+      : "Ask a question about this property...";
+  }
+
   if (labsState.currentView === "home") {
-    prompts = portfolioPrompts;
+    prompts = isEmptyPortfolioMode() ? emptyGlobalAskPrompts : portfolioPrompts;
   } else if (labsState.currentView === "properties") {
-    prompts = propertiesPrompts;
+    prompts = isEmptyPortfolioMode() ? emptyGlobalAskPrompts : propertiesPrompts;
   } else if (labsState.currentView === "complianceCentre") {
-    prompts = complianceCentrePrompts;
+    prompts = isEmptyPortfolioMode() ? emptyGlobalAskPrompts : complianceCentrePrompts;
   } else if (labsState.currentView === "evidenceVault") {
-    prompts = evidenceVaultPrompts;
+    prompts = isEmptyPortfolioMode() ? emptyGlobalAskPrompts : evidenceVaultPrompts;
   } else if (labsState.currentView === "tasks") {
-    prompts = tasksPrompts;
+    prompts = isEmptyPortfolioMode() ? emptyGlobalAskPrompts : tasksPrompts;
   } else if (labsState.currentView === "activity") {
-    prompts = activityPrompts;
+    prompts = isEmptyPortfolioMode() ? emptyGlobalAskPrompts : activityPrompts;
   } else if (labsState.currentView === "askCmp") {
-    prompts = globalAskPrompts;
+    prompts = currentGlobalAskPrompts();
   } else if (labsState.currentView === "bookService") {
     prompts = globalServicePrompts;
   } else if (labsState.currentView === "learn") {
@@ -2017,25 +2113,54 @@ function renderPortfolioHomeState() {
   }
 
   const properties = getPortfolioProperties();
-  const urgentProperty = portfolioUrgentProperty();
+  const urgentProperty = properties.length ? portfolioUrgentProperty() : null;
   const latestActivity = getRecentActivityItems();
   const autopilotTitle = document.querySelector("[data-home-autopilot-title]");
   const autopilotBody = document.querySelector("[data-home-autopilot-body]");
   const rankList = document.querySelector("[data-home-priority-rank-list]");
+  const summaryPrimary = document.querySelector("[data-home-open-action]");
+  const summarySecondary = document.querySelector("[data-home-why]");
+  const workspaceShortcut = document.querySelector("[data-home-open-workspace]");
+  const homeSecondaryGrid = document.querySelector(".home-two-column");
+  const homeQuickWin = document.querySelector(".home-quick-win-card");
+
   if (!properties.length) {
+    document.querySelectorAll("[data-home-add-property]").forEach((button) => {
+      if (button.classList.contains("quiet-add")) {
+        button.innerHTML = '<span aria-hidden="true">+</span> Add property';
+      } else {
+        button.textContent = "Add your first property";
+      }
+    });
+    if (summaryPrimary) {
+      summaryPrimary.textContent = "Add your first property";
+    }
+    if (summarySecondary) {
+      summarySecondary.textContent = "Ask CMP what to prepare";
+    }
+    if (workspaceShortcut) {
+      workspaceShortcut.hidden = true;
+    }
+    if (homeSecondaryGrid) {
+      homeSecondaryGrid.hidden = true;
+    }
+    if (homeQuickWin) {
+      homeQuickWin.hidden = true;
+    }
     document.querySelector("[data-home-property-count]").textContent = "0";
     document.querySelector("[data-home-property-count-detail]").textContent = "properties tracked";
     document.querySelector("[data-home-priority-count]").textContent = "0";
     document.querySelector("[data-home-priority-detail]").textContent = "add a property first";
     document.querySelector("[data-home-verified-count]").textContent = "0";
     document.querySelector("[data-home-review-count]").textContent = "0";
+    document.querySelector("[data-home-review-detail]").textContent = "nothing to review";
     document.querySelector("[data-home-summary-title]").textContent = "Start from scratch";
     document.querySelector("[data-home-summary-body]").textContent = "Add your first property, run the A-Z Checker, upload existing certificates, or ask CMP what to do first.";
     document.querySelector("[data-home-priority-area]").textContent = "Onboarding";
     document.querySelector("[data-home-priority-status]").textContent = "No properties yet";
     document.querySelector("[data-home-priority-body]").textContent = "CMP needs at least one property before it can personalise compliance checks, evidence scores or service recommendations.";
-    document.querySelector("[data-home-upload-priority]").textContent = "Upload certificates later";
-    document.querySelector("[data-home-arrange-priority]").textContent = "Add first property";
+    document.querySelector("[data-home-upload-priority]").textContent = "Add your first property";
+    document.querySelector("[data-home-arrange-priority]").textContent = "Ask CMP what to prepare";
     if (autopilotTitle) {
       autopilotTitle.textContent = "Build your CMP workspace from scratch";
     }
@@ -2056,6 +2181,12 @@ function renderPortfolioHomeState() {
           <p>Use the checker to discover which answers and evidence are needed.</p>
         </article>
       `;
+    }
+    const homePromptRow = document.querySelector(".portfolio-prompt-row");
+    if (homePromptRow) {
+      homePromptRow.innerHTML = emptyGlobalAskPrompts.slice(0, 4)
+        .map((prompt) => `<button type="button" data-home-prompt="${escapeHtml(prompt)}">${escapeHtml(prompt)}</button>`)
+        .join("");
     }
     const propertyList = document.querySelector("[data-home-property-list]");
     if (propertyList) {
@@ -2089,6 +2220,34 @@ function renderPortfolioHomeState() {
     }
     document.querySelector("[data-home-activity-list]").innerHTML = "<li>No property activity yet</li>";
     return;
+  }
+  document.querySelectorAll("[data-home-add-property]").forEach((button) => {
+    if (button.classList.contains("quiet-add")) {
+      button.innerHTML = '<span aria-hidden="true">+</span> Add property';
+    } else {
+      button.textContent = button.classList.contains("quiet-button") ? "+ Add another property" : "Add property";
+    }
+  });
+  if (summaryPrimary) {
+    summaryPrimary.textContent = "Review next action";
+  }
+  if (summarySecondary) {
+    summarySecondary.textContent = "Ask CMP why this matters";
+  }
+  if (workspaceShortcut) {
+    workspaceShortcut.hidden = false;
+  }
+  if (homeSecondaryGrid) {
+    homeSecondaryGrid.hidden = false;
+  }
+  if (homeQuickWin) {
+    homeQuickWin.hidden = false;
+  }
+  const homePromptRow = document.querySelector(".portfolio-prompt-row");
+  if (homePromptRow) {
+    homePromptRow.innerHTML = portfolioPrompts
+      .map((prompt) => `<button type="button" data-home-prompt="${escapeHtml(prompt)}">${escapeHtml(prompt)}</button>`)
+      .join("");
   }
   const activeRequest = urgentProperty.currentRequest;
   const propertyCountLabel = properties.length === 1 ? "property tracked" : "properties tracked";
@@ -2154,6 +2313,7 @@ function renderPortfolioHomeState() {
     : isTwoPropertyMode() ? "ranked by urgency" : "clear next step";
   document.querySelector("[data-home-verified-count]").textContent = String(properties.reduce((sum, property) => sum + property.verifiedEvidence, 0));
   document.querySelector("[data-home-review-count]").textContent = String(isFivePropertyMode() ? portfolioEvidenceGapCount() : properties.reduce((sum, property) => sum + property.reviewCount, 0));
+  document.querySelector("[data-home-review-detail]").textContent = "areas still checking";
   document.querySelector("[data-home-priority-area]").textContent = urgentProperty.focusArea;
   document.querySelector("[data-home-priority-status]").textContent = urgentProperty.state;
   document.querySelector("[data-home-priority-body]").textContent = isFivePropertyMode()
@@ -2505,19 +2665,23 @@ function renderPortfolioPropertiesState() {
     document.querySelector("[data-properties-count-badge]").textContent = "0 properties tracked";
     document.querySelector("[data-properties-count]").textContent = "0";
     document.querySelector("[data-properties-count-detail]").textContent = "properties tracked";
-    document.querySelector("[data-properties-attention-detail]").textContent = "Add first property";
-    document.querySelector("[data-properties-summary-strength]").textContent = "0%";
+    document.querySelector("[data-properties-attention-count]").textContent = "0";
+    document.querySelector("[data-properties-attention-detail]").textContent = "no property alerts";
+    document.querySelector("[data-properties-summary-strength]").textContent = "-";
     document.querySelector("[data-properties-open-requests]").textContent = "0";
+    document.querySelector(".properties-toolbar")?.setAttribute("hidden", "");
+    document.querySelector("[data-properties-score-grid]")?.setAttribute("hidden", "");
+    document.querySelector(".properties-grow-card")?.setAttribute("hidden", "");
     const resultsContainer = document.querySelector("[data-properties-results]");
     if (resultsContainer) {
       resultsContainer.innerHTML = `
         <article class="empty-portfolio-card">
           <span class="tile-icon" data-icon="building"></span>
           <h2>No properties yet</h2>
-          <p>Add a property to create a compliance workspace. CMP will then show per-property compliance and evidence scores.</p>
+          <p>Add your first property to create a compliance workspace. Properties will appear here with evidence scores, checks and current priorities after setup.</p>
           <div class="button-row">
-            <button class="primary-button" type="button" data-properties-add>Add property</button>
-            <button class="secondary-button" type="button" data-az-mode="single">Preview A-Z Checker</button>
+            <button class="primary-button" type="button" data-properties-add>Add your first property</button>
+            <button class="secondary-button" type="button" data-properties-empty-ask>Ask CMP what information to prepare</button>
           </div>
         </article>
       `;
@@ -2526,6 +2690,10 @@ function renderPortfolioPropertiesState() {
     return;
   }
 
+  document.querySelector("[data-properties-attention-count]").textContent = String(isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1);
+  document.querySelector(".properties-toolbar")?.removeAttribute("hidden");
+  document.querySelector("[data-properties-score-grid]")?.removeAttribute("hidden");
+  document.querySelector(".properties-grow-card")?.removeAttribute("hidden");
   document.querySelector("[data-properties-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} tracked`;
   document.querySelector("[data-properties-count]").textContent = String(properties.length);
   document.querySelector("[data-properties-count-detail]").textContent = properties.length === 1 ? "property tracked" : "properties tracked";
@@ -2642,6 +2810,8 @@ function renderPortfolioComplianceState() {
   const urgentProperty = portfolioUrgentProperty();
 
   if (!properties.length) {
+    document.querySelector("[data-compliance-review-actions]")?.setAttribute("hidden", "");
+    document.querySelector("[data-compliance-score-grid]")?.setAttribute("hidden", "");
     document.querySelector("[data-compliance-count-badge]").textContent = "0 properties monitored";
     document.querySelector("[data-compliance-property-count]").textContent = "0";
     document.querySelector("[data-compliance-property-count-detail]").textContent = "properties tracked";
@@ -2650,10 +2820,15 @@ function renderPortfolioComplianceState() {
     document.querySelector("[data-compliance-open-count]").textContent = "0";
     document.querySelector("[data-compliance-upcoming-count]").textContent = "0";
     document.querySelector("[data-compliance-open-action-detail]").textContent = "setup";
-    document.querySelector("[data-compliance-priority-title]").textContent = "No properties yet";
-    document.querySelector("[data-compliance-priority-body]").textContent = "Add a property to run the A-Z Compliance Checker, create required evidence lists and generate readiness scores.";
-    document.querySelector("[data-compliance-priority-upload]").textContent = "Add property first";
-    document.querySelector("[data-compliance-priority-support]").textContent = "Ask CMP what to prepare";
+    document.querySelector("[data-compliance-priority-title]").textContent = "Add your first property to start compliance checks";
+    document.querySelector("[data-compliance-priority-body]").textContent = "Once you add a property, Compliance Centre will show what CMP knows, what evidence is missing, and which checks need attention.";
+    document.querySelector("[data-compliance-priority-upload]").textContent = "Add your first property";
+    document.querySelector("[data-compliance-priority-support]").textContent = "Preview A-Z Checker";
+    document.querySelector("[data-compliance-open-property]")?.setAttribute("hidden", "");
+    document.querySelector('[aria-labelledby="portfolioMatrixTitle"]')?.setAttribute("hidden", "");
+    document.querySelector("[data-compliance-gaps-section]")?.setAttribute("hidden", "");
+    document.querySelector('[aria-labelledby="portfolioForecastTitle"]')?.setAttribute("hidden", "");
+    document.querySelector(".compliance-readiness-card")?.setAttribute("hidden", "");
     const matrixBody = document.querySelector("[data-compliance-matrix-body]");
     if (matrixBody) {
       matrixBody.innerHTML = `
@@ -2684,6 +2859,13 @@ function renderPortfolioComplianceState() {
 
   const activeRequest = currentComplianceRequest();
 
+  document.querySelector("[data-compliance-review-actions]")?.removeAttribute("hidden");
+  document.querySelector("[data-compliance-score-grid]")?.removeAttribute("hidden");
+  document.querySelector("[data-compliance-open-property]")?.removeAttribute("hidden");
+  document.querySelector('[aria-labelledby="portfolioMatrixTitle"]')?.removeAttribute("hidden");
+  document.querySelector("[data-compliance-gaps-section]")?.removeAttribute("hidden");
+  document.querySelector('[aria-labelledby="portfolioForecastTitle"]')?.removeAttribute("hidden");
+  document.querySelector(".compliance-readiness-card")?.removeAttribute("hidden");
   document.querySelector("[data-compliance-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} monitored`;
   document.querySelector("[data-compliance-property-count]").textContent = String(properties.length);
   document.querySelector("[data-compliance-property-count-detail]").textContent = properties.length === 1 ? "property tracked" : "properties tracked";
@@ -4441,16 +4623,27 @@ function renderPortfolioEvidenceState() {
 
   const properties = getPortfolioProperties();
   if (!properties.length) {
+    document.querySelector("[data-evidence-upload]")?.setAttribute("hidden", "");
+    document.querySelectorAll("[data-evidence-copy-inbox]").forEach((button) => button.setAttribute("hidden", ""));
+    const evidenceAsk = document.querySelector("[data-evidence-ask]");
+    if (evidenceAsk) {
+      evidenceAsk.textContent = "What evidence should I prepare?";
+    }
     document.querySelector("[data-evidence-count-badge]").textContent = "0 properties connected";
     document.querySelector("[data-evidence-verified-count]").textContent = "0";
     document.querySelector("[data-evidence-review-count]").textContent = "0";
     document.querySelector("[data-evidence-review-detail]").textContent = "nothing to review";
     document.querySelector("[data-evidence-missing-count]").textContent = "0";
     document.querySelector("[data-evidence-missing-detail]").textContent = "add a property first";
+    document.querySelector("[data-evidence-inbox-count]").textContent = "0";
     document.querySelector("[data-evidence-health-strength]").textContent = "No score yet";
     document.querySelector("[data-evidence-health-verified]").textContent = "No evidence stored";
     document.querySelector("[data-evidence-health-missing]").textContent = "No properties connected";
     document.querySelector("[data-evidence-health-focus]").textContent = "Add a property before uploading evidence.";
+    document.querySelector(".evidence-inbox-panel")?.setAttribute("hidden", "");
+    document.querySelector(".evidence-toolbar")?.setAttribute("hidden", "");
+    document.querySelector(".evidence-lower-grid")?.setAttribute("hidden", "");
+    document.querySelector("[data-evidence-missing-section]")?.setAttribute("hidden", "");
     const healthCard = document.querySelector(".property-evidence-health-card");
     if (healthCard) {
       healthCard.querySelector("h2").textContent = "Evidence Vault is empty";
@@ -4467,18 +4660,35 @@ function renderPortfolioEvidenceState() {
     }
     if (empty) {
       empty.hidden = false;
-      empty.querySelector("h2").textContent = "No evidence yet";
-      empty.querySelector("p").textContent = "Add a property before uploading certificates or documents.";
+      empty.innerHTML = `
+        <h2>No evidence yet</h2>
+        <p>Once you add a property, Evidence Vault will store certificates, inspection records and supporting documents against the correct address.</p>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-properties-add>Add your first property</button>
+          <button class="secondary-button" type="button" data-evidence-empty-ask>What evidence should I prepare?</button>
+        </div>
+      `;
     }
     renderEvidenceMissingList();
     return;
   }
+  document.querySelector("[data-evidence-upload]")?.removeAttribute("hidden");
+  document.querySelectorAll("[data-evidence-copy-inbox]").forEach((button) => button.removeAttribute("hidden"));
+  const evidenceAsk = document.querySelector("[data-evidence-ask]");
+  if (evidenceAsk) {
+    evidenceAsk.textContent = "Ask CMP what is missing";
+  }
+  document.querySelector(".evidence-inbox-panel")?.removeAttribute("hidden");
+  document.querySelector(".evidence-toolbar")?.removeAttribute("hidden");
+  document.querySelector(".evidence-lower-grid")?.removeAttribute("hidden");
+  document.querySelector("[data-evidence-missing-section]")?.removeAttribute("hidden");
   document.querySelector("[data-evidence-count-badge]").textContent = `${properties.length} ${properties.length === 1 ? "property" : "properties"} connected`;
   document.querySelector("[data-evidence-verified-count]").textContent = isFivePropertyMode() ? String(properties.reduce((sum, property) => sum + property.verifiedEvidence, 0)) : isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
   document.querySelector("[data-evidence-review-count]").textContent = isFivePropertyMode() ? String(portfolioEvidenceGapCount()) : isTwoPropertyMode() ? "2" : labsState.eicrAdded ? "0" : "1";
   document.querySelector("[data-evidence-review-detail]").textContent = isFivePropertyMode() ? "portfolio evidence gaps" : isTwoPropertyMode() ? "Gas renewal and tenancy evidence" : labsState.eicrAdded ? "nothing waiting" : "EICR extraction";
   document.querySelector("[data-evidence-missing-count]").textContent = isFivePropertyMode() ? String(portfolioEvidenceGapCount()) : isTwoPropertyMode() ? (labsState.eicrAdded ? "3" : "4") : labsState.eicrAdded ? "1" : "2";
   document.querySelector("[data-evidence-missing-detail]").textContent = isFivePropertyMode() ? "across five properties" : isTwoPropertyMode() ? "property-specific gaps" : labsState.eicrAdded ? "inspection record" : "EICR and inspection";
+  document.querySelector("[data-evidence-inbox-count]").textContent = "1";
   document.querySelector("[data-evidence-health-strength]").textContent = isFivePropertyMode() ? `${portfolioEvidenceScore()}% evidence score` : isTwoPropertyMode() ? "2 properties tracked" : labsState.eicrAdded ? "58% evidenced" : "42% evidenced";
   document.querySelector("[data-evidence-health-verified]").textContent = isFivePropertyMode() ? `${fullyCompliantProperties().length} fully compliant property` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified records" : "5 verified records") : labsState.eicrAdded ? "3 verified records" : "2 verified records";
   document.querySelector("[data-evidence-health-missing]").textContent = isFivePropertyMode() ? `${portfolioEvidenceGapCount()} evidence gaps visible` : isTwoPropertyMode() ? (labsState.eicrAdded ? "3 evidence gaps visible" : "4 evidence gaps visible") : labsState.eicrAdded ? "Inspection evidence still missing" : "EICR evidence still missing";
@@ -4530,6 +4740,11 @@ function renderPortfolioEvidenceState() {
     list.innerHTML = rows.map(renderEvidenceRow).join("");
   }
   if (empty) {
+    empty.innerHTML = `
+      <h2>No evidence matches this view</h2>
+      <p>No evidence record matches those filters. Clear the view to return to the full vault.</p>
+      <button class="secondary-button" type="button" data-evidence-clear>Clear filters</button>
+    `;
     empty.hidden = Boolean(rows.length);
   }
 
@@ -5018,10 +5233,16 @@ function renderPortfolioTasksState() {
     || activeTasks.find((task) => task.id === "inspection")
     || activeTasks[0];
   const activeRequest = highestPriority ? activeRequestForTask(highestPriority) : null;
+  const isEmptyTaskState = !activeTasks.length && !completedTasks.length;
+  const tasksAsk = document.querySelector("[data-tasks-ask]");
+  if (tasksAsk) {
+    tasksAsk.textContent = isEmptyTaskState ? "Ask CMP how tasks work" : "Ask CMP what to do first";
+  }
 
   document.querySelector("[data-tasks-active-pill]").textContent = `${activeTasks.length} active ${activeTasks.length === 1 ? "task" : "tasks"}`;
   document.querySelector("[data-tasks-active-count]").textContent = String(activeTasks.length);
   document.querySelector("[data-tasks-priority-label]").textContent = highestPriority ? highestPriority.id === "willow-gas-renewal" ? "Gas Safety" : highestPriority.id === "eicr" ? "EICR" : highestPriority.id === "inspection" ? "Inspection" : "Licensing" : "Setup";
+  document.querySelector("[data-tasks-due-count]").textContent = highestPriority ? "1" : "0";
   document.querySelector("[data-tasks-completed-count]").textContent = String(completedTasks.length);
   document.querySelector("[data-tasks-start-title]").textContent = highestPriority?.title || "No property tasks yet";
   const startProperty = document.querySelector(".tasks-start-card .property-card-label");
@@ -5050,9 +5271,12 @@ function renderPortfolioTasksState() {
   } else if (startActions) {
     startActions.innerHTML = `
       <button class="primary-button" type="button" data-properties-add>Add your first property</button>
-      <button class="secondary-button" type="button" data-az-mode="single">Preview A-Z setup</button>
     `;
   }
+
+  document.querySelector("[data-tasks-review-completed]")?.toggleAttribute("hidden", isEmptyTaskState);
+  document.querySelector(".tasks-toolbar")?.toggleAttribute("hidden", isEmptyTaskState);
+  document.querySelector(".tasks-completed-section")?.toggleAttribute("hidden", isEmptyTaskState);
 
   const searchInput = document.querySelector("[data-task-search]");
   if (searchInput && searchInput.value !== labsState.taskSearch) {
@@ -5086,6 +5310,17 @@ function renderPortfolioTasksState() {
     board.innerHTML = renderTaskBoard(tasksForView);
   }
   if (empty) {
+    empty.innerHTML = isEmptyTaskState
+      ? `
+        <h2>No tasks yet</h2>
+        <p>Tasks will appear after you add a property and CMP identifies missing evidence, upcoming renewals or checks that need attention.</p>
+        <button class="primary-button" type="button" data-properties-add>Add your first property</button>
+      `
+      : `
+        <h2>No tasks match this view</h2>
+        <p>No task matches those filters. Clear the view to return to the active action list.</p>
+        <button class="secondary-button" type="button" data-task-clear>Clear filters</button>
+      `;
     empty.hidden = hasTasks;
   }
 
@@ -5551,6 +5786,17 @@ function renderPortfolioActivityState() {
 
   const allEvents = getActivityEvents();
   if (isEmptyPortfolioMode()) {
+    document.querySelector("[data-activity-open-timeline]")?.setAttribute("hidden", "");
+    document.querySelector(".activity-toolbar")?.setAttribute("hidden", "");
+    document.querySelector("[data-activity-summary-open]")?.setAttribute("hidden", "");
+    const activityAsk = document.querySelector("[data-activity-ask]");
+    if (activityAsk) {
+      activityAsk.textContent = "Ask CMP how activity works";
+    }
+    const activityBadge = document.querySelector("[data-portfolio-activity] .prototype-badge");
+    if (activityBadge) {
+      activityBadge.textContent = "Portfolio activity";
+    }
     document.querySelector("[data-activity-event-count]").textContent = "0";
     document.querySelector("[data-activity-evidence-count]").textContent = "0";
     document.querySelector("[data-activity-action-count]").textContent = "0";
@@ -5572,6 +5818,17 @@ function renderPortfolioActivityState() {
     }
     renderActivitySummaryModalState();
     return;
+  }
+  document.querySelector("[data-activity-open-timeline]")?.removeAttribute("hidden");
+  document.querySelector(".activity-toolbar")?.removeAttribute("hidden");
+  document.querySelector("[data-activity-summary-open]")?.removeAttribute("hidden");
+  const activityAsk = document.querySelector("[data-activity-ask]");
+  if (activityAsk) {
+    activityAsk.textContent = "Ask CMP what changed";
+  }
+  const activityBadge = document.querySelector("[data-portfolio-activity] .prototype-badge");
+  if (activityBadge) {
+    activityBadge.textContent = "Portfolio activity";
   }
   const supportCreated = Boolean(activeSupportRequestForActivity());
   const visitItems = isFivePropertyMode()
@@ -6149,35 +6406,35 @@ function askContextHighlight() {
 function resolveUtilityAskPrompt(rawValue) {
   const value = (rawValue || "").trim();
   if (!value) {
-    return "What should I do today?";
+    return currentGlobalAskPrompts()[0];
   }
 
-  const exact = globalAskPrompts.find((prompt) => prompt.toLowerCase() === value.toLowerCase());
+  const exact = currentGlobalAskPrompts().find((prompt) => prompt.toLowerCase() === value.toLowerCase());
   if (exact) {
     return exact;
   }
 
   const lower = value.toLowerCase();
   if (lower.includes("today") || lower.includes("first") || lower.includes("next")) {
-    return "What should I do today?";
+    return isEmptyPortfolioMode() ? "How do I get started?" : "What should I do today?";
   }
   if (lower.includes("property") || lower.includes("attention")) {
-    return "Which property needs attention?";
+    return isEmptyPortfolioMode() ? "What information do I need to add a property?" : "Which property needs attention?";
   }
   if (lower.includes("evidence") || lower.includes("missing") || lower.includes("certificate")) {
-    return "What evidence is missing?";
+    return isEmptyPortfolioMode() ? "What documents should I prepare?" : "What evidence is missing?";
   }
   if (lower.includes("explain") || lower.includes("file")) {
-    return "Explain this property file";
+    return isEmptyPortfolioMode() ? "How does CMP help landlords?" : "Explain this property file";
   }
   if (lower.includes("summar")) {
-    return "Summarise my portfolio";
+    return isEmptyPortfolioMode() ? "How does CMP help landlords?" : "Summarise my portfolio";
   }
   if (lower.includes("wait") || lower.includes("later")) {
     return "What can wait until later?";
   }
 
-  return "What should I do today?";
+  return currentGlobalAskPrompts()[0];
 }
 
 function setUtilityAskPrompt(prompt) {
@@ -6193,10 +6450,27 @@ function setUtilityAskPrompt(prompt) {
 }
 
 function renderPortfolioUtilityState() {
-  const activePrompt = labsState.utilityAskPrompt || "What should I do today?";
+  const visibleAskPrompts = currentGlobalAskPrompts();
+  const activePrompt = visibleAskPrompts.includes(labsState.utilityAskPrompt)
+    ? labsState.utilityAskPrompt
+    : visibleAskPrompts[0];
   const askResponse = document.querySelector("[data-utility-ask-response]");
   if (askResponse) {
-    askResponse.textContent = labsState.utilityAskPrompt ? getGlobalAskAssistantResponse(labsState.utilityAskPrompt) : getGlobalAskDefaultResponse();
+    askResponse.textContent = getGlobalAskAssistantResponse(activePrompt);
+  }
+
+  const promptGrid = document.querySelector("[data-utility-ask-prompts]");
+  if (promptGrid) {
+    promptGrid.innerHTML = visibleAskPrompts.map((prompt) => {
+      const meta = utilityAskPromptMeta[prompt] || { category: "Ask CMP", helper: "Ask for setup guidance." };
+      return `
+        <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="${escapeHtml(prompt)}">
+          <span class="source-badge">${escapeHtml(meta.category)}</span>
+          <strong>${escapeHtml(prompt)}</strong>
+          <small>${escapeHtml(meta.helper)}</small>
+        </button>
+      `;
+    }).join("");
   }
 
   document.querySelectorAll("[data-utility-ask-prompt]").forEach((button) => {
@@ -6209,6 +6483,9 @@ function renderPortfolioUtilityState() {
   const sequence = document.querySelector(".ask-context-sequence");
   const sourceGrid = document.querySelector("[data-ask-source-grid]");
   const chatTitle = document.querySelector(".ask-chat-topline h2");
+  const chatState = document.querySelector("[data-ask-chat-state]");
+  const askHeaderBody = document.querySelector("[data-portfolio-ask] .portfolio-utility-header p:not(.section-kicker)");
+  const askCheckChips = document.querySelector("[data-portfolio-ask] .ask-check-chip-row");
   const highlight = askContextHighlight();
 
   if (chatUser) {
@@ -6236,10 +6513,24 @@ function renderPortfolioUtilityState() {
   }
   if (chatTitle) {
     chatTitle.textContent = isEmptyPortfolioMode()
-      ? "Setup brain for a new landlord"
+      ? "Setup assistant"
       : isFivePropertyMode()
         ? "Portfolio brain for 5 properties"
         : isTwoPropertyMode() ? "Portfolio brain for 2 properties" : "Portfolio brain for 57 The Butts";
+  }
+  if (chatState) {
+    chatState.textContent = isEmptyPortfolioMode() ? "Setup guidance" : "Context live";
+  }
+  if (askHeaderBody) {
+    askHeaderBody.textContent = isEmptyPortfolioMode()
+      ? "Ask CMP what to prepare before adding your first property."
+      : "Ask CMP to read the property file, evidence, tasks, activity and support requests, then explain the next step.";
+  }
+  if (askCheckChips) {
+    askCheckChips.innerHTML = (isEmptyPortfolioMode()
+      ? ["property setup", "documents to prepare", "first property", "A-Z preview"]
+      : ["property file", "certificates", "missing evidence", "upcoming reviews", "support requests", "activity history"]
+    ).map((chip) => `<span>${escapeHtml(chip)}</span>`).join("");
   }
 
   const highlightTitle = document.querySelector("[data-ask-context-highlight-title]");
@@ -6258,11 +6549,11 @@ function renderPortfolioUtilityState() {
         <div class="az-checker-header">
           <div>
             <p class="section-kicker">Suggested next workflow</p>
-            <h2>${isFivePropertyMode() ? "Run Portfolio Sweep" : "Run the Compliance A-Z Checker"}</h2>
-            <p>${isEmptyPortfolioMode() ? "Preview setup questions before the first property is added." : "Use the checker to turn CMP's context into scores, gaps and service recommendations."}</p>
+            <h2>${isEmptyPortfolioMode() ? "Add your first property first" : isFivePropertyMode() ? "Run Portfolio Sweep" : "Run the Compliance A-Z Checker"}</h2>
+            <p>${isEmptyPortfolioMode() ? "The checker becomes useful once there is an address to check. You can still preview the setup questions from Compliance Centre." : "Use the checker to turn CMP's context into scores, gaps and service recommendations."}</p>
           </div>
           <div class="button-row">
-            <button class="primary-button" type="button" data-az-mode="${isFivePropertyMode() ? "portfolio" : "single"}">${isFivePropertyMode() ? "Open Portfolio Sweep" : "Open A-Z Checker"}</button>
+            <button class="${isEmptyPortfolioMode() ? "secondary-button" : "primary-button"}" type="button" data-az-mode="${isFivePropertyMode() ? "portfolio" : "single"}">${isEmptyPortfolioMode() ? "Preview A-Z Checker" : isFivePropertyMode() ? "Open Portfolio Sweep" : "Open A-Z Checker"}</button>
           </div>
         </div>
       </article>
@@ -6638,20 +6929,29 @@ function bindPortfolioHome() {
   });
 
   document.querySelector("[data-home-open-action]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAddPropertyModal();
+      return;
+    }
+
     openPropertyWorkspace(labsState.eicrAdded ? "timeline" : "overview", labsState.eicrAdded ? "[data-timeline-action-body]" : "[data-next-best-step]");
   });
 
   document.querySelector("[data-home-why]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAssistant(getGlobalAskAssistantResponse("What documents should I prepare?"), { flash: true });
+      return;
+    }
+
     openAssistant(getPortfolioAssistantResponse("Ask CMP why this matters"), { flash: true });
   });
 
-  document.querySelectorAll("[data-home-prompt]").forEach((button) => {
-    button.addEventListener("click", () => {
-      openAssistant(getPortfolioAssistantResponse(button.dataset.homePrompt), { flash: true });
-    });
-  });
-
   document.querySelector("[data-home-upload-priority]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAddPropertyModal();
+      return;
+    }
+
     const urgentProperty = portfolioUrgentProperty();
     if (urgentProperty.id === "willow-brook") {
       showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
@@ -6662,6 +6962,11 @@ function bindPortfolioHome() {
   });
 
   document.querySelector("[data-home-arrange-priority]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAssistant(getGlobalAskAssistantResponse("What information do I need to add a property?"), { flash: true });
+      return;
+    }
+
     const urgentProperty = portfolioUrgentProperty();
     if (urgentProperty.id === "willow-brook") {
       labsState.selectedServicePropertyId = "willow-brook";
@@ -6728,6 +7033,15 @@ function bindPortfolioHome() {
   });
 
   document.addEventListener("click", (event) => {
+    const homePromptButton = event.target.closest("[data-home-prompt]");
+    if (homePromptButton) {
+      const response = isEmptyPortfolioMode()
+        ? getGlobalAskAssistantResponse(homePromptButton.dataset.homePrompt)
+        : getPortfolioAssistantResponse(homePromptButton.dataset.homePrompt);
+      openAssistant(response, { flash: true });
+      return;
+    }
+
     if (event.target.closest("[data-home-property-list] [data-home-add-property]")) {
       openAddPropertyModal();
       return;
@@ -6907,6 +7221,12 @@ function bindTabs() {
 
 function bindPortfolioCompliance() {
   document.querySelector("[data-compliance-ask]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAssistant(getGlobalAskAssistantResponse("How does CMP help landlords?"));
+      focusAssistantInput();
+      return;
+    }
+
     openAssistant(getComplianceCentreAssistantResponse("What should I fix first?"));
     focusAssistantInput();
   });
@@ -6916,6 +7236,11 @@ function bindPortfolioCompliance() {
   });
 
   document.querySelector("[data-compliance-priority-upload]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAddPropertyModal();
+      return;
+    }
+
     const urgentProperty = portfolioUrgentProperty();
     if (urgentProperty.id === "willow-brook") {
       showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
@@ -6931,6 +7256,13 @@ function bindPortfolioCompliance() {
   });
 
   document.querySelector("[data-compliance-priority-support]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      labsState.azMode = "single";
+      showPortfolioCompliance({ scroll: true });
+      window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
+      return;
+    }
+
     const urgentProperty = portfolioUrgentProperty();
     if (urgentProperty.id === "willow-brook") {
       labsState.selectedServicePropertyId = "willow-brook";
@@ -7127,6 +7459,11 @@ function bindAzChecker() {
 
     if (event.target.closest("[data-az-ask]")) {
       setCheckerActive();
+      if (isEmptyPortfolioMode()) {
+        openAssistant(getGlobalAskAssistantResponse("What information do I need to add a property?"), { flash: true });
+        return;
+      }
+
       const property = azSelectedProperty();
       openAssistant(`${property.address}: CMP is showing ${azStatusForProperty(property).toLowerCase()} because the compliance score is ${effectiveComplianceScore(property)}% and the evidence score is ${effectiveEvidenceScore(property)}%. This is prototype readiness guidance only, not legal advice.`, { flash: true });
       return;
@@ -7255,6 +7592,11 @@ function handleEvidenceAction(action) {
 
 function bindPortfolioEvidence() {
   document.querySelector("[data-evidence-upload]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAddPropertyModal();
+      return;
+    }
+
     openPropertySmartUpload();
   });
 
@@ -7263,6 +7605,12 @@ function bindPortfolioEvidence() {
   });
 
   document.querySelector("[data-evidence-ask]")?.addEventListener("click", () => {
+    if (isEmptyPortfolioMode()) {
+      openAssistant(getGlobalAskAssistantResponse("What documents should I prepare?"));
+      focusAssistantInput();
+      return;
+    }
+
     openAssistant(getEvidenceVaultAssistantResponse("What evidence is missing?"));
     focusAssistantInput();
   });
@@ -7903,6 +8251,16 @@ function bindUtilityPages() {
   document.addEventListener("click", (event) => {
     if (event.target.closest("[data-properties-add], [data-home-add-property]")) {
       openAddPropertyModal();
+      return;
+    }
+
+    if (event.target.closest("[data-properties-empty-ask]")) {
+      openAssistant(getGlobalAskAssistantResponse("What information do I need to add a property?"), { flash: true });
+      return;
+    }
+
+    if (event.target.closest("[data-evidence-empty-ask]")) {
+      openAssistant(getGlobalAskAssistantResponse("What documents should I prepare?"), { flash: true });
       return;
     }
 
