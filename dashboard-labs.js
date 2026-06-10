@@ -79,6 +79,7 @@ const labsState = {
   azPropertyId: "the-butts",
   azScenario: "general",
   activeCheckerSection: "property-basics",
+  portfolioSweepStage: "scope",
   editingCheckerCard: "",
   checkerAnswers: {},
   checkerScoreBoosts: {},
@@ -1211,6 +1212,7 @@ function resetDemoState() {
   labsState.azPropertyId = "the-butts";
   labsState.azScenario = "general";
   labsState.activeCheckerSection = "property-basics";
+  labsState.portfolioSweepStage = "scope";
   labsState.editingCheckerCard = "";
   labsState.checkerAnswers = {};
   labsState.checkerScoreBoosts = {};
@@ -2268,11 +2270,100 @@ function propertyMatchesCurrentView(property) {
   return matchesSearch && matchesFilter;
 }
 
+function propertyMapLabelParts(property) {
+  const city = (property.location || "").split(",")[0]?.trim() || "Local area";
+  const postcodeArea = (property.postcode || "").split(" ")[0] || city;
+  const street = (property.address || "Property")
+    .replace(/^\d+\s*/, "")
+    .split(/\s+/)
+    .slice(0, 3)
+    .join(" ");
+
+  return {
+    primary: city.toUpperCase(),
+    secondary: postcodeArea.toUpperCase(),
+    street: street.toUpperCase()
+  };
+}
+
+function propertyMapSeed(value) {
+  return String(value).split("").reduce((total, char) => {
+    return ((total << 5) - total + char.charCodeAt(0)) | 0;
+  }, 0);
+}
+
+function seededMapValue(seed, index, min, max) {
+  const raw = Math.sin(seed * 12.9898 + index * 78.233) * 43758.5453;
+  return min + (raw - Math.floor(raw)) * (max - min);
+}
+
+function propertyMapPath(seed, index, vertical = false) {
+  const points = [];
+  const startX = vertical ? seededMapValue(seed, index, 70, 760) : -90;
+  const startY = vertical ? -50 : seededMapValue(seed, index, 38, 260);
+  points.push([startX, startY]);
+
+  for (let step = 1; step <= 5; step += 1) {
+    const drift = seededMapValue(seed, index + step * 7, -42, 42);
+    const x = vertical
+      ? startX + drift + step * seededMapValue(seed, index + 33, -7, 7)
+      : startX + step * 205;
+    const y = vertical
+      ? startY + step * 86
+      : startY + drift + step * seededMapValue(seed, index + 45, -5, 5);
+    points.push([x, y]);
+  }
+
+  return points.map(([x, y], pointIndex) => {
+    return `${pointIndex === 0 ? "M" : "L"} ${x.toFixed(1)} ${y.toFixed(1)}`;
+  }).join(" ");
+}
+
+function propertyMapDataUri(property) {
+  const labels = propertyMapLabelParts(property);
+  const seed = Math.abs(propertyMapSeed(`${property.id}-${property.address}-${property.postcode}`));
+  const majorRoads = Array.from({ length: 3 }, (_, index) => propertyMapPath(seed, index + 1, index % 2 === 0));
+  const minorRoads = Array.from({ length: 7 }, (_, index) => propertyMapPath(seed + 17, index + 5, index % 3 === 0));
+  const areaX = seededMapValue(seed, 61, 390, 610).toFixed(1);
+  const areaY = seededMapValue(seed, 62, 118, 188).toFixed(1);
+  const streetX = seededMapValue(seed, 63, 118, 720).toFixed(1);
+  const streetY = seededMapValue(seed, 64, 48, 245).toFixed(1);
+  const streetRotation = seededMapValue(seed, 65, -18, 18).toFixed(1);
+  const districtRotation = seededMapValue(seed, 66, -6, 6).toFixed(1);
+  const markerX = seededMapValue(seed, 67, 210, 700).toFixed(1);
+  const markerY = seededMapValue(seed, 68, 70, 225).toFixed(1);
+  const svg = `
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 300">
+      <rect width="900" height="300" fill="#f3f8f5"/>
+      <g fill="none" stroke-linecap="round" stroke-linejoin="round">
+        ${minorRoads.map((path) => `<path d="${path}" stroke="#93aaa0" stroke-width="7" opacity="0.48"/>`).join("")}
+        ${majorRoads.map((path) => `<path d="${path}" stroke="#728d82" stroke-width="13" opacity="0.38"/><path d="${path}" stroke="#fbfffc" stroke-width="5" opacity="0.72"/>`).join("")}
+      </g>
+      <g fill="#718980" font-family="Avenir Next, Inter, Arial, sans-serif" text-anchor="middle">
+        <text x="${areaX}" y="${areaY}" transform="rotate(${districtRotation} ${areaX} ${areaY})" font-size="25" font-weight="750" letter-spacing="8" opacity="0.42">${escapeHtml(labels.primary)}</text>
+        <text x="${streetX}" y="${streetY}" transform="rotate(${streetRotation} ${streetX} ${streetY})" font-size="15" font-weight="680" letter-spacing="2" opacity="0.46">${escapeHtml(labels.street)}</text>
+        <text x="820" y="52" font-size="13" font-weight="760" letter-spacing="4" opacity="0.34">${escapeHtml(labels.secondary)}</text>
+      </g>
+      <circle cx="${markerX}" cy="${markerY}" r="8" fill="#267653" opacity="0.16"/>
+      <circle cx="${markerX}" cy="${markerY}" r="2.8" fill="#267653" opacity="0.32"/>
+    </svg>
+  `;
+
+  return `data:image/svg+xml,${encodeURIComponent(svg)}`;
+}
+
+function propertyMapStyle(property) {
+  const seed = Math.abs(propertyMapSeed(`${property.id}-${property.location}`));
+  const x = seededMapValue(seed, 88, 38, 64).toFixed(1);
+  const y = seededMapValue(seed, 89, 42, 58).toFixed(1);
+  return `--property-map: url('${propertyMapDataUri(property)}'); --property-map-position: ${x}% ${y}%;`;
+}
+
 function renderPropertiesCard(property) {
   const openRequests = openRequestCountForProperty(property.id);
 
   return `
-    <article class="properties-card${property.mostUrgent ? " is-most-urgent" : ""}" data-property-id="${escapeHtml(property.id)}">
+    <article class="properties-card${property.mostUrgent ? " is-most-urgent" : ""}" style="${propertyMapStyle(property)}" data-property-id="${escapeHtml(property.id)}">
       <div class="properties-card-main">
         <div>
           <div class="property-card-heading-row">
@@ -2317,7 +2408,7 @@ function renderPropertiesCard(property) {
 
 function renderPropertiesCompactRow(property) {
   return `
-    <article class="properties-compact-row" data-property-id="${escapeHtml(property.id)}">
+    <article class="properties-compact-row" style="${propertyMapStyle(property)}" data-property-id="${escapeHtml(property.id)}">
       <div>
         <span>Property</span>
         <strong>${escapeHtml(property.address)}</strong>
@@ -2745,6 +2836,58 @@ const azScenarioLabels = {
   evidence_pack: "Compliance evidence pack"
 };
 
+const azScenarioDetails = {
+  general: {
+    summary: "A broad health check across the core compliance areas.",
+    prioritises: "EPC, Gas Safety, EICR, alarms, tenancy documents, licensing and inspections.",
+    questions: "Starts with property facts, then checks each essential area in a steady order.",
+    evidence: "Highlights missing proof separately from answers you can give from memory.",
+    action: "Use this when you want CMP to find the obvious gaps before choosing a service."
+  },
+  ready: {
+    summary: "A pre-let check focused on what should be ready before a tenant moves in.",
+    prioritises: "Certificates, alarm checks, tenant-facing documents and expiry dates.",
+    questions: "Pulls certificate and tenant-service questions forward.",
+    evidence: "Treats gas, EICR, EPC, alarms and tenant documents as higher-priority proof.",
+    action: "Expect next steps around upload, renewal, or arranging a certificate before let."
+  },
+  tenanted: {
+    summary: "A live tenancy check focused on what has been served and what is due next.",
+    prioritises: "Renewals, tenant-facing evidence, deposits, inspections and repair history.",
+    questions: "Emphasises served documents, renewal dates and recent property activity.",
+    evidence: "Looks for proof that certificates and documents were stored or served.",
+    action: "Use this when a tenant is already in place and you need an operational view."
+  },
+  purchase: {
+    summary: "An onboarding review for a property you have just bought or are assessing.",
+    prioritises: "Seller certificates, initial setup, licensing checks and missing baseline facts.",
+    questions: "Keeps property basics and setup questions prominent.",
+    evidence: "Flags where seller or agent documents still need to be uploaded.",
+    action: "Expect a setup list rather than a renewal list."
+  },
+  hmo: {
+    summary: "A licensing-led review for shared, HMO or local-authority uncertainty.",
+    prioritises: "Occupancy, local licensing, HMO/selective licensing, fire and amenity evidence.",
+    questions: "Moves licensing and occupancy answers higher in the flow.",
+    evidence: "Looks for licence proof, local authority notes and supporting safety evidence.",
+    action: "Use this when the property may need extra local or HMO checks."
+  },
+  possession: {
+    summary: "An evidence-organisation view before any possession pathway is considered.",
+    prioritises: "Tenancy documents, notices, communications, repairs and inspection history.",
+    questions: "Adds more emphasis to evidence pack, communications and condition records.",
+    evidence: "Separates missing proof from legal decisions; CMP is not giving legal advice.",
+    action: "Use this to organise records before asking for professional support."
+  },
+  evidence_pack: {
+    summary: "A document-first view for building a clean, export-ready evidence pack.",
+    prioritises: "Stored certificates, uploaded documents, timeline entries and unresolved gaps.",
+    questions: "Keeps document status and proof gaps visible throughout the flow.",
+    evidence: "Treats upload status as the main signal and keeps unanswered landlord inputs open.",
+    action: "Use this when you want to tidy the file rather than answer every question now."
+  }
+};
+
 const azSections = [
   {
     id: "property-basics",
@@ -2900,6 +3043,52 @@ function scenarioPriorityCopy(property) {
     general: `CMP is checking the six essential compliance areas and separating missing answers from missing evidence.`
   };
   return copies[labsState.azScenario] || copies.general;
+}
+
+function activeScenarioDetail() {
+  return azScenarioDetails[labsState.azScenario] || azScenarioDetails.general;
+}
+
+function renderScenarioClarityPanel(mode = "single") {
+  const detail = activeScenarioDetail();
+  const modeCopy = mode === "portfolio"
+    ? "This changes the order CMP highlights portfolio questions, the evidence it treats as urgent, and the wording of recommended actions."
+    : "This changes the current priority, the questions CMP brings forward, and the next actions shown in the output panel.";
+
+  return `
+    <aside class="az-scenario-guide" aria-label="What changes in this scenario">
+      <div>
+        <p class="section-kicker">Selected scenario</p>
+        <h4>${escapeHtml(azScenarioLabels[labsState.azScenario])}</h4>
+        <p>${escapeHtml(detail.summary)}</p>
+      </div>
+      <dl>
+        <div><dt>CMP prioritises</dt><dd>${escapeHtml(detail.prioritises)}</dd></div>
+        <div><dt>Questions change</dt><dd>${escapeHtml(detail.questions)}</dd></div>
+        <div><dt>Evidence focus</dt><dd>${escapeHtml(detail.evidence)}</dd></div>
+      </dl>
+      <small>${escapeHtml(modeCopy)}</small>
+    </aside>
+  `;
+}
+
+function renderAnswerEvidenceGuide() {
+  return `
+    <div class="az-evidence-legend" aria-label="Answer and evidence meaning">
+      <div>
+        <strong>Missing answer</strong>
+        <span>CMP needs you to choose or confirm something.</span>
+      </div>
+      <div>
+        <strong>Missing evidence</strong>
+        <span>CMP needs a document, photo or record stored in the Evidence Vault.</span>
+      </div>
+      <div>
+        <strong>Landlord confirmed</strong>
+        <span>You have answered it, but proof may still be useful.</span>
+      </div>
+    </div>
+  `;
 }
 
 function checkerScopeKey() {
@@ -3300,14 +3489,14 @@ function renderAzProgressHeader({ property, modeLabel }) {
     <div class="az-product-header">
       <div class="az-product-header-copy">
         <p class="section-kicker">A-Z Compliance Check</p>
-        <h3>Answer what you know. CMP organises the rest.</h3>
+        <h3>Answer the landlord questions. Let evidence fill the proof gaps.</h3>
         <p>${escapeHtml(modeLabel)} · ${escapeHtml(azScenarioLabels[labsState.azScenario])} · ${escapeHtml(section.title)}</p>
-        <small>Answer what you know now. CMP separates missing answers from missing evidence, and uploaded documents can fill some answers automatically.</small>
+        <small>CMP keeps two lists: answers you still need to confirm, and evidence that still needs to be uploaded or matched. You can skip uncertain answers and come back later.</small>
       </div>
       <div class="az-progress-panel" aria-label="Checker progress">
         <strong>Step ${step} of ${azSections.length}</strong>
-        <span>${completeSections}/11 sections complete</span>
-        <small>${completeSections} of 11 sections recorded so far · ${remainingAnswers} answers can still be double-checked later. You can skip anything and come back later.</small>
+        <span>${completeSections}/11 sections mostly complete</span>
+        <small>${remainingAnswers} answers can still be checked later. Progress is a guide, not a legal approval.</small>
         <div class="az-progress-track"><span style="width: ${progress}%"></span></div>
       </div>
     </div>
@@ -3459,6 +3648,7 @@ function renderAzSectionNav() {
 
 function renderAzOutputPanel(property) {
   const priorities = scenarioPriorityList(labsState.azScenario, property);
+  const detail = activeScenarioDetail();
   const scope = checkerScopeKey();
   const pulse = labsState.scorePulse?.scope === scope ? labsState.scorePulse : null;
   const compliance = effectiveComplianceScore(property);
@@ -3467,26 +3657,27 @@ function renderAzOutputPanel(property) {
     <aside class="az-output-panel">
       <p class="section-kicker">Checker output</p>
       <h3>${escapeHtml(azStatusForProperty(property))}</h3>
-      <p class="az-score-explainer">Compliance is readiness against the checks that apply. Evidence is how much proof CMP currently has stored.</p>
+      <p class="az-score-explainer">This panel translates your answers and stored proof into a practical next-step view.</p>
       <div class="score-pair-grid">
         <article class="score-card ${scoreClass(compliance)} is-compact${pulse?.compliance ? " is-pulsing" : ""}">
           <div><span>Compliance score</span><strong>${compliance}%</strong></div>
           <div class="score-meter"><span style="width: ${compliance}%"></span></div>
-          <small>Readiness against the checks that apply.</small>
+          <small>How ready this property looks for the selected scenario.</small>
           ${pulse?.compliance ? `<em>+${pulse.compliance} readiness</em>` : ""}
         </article>
         <article class="score-card ${scoreClass(evidence)} is-compact${pulse?.evidence ? " is-pulsing" : ""}">
           <div><span>Evidence score</span><strong>${evidence}%</strong></div>
           <div class="score-meter"><span style="width: ${evidence}%"></span></div>
-          <small>How much proof CMP currently has stored.</small>
+          <small>How much supporting proof CMP can currently see.</small>
           ${pulse?.evidence ? `<em>+${pulse.evidence} evidence</em>` : ""}
         </article>
       </div>
       <p class="az-score-note">A property can still have evidence missing even when some answers are complete.</p>
       <dl>
-        <div><dt>Required actions</dt><dd>${escapeHtml(priorities.slice(0, 3).join(", "))}</dd></div>
-        <div><dt>Evidence gaps</dt><dd>${property.missingEvidence.length ? escapeHtml(property.missingEvidence.join(", ")) : "None"}</dd></div>
-        <div><dt>Recommended service</dt><dd>${escapeHtml(property.recommendedService || "No service needed")}</dd></div>
+        <div><dt>Scenario focus</dt><dd>${escapeHtml(detail.action)}</dd></div>
+        <div><dt>Checks CMP is prioritising</dt><dd>${escapeHtml(priorities.slice(0, 3).join(", "))}</dd></div>
+        <div><dt>Proof CMP still needs</dt><dd>${property.missingEvidence.length ? escapeHtml(property.missingEvidence.join(", ")) : "No obvious proof gaps"}</dd></div>
+        <div><dt>Recommended next step</dt><dd>${escapeHtml(property.recommendedService || "No service needed")}</dd></div>
       </dl>
       <button class="secondary-button" type="button" data-az-ask>Ask CMP to explain</button>
     </aside>
@@ -3505,23 +3696,234 @@ function renderSingleAzCheck(properties) {
         ${renderAzScenarioSelector()}
       </div>
       ${renderAzScenarioPills()}
+      ${renderScenarioClarityPanel("single")}
       <div class="az-workspace-grid">
         ${renderAzSectionRail()}
         <main class="az-active-panel">
           <div class="az-current-heading">
-            <p class="section-kicker">Current priority</p>
+            <p class="section-kicker">Current section</p>
             <h3>${escapeHtml(section.title)}</h3>
             <p>${escapeHtml(section.description)}</p>
             <div class="az-scenario-context">
-              <strong>${escapeHtml(azScenarioLabels[labsState.azScenario])}</strong>
+              <strong>Why this section matters now</strong>
               <span>${escapeHtml(scenarioPriorityCopy(property))}</span>
             </div>
           </div>
+          ${renderAnswerEvidenceGuide()}
           ${renderAzCards(section.id, property)}
           ${renderAzSectionNav()}
         </main>
         ${renderAzOutputPanel(property)}
       </div>
+    </div>
+  `;
+}
+
+const portfolioSweepStages = [
+  {
+    id: "scope",
+    eyebrow: "1",
+    title: "Scope",
+    help: "Confirm properties, scenario and evidence source.",
+    outcome: "You know exactly what CMP is about to check."
+  },
+  {
+    id: "shared",
+    eyebrow: "2",
+    title: "Shared answers",
+    help: "Answer portfolio-wide questions once.",
+    outcome: "Global answers are applied before exceptions are reviewed."
+  },
+  {
+    id: "exceptions",
+    eyebrow: "3",
+    title: "Property exceptions",
+    help: "Review only differences and uncertain cells.",
+    outcome: "You can see why each property needs manual attention."
+  },
+  {
+    id: "results",
+    eyebrow: "4",
+    title: "Results",
+    help: "Turn findings into next actions.",
+    outcome: "You leave with a short action list, not a spreadsheet."
+  }
+];
+
+function activePortfolioSweepStageIndex() {
+  return Math.max(0, portfolioSweepStages.findIndex((stage) => stage.id === labsState.portfolioSweepStage));
+}
+
+function renderPortfolioSweepStepper() {
+  return `
+    <div class="portfolio-sweep-stepper" aria-label="Portfolio Sweep workflow">
+      ${portfolioSweepStages.map((stage) => `
+        <button type="button" class="${stage.id === labsState.portfolioSweepStage ? "is-active" : ""}" data-az-sweep-stage="${escapeHtml(stage.id)}">
+          <span>${escapeHtml(stage.eyebrow)}</span>
+          <strong>${escapeHtml(stage.title)}</strong>
+          <small>${escapeHtml(stage.help)}</small>
+          <em>${escapeHtml(stage.outcome)}</em>
+        </button>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderPortfolioSweepRail() {
+  return `
+    <nav class="portfolio-sweep-rail" aria-label="Portfolio Sweep stages">
+      <p class="section-kicker">Sweep stages</p>
+      ${portfolioSweepStages.map((stage) => `
+        <button type="button" class="${stage.id === labsState.portfolioSweepStage ? "is-active" : ""}" data-az-sweep-stage="${escapeHtml(stage.id)}">
+          <span>${escapeHtml(stage.eyebrow)}</span>
+          <strong>${escapeHtml(stage.title)}</strong>
+          <small>${escapeHtml(stage.help)}</small>
+        </button>
+      `).join("")}
+    </nav>
+  `;
+}
+
+function portfolioSweepPropertySubtitle(property) {
+  const subtitles = {
+    "the-butts": "Upload or arrange EICR",
+    "willow-brook": "Book or upload Gas Safety renewal evidence",
+    "maple-court": "Fully compliant",
+    "canal-view": "Confirm licensing route",
+    "station-road": "Run A-Z onboarding check"
+  };
+  return subtitles[property.id] || property.priority;
+}
+
+function renderPortfolioScopeList(properties) {
+  return `
+    <div class="portfolio-scope-list">
+      ${properties.map((property) => `
+        <article class="${effectiveComplianceScore(property) === 100 && effectiveEvidenceScore(property) === 100 ? "is-complete" : ""}">
+          <div>
+            <strong>${escapeHtml(property.address)}</strong>
+            <span>${escapeHtml(portfolioSweepPropertySubtitle(property))}</span>
+          </div>
+          <small>${effectiveComplianceScore(property)}% compliance · ${effectiveEvidenceScore(property)}% evidence</small>
+        </article>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderPortfolioStagePurpose(stageId, title, body, items = []) {
+  return `
+    <div class="portfolio-stage-purpose is-${escapeHtml(stageId)}">
+      <div>
+        <p class="section-kicker">What this stage does</p>
+        <h4>${escapeHtml(title)}</h4>
+        <p>${escapeHtml(body)}</p>
+      </div>
+      ${items.length ? `
+        <ul>
+          ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        </ul>
+      ` : ""}
+    </div>
+  `;
+}
+
+function renderPortfolioExceptionSummary(properties) {
+  const needingEvidence = properties.filter((property) => property.missingEvidence.length);
+  const licensing = properties.filter((property) => /licensing|licence/i.test(`${property.priority} ${property.focus}`));
+  const complete = fullyCompliantProperties();
+
+  return `
+    <div class="portfolio-exception-summary" aria-label="Portfolio exception summary">
+      <article>
+        <span>Needs proof</span>
+        <strong>${needingEvidence.length}</strong>
+        <p>${needingEvidence.map((property) => property.address).slice(0, 2).join(", ") || "No current proof gaps"}</p>
+      </article>
+      <article>
+        <span>Manual review</span>
+        <strong>${licensing.length || 1}</strong>
+        <p>Licensing, inspection or onboarding items need a landlord decision.</p>
+      </article>
+      <article>
+        <span>Already clean</span>
+        <strong>${complete.length}</strong>
+        <p>${complete.map((property) => property.address).join(", ") || "No property is fully clear yet"}</p>
+      </article>
+    </div>
+  `;
+}
+
+function renderPortfolioMatrix(properties, matrixQuestions) {
+  return `
+    <div class="az-matrix-wrap portfolio-exceptions-table">
+      <div class="az-matrix-toolbar">
+        <span>Exception matrix</span>
+        <small>Green means clear enough for now. Amber means confirm. Red means proof or support is needed.</small>
+      </div>
+      <table class="az-property-matrix">
+        <thead>
+          <tr>
+            <th>Property</th>
+            ${matrixQuestions.map((question) => `<th>${question}</th>`).join("")}
+          </tr>
+        </thead>
+        <tbody>
+          ${properties.map((property) => `
+            <tr>
+              <th>
+                <strong>${escapeHtml(property.address)}</strong>
+                <span>${escapeHtml(portfolioSweepPropertySubtitle(property))}</span>
+              </th>
+              ${matrixQuestions.map((question) => {
+                const lower = question.toLowerCase();
+                const missing = property.missingEvidence.some((gap) => gap.toLowerCase().includes(lower) || (lower === "eicr" && gap.toLowerCase().includes("electrical")));
+                const fallback = effectiveComplianceScore(property) === 100 && effectiveEvidenceScore(property) === 100 ? "Yes" : missing ? "No" : property.id === "canal-view" && lower === "licensing" ? "Unsure" : "Yes";
+                const answer = checkerAnswer("portfolio-matrix", `${property.id}-${lower}`, fallback);
+                return `<td><button class="az-answer ${answer.toLowerCase().replace("/", "a")}" type="button" data-az-answer data-az-section-id="portfolio-matrix" data-az-card-id="${escapeHtml(property.id)}-${escapeHtml(lower)}">${escapeHtml(answer)}</button></td>`;
+              }).join("")}
+            </tr>
+          `).join("")}
+        </tbody>
+      </table>
+    </div>
+  `;
+}
+
+function renderPortfolioNextActions() {
+  return `
+    <ol class="portfolio-next-actions">
+      <li>
+        <div><strong>57 The Butts</strong><span>Proof gap: upload EICR or arrange an inspection.</span></div>
+        <button class="secondary-button" type="button" data-compliance-action="uploadEicr">Upload EICR</button>
+      </li>
+      <li>
+        <div><strong>18 Willow Brook Drive</strong><span>Renewal gap: gas safety evidence expires soon.</span></div>
+        <button class="secondary-button" type="button" data-compliance-action="requestGasSupport">Book Gas Safety</button>
+      </li>
+      <li>
+        <div><strong>9 Canal View</strong><span>Manual review: confirm the licensing route.</span></div>
+        <button class="secondary-button" type="button" data-compliance-action="reviewLicensing">Review licensing</button>
+      </li>
+      <li>
+        <div><strong>3 Station Road</strong><span>Setup gap: complete onboarding answers and upload baseline documents.</span></div>
+        <button class="secondary-button" type="button" data-compliance-action="azSingle:station-road">Continue onboarding</button>
+      </li>
+    </ol>
+  `;
+}
+
+function renderPortfolioSweepNav() {
+  const index = activePortfolioSweepStageIndex();
+  const previous = portfolioSweepStages[Math.max(0, index - 1)];
+  const next = portfolioSweepStages[Math.min(portfolioSweepStages.length - 1, index + 1)];
+
+  return `
+    <div class="az-step-nav portfolio-sweep-nav">
+      <button class="secondary-button" type="button" data-az-sweep-prev ${index === 0 ? "disabled" : ""}>Previous</button>
+      <span>${index + 1} / ${portfolioSweepStages.length}</span>
+      <button class="primary-button" type="button" data-az-sweep-next ${index === portfolioSweepStages.length - 1 ? "disabled" : ""}>Next</button>
+      <small>${escapeHtml(previous.title)} / ${escapeHtml(next.title)}</small>
     </div>
   `;
 }
@@ -3539,83 +3941,137 @@ function renderPortfolioAzSweep(properties) {
   ];
 
   return `
-    <div class="az-workspace-shell">
-      ${renderAzProgressHeader({ property, modeLabel: "Portfolio Sweep" })}
+    <div class="az-workspace-shell portfolio-sweep-shell">
+      <header class="portfolio-sweep-hero">
+        <div>
+          <p class="section-kicker">Portfolio Sweep</p>
+          <h3>Check common answers once. Review only the properties that differ.</h3>
+          <p>Portfolio Sweep is for landlords with more than one property. CMP applies shared answers first, then separates property-specific exceptions from proof gaps.</p>
+        </div>
+        <div class="portfolio-sweep-summary" aria-label="Portfolio Sweep summary">
+          <span>${properties.length} properties selected</span>
+          <span>${fullyCompliantProperties().length} fully compliant</span>
+          <span>${selected.length} need review</span>
+          <span>${portfolioUrgentActionCount()} top actions</span>
+          <span>${portfolioEvidenceGapCount()} evidence gaps</span>
+        </div>
+      </header>
       <div class="az-control-strip">
         ${renderAzScenarioSelector()}
         <button class="secondary-button" type="button" data-az-apply-all>Apply shared answers to all</button>
         <button class="text-button" type="button" data-az-copy-first>Copy from 24 Maple Court</button>
       </div>
       ${renderAzScenarioPills()}
+      ${renderScenarioClarityPanel("portfolio")}
+      ${renderPortfolioSweepStepper()}
       <div class="az-workspace-grid is-portfolio">
-        ${renderAzSectionRail()}
-        <main class="az-active-panel">
-          <div class="az-current-heading">
-            <p class="section-kicker">Portfolio Sweep</p>
-            <h3>Answer shared questions once, then handle only property-specific unknowns</h3>
-            <p>CMP applies shared answers across the portfolio and uses the matrix for checks that differ by property.</p>
-            <div class="az-scenario-context">
-              <strong>Scope</strong>
-              <span>${properties.length} properties · ${fullyCompliantProperties().map((item) => item.address).join(", ") || "No"} fully compliant · ${selected.length} need review</span>
+        ${renderPortfolioSweepRail()}
+        <main class="az-active-panel portfolio-sweep-main">
+          <section class="portfolio-sweep-stage ${labsState.portfolioSweepStage === "scope" ? "is-active" : ""}" data-sweep-stage-panel="scope">
+            <div class="az-current-heading">
+              <p class="section-kicker">Stage 1 · Scope</p>
+              <h3>Confirm what CMP is checking</h3>
+              <p>Start by confirming the property set, the selected scenario and whether uploaded evidence should influence the sweep.</p>
             </div>
-          </div>
-          <div class="az-card-grid is-shared">
-            ${sharedCards.map(renderAzCard).join("")}
-          </div>
-          <div class="az-matrix-wrap">
-            <div class="az-matrix-toolbar">
-              <span>Only ask where unknown</span>
-              <small>Rows stay property-specific; shared answers remain above.</small>
+            ${renderPortfolioStagePurpose("scope", "Set the rules before CMP checks anything", "This stage defines the sweep boundary. It does not ask certificate questions yet; it confirms what is included and what evidence CMP should trust.", [
+              `${properties.length} properties included`,
+              `${azScenarioLabels[labsState.azScenario]} scenario selected`,
+              "Uploaded evidence will be used where available"
+            ])}
+            <div class="portfolio-scope-card">
+              <strong>Selected sweep set</strong>
+              <span>${escapeHtml(azScenarioLabels[labsState.azScenario])} · Use stored evidence where available · Keep unknown answers open</span>
+              <div class="portfolio-scope-controls" aria-label="Portfolio Sweep scope controls">
+                <button class="is-active" type="button">All properties</button>
+                <button type="button">Only properties needing review</button>
+                <button type="button">Select properties</button>
+                <button type="button">Only missing evidence</button>
+              </div>
             </div>
-            <table class="az-property-matrix">
-              <thead>
-                <tr>
-                  <th>Property</th>
-                  ${matrixQuestions.map((question) => `<th>${question}</th>`).join("")}
-                </tr>
-              </thead>
-              <tbody>
-                ${properties.map((property) => `
-                  <tr>
-                    <th>
-                      <strong>${escapeHtml(property.address)}</strong>
-                      <span>${escapeHtml(effectiveComplianceScore(property) === 100 && effectiveEvidenceScore(property) === 100 ? "Fully compliant" : property.priority)}</span>
-                    </th>
-                    ${matrixQuestions.map((question) => {
-                      const lower = question.toLowerCase();
-                      const missing = property.missingEvidence.some((gap) => gap.toLowerCase().includes(lower) || (lower === "eicr" && gap.toLowerCase().includes("electrical")));
-                      const fallback = effectiveComplianceScore(property) === 100 && effectiveEvidenceScore(property) === 100 ? "Yes" : missing ? "No" : property.id === "canal-view" && lower === "licensing" ? "Unsure" : "Yes";
-                      const answer = checkerAnswer("portfolio-matrix", `${property.id}-${lower}`, fallback);
-                      return `<td><button class="az-answer ${answer.toLowerCase().replace("/", "a")}" type="button" data-az-answer data-az-section-id="portfolio-matrix" data-az-card-id="${escapeHtml(property.id)}-${escapeHtml(lower)}">${escapeHtml(answer)}</button></td>`;
-                    }).join("")}
-                  </tr>
-                `).join("")}
-              </tbody>
-            </table>
-          </div>
-          <div class="az-results-grid">
-            <article class="${pulse?.compliance ? "is-pulsing" : ""}">
-              <span>Portfolio compliance score</span>
-              <strong>${portfolioComplianceScore()}%</strong>
-              <p>${fullyCompliantProperties().length} property fully compliant. ${selected.length} properties need review.${pulse?.compliance ? ` +${pulse.compliance} readiness recorded.` : ""}</p>
-            </article>
-            <article class="${pulse?.evidence ? "is-pulsing" : ""}">
-              <span>Portfolio evidence score</span>
-              <strong>${portfolioEvidenceScore()}%</strong>
-              <p>${portfolioEvidenceGapCount()} evidence gaps across the portfolio.${pulse?.evidence ? ` +${pulse.evidence} evidence context.` : ""}</p>
-            </article>
-            <article>
-              <span>Top actions</span>
-              <strong>${portfolioUrgentActionCount()}</strong>
-              <p>${selected.slice(0, 3).map((item) => item.priority).join("; ")}</p>
-            </article>
-            <article>
-              <span>Report summary preview</span>
-              <strong>Ready</strong>
-              <p>Download/export placeholder only. No legal advice or official approval is implied.</p>
-            </article>
-          </div>
-          ${renderAzSectionNav()}
+            ${renderPortfolioScopeList(properties)}
+          </section>
+
+          <section class="portfolio-sweep-stage ${labsState.portfolioSweepStage === "shared" ? "is-active" : ""}" data-sweep-stage-panel="shared">
+            <div class="az-current-heading">
+              <p class="section-kicker">Stage 2 · Shared answers</p>
+              <h3>Answer shared questions once</h3>
+              <p>Use this for answers that are true across the selected portfolio. Property-specific exceptions are handled in the next stage.</p>
+            </div>
+            ${renderPortfolioStagePurpose("shared", "Global answers, not property exceptions", "The cards below are deliberately portfolio-wide. If one property differs, leave the shared answer broad and handle the exception in Stage 3.", [
+              "Applies across the selected properties",
+              "Reduces repeated landlord questions",
+              "Does not mark missing documents as uploaded"
+            ])}
+            <div class="portfolio-sweep-helper-card">
+              <strong>Answer once. CMP only asks again where a property differs.</strong>
+              <span>Missing answer means CMP needs landlord input. Missing evidence means CMP needs proof stored in the Evidence Vault.</span>
+            </div>
+            ${renderAnswerEvidenceGuide()}
+            <div class="portfolio-sweep-controls">
+              <button class="secondary-button" type="button" data-az-apply-all>Apply shared answers to all</button>
+              <button class="secondary-button" type="button" data-az-copy-first>Copy answers from 24 Maple Court</button>
+              <button class="text-button" type="button" data-az-apply-all>Only ask where unknown</button>
+            </div>
+            <div class="az-card-grid is-shared">
+              ${sharedCards.map(renderAzCard).join("")}
+            </div>
+          </section>
+
+          <section class="portfolio-sweep-stage ${labsState.portfolioSweepStage === "exceptions" ? "is-active" : ""}" data-sweep-stage-panel="exceptions">
+            <div class="az-current-heading">
+              <p class="section-kicker">Stage 3 · Property exceptions</p>
+              <h3>Property-specific exceptions</h3>
+              <p>This is the only stage that behaves like a matrix. Review where one property differs, has a proof gap, or needs a manual decision.</p>
+            </div>
+            ${renderPortfolioStagePurpose("exceptions", "Focus on differences, not everything", "A property appears here because CMP found a missing document, an uncertain answer, a licensing watch item or a setup gap.", [
+              "Green cells are already clear enough for this prototype",
+              "Amber cells need a landlord answer or date check",
+              "Red cells need proof or service support"
+            ])}
+            ${renderPortfolioExceptionSummary(properties)}
+            ${renderPortfolioMatrix(properties, matrixQuestions)}
+          </section>
+
+          <section class="portfolio-sweep-stage ${labsState.portfolioSweepStage === "results" ? "is-active" : ""}" data-sweep-stage-panel="results">
+            <div class="az-current-heading">
+              <p class="section-kicker">Stage 4 · Results and actions</p>
+              <h3>Portfolio results and next best actions</h3>
+              <p>This stage concludes the sweep. It turns answers and evidence gaps into a short, practical action list.</p>
+            </div>
+            ${renderPortfolioStagePurpose("results", "The sweep ends with decisions", "CMP keeps the output short: what looks ready, what needs proof, what needs a service, and what can wait.", [
+              "Compliance score shows scenario readiness",
+              "Evidence score shows stored proof",
+              "Next actions are grouped by property"
+            ])}
+            <div class="az-results-grid portfolio-results-grid">
+              <article class="${pulse?.compliance ? "is-pulsing" : ""}">
+                <span>Portfolio compliance score</span>
+                <strong>${portfolioComplianceScore()}%</strong>
+                <p>${fullyCompliantProperties().length} property fully compliant. ${selected.length} properties need review for ${escapeHtml(azScenarioLabels[labsState.azScenario]).toLowerCase()}.${pulse?.compliance ? ` +${pulse.compliance} readiness recorded.` : ""}</p>
+              </article>
+              <article class="${pulse?.evidence ? "is-pulsing" : ""}">
+                <span>Portfolio evidence score</span>
+                <strong>${portfolioEvidenceScore()}%</strong>
+                <p>${portfolioEvidenceGapCount()} evidence gaps across the portfolio.${pulse?.evidence ? ` +${pulse.evidence} evidence context.` : ""}</p>
+              </article>
+              <article>
+                <span>Top actions</span>
+                <strong>${portfolioUrgentActionCount()}</strong>
+                <p>Upload or arrange EICR; book or upload Gas Safety renewal evidence; confirm licensing route.</p>
+              </article>
+              <article>
+                <span>Report summary preview</span>
+                <strong>Ready</strong>
+                <p>Download/export placeholder only. No legal advice or official approval is implied.</p>
+              </article>
+            </div>
+            <div class="portfolio-next-actions-panel">
+              <h4>Next best actions</h4>
+              ${renderPortfolioNextActions()}
+            </div>
+          </section>
+
+          ${renderPortfolioSweepNav()}
         </main>
       </div>
     </div>
@@ -6492,6 +6948,14 @@ function bindAzChecker() {
       return;
     }
 
+    const sweepStageButton = event.target.closest("[data-az-sweep-stage]");
+    if (sweepStageButton) {
+      setCheckerActive();
+      labsState.portfolioSweepStage = sweepStageButton.dataset.azSweepStage;
+      renderAzChecker();
+      return;
+    }
+
     const scenarioButton = event.target.closest("[data-az-scenario-button]");
     if (scenarioButton) {
       setCheckerActive();
@@ -6520,6 +6984,26 @@ function bindAzChecker() {
       if (index < azSections.length - 1) {
         labsState.activeCheckerSection = azSections[index + 1].id;
         labsState.editingCheckerCard = "";
+        renderAzChecker();
+      }
+      return;
+    }
+
+    if (event.target.closest("[data-az-sweep-prev]")) {
+      setCheckerActive();
+      const index = activePortfolioSweepStageIndex();
+      if (index > 0) {
+        labsState.portfolioSweepStage = portfolioSweepStages[index - 1].id;
+        renderAzChecker();
+      }
+      return;
+    }
+
+    if (event.target.closest("[data-az-sweep-next]")) {
+      setCheckerActive();
+      const index = activePortfolioSweepStageIndex();
+      if (index < portfolioSweepStages.length - 1) {
+        labsState.portfolioSweepStage = portfolioSweepStages[index + 1].id;
         renderAzChecker();
       }
       return;
