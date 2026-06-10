@@ -406,6 +406,45 @@ function getPortfolioPropertyById(propertyId = "the-butts") {
   return getPortfolioProperties().find((property) => property.id === propertyId) || getPortfolioProperties()[0] || buttsPortfolioProperty();
 }
 
+function normaliseDemoState(value) {
+  const state = String(value || "").trim().toLowerCase();
+  const aliases = {
+    empty: "empty-portfolio",
+    "empty-portfolio": "empty-portfolio",
+    portfolio: "two-property",
+    "portfolio-demo": "two-property",
+    "two-property": "two-property",
+    "one-property": "one-property",
+    single: "one-property",
+    "single-property": "one-property",
+    starter: "one-property",
+    "starter-portfolio": "starter-portfolio",
+    reset: "reset",
+    "before-eicr": "before-eicr",
+    "after-eicr": "after-eicr",
+    "after-support": "after-support",
+    "after-quick-win": "after-quick-win",
+    "five-property": "five-property"
+  };
+
+  return aliases[state] || "before-eicr";
+}
+
+function initialDemoStateFromUrl() {
+  const params = new URLSearchParams(window.location.search);
+  const requestedState = params.get("state");
+
+  if (requestedState) {
+    return normaliseDemoState(requestedState);
+  }
+
+  if (params.get("fresh") === "1") {
+    return "empty-portfolio";
+  }
+
+  return null;
+}
+
 function selectedServicePropertyId() {
   if (!isTwoPropertyMode()) {
     return "the-butts";
@@ -982,6 +1021,11 @@ function getRecentActivityItems() {
 }
 
 function openPropertyFromPortfolio(propertyId = "the-butts") {
+  if (isEmptyPortfolioMode()) {
+    openPropertyWorkspace("overview");
+    return;
+  }
+
   if (propertyId !== "the-butts") {
     const property = getPortfolioPropertyById(propertyId);
     openTimelineModal("[data-second-property-modal]");
@@ -1310,9 +1354,49 @@ function ensureDemoQuickWin() {
   }
 }
 
+function configureDemoState(state) {
+  const demoState = normaliseDemoState(state);
+
+  resetDemoState();
+  labsState.demoState = demoState;
+
+  if (demoState === "empty-portfolio") {
+    labsState.portfolioMode = "empty";
+    labsState.selectedServicePropertyId = "the-butts";
+    labsState.azMode = "single";
+  }
+
+  if (demoState === "starter-portfolio" || demoState === "two-property") {
+    labsState.portfolioMode = "two";
+    labsState.selectedServicePropertyId = "all";
+  }
+
+  if (demoState === "five-property") {
+    labsState.portfolioMode = "five";
+    labsState.selectedServicePropertyId = "all";
+    labsState.azMode = "portfolio";
+  }
+
+  if (demoState === "after-eicr" || demoState === "after-support") {
+    labsState.eicrAdded = true;
+    labsState.strength = 58;
+  }
+
+  if (demoState === "after-support") {
+    ensureDemoSupportRequest();
+  }
+
+  if (demoState === "after-quick-win") {
+    ensureDemoQuickWin();
+  }
+
+  return demoState;
+}
+
 function applyDemoState(state) {
   const labels = {
     "empty-portfolio": "Empty portfolio",
+    "one-property": "One property",
     "starter-portfolio": "Starter portfolio",
     "five-property": "Five-property portfolio",
     reset: "Reset demo",
@@ -1320,53 +1404,16 @@ function applyDemoState(state) {
     "after-eicr": "After EICR",
     "after-support": "After support request",
     "after-quick-win": "After quick win",
-    "two-property": "Two-property portfolio"
+    "two-property": "Portfolio demo"
   };
-
-  resetDemoState();
-  labsState.demoState = state;
-
-  if (state === "empty-portfolio") {
-    labsState.portfolioMode = "empty";
-    labsState.selectedServicePropertyId = "the-butts";
-    labsState.azMode = "single";
-  }
-
-  if (state === "starter-portfolio") {
-    labsState.portfolioMode = "two";
-    labsState.selectedServicePropertyId = "all";
-  }
-
-  if (state === "five-property") {
-    labsState.portfolioMode = "five";
-    labsState.selectedServicePropertyId = "all";
-    labsState.azMode = "portfolio";
-  }
-
-  if (state === "two-property") {
-    labsState.portfolioMode = "two";
-    labsState.selectedServicePropertyId = "all";
-  }
-
-  if (state === "after-eicr" || state === "after-support") {
-    labsState.eicrAdded = true;
-    labsState.strength = 58;
-  }
-
-  if (state === "after-support") {
-    ensureDemoSupportRequest();
-  }
-
-  if (state === "after-quick-win") {
-    ensureDemoQuickWin();
-  }
+  const demoState = configureDemoState(state);
 
   renderAllState();
   renderAssistantPrompts();
   closeTimelineModals();
   const firstPrompt = document.querySelector(".prompt-stack [data-prompt]")?.dataset.prompt;
   setAssistantResponse(getAssistantResponse(firstPrompt || "What changed recently?"));
-  showToast(`Demo state updated: ${labels[state] || "Before EICR"}`);
+  showToast(`Demo state updated: ${labels[demoState] || "Before EICR"}`);
 }
 
 function getPortfolioAssistantResponse(prompt) {
@@ -4974,16 +5021,16 @@ function renderPortfolioTasksState() {
 
   document.querySelector("[data-tasks-active-pill]").textContent = `${activeTasks.length} active ${activeTasks.length === 1 ? "task" : "tasks"}`;
   document.querySelector("[data-tasks-active-count]").textContent = String(activeTasks.length);
-  document.querySelector("[data-tasks-priority-label]").textContent = highestPriority?.id === "willow-gas-renewal" ? "Gas Safety" : highestPriority?.id === "eicr" ? "EICR" : highestPriority?.id === "inspection" ? "Inspection" : "Licensing";
+  document.querySelector("[data-tasks-priority-label]").textContent = highestPriority ? highestPriority.id === "willow-gas-renewal" ? "Gas Safety" : highestPriority.id === "eicr" ? "EICR" : highestPriority.id === "inspection" ? "Inspection" : "Licensing" : "Setup";
   document.querySelector("[data-tasks-completed-count]").textContent = String(completedTasks.length);
-  document.querySelector("[data-tasks-start-title]").textContent = highestPriority?.title || "Review open tasks";
+  document.querySelector("[data-tasks-start-title]").textContent = highestPriority?.title || "No property tasks yet";
   const startProperty = document.querySelector(".tasks-start-card .property-card-label");
   if (startProperty) {
-    startProperty.textContent = highestPriority?.property || "57 The Butts · CV1 3BJ";
+    startProperty.textContent = highestPriority?.property || "No property selected";
   }
-  document.querySelector("[data-tasks-start-body]").textContent = highestPriority?.body || "Review the next useful action.";
+  document.querySelector("[data-tasks-start-body]").textContent = highestPriority?.body || "Add your first property to create property-specific compliance and evidence tasks.";
   document.querySelector("[data-tasks-start-source]").textContent = highestPriority ? `Source: ${highestPriority.source}` : "Source: CMP";
-  document.querySelector("[data-tasks-start-status]").textContent = highestPriority?.status || "Open";
+  document.querySelector("[data-tasks-start-status]").textContent = highestPriority?.status || "Setup";
   document.querySelector("[data-tasks-start-status]").classList.toggle("status-review-text", ["eicr", "willow-alarm-check", "willow-inspection"].includes(highestPriority?.id));
   document.querySelector("[data-tasks-start-status]").classList.toggle("status-watch-text", !["eicr", "willow-alarm-check", "willow-inspection"].includes(highestPriority?.id));
 
@@ -5000,6 +5047,11 @@ function renderPortfolioTasksState() {
         ${escapeHtml(action.label)}
       </button>
     `).join("");
+  } else if (startActions) {
+    startActions.innerHTML = `
+      <button class="primary-button" type="button" data-properties-add>Add your first property</button>
+      <button class="secondary-button" type="button" data-az-mode="single">Preview A-Z setup</button>
+    `;
   }
 
   const searchInput = document.querySelector("[data-task-search]");
@@ -6513,6 +6565,13 @@ function showSettingsPage({ scroll = false } = {}) {
 }
 
 function openPropertyWorkspace(tab = "overview", focusSelector = null) {
+  if (isEmptyPortfolioMode()) {
+    showPortfolioHome({ scroll: true });
+    setAssistantResponse("There is no property workspace yet. Add your first property to create a workspace, then CMP can show property-specific checks, evidence, tasks and activity.");
+    showToast("Add your first property before opening a workspace.");
+    return;
+  }
+
   switchTab(tab);
 
   window.setTimeout(() => {
@@ -9663,6 +9722,11 @@ function confirmEicr() {
   showToast(wasAlreadyConfirmed
     ? "EICR evidence is already stored in this demo."
     : "Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
+}
+
+const initialDemoState = initialDemoStateFromUrl();
+if (initialDemoState) {
+  configureDemoState(initialDemoState);
 }
 
 hydrateIcons();
