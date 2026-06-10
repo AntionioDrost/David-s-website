@@ -88,7 +88,7 @@ const labsState = {
   pendingServiceRequestType: "eicr",
   pendingServicePropertyId: "the-butts",
   addPropertyStep: 1,
-  addPropertyAddress: "18 Willow Brook Drive, B37 7BA",
+  addPropertyAddress: "Flat 42, 57 The Butts, Coventry, CV1 3BJ",
   settings: {
     complianceReminders: true,
     evidenceExpiryAlerts: true,
@@ -229,9 +229,7 @@ const globalServicePrompts = [
 ];
 
 const addPropertyAddresses = [
-  "18 Willow Brook Drive, B37 7BA",
-  "Flat 42, 57 The Butts, CV1 3BJ",
-  "12 Station Road, B37 7BA"
+  "Flat 42, 57 The Butts, Coventry, CV1 3BJ"
 ];
 
 const portfolioFivePropertyDefinitions = [
@@ -1446,6 +1444,24 @@ function applyDemoState(state) {
   const firstPrompt = document.querySelector(".prompt-stack [data-prompt]")?.dataset.prompt;
   setAssistantResponse(getAssistantResponse(firstPrompt || "What changed recently?"));
   showToast(`Demo state updated: ${labels[demoState] || "Before EICR"}`);
+}
+
+function setLabsRouteState(state) {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("fresh");
+  url.searchParams.set("state", state);
+  window.history.pushState({}, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
+function openCreatedPropertyWorkspace() {
+  closeTimelineModals();
+  configureDemoState("one-property");
+  setLabsRouteState("one-property");
+  renderAllState();
+  renderAssistantPrompts();
+  openPropertyWorkspace("overview");
+  setAssistantResponse("First property added. CMP is checking evidence and next steps for 57 The Butts.");
+  showToast("Property workspace created — reviewing 57 The Butts.");
 }
 
 function getPortfolioAssistantResponse(prompt) {
@@ -8198,7 +8214,7 @@ function renderAddPropertyState() {
       <label class="address-choice${address === labsState.addPropertyAddress ? " is-selected" : ""}">
         <input type="radio" name="add-property-address" value="${escapeHtml(address)}" ${address === labsState.addPropertyAddress ? "checked" : ""}>
         <span>${escapeHtml(address)}</span>
-        <small>${index === 1 ? "Existing demo workspace address" : "Matched address preview"}</small>
+        <small>${index === 0 ? "Matched address for this setup" : "Matched address preview"}</small>
       </label>
     `).join("");
   }
@@ -8401,17 +8417,15 @@ function bindUtilityPages() {
     if (event.target.closest("[data-add-property-success]")) {
       labsState.addPropertyStep = 4;
       renderAddPropertyState();
-      showToast("Preview only — no new property has been saved.");
     }
 
     if (event.target.closest("[data-add-property-open-demo]")) {
-      closeTimelineModals();
-      openPropertyWorkspace("overview");
+      openCreatedPropertyWorkspace();
     }
 
     if (event.target.closest("[data-add-property-later]")) {
       closeTimelineModals();
-      showToast("Preview only — no new property has been saved.");
+      setAssistantResponse("Add your first property when you are ready. CMP will create the workspace around the address and available evidence context.");
     }
 
     if (event.target.closest("[data-bundle-request]")) {
