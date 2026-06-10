@@ -1915,7 +1915,7 @@ function renderAssistantPrompts() {
   }
   if (assistantInput) {
     assistantInput.placeholder = isEmptyPortfolioMode()
-      ? "Ask what to prepare before adding a property..."
+      ? "What should I prepare before adding a property?"
       : "Ask a question about this property...";
   }
 
@@ -2123,8 +2123,12 @@ function renderPortfolioHomeState() {
   const workspaceShortcut = document.querySelector("[data-home-open-workspace]");
   const homeSecondaryGrid = document.querySelector(".home-two-column");
   const homeQuickWin = document.querySelector(".home-quick-win-card");
+  const homeKicker = document.querySelector("[data-portfolio-home] .section-kicker");
 
   if (!properties.length) {
+    if (homeKicker) {
+      homeKicker.textContent = "Home";
+    }
     document.querySelectorAll("[data-home-add-property]").forEach((button) => {
       if (button.classList.contains("quiet-add")) {
         button.innerHTML = '<span aria-hidden="true">+</span> Add property';
@@ -2220,6 +2224,9 @@ function renderPortfolioHomeState() {
     }
     document.querySelector("[data-home-activity-list]").innerHTML = "<li>No property activity yet</li>";
     return;
+  }
+  if (homeKicker) {
+    homeKicker.textContent = "Portfolio Home";
   }
   document.querySelectorAll("[data-home-add-property]").forEach((button) => {
     if (button.classList.contains("quiet-add")) {
@@ -4313,12 +4320,33 @@ function renderAzChecker() {
     return;
   }
 
+  const properties = getPortfolioProperties();
+  const isEmpty = !properties.length;
+  if (isEmpty && labsState.azMode === "portfolio") {
+    labsState.azMode = "single";
+  }
+
   document.querySelectorAll("[data-az-mode]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.azMode === labsState.azMode);
+    if (button.dataset.azMode === "portfolio") {
+      button.hidden = isEmpty;
+      button.disabled = isEmpty;
+      button.setAttribute("aria-disabled", String(isEmpty));
+    } else {
+      button.hidden = false;
+      button.disabled = false;
+      button.removeAttribute("aria-disabled");
+    }
   });
 
-  const properties = getPortfolioProperties();
-  if (!properties.length) {
+  const checkerIntro = document.querySelector(".az-checker-header h2 + p");
+  if (checkerIntro) {
+    checkerIntro.textContent = isEmpty
+      ? "Add your first property to run the A-Z checker. You can preview the question structure before setup."
+      : "Use Single property for one address, or Portfolio sweep to answer shared questions once and only review exceptions. Prototype readiness logic only — this is not legal advice.";
+  }
+
+  if (isEmpty) {
     body.innerHTML = `
       <div class="az-workspace-shell is-empty">
         <div class="az-product-header">
@@ -4330,8 +4358,7 @@ function renderAzChecker() {
           <div class="az-progress-panel">
             <strong>Preview mode</strong>
             <span>0 properties connected</span>
-            <small>No property-specific compliance or evidence score is available yet.</small>
-            <div class="az-progress-track"><span style="width: 8%"></span></div>
+            <small>Preview structure only. No property-specific compliance or evidence score is available yet.</small>
           </div>
         </div>
         <div class="az-empty-preview">
@@ -4622,7 +4649,11 @@ function renderPortfolioEvidenceState() {
   }
 
   const properties = getPortfolioProperties();
+  const evidenceKicker = document.querySelector("[data-portfolio-evidence] .section-kicker");
   if (!properties.length) {
+    if (evidenceKicker) {
+      evidenceKicker.textContent = "Evidence Vault";
+    }
     document.querySelector("[data-evidence-upload]")?.setAttribute("hidden", "");
     document.querySelectorAll("[data-evidence-copy-inbox]").forEach((button) => button.setAttribute("hidden", ""));
     const evidenceAsk = document.querySelector("[data-evidence-ask]");
@@ -4671,6 +4702,9 @@ function renderPortfolioEvidenceState() {
     }
     renderEvidenceMissingList();
     return;
+  }
+  if (evidenceKicker) {
+    evidenceKicker.textContent = "PORTFOLIO EVIDENCE";
   }
   document.querySelector("[data-evidence-upload]")?.removeAttribute("hidden");
   document.querySelectorAll("[data-evidence-copy-inbox]").forEach((button) => button.removeAttribute("hidden"));
@@ -5235,8 +5269,12 @@ function renderPortfolioTasksState() {
   const activeRequest = highestPriority ? activeRequestForTask(highestPriority) : null;
   const isEmptyTaskState = !activeTasks.length && !completedTasks.length;
   const tasksAsk = document.querySelector("[data-tasks-ask]");
+  const tasksKicker = document.querySelector("[data-portfolio-tasks] .section-kicker");
   if (tasksAsk) {
     tasksAsk.textContent = isEmptyTaskState ? "Ask CMP how tasks work" : "Ask CMP what to do first";
+  }
+  if (tasksKicker) {
+    tasksKicker.textContent = isEmptyTaskState ? "Tasks" : "PORTFOLIO TASKS";
   }
 
   document.querySelector("[data-tasks-active-pill]").textContent = `${activeTasks.length} active ${activeTasks.length === 1 ? "task" : "tasks"}`;
@@ -5795,7 +5833,11 @@ function renderPortfolioActivityState() {
     }
     const activityBadge = document.querySelector("[data-portfolio-activity] .prototype-badge");
     if (activityBadge) {
-      activityBadge.textContent = "Portfolio activity";
+      activityBadge.textContent = "Activity";
+    }
+    const activityKicker = document.querySelector("[data-portfolio-activity] .section-kicker");
+    if (activityKicker) {
+      activityKicker.textContent = "Activity";
     }
     document.querySelector("[data-activity-event-count]").textContent = "0";
     document.querySelector("[data-activity-evidence-count]").textContent = "0";
@@ -5815,6 +5857,7 @@ function renderPortfolioActivityState() {
       empty.hidden = false;
       empty.querySelector("h2").textContent = "No activity yet";
       empty.querySelector("p").textContent = "Property setup, evidence uploads, answers and service requests will appear here.";
+      empty.querySelector("[data-activity-clear]")?.setAttribute("hidden", "");
     }
     renderActivitySummaryModalState();
     return;
@@ -5829,6 +5872,10 @@ function renderPortfolioActivityState() {
   const activityBadge = document.querySelector("[data-portfolio-activity] .prototype-badge");
   if (activityBadge) {
     activityBadge.textContent = "Portfolio activity";
+  }
+  const activityKicker = document.querySelector("[data-portfolio-activity] .section-kicker");
+  if (activityKicker) {
+    activityKicker.textContent = "PORTFOLIO ACTIVITY";
   }
   const supportCreated = Boolean(activeSupportRequestForActivity());
   const visitItems = isFivePropertyMode()
@@ -5905,6 +5952,7 @@ function renderPortfolioActivityState() {
 
   if (empty) {
     empty.hidden = Boolean(events.length);
+    empty.querySelector("[data-activity-clear]")?.removeAttribute("hidden");
   }
 
   renderActivitySummaryModalState();
@@ -6484,6 +6532,7 @@ function renderPortfolioUtilityState() {
   const sourceGrid = document.querySelector("[data-ask-source-grid]");
   const chatTitle = document.querySelector(".ask-chat-topline h2");
   const chatState = document.querySelector("[data-ask-chat-state]");
+  const utilityAskInput = document.querySelector('[data-utility-ask-form] input[name="question"]');
   const askHeaderBody = document.querySelector("[data-portfolio-ask] .portfolio-utility-header p:not(.section-kicker)");
   const askCheckChips = document.querySelector("[data-portfolio-ask] .ask-check-chip-row");
   const highlight = askContextHighlight();
@@ -6520,6 +6569,11 @@ function renderPortfolioUtilityState() {
   }
   if (chatState) {
     chatState.textContent = isEmptyPortfolioMode() ? "Setup guidance" : "Context live";
+  }
+  if (utilityAskInput) {
+    utilityAskInput.placeholder = isEmptyPortfolioMode()
+      ? "What should I prepare before adding a property?"
+      : "Ask CMP anything about your portfolio...";
   }
   if (askHeaderBody) {
     askHeaderBody.textContent = isEmptyPortfolioMode()
@@ -6575,8 +6629,15 @@ function renderGlobalServiceState() {
   const properties = getPortfolioProperties();
   const selectedId = selectedServicePropertyId();
   const isAllMode = isAllServicePropertiesMode();
+  const serviceKicker = document.querySelector(".service-recommendation-card .section-kicker");
+  const pathwaySection = document.querySelector(".service-pathway-section");
+  const commercialServicesSection = document.querySelector(".commercial-services-section");
+  const openRequestsPanel = document.querySelector("[data-global-open-requests-panel]");
 
   if (!properties.length) {
+    if (serviceKicker) {
+      serviceKicker.textContent = "SETUP REQUIRED";
+    }
     const context = document.querySelector("[data-service-property-context]");
     if (context) {
       context.classList.remove("is-portfolio-selector");
@@ -6591,21 +6652,15 @@ function renderGlobalServiceState() {
     title.textContent = "Add a property before booking support";
     document.querySelector("[data-global-service-body]").textContent = "CMP needs a property address, scenario and evidence baseline before it can recommend an EICR, Gas Safety, licensing or evidence-pack service.";
     document.querySelector("[data-global-service-actions]").innerHTML = `
-      <button class="primary-button" type="button" data-properties-add>Add property</button>
-      <button class="secondary-button" type="button" data-az-mode="single">Preview A-Z setup</button>
-      <button class="text-button" type="button" data-global-service-action="ask">Ask CMP why</button>
+      <button class="primary-button" type="button" data-properties-add>Add your first property</button>
+      <button class="secondary-button" type="button" data-global-service-action="askPrepare">Ask CMP what to prepare</button>
     `;
+    pathwaySection?.setAttribute("hidden", "");
+    commercialServicesSection?.setAttribute("hidden", "");
+    openRequestsPanel?.setAttribute("hidden", "");
     const cardGrid = document.querySelector("[data-global-service-cards]");
     if (cardGrid) {
-      cardGrid.innerHTML = `
-        <article class="service-option-preview commercial-service-card">
-          <div class="service-card-top">
-            <h3>No service recommendation yet</h3>
-            <span class="doc-status status-neutral-text">Setup</span>
-          </div>
-          <p>Add a property so CMP can connect services to the right address and compliance context.</p>
-        </article>
-      `;
+      cardGrid.innerHTML = "";
     }
     document.querySelector("[data-global-service-request-count]").textContent = "0 open";
     const list = document.querySelector("[data-global-service-requests]");
@@ -6614,6 +6669,13 @@ function renderGlobalServiceState() {
     }
     return;
   }
+
+  if (serviceKicker) {
+    serviceKicker.textContent = "RECOMMENDED NEXT SUPPORT";
+  }
+  pathwaySection?.removeAttribute("hidden");
+  commercialServicesSection?.removeAttribute("hidden");
+  openRequestsPanel?.removeAttribute("hidden");
 
   const property = selectedServiceProperty();
   const recommendationProperty = isAllMode ? portfolioUrgentProperty() : property;
@@ -7320,6 +7382,13 @@ function bindAzChecker() {
     const modeButton = event.target.closest("[data-az-mode]");
     if (modeButton) {
       setCheckerActive();
+      if (isEmptyPortfolioMode() && modeButton.dataset.azMode === "portfolio") {
+        labsState.azMode = "single";
+        showToast("Portfolio Sweep is available after properties are added.");
+        showPortfolioCompliance({ scroll: true });
+        window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
+        return;
+      }
       labsState.azMode = modeButton.dataset.azMode;
       labsState.editingCheckerCard = "";
       if (labsState.azMode === "portfolio" && getPortfolioProperties().length < 2) {
@@ -8213,6 +8282,9 @@ function handleGlobalServiceAction(action) {
     showPortfolioCompliance({ scroll: true });
   } else if (action === "ask") {
     openAssistant(getGlobalServiceAssistantResponse("Why is this recommended?"));
+    focusAssistantInput();
+  } else if (action === "askPrepare") {
+    openAssistant(getGlobalAskAssistantResponse("What documents should I prepare?"));
     focusAssistantInput();
   } else if (action === "viewEvidence") {
     showPortfolioEvidence({ scroll: true });
