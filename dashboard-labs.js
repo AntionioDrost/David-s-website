@@ -710,31 +710,31 @@ function newPropertyAskResponse(prompt = "", setup = newPropertySetup()) {
 
   if (lowerPrompt.includes("epc")) {
     return summary.findingsConfirmed
-      ? "CMP has accepted the EPC record as a starting signal for demo review. It helps setup, but it is not legal verification. Upload or confirm the actual certificate before relying on it."
-      : "CMP has prepared an EPC-style record for 57 The Butts. Review and confirm that it belongs to this property before CMP uses it as a setup signal.";
+      ? "CMP saved the EPC-style record as a starting signal for this property. It helps setup, but it is not legal verification. Upload or confirm the actual certificate before relying on it."
+      : "CMP found an EPC-style match for 57 The Butts with rating C and potential B. Save the smart search results before CMP uses it as setup context.";
   }
 
   if (lowerPrompt.includes("evidence") || lowerPrompt.includes("upload")) {
     return summary.evidenceConfidenceScore === 0
-      ? "No uploaded certificates are stored yet. After confirming the found details, upload any Gas Safety or Electrical Safety/EICR documents you already have."
-      : `Evidence confidence is ${summary.evidenceConfidenceScore}%. EPC is only a starting signal; ${remaining || "the remaining certificates"} still need review or upload.`;
+      ? "No uploaded certificates are stored yet. You can upload Gas Safety or Electrical Safety/EICR documents during setup, and CMP will add anything useful to this property."
+      : `Evidence confidence is ${summary.evidenceConfidenceScore}%. Uploaded documents are now attached to this property setup; ${remaining || "the remaining answers"} still need review or confirmation.`;
   }
 
   if (lowerPrompt.includes("not know") || lowerPrompt.includes("confirm")) {
     return summary.findingsConfirmed
-      ? `CMP findings are confirmed. The next gaps are ${remaining || "the landlord-only answers"} before compliance scoring becomes reliable.`
-      : "CMP knows the selected address, postcode context and prepared EPC signal. It still needs you to confirm the EPC match, property type, bedrooms and occupancy.";
+      ? `Smart search findings are saved. CMP still needs ${remaining || "the landlord-only answers"} before the property score is reliable.`
+      : "CMP matched the address, prepared an EPC-style record and found Coventry City Council as the local authority. Save these findings, then CMP will ask for the missing information it could not find automatically.";
   }
 
   if (lowerPrompt.includes("found")) {
     return summary.findingsConfirmed
-      ? "CMP found and you confirmed the address match, EPC starting signal, flat/apartment property type and local-check starting point. Bedrooms, occupancy and certificates still need landlord input."
-      : "CMP found an address match, prepared EPC context and created the property workspace. Confirm those findings once, then CMP will ask only for what it cannot know automatically.";
+      ? "Smart search findings are saved. CMP still needs bedrooms, occupancy, Gas Safety relevance, EICR status and alarm answers before the property score is reliable."
+      : "CMP matched the address, prepared an EPC-style record and found Coventry City Council as the local authority. Save these findings, then CMP will ask for the missing information it could not find automatically.";
   }
 
   return summary.findingsConfirmed
-    ? `CMP findings are confirmed and profile setup is ${summary.profileSetupScore}%. Continue with occupancy, safety answers and certificate uploads before compliance scoring is reliable.`
-    : "Start by confirming what CMP found for 57 The Butts. That will lock the prepared address, EPC signal, property type and local-check context onto the property profile.";
+    ? "Smart search findings are saved. CMP still needs bedrooms, occupancy, Gas Safety relevance, EICR status and alarm answers before the property score is reliable."
+    : "CMP matched the address, prepared an EPC-style record and found Coventry City Council as the local authority. Save these findings, then CMP will ask for the missing information it could not find automatically.";
 }
 
 const iconPaths = {
@@ -2222,7 +2222,7 @@ function openCreatedPropertyWorkspace() {
   renderAssistantPrompts();
   showPortfolioHome({ scroll: true });
   setAssistantResponse(getGlobalAskDefaultResponse());
-  showToast("Property profile created — review what CMP found.");
+  showToast("Smart search ready — review the property results.");
 }
 
 function getPortfolioAssistantResponse(prompt) {
@@ -2949,10 +2949,32 @@ function renderPortfolioHomeState() {
   const homeSecondaryGrid = document.querySelector(".home-two-column");
   const homeQuickWin = document.querySelector(".home-quick-win-card");
   const homeKicker = document.querySelector("[data-portfolio-home] .section-kicker");
+  const homeTitle = document.querySelector("#portfolioHomeTitle");
+  const homeIntro = document.querySelector(".portfolio-home-header p:not(.section-kicker)");
+  const homeBadge = document.querySelector(".portfolio-home-header .prototype-badge");
+  const smartSearchSection = document.querySelector("[data-smart-search-results]");
+  const autopilotCard = document.querySelector(".portfolio-autopilot-card");
+  const pulseGrid = document.querySelector(".portfolio-pulse-grid");
+  const homeScoreGrid = document.querySelector("[data-home-score-grid]");
+  const homePriorityCard = document.querySelector(".home-priority-card");
 
   if (!properties.length) {
+    smartSearchSection?.setAttribute("hidden", "");
+    autopilotCard?.removeAttribute("hidden");
+    pulseGrid?.removeAttribute("hidden");
+    homeScoreGrid?.removeAttribute("hidden");
+    homePriorityCard?.removeAttribute("hidden");
     if (homeKicker) {
       homeKicker.textContent = "Home";
+    }
+    if (homeTitle) {
+      homeTitle.textContent = "Welcome to ComplyMyProperty";
+    }
+    if (homeIntro) {
+      homeIntro.textContent = "CMP helps landlords build a property compliance workspace, organise evidence, track tasks and request support.";
+    }
+    if (homeBadge) {
+      homeBadge.textContent = "New landlord setup";
     }
     document.querySelectorAll("[data-home-add-property]").forEach((button) => {
       if (button.classList.contains("quiet-add")) {
@@ -3068,8 +3090,25 @@ function renderPortfolioHomeState() {
   if (isNewPropertyMode()) {
     const summary = newPropertyStatusSummary();
     const tasks = newPropertyTaskItems();
+    if (smartSearchSection) {
+      smartSearchSection.hidden = false;
+      smartSearchSection.innerHTML = renderSmartSearchResults();
+    }
+    autopilotCard?.setAttribute("hidden", "");
+    pulseGrid?.setAttribute("hidden", "");
+    homeScoreGrid?.setAttribute("hidden", "");
+    homePriorityCard?.setAttribute("hidden", "");
     if (homeKicker) {
-      homeKicker.textContent = "New property profile";
+      homeKicker.textContent = "Smart Search Results";
+    }
+    if (homeTitle) {
+      homeTitle.textContent = "Here\u2019s what CMP found about your property";
+    }
+    if (homeIntro) {
+      homeIntro.textContent = "CMP matched the address, checked EPC-style records and prepared a starting property profile. Review the findings, then save them to this property.";
+    }
+    if (homeBadge) {
+      homeBadge.textContent = "57 The Butts \u00b7 Coventry, CV1 3BJ";
     }
     document.querySelectorAll("[data-home-add-property]").forEach((button) => {
       if (button.classList.contains("quiet-add")) {
@@ -3225,6 +3264,20 @@ function renderPortfolioHomeState() {
 
   if (homeKicker) {
     homeKicker.textContent = "Portfolio Home";
+  }
+  smartSearchSection?.setAttribute("hidden", "");
+  autopilotCard?.removeAttribute("hidden");
+  pulseGrid?.removeAttribute("hidden");
+  homeScoreGrid?.removeAttribute("hidden");
+  homePriorityCard?.removeAttribute("hidden");
+  if (homeTitle) {
+    homeTitle.textContent = "Welcome to ComplyMyProperty";
+  }
+  if (homeIntro) {
+    homeIntro.textContent = "CMP helps landlords build a property compliance workspace, organise evidence, track tasks and request support.";
+  }
+  if (homeBadge) {
+    homeBadge.textContent = "New landlord setup";
   }
   const propertyHeading = document.querySelector("#homePropertiesTitle");
   const propertyHeadingBlock = propertyHeading?.closest(".section-heading");
@@ -3725,32 +3778,45 @@ function renderPortfolioPropertiesState() {
     const resultsContainer = document.querySelector("[data-properties-results]");
     if (resultsContainer) {
       resultsContainer.innerHTML = `
-        <article class="portfolio-property-card is-most-urgent">
+        ${summary.findingsConfirmed ? `
+          <article class="smart-property-success-banner">
+            <span class="tile-icon" data-icon="check"></span>
+            <div>
+              <strong>You added your first property.</strong>
+              <p>Open the workspace to find out what this property needs to become compliant.</p>
+            </div>
+          </article>
+        ` : ""}
+        <article class="portfolio-property-card is-most-urgent smart-property-card">
           <div class="portfolio-property-main">
             <span class="status-dot" aria-hidden="true"></span>
             <div>
               <div class="property-card-heading-row">
                 <h3>57 The Butts</h3>
                 <span class="source-badge">New profile</span>
+                <span class="source-badge">${summary.findingsConfirmed ? "Setup in progress" : "Smart search ready"}</span>
               </div>
               <p>Flat 42 · Coventry, CV1 3BJ</p>
               <div class="signal-row">
                 <span>Address matched</span>
-                <span>${summary.findingsConfirmed ? "CMP findings confirmed" : "EPC prepared for review"}</span>
-                <span>${summary.evidenceConfidenceScore ? `${summary.evidenceConfidenceScore}% evidence confidence` : "No uploaded documents yet"}</span>
+                <span>${summary.findingsConfirmed ? "Smart search saved" : "EPC prepared for review"}</span>
+                <span>Top unresolved: ${escapeHtml(summary.primaryTaskTitle)}</span>
               </div>
             </div>
           </div>
           <div class="portfolio-property-progress">
+            <span>Profile setup</span>
+            <strong>${summary.profileSetupScore}% setup</strong>
+            <div class="strength-meter score-compliance"><span style="width: ${summary.profileSetupScore}%"></span></div>
             <span>Evidence confidence</span>
-            <strong>${summary.evidenceConfidenceScore}%</strong>
+            <strong>${summary.evidenceConfidenceScore}% evidence</strong>
             <div class="strength-meter"><span style="width: ${summary.evidenceConfidenceScore}%"></span></div>
             <small>${escapeHtml(summary.evidenceConfidenceHelp)}</small>
           </div>
           <div class="button-row">
-            <button class="primary-button" type="button" data-new-setup-start>Continue guided check</button>
+            <button class="primary-button" type="button" data-home-open-property-id="the-butts">Open workspace</button>
+            <button class="secondary-button" type="button" data-new-setup-start>Answer remaining questions</button>
             <button class="secondary-button" type="button" data-evidence-action="uploadGas">Upload certificates</button>
-            <button class="text-button" type="button" data-home-open-property-id="the-butts">Open workspace</button>
           </div>
         </article>
       `;
@@ -5182,6 +5248,200 @@ function renderNewPropertySetupSummary() {
         <p class="new-property-setup-note">You can skip anything you do not know and return later. Scores, gaps and service recommendations stay provisional until these setup details are confirmed.</p>
       </section>
     </div>
+  `;
+}
+
+function renderSmartSearchMissingRows(items) {
+  return items.map((item) => {
+    const row = typeof item === "string"
+      ? { label: item, status: "Needs landlord input", className: "" }
+      : item;
+    return `
+    <li>
+      <span>${escapeHtml(row.label)}</span>
+      <strong class="${escapeHtml(row.className || "")}">${escapeHtml(row.status)}</strong>
+    </li>
+  `;
+  }).join("");
+}
+
+function renderSmartSearchResults() {
+  const setup = newPropertySetup();
+  const summary = newPropertyStatusSummary(setup);
+  const identity = setup.identity || {};
+  const foundData = setup.foundData || {};
+  const evidence = setup.evidence || {};
+  const saved = Boolean(summary.findingsConfirmed);
+  const gasUploaded = isNewPropertyEvidenceUploaded(setup, "gasSafety");
+  const eicrUploaded = isNewPropertyEvidenceUploaded(setup, "eicr");
+  const remainingItems = [
+    "Confirm bedrooms",
+    "Confirm occupancy / tenancy status",
+    gasUploaded ? "" : "Upload Gas Safety if relevant",
+    eicrUploaded ? "" : "Upload or arrange Electrical Safety / EICR",
+    "Confirm smoke and CO alarm status"
+  ].filter(Boolean);
+
+  return `
+    <header class="smart-search-hero">
+      <div>
+        <p class="section-kicker">Smart Search Results</p>
+        <h2 id="smartSearchResultsTitle">Here&rsquo;s what CMP found about your property</h2>
+        <p>CMP matched the address, checked EPC-style records and prepared a starting property profile. Review the findings, then save them to this property.</p>
+      </div>
+      <div class="smart-search-address-card">
+        <span>Property</span>
+        <strong>57 The Butts</strong>
+        <small>Coventry, CV1 3BJ</small>
+      </div>
+    </header>
+
+    ${saved ? `
+      <article class="smart-saved-strip">
+        <span class="tile-icon" data-icon="check"></span>
+        <div>
+          <strong>Smart search saved to this property.</strong>
+          <p>Found data is now part of the property setup. CMP will only ask for information it could not find automatically.</p>
+        </div>
+      </article>
+    ` : ""}
+
+    <section class="smart-search-score-row" aria-label="Property setup scores">
+      <article class="score-card ${scoreClass(summary.profileSetupScore)} is-compact">
+        <div><span>Profile setup</span><strong>${summary.profileSetupScore}%</strong></div>
+        <div class="score-meter"><span style="width: ${summary.profileSetupScore}%"></span></div>
+        <small>${escapeHtml(summary.profileSetupHelp)}</small>
+      </article>
+      <article class="score-card ${scoreClass(summary.evidenceConfidenceScore)} is-compact">
+        <div><span>Evidence confidence</span><strong>${summary.evidenceConfidenceScore}%</strong></div>
+        <div class="score-meter"><span style="width: ${summary.evidenceConfidenceScore}%"></span></div>
+        <small>${escapeHtml(summary.evidenceConfidenceHelp)}</small>
+      </article>
+    </section>
+
+    <section class="smart-search-layout">
+      <div class="smart-search-main">
+        <article class="smart-search-panel">
+          <div class="smart-section-heading">
+            <p class="section-kicker">Found automatically</p>
+            <h3>Useful property records are ready to review</h3>
+          </div>
+          <div class="smart-found-grid">
+            <article class="smart-found-card">
+              <div class="smart-card-top">
+                <span class="source-badge">Address matched</span>
+                <span class="doc-status ${saved ? "status-good-text" : "status-watch-text"}">${saved ? "Saved and locked" : "Locked after save"}</span>
+              </div>
+              <h4>Flat 42, 57 The Butts, Coventry, CV1 3BJ</h4>
+              <p>Source: Confirmed from address selection</p>
+              <small>UPRN ${escapeHtml(identity.uprn || "DEMO-UPRN-57TB")}</small>
+            </article>
+            <article class="smart-found-card">
+              <div class="smart-card-top">
+                <span class="source-badge">EPC match found</span>
+                <span class="doc-status ${saved ? "status-watch-text" : "status-review-text"}">${saved ? "Saved as starting signal" : "Needs review"}</span>
+              </div>
+              <h4>Rating ${escapeHtml(foundData.epcRating || "C")} · potential ${escapeHtml(foundData.epcPotentialRating || "B")}</h4>
+              <dl>
+                <div><dt>Expiry</dt><dd>${escapeHtml(foundData.epcExpiryDate || "February 2034")}</dd></div>
+                <div><dt>Floor area</dt><dd>${escapeHtml(foundData.epcFloorArea || "Needs review")}</dd></div>
+              </dl>
+              <p>Source: EPC-style record prepared for review</p>
+              <small>Needs review before relying on it.</small>
+            </article>
+            <article class="smart-found-card">
+              <div class="smart-card-top">
+                <span class="source-badge">Local authority found</span>
+                <span class="doc-status status-good-text">Context ready</span>
+              </div>
+              <h4>${escapeHtml(identity.localAuthority || "Coventry City Council")}</h4>
+              <p>Source: postcode/local authority context</p>
+              <small>Local and licensing checks can continue after setup facts are confirmed.</small>
+            </article>
+            <article class="smart-found-card">
+              <div class="smart-card-top">
+                <span class="source-badge">Property type assumption</span>
+                <span class="doc-status ${saved ? "status-good-text" : "status-review-text"}">${saved ? "Saved for setup" : "Needs confirmation"}</span>
+              </div>
+              <h4>${escapeHtml(setup.landlordAnswers?.propertyType || foundData.epcPropertyType || "Flat / apartment")}</h4>
+              <p>Source: EPC/address assumption</p>
+              <small>Confirm or correct this in the remaining questions.</small>
+            </article>
+          </div>
+        </article>
+
+        <article class="smart-search-panel smart-missing-panel">
+          <div class="smart-section-heading">
+            <p class="section-kicker">CMP could not find yet</p>
+            <h3>These stay open until you answer or upload evidence</h3>
+          </div>
+          <ul class="smart-missing-list">
+            ${renderSmartSearchMissingRows([
+              "Bedrooms",
+              "Occupancy / tenancy status",
+              gasUploaded
+                ? { label: "Gas Safety Certificate", status: "Uploaded for review", className: "is-found" }
+                : "Gas Safety Certificate",
+              eicrUploaded
+                ? { label: "Electrical Safety / EICR", status: "Uploaded for review", className: "is-found" }
+                : "Electrical Safety / EICR",
+              "Smoke and CO alarm status",
+              "Tenancy/deposit documents",
+              "Inspection evidence"
+            ])}
+          </ul>
+        </article>
+      </div>
+
+      <aside class="smart-search-side">
+        <article class="smart-upload-panel" data-smart-upload-panel>
+          <div>
+            <p class="section-kicker">Optional file dump</p>
+            <h3>Have certificates or useful files for this property?</h3>
+            <p>Upload them now and CMP will add anything useful to this property setup.</p>
+          </div>
+          <div class="smart-upload-actions">
+            <button class="${gasUploaded ? "secondary-button" : "primary-button"}" type="button" data-smart-upload="gasSafety" ${gasUploaded ? "disabled" : ""}>${gasUploaded ? "Gas Safety demo uploaded" : "Upload Gas Safety demo"}</button>
+            <button class="${eicrUploaded ? "secondary-button" : "primary-button"}" type="button" data-smart-upload="eicr" ${eicrUploaded ? "disabled" : ""}>${eicrUploaded ? "EICR demo uploaded" : "Upload EICR demo"}</button>
+            <button class="text-button" type="button" data-smart-skip-upload>Skip for now</button>
+          </div>
+          <dl>
+            <div><dt>Gas Safety</dt><dd>${escapeHtml(evidence.gasSafety?.status === "uploaded" ? "Uploaded for review" : "No document uploaded")}</dd></div>
+            <div><dt>EICR</dt><dd>${escapeHtml(evidence.eicr?.status === "uploaded" ? "Uploaded for review" : "No document uploaded")}</dd></div>
+          </dl>
+        </article>
+
+        <article class="smart-action-panel">
+          <div>
+            <p class="section-kicker">Save found data</p>
+            <h3>${saved ? "Found data saved" : "Confirm the smart search once"}</h3>
+            <p>${saved ? "CMP will not ask you to confirm these found details again." : "This saves the address, EPC starting signal, property type assumption and local context to the property setup."}</p>
+          </div>
+          <div class="smart-main-actions">
+            <button class="${saved ? "secondary-button" : "primary-button"}" type="button" data-smart-confirm ${saved ? "disabled" : ""}>${saved ? "Found data saved" : "Confirm and save found data"}</button>
+            <button class="secondary-button" type="button" data-smart-edit-details>Edit found details</button>
+            <button class="text-button" type="button" data-smart-ask>Ask CMP what this means</button>
+            <button class="text-button" type="button" data-smart-scroll-upload>Upload certificates</button>
+          </div>
+        </article>
+      </aside>
+    </section>
+
+    <section class="smart-next-panel">
+      <div>
+        <p class="section-kicker">${saved ? "What CMP still needs" : "Next after saving"}</p>
+        <h3>${saved ? "Answer only the remaining unknowns" : "Save the found data, then fill the gaps"}</h3>
+        <p>CMP will only ask for information it could not find automatically.</p>
+      </div>
+      <ul>
+        ${remainingItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+      </ul>
+      <div class="button-row">
+        <button class="primary-button" type="button" data-smart-answer-remaining>Answer remaining questions</button>
+        <button class="secondary-button" type="button" data-smart-scroll-upload>Upload certificates</button>
+        <button class="text-button" type="button" data-smart-view-property>${saved ? "View property in Properties" : "Open property card"}</button>
+      </div>
+    </section>
   `;
 }
 
@@ -8751,16 +9011,16 @@ function showSettingsPage({ scroll = false } = {}) {
 }
 
 function openNewPropertyGuidedCheck() {
-  openNewPropertyFindings();
+  startNewPropertyGuidedCheck();
 }
 
 function openNewPropertyFindings() {
   labsState.azMode = "single";
   labsState.azPropertyId = "the-butts";
   labsState.newPropertyCheckerExpanded = false;
-  showPortfolioCompliance({ scroll: true });
-  window.setTimeout(() => scrollToPanel("[data-new-property-findings]"), 80);
-  showToast("Review what CMP found before continuing.");
+  showPortfolioHome({ scroll: true });
+  window.setTimeout(() => scrollToPanel("[data-smart-search-results]"), 80);
+  showToast("Review the smart search results before continuing.");
 }
 
 function startNewPropertyGuidedCheck() {
@@ -8807,25 +9067,25 @@ function confirmNewPropertyFindings() {
     id: "new-findings-confirmed",
     filter: "details",
     category: "Property setup",
-    title: "CMP findings confirmed",
-    body: "The address, EPC starting signal, property type and local-check starting point were confirmed for demo review.",
+    title: "Smart search findings saved",
+    body: "The address, EPC starting signal, property type assumption and local-check context were saved to this property setup.",
     source: "Landlord confirmation",
-    status: "Confirmed",
+    status: "Saved",
     statusClass: "status-good-text",
     search: "cmp findings confirmed epc starting signal property type local checks 57 butts",
-    why: "CMP recorded this because confirmed found data becomes the property profile baseline.",
+    why: "CMP recorded this because saved smart search data becomes the property profile baseline.",
     nextAction: "Answer occupancy and safety questions before compliance scoring.",
     route: "compliance",
     actions: [
       makeActivityAction("Continue guided check", "startGuidedCheck", true),
-      makeActivityAction("Open Evidence Vault", "viewEvidence")
+      makeActivityAction("Upload certificates", "addEvidence")
     ]
   });
 
   renderAllState();
   renderAssistantPrompts();
-  setAssistantResponse(getGlobalAskAssistantResponse("What should I confirm first?"));
-  showToast(alreadyConfirmed ? "CMP findings are already confirmed." : "CMP findings confirmed — setup score updated.");
+  setAssistantResponse(getGlobalAskAssistantResponse("What does CMP still not know?"));
+  showToast(alreadyConfirmed ? "Smart search findings are already saved." : "Smart search saved to this property.");
 }
 
 function recordNewPropertyEvidenceUpload(type) {
@@ -9092,7 +9352,7 @@ function bindPortfolioHome() {
     button.addEventListener("click", closeTimelineModals);
   });
 
-	  document.addEventListener("click", (event) => {
+	document.addEventListener("click", (event) => {
 	    const homePromptButton = event.target.closest("[data-home-prompt]");
 	    if (homePromptButton) {
 	      const response = isEmptyPortfolioMode() || isNewPropertyMode()
@@ -9101,6 +9361,49 @@ function bindPortfolioHome() {
 	      openAssistant(response, { flash: true });
 	      return;
 	    }
+
+    const smartUploadButton = event.target.closest("[data-smart-upload]");
+    if (smartUploadButton) {
+      recordNewPropertyEvidenceUpload(smartUploadButton.dataset.smartUpload);
+      return;
+    }
+
+    if (event.target.closest("[data-smart-confirm]")) {
+      confirmNewPropertyFindings();
+      window.setTimeout(() => scrollToPanel("[data-smart-search-results]"), 80);
+      return;
+    }
+
+    if (event.target.closest("[data-smart-edit-details]")) {
+      showToast("Editing found details is coming next in the prototype.");
+      return;
+    }
+
+    if (event.target.closest("[data-smart-ask]")) {
+      openAssistant(getGlobalAskAssistantResponse("What did CMP find automatically?"), { flash: true });
+      return;
+    }
+
+    if (event.target.closest("[data-smart-scroll-upload]")) {
+      scrollToPanel("[data-smart-upload-panel]");
+      return;
+    }
+
+    if (event.target.closest("[data-smart-skip-upload]")) {
+      showToast("Uploads skipped for now. CMP will keep those evidence items open.");
+      return;
+    }
+
+    if (event.target.closest("[data-smart-answer-remaining]")) {
+      startNewPropertyGuidedCheck();
+      return;
+    }
+
+    if (event.target.closest("[data-smart-view-property]")) {
+      showPortfolioProperties({ scroll: true });
+      setAssistantResponse("You added your first property. Open the workspace to find out what this property needs to become compliant.");
+      return;
+    }
 
 	    if (event.target.closest("[data-home-property-list] [data-home-add-property]")) {
 	      openAddPropertyModal();

@@ -187,6 +187,8 @@
             </div>
           </header>
 
+          <section class="smart-search-results" data-smart-search-results hidden aria-labelledby="smartSearchResultsTitle"></section>
+
           <article class="portfolio-autopilot-card">
             <div>
               <p class="section-kicker">CMP Autopilot</p>
@@ -2945,9 +2947,9 @@
       <section class="timeline-modal add-property-modal" role="dialog" aria-modal="true" aria-labelledby="addPropertyModalTitle" data-add-property-modal hidden>
         <div class="modal-header">
           <div>
-            <p class="section-kicker">Portfolio setup</p>
+            <p class="section-kicker">Add property</p>
             <h2 id="addPropertyModalTitle">Add property</h2>
-            <p>Create a property workspace in three calm steps.</p>
+            <p>Start with the address, then let CMP prepare the first property records for review.</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close Add property" data-add-property-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -2981,34 +2983,44 @@
         </div>
         <div class="add-property-step-panel" data-add-property-step="3" hidden>
           <p class="section-kicker">Step 3</p>
-          <h3>EPC / Workspace preview</h3>
+          <h3>Smart search ready</h3>
           <div class="workspace-preview-card">
             <p class="workspace-preview-address" data-add-selected-address>Flat 42, 57 The Butts, Coventry, CV1 3BJ</p>
             <div class="workspace-preview-grid">
               <article>
-                <span class="doc-status status-good-text">EPC match likely</span>
-                <strong>EPC record prepared for review</strong>
-                <p>Official record lookup prepared for review.</p>
+                <span class="doc-status status-good-text">Address matched</span>
+                <strong>Confirmed from address selection</strong>
+                <p>CMP will lock this identity after you save the smart search results.</p>
               </article>
               <article>
-                <span class="doc-status status-neutral-text">Suggested details</span>
-                <strong>Flat / apartment · bedrooms need confirmation</strong>
-                <p>CMP would ask you to confirm before saving.</p>
+                <span class="doc-status status-watch-text">EPC match found</span>
+                <strong>Rating C prepared for review</strong>
+                <p>EPC-style data is ready to check before relying on it.</p>
+              </article>
+              <article>
+                <span class="doc-status status-good-text">Local context ready</span>
+                <strong>Coventry City Council</strong>
+                <p>Postcode and local authority context are prepared.</p>
+              </article>
+              <article>
+                <span class="doc-status status-review-text">Needs confirmation</span>
+                <strong>Flat / apartment · facts to confirm</strong>
+                <p>CMP will ask only for details it could not find automatically.</p>
               </article>
             </div>
           </div>
-          <p class="modal-note">CMP will create a property workspace and organise the first checks around this address.</p>
+          <p class="modal-note">CMP has matched the address and prepared property records for review.</p>
           <div class="button-row">
-            <button class="primary-button" type="button" data-add-property-success>Create workspace</button>
+            <button class="primary-button" type="button" data-add-property-success>Review smart search results</button>
             <button class="text-button" type="button" data-add-property-back="2">Back</button>
           </div>
         </div>
         <div class="add-property-success" data-add-property-success-panel hidden>
           <span class="tile-icon" data-icon="building"></span>
-          <h3>Property workspace ready</h3>
-          <p>CMP has matched the address and prepared the first property profile. Next, review what CMP found and confirm anything missing.</p>
+          <h3>Smart search ready</h3>
+          <p>CMP has matched the address and prepared the first property records. Next, review and save the smart search results.</p>
           <div class="button-row">
-            <button class="primary-button" type="button" data-add-property-open-demo>Open property workspace</button>
+            <button class="primary-button" type="button" data-add-property-open-demo>Review smart search results</button>
             <button class="secondary-button" type="button" data-add-property-later>Stay on setup</button>
           </div>
         </div>

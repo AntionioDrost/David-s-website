@@ -733,6 +733,13 @@ body.portfolio-utility-active .tab-bar {
   display: none;
 }
 
+.portfolio-autopilot-card[hidden],
+.portfolio-pulse-grid[hidden],
+.score-pair-grid[hidden],
+.home-priority-card[hidden] {
+  display: none;
+}
+
 .portfolio-home-header,
 .portfolio-properties-header,
 .portfolio-compliance-header,
@@ -9733,6 +9740,301 @@ textarea:focus-visible,
   background: linear-gradient(180deg, #fff, rgba(255, 239, 235, 0.92));
 }
 
+.smart-search-results {
+  display: grid;
+  gap: 16px;
+}
+
+.smart-search-results[hidden] {
+  display: none;
+}
+
+.smart-search-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(220px, 0.32fr);
+  gap: 18px;
+  align-items: stretch;
+  padding: clamp(20px, 3vw, 30px);
+  border: 1px solid rgba(31, 122, 83, 0.16);
+  border-radius: 24px;
+  background:
+    radial-gradient(circle at 94% 8%, rgba(41, 122, 87, 0.12), transparent 32%),
+    linear-gradient(135deg, #ffffff, #f6fbf8 68%, #edf7f1);
+  box-shadow: 0 24px 52px rgba(18, 45, 37, 0.08);
+}
+
+.smart-search-hero h2 {
+  margin: 0;
+  color: #102d25;
+  font-size: clamp(2rem, 4vw, 3.35rem);
+  line-height: 1.02;
+  letter-spacing: 0;
+}
+
+.smart-search-hero p:not(.section-kicker) {
+  max-width: 760px;
+  margin: 12px 0 0;
+  color: #50645e;
+  line-height: 1.58;
+  font-size: 1.02rem;
+}
+
+.smart-search-address-card,
+.smart-saved-strip,
+.smart-search-panel,
+.smart-upload-panel,
+.smart-action-panel,
+.smart-next-panel,
+.smart-property-success-banner {
+  border: 1px solid rgba(17, 39, 34, 0.11);
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 14px 34px rgba(18, 45, 37, 0.06);
+}
+
+.smart-search-address-card {
+  display: grid;
+  align-content: center;
+  gap: 6px;
+  min-height: 150px;
+  padding: 18px;
+  border-radius: 20px;
+}
+
+.smart-search-address-card span,
+.smart-found-card small,
+.smart-missing-list strong,
+.smart-upload-panel dt {
+  color: var(--labs-soft);
+  font-size: 0.7rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.smart-search-address-card strong {
+  color: #102d25;
+  font-size: 1.35rem;
+  line-height: 1.1;
+}
+
+.smart-search-address-card small {
+  color: #5d716a;
+  font-weight: 740;
+}
+
+.smart-saved-strip,
+.smart-property-success-banner {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 12px;
+  align-items: start;
+  padding: 16px;
+  border-radius: 18px;
+  background: #f0f8f3;
+}
+
+.smart-saved-strip strong,
+.smart-property-success-banner strong {
+  color: #12392e;
+  font-size: 1rem;
+}
+
+.smart-saved-strip p,
+.smart-property-success-banner p {
+  margin: 4px 0 0;
+  color: #526963;
+  line-height: 1.45;
+}
+
+.smart-search-score-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.smart-search-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 0.36fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.smart-search-main,
+.smart-search-side {
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+
+.smart-search-panel,
+.smart-upload-panel,
+.smart-action-panel,
+.smart-next-panel {
+  display: grid;
+  gap: 16px;
+  padding: clamp(16px, 2vw, 22px);
+  border-radius: 22px;
+}
+
+.smart-section-heading {
+  display: grid;
+  gap: 7px;
+}
+
+.smart-section-heading h3,
+.smart-upload-panel h3,
+.smart-action-panel h3,
+.smart-next-panel h3 {
+  margin: 0;
+  color: #102d25;
+  font-size: clamp(1.24rem, 2vw, 1.7rem);
+  line-height: 1.12;
+  letter-spacing: 0;
+}
+
+.smart-section-heading p:not(.section-kicker),
+.smart-upload-panel p,
+.smart-action-panel p,
+.smart-next-panel p {
+  margin: 0;
+  color: #5d716a;
+  line-height: 1.52;
+}
+
+.smart-found-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.smart-found-card {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+  padding: 15px;
+  border: 1px solid rgba(31, 122, 83, 0.12);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff, rgba(249, 252, 250, 0.92));
+}
+
+.smart-card-top {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.smart-found-card h4 {
+  margin: 0;
+  color: #15342c;
+  font-size: 1.02rem;
+  line-height: 1.24;
+  overflow-wrap: anywhere;
+}
+
+.smart-found-card p,
+.smart-found-card dl {
+  margin: 0;
+  color: #5d716a;
+  line-height: 1.45;
+}
+
+.smart-found-card dl {
+  display: grid;
+  gap: 6px;
+}
+
+.smart-found-card dl div,
+.smart-upload-panel dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 7px;
+  border-top: 1px solid rgba(20, 39, 36, 0.08);
+}
+
+.smart-found-card dt,
+.smart-upload-panel dt {
+  color: var(--labs-soft);
+}
+
+.smart-found-card dd,
+.smart-upload-panel dd {
+  margin: 0;
+  color: #16362e;
+  font-weight: 780;
+  text-align: right;
+}
+
+.smart-missing-list,
+.smart-next-panel ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.smart-missing-list li,
+.smart-next-panel li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) max-content;
+  gap: 12px;
+  align-items: center;
+  padding: 11px 0;
+  border-top: 1px solid rgba(20, 39, 36, 0.08);
+}
+
+.smart-missing-list li:first-child,
+.smart-next-panel li:first-child {
+  border-top: 0;
+}
+
+.smart-missing-list span,
+.smart-next-panel li {
+  color: #17342d;
+  font-weight: 760;
+}
+
+.smart-missing-list strong {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #7b4b16;
+  background: #fff3de;
+  white-space: nowrap;
+}
+
+.smart-missing-list strong.is-found {
+  color: #15533d;
+  background: #eaf6ee;
+}
+
+.smart-upload-actions,
+.smart-main-actions {
+  display: grid;
+  gap: 9px;
+}
+
+.smart-upload-panel dl {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.smart-next-panel {
+  grid-template-columns: minmax(0, 0.72fr) minmax(220px, 0.48fr) auto;
+  align-items: center;
+}
+
+.smart-next-panel .button-row {
+  justify-content: end;
+}
+
+.smart-property-card {
+  align-items: start;
+}
+
 .score-meter {
   height: 9px;
   overflow: hidden;
@@ -10684,7 +10986,15 @@ textarea:focus-visible,
   .az-workspace-grid,
   .az-workspace-grid.is-portfolio,
   .az-empty-preview,
-  .new-property-setup-shell {
+  .new-property-setup-shell,
+  .smart-search-hero,
+  .smart-search-layout,
+  .smart-next-panel {
+    grid-template-columns: 1fr;
+  }
+
+  .smart-search-score-row,
+  .smart-found-grid {
     grid-template-columns: 1fr;
   }
 
