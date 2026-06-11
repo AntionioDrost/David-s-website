@@ -79,6 +79,7 @@ const labsState = {
   azPropertyId: "the-butts",
   azScenario: "general",
   activeCheckerSection: "property-basics",
+  newPropertyCheckerExpanded: false,
   portfolioSweepStage: "scope",
   editingCheckerCard: "",
   checkerAnswers: {},
@@ -1391,6 +1392,7 @@ function resetDemoState() {
   labsState.azPropertyId = "the-butts";
   labsState.azScenario = "general";
   labsState.activeCheckerSection = "property-basics";
+  labsState.newPropertyCheckerExpanded = false;
   labsState.portfolioSweepStage = "scope";
   labsState.editingCheckerCard = "";
   labsState.checkerAnswers = {};
@@ -2479,10 +2481,10 @@ function renderPortfolioHomeState() {
       }
     });
     if (summaryPrimary) {
-      summaryPrimary.textContent = "Confirm what CMP found";
+      summaryPrimary.textContent = "Review CMP findings";
     }
     if (summarySecondary) {
-      summarySecondary.textContent = "Continue guided check";
+      summarySecondary.textContent = "Upload certificates";
     }
     if (workspaceShortcut) {
       workspaceShortcut.hidden = false;
@@ -2513,7 +2515,7 @@ function renderPortfolioHomeState() {
     document.querySelector("[data-home-priority-area]").textContent = "Starting signals";
     document.querySelector("[data-home-priority-status]").textContent = "Needs confirmation before scoring";
     document.querySelector("[data-home-priority-body]").textContent = "CMP matched the address, prepared an EPC-style signal and created the workspace. Confirm these details before relying on scores or service recommendations.";
-    document.querySelector("[data-home-upload-priority]").textContent = "Confirm what CMP found";
+    document.querySelector("[data-home-upload-priority]").textContent = "Review CMP findings";
     document.querySelector("[data-home-arrange-priority]").textContent = "Upload certificates";
     if (workspaceShortcut) {
       workspaceShortcut.textContent = "Ask CMP what matters first";
@@ -2581,7 +2583,7 @@ function renderPortfolioHomeState() {
             <small>No uploaded documents yet. EPC context is prepared for review.</small>
           </div>
           <div class="button-row">
-            <button class="primary-button" type="button" data-az-mode="single">Continue guided check</button>
+            <button class="primary-button" type="button" data-az-mode="single">Review CMP findings</button>
             <button class="secondary-button" type="button" data-home-upload-priority>Upload certificates</button>
             <button class="text-button" type="button" data-home-open-property-id="the-butts">Open workspace</button>
           </div>
@@ -2599,24 +2601,20 @@ function renderPortfolioHomeState() {
     const upcomingHeadingBlock = upcomingHeading?.closest(".section-heading");
     if (upcomingHeadingBlock) {
       upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Confirm next";
-      upcomingHeading.textContent = "Confirm these details next";
+      upcomingHeading.textContent = "The setup path";
       upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "CMP needs these landlord confirmations before scores, tasks and recommendations become reliable.";
     }
     const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
     if (upcomingGrid) {
       upcomingGrid.innerHTML = [
-        ["Confirm property type and bedrooms", "Property details", "CMP needs landlord confirmation before scoring this property."],
-        ["Confirm occupancy / tenancy status", "Scenario", "Occupancy decides which checks and documents matter first."],
-        ["Upload Gas Safety evidence if relevant", "Evidence", "No Gas Safety document has been uploaded yet."],
-        ["Add or arrange Electrical Safety / EICR", "Evidence", "EICR is likely to be a core evidence item, but CMP has not verified one yet."],
-        ["Confirm smoke and CO alarm status", "Landlord answer", "CMP needs the landlord answer and any supporting evidence."],
-        ["Continue local licensing check", "Local check", "Postcode review can continue once setup details are confirmed."]
-      ].map(([title, badge, body]) => `
+        ["Review CMP findings", "Step 1", "Confirm the matched address, EPC context, property type, bedrooms and occupancy.", "Review findings", 'data-az-mode="single"'],
+        ["Complete guided compliance check", "Step 2", "Answer what CMP cannot know, then upload evidence if you already have it.", "Open check", "data-new-setup-start"]
+      ].map(([title, badge, body, action, buttonAttr]) => `
         <article class="portfolio-upcoming-card">
           <span class="source-badge">${escapeHtml(badge)}</span>
           <h3>${escapeHtml(title)}</h3>
           <p>${escapeHtml(body)}</p>
-          <button class="text-button" type="button" data-az-mode="single">Continue guided check</button>
+          <button class="text-button" type="button" ${buttonAttr}>${escapeHtml(action)}</button>
         </article>
       `).join("");
     }
@@ -3302,6 +3300,7 @@ function renderPortfolioComplianceState() {
   const complianceKicker = complianceHeader?.querySelector(".section-kicker");
   const complianceBody = complianceHeader?.querySelector("p:not(.section-kicker)");
   const complianceReviewActions = document.querySelector("[data-compliance-review-actions]");
+  const complianceSummary = document.querySelector(".compliance-centre-summary");
   const matrixTitle = document.querySelector("#portfolioMatrixTitle");
   const matrixHeading = matrixTitle?.closest(".section-heading");
   const gapsTitle = document.querySelector("#complianceGapsTitle");
@@ -3317,6 +3316,9 @@ function renderPortfolioComplianceState() {
   }
   if (complianceReviewActions) {
     complianceReviewActions.textContent = "Review open actions";
+  }
+  if (complianceSummary) {
+    complianceSummary.hidden = false;
   }
   if (matrixHeading) {
     matrixHeading.querySelector(".section-kicker").textContent = "Portfolio matrix";
@@ -3387,17 +3389,20 @@ function renderPortfolioComplianceState() {
       complianceKicker.textContent = "Compliance Centre";
     }
     if (complianceBody) {
-      complianceBody.textContent = "Confirm what CMP found for 57 The Butts before scores, gaps and services become reliable.";
+      complianceBody.textContent = "CMP has prepared a starting profile from the address and EPC-style lookup. Confirm what CMP found before scores, gaps and service recommendations become reliable.";
     }
     if (complianceReviewActions) {
       complianceReviewActions.removeAttribute("hidden");
-      complianceReviewActions.textContent = "Review setup actions";
+      complianceReviewActions.textContent = "Review CMP findings";
+    }
+    if (complianceSummary) {
+      complianceSummary.hidden = true;
     }
     document.querySelector("[data-compliance-score-grid]")?.setAttribute("hidden", "");
-    document.querySelector("[data-compliance-open-property]")?.removeAttribute("hidden");
-    document.querySelector('[aria-labelledby="portfolioMatrixTitle"]')?.removeAttribute("hidden");
-    document.querySelector("[data-compliance-gaps-section]")?.removeAttribute("hidden");
-    document.querySelector('[aria-labelledby="portfolioForecastTitle"]')?.removeAttribute("hidden");
+    document.querySelector("[data-compliance-open-property]")?.setAttribute("hidden", "");
+    document.querySelector('[aria-labelledby="portfolioMatrixTitle"]')?.setAttribute("hidden", "");
+    document.querySelector("[data-compliance-gaps-section]")?.setAttribute("hidden", "");
+    document.querySelector('[aria-labelledby="portfolioForecastTitle"]')?.setAttribute("hidden", "");
     document.querySelector(".compliance-readiness-card")?.setAttribute("hidden", "");
     document.querySelector("[data-compliance-count-badge]").textContent = "1 new property profile";
     document.querySelector("[data-compliance-property-count]").textContent = "1";
@@ -3408,8 +3413,8 @@ function renderPortfolioComplianceState() {
     document.querySelector("[data-compliance-upcoming-count]").textContent = "0";
     document.querySelector("[data-compliance-open-action-detail]").textContent = "setup";
     document.querySelector("[data-compliance-priority-title]").textContent = "Continue setup for 57 The Butts";
-    document.querySelector("[data-compliance-priority-body]").textContent = "CMP has prepared an EPC signal and address match. Confirm the property details, occupancy and available certificates before the compliance score becomes reliable.";
-    document.querySelector("[data-compliance-priority-upload]").textContent = "Continue guided check";
+    document.querySelector("[data-compliance-priority-body]").textContent = "CMP has prepared a starting profile from the address and EPC-style lookup. Confirm what CMP found before scores, gaps and service recommendations become reliable.";
+    document.querySelector("[data-compliance-priority-upload]").textContent = "Review CMP findings";
     document.querySelector("[data-compliance-priority-support]").textContent = "Upload certificates";
     const requestIndicator = document.querySelector("[data-compliance-request-indicator]");
     if (requestIndicator) {
@@ -3454,7 +3459,6 @@ function renderPortfolioComplianceState() {
       forecastTitle.textContent = "Upcoming checks";
       forecastHeading.querySelector("p:not(.section-kicker)").textContent = "Light watch items based on the early setup context. Nothing is treated as fully assessed yet.";
     }
-    renderComplianceGaps();
     renderAzChecker();
     return;
   }
@@ -4493,6 +4497,115 @@ function renderAzPropertySelector(properties) {
   `;
 }
 
+const newPropertyFindingItems = [
+  {
+    title: "Address matched",
+    value: "Flat 42, 57 The Butts, Coventry, CV1 3BJ",
+    status: "Found automatically",
+    action: "Confirm / Edit"
+  },
+  {
+    title: "EPC prepared for review",
+    value: "EPC-style record prepared before relying on it",
+    status: "Prepared for review",
+    action: "Review"
+  },
+  {
+    title: "Property type",
+    value: "Flat / apartment",
+    status: "Needs confirmation",
+    action: "Confirm / Change"
+  },
+  {
+    title: "Bedrooms",
+    value: "Needs confirmation",
+    status: "Needs confirmation",
+    action: "Answer"
+  },
+  {
+    title: "Occupancy / tenancy status",
+    value: "Unknown",
+    status: "Needs answer",
+    action: "Answer"
+  },
+  {
+    title: "Postcode / local checks",
+    value: "Ready for local checks",
+    status: "Ready",
+    action: "Review later"
+  }
+];
+
+const newPropertyGuidedStages = [
+  "Property basics",
+  "Occupancy / tenancy status",
+  "Gas Safety relevance",
+  "Electrical Safety / EICR",
+  "Smoke and CO alarms",
+  "Tenancy / deposit documents",
+  "Licensing / local checks",
+  "Inspection / maintenance evidence"
+];
+
+function renderNewPropertyFindingRows() {
+  return newPropertyFindingItems.map((item) => `
+    <article class="new-property-finding-row">
+      <div>
+        <h4>${escapeHtml(item.title)}</h4>
+        <p>${escapeHtml(item.value)}</p>
+      </div>
+      <span>${escapeHtml(item.status)}</span>
+      <button type="button" data-new-setup-confirm>${escapeHtml(item.action)}</button>
+    </article>
+  `).join("");
+}
+
+function renderNewPropertyGuidedStages() {
+  return newPropertyGuidedStages.map((stage, index) => `
+    <li>
+      <span>${index + 1}</span>
+      <strong>${escapeHtml(stage)}</strong>
+    </li>
+  `).join("");
+}
+
+function renderNewPropertySetupSummary() {
+  return `
+    <div class="new-property-setup-shell">
+      <section class="new-property-findings-panel" aria-labelledby="newPropertyFindingsTitle">
+        <div class="new-property-panel-heading">
+          <p class="section-kicker">Review CMP findings</p>
+          <h3 id="newPropertyFindingsTitle">Review what CMP found</h3>
+          <p>CMP has already matched a few starting details. Confirm or correct them before continuing.</p>
+        </div>
+        <div class="new-property-finding-list">
+          ${renderNewPropertyFindingRows()}
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-new-setup-confirm>Confirm these details</button>
+          <button class="secondary-button" type="button" data-new-setup-ask>Ask CMP what this means</button>
+        </div>
+      </section>
+
+      <section class="new-property-guided-panel" aria-labelledby="newPropertyGuidedTitle">
+        <div class="new-property-panel-heading">
+          <p class="section-kicker">Complete guided compliance check</p>
+          <h3 id="newPropertyGuidedTitle">Complete the guided compliance check</h3>
+          <p>After confirming the basics, CMP will ask only for the information it cannot find automatically.</p>
+        </div>
+        <ol class="new-property-stage-list">
+          ${renderNewPropertyGuidedStages()}
+        </ol>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-new-setup-start>Start guided check</button>
+          <button class="secondary-button" type="button" data-new-setup-upload>Upload certificates first</button>
+        </div>
+        <p class="new-property-setup-note">You can skip anything you do not know and return later. Scores, gaps and service recommendations stay provisional until these setup details are confirmed.</p>
+      </section>
+    </div>
+  `;
+}
+
 function renderNewPropertyAzIntro() {
   return `
     <aside class="az-scenario-guide" aria-label="What CMP found automatically">
@@ -5204,6 +5317,11 @@ function renderAzChecker() {
     labsState.azMode = "single";
   }
 
+  const modeToggle = document.querySelector(".az-mode-toggle");
+  if (modeToggle) {
+    modeToggle.hidden = isNewSetup;
+  }
+
   document.querySelectorAll("[data-az-mode]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.azMode === labsState.azMode);
     if (button.dataset.azMode === "portfolio") {
@@ -5220,7 +5338,7 @@ function renderAzChecker() {
   const checkerTitle = document.querySelector(".az-checker-header h2");
   if (checkerTitle) {
     checkerTitle.textContent = isNewSetup
-      ? "Confirm what CMP found first"
+      ? "Review CMP findings"
       : "A guided check for answers, evidence and next steps.";
   }
   const checkerIntro = document.querySelector(".az-checker-header h2 + p");
@@ -5228,7 +5346,7 @@ function renderAzChecker() {
     checkerIntro.textContent = isEmpty
       ? "Add your first property to run the A-Z checker. You can preview the question structure before setup."
       : isNewSetup
-      ? "CMP has prepared a starting profile from the address and EPC-style lookup. Confirm the details below before CMP scores evidence gaps or recommends services."
+      ? "CMP has already matched a few starting details. Confirm or correct them before continuing into the guided compliance check."
       : "Use Single property for one address, or Portfolio sweep to answer shared questions once and only review exceptions. Prototype readiness logic only — this is not legal advice.";
   }
 
@@ -5267,6 +5385,19 @@ function renderAzChecker() {
           </article>
         </div>
       </div>
+    `;
+    hydrateIcons();
+    return;
+  }
+
+  if (isNewSetup) {
+    body.innerHTML = `
+      ${renderNewPropertySetupSummary()}
+      ${labsState.newPropertyCheckerExpanded ? `
+        <section class="new-property-expanded-check" data-new-guided-check-panel aria-label="Guided compliance check">
+          ${renderSingleAzCheck(properties)}
+        </section>
+      ` : ""}
     `;
     hydrateIcons();
     return;
@@ -8236,8 +8367,19 @@ function showSettingsPage({ scroll = false } = {}) {
 function openNewPropertyGuidedCheck() {
   labsState.azMode = "single";
   labsState.azPropertyId = "the-butts";
+  labsState.newPropertyCheckerExpanded = false;
   showPortfolioCompliance({ scroll: true });
   window.setTimeout(() => scrollToPanel("[data-az-checker]"), 80);
+}
+
+function startNewPropertyGuidedCheck() {
+  labsState.azMode = "single";
+  labsState.azPropertyId = "the-butts";
+  labsState.activeCheckerSection = "property-basics";
+  labsState.editingCheckerCard = "";
+  labsState.newPropertyCheckerExpanded = true;
+  renderAzChecker();
+  window.setTimeout(() => scrollToPanel("[data-new-guided-check-panel]"), 80);
 }
 
 function openNewPropertyEvidence() {
@@ -8340,7 +8482,7 @@ function bindPortfolioHome() {
     }
 
     if (isNewPropertyMode()) {
-      openNewPropertyGuidedCheck();
+      openNewPropertyEvidence();
       return;
     }
 
@@ -8677,6 +8819,13 @@ function bindPortfolioCompliance() {
   });
 
   document.querySelector("[data-compliance-review-actions]")?.addEventListener("click", () => {
+    if (isNewPropertyMode()) {
+      labsState.newPropertyCheckerExpanded = false;
+      renderAzChecker();
+      scrollToPanel("[data-az-checker]");
+      return;
+    }
+
     scrollToPanel("[data-compliance-gaps-section]");
   });
 
@@ -8802,6 +8951,9 @@ function bindAzChecker() {
       }
       labsState.azMode = modeButton.dataset.azMode;
       labsState.editingCheckerCard = "";
+      if (isNewPropertyMode()) {
+        labsState.newPropertyCheckerExpanded = false;
+      }
       if (labsState.azMode === "portfolio" && getPortfolioProperties().length < 2) {
         showToast("Portfolio Sweep is best with multiple properties. Showing the available scope.");
       }
@@ -8939,20 +9091,42 @@ function bindAzChecker() {
       return;
     }
 
-	    if (event.target.closest("[data-az-ask]")) {
-	      setCheckerActive();
-	      if (isEmptyPortfolioMode()) {
-	        openAssistant(getGlobalAskAssistantResponse("What information do I need to add a property?"), { flash: true });
-	        return;
-	      }
+    if (event.target.closest("[data-az-ask]")) {
+      setCheckerActive();
+      if (isEmptyPortfolioMode()) {
+        openAssistant(getGlobalAskAssistantResponse("What information do I need to add a property?"), { flash: true });
+        return;
+      }
 
-	      if (isNewPropertyMode()) {
-	        openAssistant(getGlobalAskAssistantResponse("What should I confirm first?"), { flash: true });
-	        return;
-	      }
+      if (isNewPropertyMode()) {
+        openAssistant(getGlobalAskAssistantResponse("What should I confirm first?"), { flash: true });
+        return;
+      }
 
-	      const property = azSelectedProperty();
+      const property = azSelectedProperty();
       openAssistant(`${property.address}: CMP is showing ${azStatusForProperty(property).toLowerCase()} because the compliance score is ${effectiveComplianceScore(property)}% and the evidence score is ${effectiveEvidenceScore(property)}%. This is prototype readiness guidance only, not legal advice.`, { flash: true });
+      return;
+    }
+
+    if (event.target.closest("[data-new-setup-confirm]")) {
+      startNewPropertyGuidedCheck();
+      showToast("Start by confirming the prepared property details.");
+      return;
+    }
+
+    if (event.target.closest("[data-new-setup-start]")) {
+      startNewPropertyGuidedCheck();
+      showToast("Guided check opened. You can skip anything you do not know.");
+      return;
+    }
+
+    if (event.target.closest("[data-new-setup-upload]")) {
+      openNewPropertyEvidence();
+      return;
+    }
+
+    if (event.target.closest("[data-new-setup-ask]")) {
+      openAssistant(getGlobalAskAssistantResponse("What did CMP find automatically?"), { flash: true });
       return;
     }
 
