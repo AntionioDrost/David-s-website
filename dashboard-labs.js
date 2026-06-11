@@ -48,6 +48,101 @@ function createInitialPropertyMemory() {
   };
 }
 
+function createInitialPropertySetup() {
+  return {
+    id: "the-butts",
+    lifecycle: "new-property",
+    identity: {
+      address: "Flat 42, 57 The Butts, Coventry, CV1 3BJ",
+      displayAddress: "57 The Butts",
+      postcode: "CV1 3BJ",
+      uprn: "DEMO-UPRN-57TB",
+      localAuthority: "Coventry City Council",
+      selectedAddressLocked: true,
+      addressConfirmed: true,
+      createdAt: "Today"
+    },
+    foundData: {
+      epcFound: true,
+      epcStatus: "preparedForReview",
+      epcRating: "C",
+      epcPotentialRating: "B",
+      epcExpiryDate: "February 2034",
+      epcFloorArea: "Needs review",
+      epcPropertyType: "Flat / apartment",
+      epcBuiltForm: "Purpose-built flat",
+      epcMatchConfidence: "Prepared for review",
+      postcodeMetadataFound: true,
+      localAuthorityFound: true,
+      localChecksStatus: "ready"
+    },
+    confirmations: {
+      findingsConfirmed: false,
+      epcAcceptedForDemoReview: false,
+      propertyTypeConfirmed: false,
+      bedroomsConfirmed: false,
+      occupancyConfirmed: false,
+      gasSafetyRelevanceConfirmed: false,
+      eicrStatusConfirmed: false,
+      alarmsConfirmed: false,
+      tenancyDepositConfirmed: false,
+      licensingReviewed: false,
+      localChecksStarted: false
+    },
+    landlordAnswers: {
+      propertyType: "Flat / apartment",
+      bedrooms: "",
+      occupancy: "",
+      gasAppliances: "",
+      eicrAvailable: "",
+      alarmStatus: ""
+    },
+    evidence: {
+      epc: {
+        status: "preparedForReview",
+        source: "EPC-style lookup",
+        label: "EPC record prepared for review"
+      },
+      gasSafety: {
+        status: "missing",
+        source: "Landlord upload needed",
+        label: "Gas Safety certificate"
+      },
+      eicr: {
+        status: "missing",
+        source: "Landlord upload needed",
+        label: "Electrical Safety / EICR"
+      },
+      alarms: {
+        status: "unknown",
+        source: "Landlord answer needed",
+        label: "Smoke and CO alarm status"
+      },
+      tenancy: {
+        status: "dependsOnOccupancy",
+        source: "Depends on occupancy",
+        label: "Tenancy agreement"
+      },
+      deposit: {
+        status: "dependsOnOccupancy",
+        source: "Depends on occupancy",
+        label: "Deposit protection"
+      },
+      inspection: {
+        status: "missing",
+        source: "Landlord upload needed",
+        label: "Inspection / maintenance record"
+      },
+      licensing: {
+        status: "readyForReview",
+        source: "Postcode context",
+        label: "Licensing / local checks"
+      }
+    },
+    activity: []
+  };
+}
+
 const labsState = {
   currentView: "home",
   activeTab: "overview",
@@ -101,8 +196,546 @@ const labsState = {
   propertyDetails: createInitialPropertyDetails(),
   optionalDetails: createInitialOptionalDetails(),
   propertyMemory: createInitialPropertyMemory(),
+  propertySetup: createInitialPropertySetup(),
   scanTimers: []
 };
+
+function newPropertySetup() {
+  if (!labsState.propertySetup) {
+    labsState.propertySetup = createInitialPropertySetup();
+  }
+  return labsState.propertySetup;
+}
+
+function isNewPropertyEvidenceUploaded(setup, key) {
+  return ["uploaded", "verified"].includes(setup.evidence?.[key]?.status);
+}
+
+function newPropertyProfileSetupScore(setup = newPropertySetup()) {
+  let score = 0;
+  const confirmations = setup.confirmations || {};
+  const foundData = setup.foundData || {};
+  const identity = setup.identity || {};
+
+  if (identity.addressConfirmed && identity.selectedAddressLocked) {
+    score += 15;
+  }
+  if (identity.uprn && foundData.postcodeMetadataFound && foundData.localAuthorityFound) {
+    score += 10;
+  }
+  if (confirmations.epcAcceptedForDemoReview) {
+    score += 15;
+  }
+  if (confirmations.propertyTypeConfirmed) {
+    score += 10;
+  }
+  if (confirmations.localChecksStarted) {
+    score += 8;
+  }
+  if (confirmations.bedroomsConfirmed) {
+    score += 8;
+  }
+  if (confirmations.occupancyConfirmed) {
+    score += 12;
+  }
+  if (confirmations.gasSafetyRelevanceConfirmed) {
+    score += 8;
+  }
+  if (confirmations.eicrStatusConfirmed) {
+    score += 6;
+  }
+  if (confirmations.alarmsConfirmed) {
+    score += 5;
+  }
+  if (confirmations.tenancyDepositConfirmed) {
+    score += 4;
+  }
+  if (confirmations.licensingReviewed) {
+    score += 4;
+  }
+
+  return clampScore(score);
+}
+
+function newPropertyEvidenceConfidenceScore(setup = newPropertySetup()) {
+  let score = 0;
+  const evidence = setup.evidence || {};
+
+  if (evidence.epc?.status === "acceptedStartingSignal") {
+    score += 10;
+  } else if (isNewPropertyEvidenceUploaded(setup, "epc")) {
+    score += 18;
+  }
+  if (isNewPropertyEvidenceUploaded(setup, "gasSafety")) {
+    score += 20;
+  }
+  if (isNewPropertyEvidenceUploaded(setup, "eicr")) {
+    score += 25;
+  }
+  if (isNewPropertyEvidenceUploaded(setup, "alarms")) {
+    score += 10;
+  }
+  if (isNewPropertyEvidenceUploaded(setup, "tenancy")) {
+    score += 7;
+  }
+  if (isNewPropertyEvidenceUploaded(setup, "deposit")) {
+    score += 7;
+  }
+  if (isNewPropertyEvidenceUploaded(setup, "inspection")) {
+    score += 8;
+  }
+  if (isNewPropertyEvidenceUploaded(setup, "licensing")) {
+    score += 5;
+  }
+
+  return clampScore(score);
+}
+
+function newPropertyComplianceReadinessScore(setup = newPropertySetup()) {
+  const profileScore = newPropertyProfileSetupScore(setup);
+  if (profileScore < 70) {
+    return null;
+  }
+  return clampScore(Math.round((profileScore * 0.45) + (newPropertyEvidenceConfidenceScore(setup) * 0.55)));
+}
+
+function newPropertyStatusSummary(setup = newPropertySetup()) {
+  const profileSetupScore = newPropertyProfileSetupScore(setup);
+  const evidenceConfidenceScore = newPropertyEvidenceConfidenceScore(setup);
+  const readinessScore = newPropertyComplianceReadinessScore(setup);
+  const confirmations = setup.confirmations || {};
+  const evidence = setup.evidence || {};
+  const missingCertificates = [
+    evidence.gasSafety?.status !== "uploaded" ? "Gas Safety" : "",
+    evidence.eicr?.status !== "uploaded" ? "EICR" : "",
+    evidence.alarms?.status === "unknown" ? "Alarm status" : "",
+    evidence.inspection?.status !== "uploaded" ? "Inspection record" : ""
+  ].filter(Boolean);
+  const needsAnswer = [
+    confirmations.bedroomsConfirmed ? "" : "Bedrooms",
+    confirmations.occupancyConfirmed ? "" : "Occupancy",
+    confirmations.gasSafetyRelevanceConfirmed ? "" : "Gas Safety relevance",
+    confirmations.alarmsConfirmed ? "" : "Smoke and CO alarms"
+  ].filter(Boolean);
+
+  return {
+    findingsConfirmed: Boolean(confirmations.findingsConfirmed),
+    profileSetupScore,
+    evidenceConfidenceScore,
+    readinessScore,
+    profileSetupLabel: profileSetupScore < 35 ? "Starting" : profileSetupScore < 70 ? "Needs confirmation" : "Mostly confirmed",
+    evidenceConfidenceLabel: evidenceConfidenceScore === 0 ? "No uploaded evidence yet" : evidenceConfidenceScore < 20 ? "Starting signal only" : "Evidence building",
+    readinessLabel: readinessScore === null ? "Complete setup before compliance scoring" : `${readinessScore}% provisional readiness`,
+    profileSetupHelp: confirmations.findingsConfirmed
+      ? "Found details are confirmed; bedrooms, occupancy and safety answers still need landlord input."
+      : "Address and postcode context are prepared. Confirm CMP findings to lift the setup score.",
+    evidenceConfidenceHelp: evidenceConfidenceScore === 0
+      ? "No uploaded certificates are stored yet."
+      : evidence.epc?.status === "acceptedStartingSignal" && evidenceConfidenceScore <= 10
+        ? "EPC is accepted only as a starting signal. Uploaded certificates are still missing."
+        : "Demo evidence uploads are stored in this prototype session.",
+    primaryTaskTitle: confirmations.findingsConfirmed ? "Confirm occupancy / tenancy status" : "Confirm what CMP found",
+    missingEvidence: missingCertificates,
+    needsAnswer,
+    watchItems: [
+      confirmations.findingsConfirmed ? "Found details confirmed" : "Review CMP findings",
+      evidence.epc?.status === "acceptedStartingSignal" ? "EPC accepted as starting signal" : "EPC prepared for review",
+      missingCertificates.length ? `${missingCertificates.length} evidence items still missing` : "Core certificates uploaded"
+    ],
+    statusLine: confirmations.findingsConfirmed
+      ? "CMP findings confirmed. Continue the guided check before scoring compliance."
+      : "CMP has prepared the first property profile. Confirm findings before scoring."
+  };
+}
+
+function newPropertyFindingItems(setup = newPropertySetup()) {
+  const confirmations = setup.confirmations || {};
+  const identity = setup.identity || {};
+  const foundData = setup.foundData || {};
+
+  return [
+    {
+      title: "Address matched",
+      value: identity.address,
+      status: identity.addressConfirmed ? "Confirmed from selection" : "Found automatically",
+      action: identity.addressConfirmed ? "Confirmed" : "Confirm / Edit",
+      complete: identity.addressConfirmed
+    },
+    {
+      title: "EPC prepared for review",
+      value: confirmations.epcAcceptedForDemoReview
+        ? `Rating ${foundData.epcRating} accepted as a starting signal`
+        : "EPC-style record prepared before relying on it",
+      status: confirmations.epcAcceptedForDemoReview ? "Accepted for demo review" : "Prepared for review",
+      action: confirmations.epcAcceptedForDemoReview ? "Reviewed" : "Review",
+      complete: confirmations.epcAcceptedForDemoReview
+    },
+    {
+      title: "Property type",
+      value: setup.landlordAnswers?.propertyType || foundData.epcPropertyType || "Needs confirmation",
+      status: confirmations.propertyTypeConfirmed ? "Confirmed by landlord" : "Needs confirmation",
+      action: confirmations.propertyTypeConfirmed ? "Confirmed" : "Confirm / Change",
+      complete: confirmations.propertyTypeConfirmed
+    },
+    {
+      title: "Bedrooms",
+      value: confirmations.bedroomsConfirmed ? setup.landlordAnswers.bedrooms : "Needs confirmation",
+      status: confirmations.bedroomsConfirmed ? "Confirmed by landlord" : "Needs confirmation",
+      action: confirmations.bedroomsConfirmed ? "Confirmed" : "Answer",
+      complete: confirmations.bedroomsConfirmed
+    },
+    {
+      title: "Occupancy / tenancy status",
+      value: confirmations.occupancyConfirmed ? setup.landlordAnswers.occupancy : "Unknown",
+      status: confirmations.occupancyConfirmed ? "Confirmed by landlord" : "Needs answer",
+      action: confirmations.occupancyConfirmed ? "Confirmed" : "Answer",
+      complete: confirmations.occupancyConfirmed
+    },
+    {
+      title: "Postcode / local checks",
+      value: foundData.localAuthorityFound ? `${identity.localAuthority} context ready` : "Ready for local checks",
+      status: confirmations.localChecksStarted ? "Started" : "Ready",
+      action: confirmations.localChecksStarted ? "Started" : "Review later",
+      complete: confirmations.localChecksStarted
+    }
+  ];
+}
+
+function newPropertyEvidenceRows(setup = newPropertySetup()) {
+  const evidence = setup.evidence || {};
+  const property = "57 The Butts · CV1 3BJ";
+  const epcAccepted = evidence.epc?.status === "acceptedStartingSignal";
+  const gasUploaded = isNewPropertyEvidenceUploaded(setup, "gasSafety");
+  const eicrUploaded = isNewPropertyEvidenceUploaded(setup, "eicr");
+
+  return [
+    {
+      id: "new-epc",
+      title: "EPC",
+      document: "Energy Performance Certificate",
+      propertyId: "the-butts",
+      property,
+      source: epcAccepted ? "Accepted starting signal" : "Official record signal",
+      sourceClass: epcAccepted ? "status-watch-text" : "status-watch-text",
+      status: epcAccepted ? "Accepted for demo review" : "Prepared for review",
+      statusClass: epcAccepted ? "status-watch-text" : "status-watch-text",
+      keyDate: epcAccepted ? "Review before relying on it" : "Review before relying on it",
+      filters: ["review", "official"],
+      search: "epc energy performance certificate 57 butts official record prepared review accepted starting signal",
+      actions: [
+        { label: "Ask CMP", action: "askEpc" },
+        { label: "Open property", action: "openProperty" }
+      ]
+    },
+    {
+      id: "new-gas",
+      title: "Gas Safety",
+      document: "Gas Safety Certificate",
+      propertyId: "the-butts",
+      property,
+      source: gasUploaded ? "Demo upload" : "No document uploaded",
+      sourceClass: gasUploaded ? "status-good-text" : "status-review-text",
+      status: gasUploaded ? "Uploaded for review" : "Needs landlord input",
+      statusClass: gasUploaded ? "status-good-text" : "status-review-text",
+      keyDate: gasUploaded ? "Added today" : "Unknown",
+      filters: gasUploaded ? ["uploaded", "review"] : ["missing", "review"],
+      search: "gas safety certificate 57 butts missing uploaded no document needs landlord input",
+      actions: gasUploaded
+        ? [{ label: "Ask CMP", action: "askReview" }]
+        : [
+            { label: "Upload", action: "uploadGas", primary: true },
+            { label: "Ask CMP", action: "askReview" }
+          ]
+    },
+    {
+      id: "new-eicr",
+      title: "Electrical Safety / EICR",
+      document: "Electrical Installation Condition Report",
+      propertyId: "the-butts",
+      property,
+      source: eicrUploaded ? "Demo upload" : "No document uploaded",
+      sourceClass: eicrUploaded ? "status-good-text" : "status-review-text",
+      status: eicrUploaded ? "Uploaded for review" : "Needs landlord input",
+      statusClass: eicrUploaded ? "status-good-text" : "status-review-text",
+      keyDate: eicrUploaded ? "Added today" : "Unknown",
+      filters: eicrUploaded ? ["uploaded", "review"] : ["missing", "review"],
+      search: "eicr electrical safety 57 butts missing uploaded no document needs landlord input",
+      actions: eicrUploaded
+        ? [{ label: "Ask CMP", action: "askReview" }]
+        : [
+            { label: "Upload", action: "uploadEicr", primary: true },
+            { label: "Ask CMP", action: "askReview" }
+          ]
+    },
+    {
+      id: "new-alarms",
+      title: "Smoke and CO alarms",
+      document: "Landlord alarm answer or supporting evidence",
+      propertyId: "the-butts",
+      property,
+      source: "Landlord answer needed",
+      sourceClass: "status-neutral-text",
+      status: "Needs answer",
+      statusClass: "status-watch-text",
+      keyDate: "Confirm in guided check",
+      filters: ["missing", "review"],
+      search: "smoke co alarms 57 butts landlord answer evidence",
+      actions: [
+        { label: "Continue guided check", action: "az:the-butts", primary: true },
+        { label: "Ask CMP", action: "askReview" }
+      ]
+    },
+    {
+      id: "new-tenancy",
+      title: "Tenancy / deposit documents",
+      document: "Tenancy, deposit or prescribed information",
+      propertyId: "the-butts",
+      property,
+      source: "Not assessed yet",
+      sourceClass: "status-neutral-text",
+      status: "Depends on occupancy",
+      statusClass: "status-watch-text",
+      keyDate: "Confirm occupancy first",
+      filters: ["missing", "review"],
+      search: "tenancy deposit documents 57 butts occupancy unknown not assessed",
+      actions: [
+        { label: "Continue guided check", action: "az:the-butts", primary: true },
+        { label: "Ask CMP", action: "askTenancy" }
+      ]
+    },
+    {
+      id: "new-inspection",
+      title: "Inspection / maintenance evidence",
+      document: "Inspection notes or maintenance record",
+      propertyId: "the-butts",
+      property,
+      source: "No document uploaded",
+      sourceClass: "status-review-text",
+      status: "Missing",
+      statusClass: "status-review-text",
+      keyDate: "Add when available",
+      filters: ["missing", "review"],
+      search: "inspection maintenance evidence 57 butts missing",
+      actions: [
+        { label: "Ask CMP", action: "askReview" }
+      ]
+    }
+  ];
+}
+
+function newPropertyTaskItems(setup = newPropertySetup()) {
+  const summary = newPropertyStatusSummary(setup);
+  const evidence = setup.evidence || {};
+  const tasks = [];
+  const property = "57 The Butts · CV1 3BJ";
+
+  if (!summary.findingsConfirmed) {
+    tasks.push({
+      id: "new-details",
+      title: "Confirm what CMP found",
+      property,
+      propertyId: "the-butts",
+      category: "Property setup",
+      priority: "High",
+      source: "Add property",
+      body: "CMP matched the address and prepared EPC context. Confirm the found details before CMP scores the property file.",
+      status: "Needs confirmation",
+      suggestedAction: "Confirm all found details",
+      board: "todo",
+      filters: ["high"],
+      detail: "CMP created this setup task because the address and EPC signal are prepared, but the landlord still needs to confirm the found details before scoring.",
+      search: "property type confirm setup 57 butts cmp findings",
+      actions: [
+        { label: "Confirm CMP findings", action: "az:the-butts", primary: true },
+        { label: "Ask CMP", action: "askLicensing" }
+      ]
+    });
+  }
+
+  if (!setup.confirmations?.occupancyConfirmed) {
+    tasks.push({
+      id: "new-occupancy",
+      title: "Confirm occupancy / tenancy status",
+      property,
+      propertyId: "the-butts",
+      category: "Property setup",
+      priority: "High",
+      source: "Guided check",
+      body: "Occupancy determines which checks, documents and reminders CMP should prioritise.",
+      status: "Needs confirmation",
+      suggestedAction: "Answer the occupancy questions",
+      board: "todo",
+      filters: ["high"],
+      detail: "CMP needs the landlord scenario before treating evidence gaps as reliable.",
+      search: "occupancy tenancy status confirm setup 57 butts",
+      actions: [
+        { label: "Continue guided check", action: "az:the-butts", primary: true },
+        { label: "Ask CMP", action: "askLicensing" }
+      ]
+    });
+  }
+
+  if (evidence.gasSafety?.status !== "uploaded" || evidence.eicr?.status !== "uploaded") {
+    const missing = [
+      evidence.gasSafety?.status !== "uploaded" ? "Gas Safety" : "",
+      evidence.eicr?.status !== "uploaded" ? "EICR" : ""
+    ].filter(Boolean).join(" and ");
+    tasks.push({
+      id: "new-certificates",
+      title: "Upload certificates you already have",
+      property,
+      propertyId: "the-butts",
+      category: "Evidence",
+      priority: "Medium",
+      source: "Evidence Vault",
+      body: missing ? `${missing} evidence is not uploaded yet.` : "Core certificates are uploaded for review.",
+      status: missing ? "Evidence missing" : "Uploaded for review",
+      suggestedAction: "Upload certificates",
+      board: "todo",
+      filters: ["evidence"],
+      detail: "CMP created this task because uploaded certificates are needed before evidence confidence can improve.",
+      search: "upload certificates gas safety eicr evidence 57 butts",
+      actions: [
+        { label: evidence.eicr?.status !== "uploaded" ? "Upload EICR" : "Upload Gas Safety", action: evidence.eicr?.status !== "uploaded" ? "uploadEicr" : "uploadGas", primary: true },
+        { label: "Open Evidence Vault", action: "openEvidence" }
+      ]
+    });
+  }
+
+  if (!setup.confirmations?.alarmsConfirmed) {
+    tasks.push({
+      id: "new-alarms",
+      title: "Confirm smoke and CO alarm status",
+      property,
+      propertyId: "the-butts",
+      category: "Landlord answer",
+      priority: "Medium",
+      source: "Guided check",
+      body: "CMP needs the landlord answer before it can decide whether supporting evidence is needed.",
+      status: "Needs answer",
+      suggestedAction: "Continue guided check",
+      board: "progress",
+      filters: ["evidence"],
+      detail: "Alarm status depends on landlord input and supporting evidence if available.",
+      search: "smoke co alarm status landlord answer 57 butts",
+      actions: [
+        { label: "Continue guided check", action: "az:the-butts", primary: true },
+        { label: "Ask CMP", action: "askLicensing" }
+      ]
+    });
+  }
+
+  return tasks;
+}
+
+function newPropertyActivityEvents(setup = newPropertySetup()) {
+  const property = "57 The Butts · CV1 3BJ";
+  const setupEvents = (setup.activity || []).map((event) => ({
+    group: "Today",
+    property,
+    ...event
+  }));
+
+  return [
+    ...setupEvents,
+    {
+      id: "new-profile-created",
+      group: "Today",
+      filter: "details",
+      category: "Property setup",
+      title: "Property profile created",
+      property,
+      body: "CMP created the first property workspace for 57 The Butts.",
+      source: "Add property",
+      status: "Created",
+      statusClass: "status-good-text",
+      search: "property profile created add property 57 butts",
+      why: "CMP recorded this because the landlord completed the Add Property flow.",
+      nextAction: "Review what CMP found.",
+      route: "compliance",
+      actions: [
+        makeActivityAction("Review CMP findings", "openAz", true),
+        makeActivityAction("Open property", "openProperty")
+      ]
+    },
+    {
+      id: "new-address-matched",
+      group: "Today",
+      filter: "details",
+      category: "Property details",
+      title: "Address matched",
+      property,
+      body: "Flat 42, 57 The Butts, Coventry, CV1 3BJ was matched to the property workspace.",
+      source: "Address lookup",
+      status: "Matched",
+      statusClass: "status-good-text",
+      search: "address matched flat 42 57 butts coventry cv1",
+      why: "CMP recorded this because address matching anchors checks, evidence and tasks to the correct property.",
+      nextAction: "Confirm the found details once.",
+      route: "details",
+      actions: [
+        makeActivityAction("Open details", "openDetails"),
+        makeActivityAction("Ask CMP", "askSetup")
+      ]
+    },
+    {
+      id: "new-epc-prepared",
+      group: "Today",
+      filter: "evidence",
+      category: "Evidence",
+      title: setup.confirmations?.epcAcceptedForDemoReview ? "EPC accepted as starting signal" : "EPC record prepared for review",
+      property,
+      body: setup.confirmations?.epcAcceptedForDemoReview
+        ? "The EPC signal was accepted for demo review. It is not treated as legal verification."
+        : "CMP prepared an EPC signal for landlord review, but no uploaded certificates are stored yet.",
+      source: "Official record signal",
+      status: setup.confirmations?.epcAcceptedForDemoReview ? "Accepted for review" : "Prepared",
+      statusClass: "status-watch-text",
+      search: "epc prepared review official record signal 57 butts accepted",
+      why: "CMP recorded this because EPC context can help start the property file without being treated as legal verification.",
+      nextAction: "Upload any certificates already held.",
+      route: "evidence",
+      actions: [
+        makeActivityAction("Open Evidence Vault", "viewEvidence", true),
+        makeActivityAction("Ask CMP", "askEpc")
+      ]
+    }
+  ];
+}
+
+function newPropertyAskResponse(prompt = "", setup = newPropertySetup()) {
+  const summary = newPropertyStatusSummary(setup);
+  const lowerPrompt = prompt.toLowerCase();
+  const remaining = [...summary.needsAnswer, ...summary.missingEvidence].slice(0, 4).join(", ");
+
+  if (lowerPrompt.includes("epc")) {
+    return summary.findingsConfirmed
+      ? "CMP has accepted the EPC record as a starting signal for demo review. It helps setup, but it is not legal verification. Upload or confirm the actual certificate before relying on it."
+      : "CMP has prepared an EPC-style record for 57 The Butts. Review and confirm that it belongs to this property before CMP uses it as a setup signal.";
+  }
+
+  if (lowerPrompt.includes("evidence") || lowerPrompt.includes("upload")) {
+    return summary.evidenceConfidenceScore === 0
+      ? "No uploaded certificates are stored yet. After confirming the found details, upload any Gas Safety or Electrical Safety/EICR documents you already have."
+      : `Evidence confidence is ${summary.evidenceConfidenceScore}%. EPC is only a starting signal; ${remaining || "the remaining certificates"} still need review or upload.`;
+  }
+
+  if (lowerPrompt.includes("not know") || lowerPrompt.includes("confirm")) {
+    return summary.findingsConfirmed
+      ? `CMP findings are confirmed. The next gaps are ${remaining || "the landlord-only answers"} before compliance scoring becomes reliable.`
+      : "CMP knows the selected address, postcode context and prepared EPC signal. It still needs you to confirm the EPC match, property type, bedrooms and occupancy.";
+  }
+
+  if (lowerPrompt.includes("found")) {
+    return summary.findingsConfirmed
+      ? "CMP found and you confirmed the address match, EPC starting signal, flat/apartment property type and local-check starting point. Bedrooms, occupancy and certificates still need landlord input."
+      : "CMP found an address match, prepared EPC context and created the property workspace. Confirm those findings once, then CMP will ask only for what it cannot know automatically.";
+  }
+
+  return summary.findingsConfirmed
+    ? `CMP findings are confirmed and profile setup is ${summary.profileSetupScore}%. Continue with occupancy, safety answers and certificate uploads before compliance scoring is reliable.`
+    : "Start by confirming what CMP found for 57 The Butts. That will lock the prepared address, EPC signal, property type and local-check context onto the property profile.";
+}
 
 const iconPaths = {
   alert: '<path d="M10.3 3.2 2.7 16.4a1.7 1.7 0 0 0 1.5 2.6h15.2a1.7 1.7 0 0 0 1.5-2.6L13.3 3.2a1.7 1.7 0 0 0-3 0Z"/><path d="M12 8v5"/><path d="M12 16.5h.01"/>',
@@ -329,6 +962,8 @@ function hasPortfolioProperties() {
 }
 
 function newPropertyProfile() {
+  const setup = newPropertySetup();
+  const summary = newPropertyStatusSummary(setup);
   return {
     id: "the-butts",
     address: "57 The Butts",
@@ -336,21 +971,21 @@ function newPropertyProfile() {
     location: "Coventry, CV1 3BJ",
     label: "57 The Butts · CV1 3BJ",
     inbox: "57-the-butts@inbox.complymyproperty.co.uk",
-    occupancy: "Needs confirmation",
+    occupancy: setup.confirmations.occupancyConfirmed ? setup.landlordAnswers.occupancy : "Needs confirmation",
     journey: "New property setup",
-    strength: 8,
-    evidenceScore: 8,
-    complianceScore: 0,
-    focus: "Property setup",
+    strength: summary.evidenceConfidenceScore,
+    evidenceScore: summary.evidenceConfidenceScore,
+    complianceScore: summary.readinessScore || 0,
+    focus: summary.findingsConfirmed ? "Guided setup" : "Review CMP findings",
     focusArea: "Setup confirmation",
-    state: "New profile",
-    statusDetail: "Starting evidence confidence",
-    priority: "Continue guided check",
-    priorityBody: "CMP has matched the address and prepared the first workspace. Confirm the property details, occupancy and available certificates before recommendations are created.",
+    state: summary.profileSetupLabel,
+    statusDetail: summary.readinessLabel,
+    priority: summary.primaryTaskTitle,
+    priorityBody: summary.statusLine,
     serviceType: "review",
-    verifiedEvidence: 0,
-    reviewCount: 6,
-    missingEvidence: ["Property type", "Occupancy", "Gas Safety evidence", "EICR", "Alarm status", "Licensing check"],
+    verifiedEvidence: summary.evidenceConfidenceScore > 0 ? 1 : 0,
+    reviewCount: summary.missingEvidence.length + summary.needsAnswer.length,
+    missingEvidence: [...summary.needsAnswer, ...summary.missingEvidence],
     recommendedService: "Confirm details first",
     currentRequest: null,
     workspaceAvailable: true,
@@ -654,16 +1289,17 @@ function renderGlobalScoreSurfaces() {
   renderScoreCards(document.querySelector("[data-compliance-score-grid]"), portfolioScores);
 
   if (isNewPropertyMode()) {
+    const summary = newPropertyStatusSummary();
     const newPropertyScores = [
       {
         label: "Profile setup",
-        value: 25,
-        help: "Address and EPC context are prepared; landlord details still need confirmation."
+        value: summary.profileSetupScore,
+        help: summary.profileSetupHelp
       },
       {
         label: "Evidence confidence",
-        value: 8,
-        help: "Starting confidence: no uploaded certificates are stored yet."
+        value: summary.evidenceConfidenceScore,
+        help: summary.evidenceConfidenceHelp
       }
     ];
     renderScoreCards(document.querySelector("[data-home-score-grid]"), newPropertyScores);
@@ -1406,6 +2042,7 @@ function resetDemoState() {
   labsState.propertyDetails = createInitialPropertyDetails();
   labsState.optionalDetails = createInitialOptionalDetails();
   labsState.propertyMemory = createInitialPropertyMemory();
+  labsState.propertySetup = createInitialPropertySetup();
 }
 
 function ensureDemoSupportRequest() {
@@ -1641,13 +2278,7 @@ function getPropertiesAssistantResponse(prompt) {
   }
 
   if (isNewPropertyMode()) {
-    const responses = {
-      "Which property needs attention?": "57 The Butts is newly created. It does not need a mature compliance action yet; CMP needs property details, occupancy and certificate evidence confirmed first.",
-      "Summarise my properties": "There is one new property profile: 57 The Butts in Coventry. Address and EPC starting context are ready for review.",
-      "What should I open first?": "Open the guided check for 57 The Butts so CMP can confirm property details and evidence gaps.",
-      "How do I add another property?": "Finish confirming this first property before adding another one in the demo."
-    };
-    return responses[prompt] || getGlobalAskDefaultResponse();
+    return newPropertyAskResponse(prompt);
   }
 
   if (isFivePropertyMode()) {
@@ -1686,13 +2317,7 @@ function getComplianceCentreAssistantResponse(prompt) {
   }
 
   if (isNewPropertyMode()) {
-    const responses = {
-      "What should I fix first?": "Confirm the property type, bedrooms and occupancy first. CMP can then decide which evidence and checks matter most.",
-      "Which evidence is missing?": "No uploaded documents are stored yet. EPC is prepared for review, while Gas Safety, EICR and alarm status still need landlord input if relevant.",
-      "What expires soon?": "CMP is not tracking renewal dates yet because no certificates have been uploaded or confirmed.",
-      "Summarise my compliance position": "57 The Butts is at setup stage. Address and EPC context are ready, but compliance status is not mature until the guided check and evidence uploads are completed."
-    };
-    return responses[prompt] || getGlobalAskDefaultResponse();
+    return newPropertyAskResponse(prompt);
   }
 
   if (isFivePropertyMode()) {
@@ -1731,13 +2356,7 @@ function getEvidenceVaultAssistantResponse(prompt) {
   }
 
   if (isNewPropertyMode()) {
-    const responses = {
-      "What evidence is missing?": "No uploaded documents are stored yet. EPC is prepared for review; Gas Safety, EICR, alarms and tenancy documents still need landlord input if relevant.",
-      "Which documents are verified?": "No uploaded documents are verified yet. CMP has only prepared the EPC record for review.",
-      "How should I upload paperwork?": "Start with any Gas Safety certificate or EICR you already have, then add tenancy or deposit documents if the property is or will be tenanted.",
-      "Summarise my evidence vault": "Evidence Vault is at starting confidence for 57 The Butts. It has an EPC signal ready for review, but no uploaded documents yet."
-    };
-    return responses[prompt] || getGlobalAskDefaultResponse();
+    return newPropertyAskResponse(prompt);
   }
 
   if (isFivePropertyMode()) {
@@ -1770,13 +2389,7 @@ function getTasksAssistantResponse(prompt) {
   }
 
   if (isNewPropertyMode()) {
-    const responses = {
-      "What should I do first?": "Continue the guided check for 57 The Butts. Confirm property details and occupancy before treating evidence gaps as final.",
-      "Why is this a task?": "CMP created setup tasks because the property profile is new and needs landlord confirmation before recommendations are reliable.",
-      "Which tasks are evidence-related?": "Upload certificates and add or arrange Electrical Safety/EICR are evidence-related. Confirming property type and occupancy are setup tasks.",
-      "What can I leave for later?": "Service booking can wait until property details and evidence gaps are confirmed."
-    };
-    return responses[prompt] || getGlobalAskDefaultResponse();
+    return newPropertyAskResponse(prompt);
   }
 
   if (isFivePropertyMode()) {
@@ -1809,13 +2422,7 @@ function getActivityAssistantResponse(prompt) {
   }
 
   if (isNewPropertyMode()) {
-    const responses = {
-      "What changed recently?": "CMP created the property profile, matched the address and prepared an EPC record for review.",
-      "What still needs attention?": "Property details, occupancy, Gas Safety, EICR, alarms and local licensing still need confirmation.",
-      "Summarise portfolio activity": "Activity is intentionally short: property profile created, address matched and EPC context prepared.",
-      "Why was this recorded?": "CMP records these first events so the landlord can see what was found automatically before evidence is uploaded."
-    };
-    return responses[prompt] || getGlobalAskDefaultResponse();
+    return newPropertyAskResponse(prompt);
   }
 
   if (isFivePropertyMode()) {
@@ -1848,7 +2455,7 @@ function getGlobalAskDefaultResponse() {
   }
 
   if (isNewPropertyMode()) {
-    return "CMP matched 57 The Butts in Coventry, prepared an EPC record for review, created the property workspace and marked the postcode ready for local checks. The next step is to confirm the property type, bedrooms and occupancy before CMP scores compliance gaps as reliable.";
+    return newPropertyAskResponse();
   }
 
   const activeRequest = activeSupportRequestForActivity();
@@ -1893,18 +2500,7 @@ function getGlobalAskAssistantResponse(prompt) {
   }
 
   if (isNewPropertyMode()) {
-    const responses = {
-      "What did CMP find automatically?": "CMP matched 57 The Butts in Coventry, prepared an EPC record for review, created the property workspace and marked the postcode ready for local checks. Review those details before relying on them.",
-      "What should I confirm first?": "Confirm the property type, bedrooms and occupancy or tenancy status first. Those details decide which checks, evidence and reminders CMP should prioritise.",
-      "What evidence should I upload next?": "Upload any Gas Safety certificate or EICR you already have. If you do not have them yet, continue the guided check so CMP can separate what is required from what can wait.",
-      "Is the EPC okay?": "CMP has prepared an EPC match for review, but it should be treated as starting context until the landlord confirms the property details and checks the record.",
-      "What does CMP still not know?": "CMP still needs property type, bedrooms, occupancy, Gas Safety status, Electrical Safety/EICR evidence, smoke and CO alarm status and the local licensing outcome.",
-      "What should I do today?": "Continue the guided check for 57 The Butts, then upload any certificates you already have.",
-      "What evidence is missing?": "No documents have been uploaded yet. EPC is prepared for review; Gas Safety, EICR, alarm evidence and tenancy or deposit documents still need landlord input if relevant.",
-      "Explain this property file": "57 The Butts is a newly created property profile. CMP has address and EPC starting signals, but the file is not mature yet.",
-      "Summarise my portfolio": "Your portfolio has one newly created property profile: 57 The Butts. CMP is still waiting for property details and evidence confirmation."
-    };
-    return responses[prompt] || getGlobalAskDefaultResponse();
+    return newPropertyAskResponse(prompt);
   }
 
   const activeRequest = activeSupportRequestForActivity();
@@ -2470,6 +3066,8 @@ function renderPortfolioHomeState() {
   }
 
   if (isNewPropertyMode()) {
+    const summary = newPropertyStatusSummary();
+    const tasks = newPropertyTaskItems();
     if (homeKicker) {
       homeKicker.textContent = "New property profile";
     }
@@ -2497,11 +3095,11 @@ function renderPortfolioHomeState() {
     }
     document.querySelector("[data-home-property-count]").textContent = "1";
     document.querySelector("[data-home-property-count-detail]").textContent = "new profile";
-    document.querySelector("[data-home-priority-count]").textContent = "6";
-    document.querySelector("[data-home-priority-detail]").textContent = "items to confirm";
-    document.querySelector("[data-home-verified-count]").textContent = "0";
-    document.querySelector("[data-home-review-count]").textContent = "1";
-    document.querySelector("[data-home-review-detail]").textContent = "EPC ready for review";
+    document.querySelector("[data-home-priority-count]").textContent = String(tasks.length);
+    document.querySelector("[data-home-priority-detail]").textContent = tasks.length === 1 ? "setup task" : "setup tasks";
+    document.querySelector("[data-home-verified-count]").textContent = String(summary.evidenceConfidenceScore > 0 ? 1 : 0);
+    document.querySelector("[data-home-review-count]").textContent = String(summary.missingEvidence.length);
+    document.querySelector("[data-home-review-detail]").textContent = summary.evidenceConfidenceLabel;
     document.querySelector("[data-home-summary-title]").textContent = "Your first property profile is ready";
     document.querySelector("[data-home-summary-body]").textContent = "CMP has matched 57 The Butts, prepared EPC context for review and created a starting workspace. Confirm the details before CMP scores the property or recommends services.";
     const priorityKicker = document.querySelector(".home-priority-card .section-kicker");
@@ -2513,8 +3111,8 @@ function renderPortfolioHomeState() {
       priorityTitle.textContent = "What CMP found automatically";
     }
     document.querySelector("[data-home-priority-area]").textContent = "Starting signals";
-    document.querySelector("[data-home-priority-status]").textContent = "Needs confirmation before scoring";
-    document.querySelector("[data-home-priority-body]").textContent = "CMP matched the address, prepared an EPC-style signal and created the workspace. Confirm these details before relying on scores or service recommendations.";
+    document.querySelector("[data-home-priority-status]").textContent = summary.readinessLabel;
+    document.querySelector("[data-home-priority-body]").textContent = summary.statusLine;
     document.querySelector("[data-home-upload-priority]").textContent = "Review CMP findings";
     document.querySelector("[data-home-arrange-priority]").textContent = "Upload certificates";
     if (workspaceShortcut) {
@@ -2578,9 +3176,9 @@ function renderPortfolioHomeState() {
           </div>
           <div class="portfolio-property-progress">
             <span>Evidence confidence</span>
-            <strong>Starting</strong>
-            <div class="strength-meter"><span style="width: 8%"></span></div>
-            <small>No uploaded documents yet. EPC context is prepared for review.</small>
+            <strong>${summary.evidenceConfidenceScore}%</strong>
+            <div class="strength-meter"><span style="width: ${summary.evidenceConfidenceScore}%"></span></div>
+            <small>${escapeHtml(summary.evidenceConfidenceHelp)}</small>
           </div>
           <div class="button-row">
             <button class="primary-button" type="button" data-az-mode="single">Review CMP findings</button>
@@ -2618,11 +3216,10 @@ function renderPortfolioHomeState() {
         </article>
       `).join("");
     }
-    document.querySelector("[data-home-activity-list]").innerHTML = [
-      "Property profile created",
-      "Address matched",
-      "EPC record prepared for review"
-    ].map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    document.querySelector("[data-home-activity-list]").innerHTML = getActivityEvents()
+      .slice(0, 4)
+      .map((item) => `<li>${escapeHtml(item.title)}</li>`)
+      .join("");
     return;
   }
 
@@ -3113,12 +3710,14 @@ function renderPortfolioPropertiesState() {
   }
 
   if (isNewPropertyMode()) {
+    const summary = newPropertyStatusSummary();
+    const tasks = newPropertyTaskItems();
     document.querySelector("[data-properties-count-badge]").textContent = "1 new property profile";
     document.querySelector("[data-properties-count]").textContent = "1";
     document.querySelector("[data-properties-count-detail]").textContent = "new profile";
-    document.querySelector("[data-properties-attention-count]").textContent = "6";
-    document.querySelector("[data-properties-attention-detail]").textContent = "setup items to confirm";
-    document.querySelector("[data-properties-summary-strength]").textContent = "Starting";
+    document.querySelector("[data-properties-attention-count]").textContent = String(tasks.length);
+    document.querySelector("[data-properties-attention-detail]").textContent = tasks.length === 1 ? "setup task" : "setup tasks";
+    document.querySelector("[data-properties-summary-strength]").textContent = `${summary.profileSetupScore}% setup`;
     document.querySelector("[data-properties-open-requests]").textContent = "0";
     document.querySelector(".properties-toolbar")?.setAttribute("hidden", "");
     document.querySelector("[data-properties-score-grid]")?.setAttribute("hidden", "");
@@ -3137,16 +3736,16 @@ function renderPortfolioPropertiesState() {
               <p>Flat 42 · Coventry, CV1 3BJ</p>
               <div class="signal-row">
                 <span>Address matched</span>
-                <span>EPC prepared for review</span>
-                <span>No uploaded documents yet</span>
+                <span>${summary.findingsConfirmed ? "CMP findings confirmed" : "EPC prepared for review"}</span>
+                <span>${summary.evidenceConfidenceScore ? `${summary.evidenceConfidenceScore}% evidence confidence` : "No uploaded documents yet"}</span>
               </div>
             </div>
           </div>
           <div class="portfolio-property-progress">
             <span>Evidence confidence</span>
-            <strong>Starting</strong>
-            <div class="strength-meter"><span style="width: 8%"></span></div>
-            <small>Confirm property type, bedrooms and occupancy before scoring.</small>
+            <strong>${summary.evidenceConfidenceScore}%</strong>
+            <div class="strength-meter"><span style="width: ${summary.evidenceConfidenceScore}%"></span></div>
+            <small>${escapeHtml(summary.evidenceConfidenceHelp)}</small>
           </div>
           <div class="button-row">
             <button class="primary-button" type="button" data-az-mode="single">Continue guided check</button>
@@ -3214,19 +3813,23 @@ function currentComplianceRequest() {
 function renderComplianceMatrixRows(properties) {
   return properties.map((property) => {
     if (isNewPropertyMode() && property.id === "the-butts") {
+      const setup = newPropertySetup();
+      const summary = newPropertyStatusSummary(setup);
+      const gasUploaded = isNewPropertyEvidenceUploaded(setup, "gasSafety");
+      const eicrUploaded = isNewPropertyEvidenceUploaded(setup, "eicr");
       return `
         <tr>
           <th scope="row">
             <strong>57 The Butts</strong>
             <span>Coventry, CV1 3BJ</span>
           </th>
-          <td><span class="matrix-pill status-watch-text">Prepared</span><small>EPC ready for review</small></td>
-          <td><span class="matrix-pill status-neutral-text">Unknown</span><small>No Gas Safety uploaded</small></td>
-          <td><span class="matrix-pill status-review-text">No document</span><small>No EICR uploaded</small></td>
+          <td><span class="matrix-pill status-watch-text">${summary.findingsConfirmed ? "Accepted" : "Prepared"}</span><small>${summary.findingsConfirmed ? "Starting signal only" : "EPC ready for review"}</small></td>
+          <td><span class="matrix-pill ${gasUploaded ? "status-good-text" : "status-neutral-text"}">${gasUploaded ? "Uploaded" : "Unknown"}</span><small>${gasUploaded ? "Gas Safety upload added" : "No Gas Safety uploaded"}</small></td>
+          <td><span class="matrix-pill ${eicrUploaded ? "status-good-text" : "status-review-text"}">${eicrUploaded ? "Uploaded" : "No document"}</span><small>${eicrUploaded ? "EICR upload added" : "No EICR uploaded"}</small></td>
           <td><span class="matrix-pill status-watch-text">Needs answer</span><small>Smoke and CO status</small></td>
           <td><span class="matrix-pill status-watch-text">Needs answer</span><small>Occupancy unknown</small></td>
-          <td><span class="matrix-pill status-watch-text">Checking</span><small>Postcode review</small></td>
-          <td><span class="matrix-pill status-review-text">Starting</span><small>No uploaded documents yet</small></td>
+          <td><span class="matrix-pill status-watch-text">${summary.findingsConfirmed ? "Started" : "Ready"}</span><small>Postcode review</small></td>
+          <td><span class="matrix-pill status-review-text">${summary.evidenceConfidenceLabel}</span><small>${summary.evidenceConfidenceScore}% evidence confidence</small></td>
         </tr>
       `;
     }
@@ -3385,11 +3988,13 @@ function renderPortfolioComplianceState() {
   }
 
   if (isNewPropertyMode()) {
+    const summary = newPropertyStatusSummary();
+    const tasks = newPropertyTaskItems();
     if (complianceKicker) {
       complianceKicker.textContent = "Compliance Centre";
     }
     if (complianceBody) {
-      complianceBody.textContent = "CMP has prepared a starting profile from the address and EPC-style lookup. Confirm what CMP found before scores, gaps and service recommendations become reliable.";
+      complianceBody.textContent = summary.statusLine;
     }
     if (complianceReviewActions) {
       complianceReviewActions.removeAttribute("hidden");
@@ -3407,13 +4012,13 @@ function renderPortfolioComplianceState() {
     document.querySelector("[data-compliance-count-badge]").textContent = "1 new property profile";
     document.querySelector("[data-compliance-property-count]").textContent = "1";
     document.querySelector("[data-compliance-property-count-detail]").textContent = "new profile";
-    document.querySelector("[data-compliance-confirmed-count]").textContent = "1";
-    document.querySelector("[data-compliance-review-count]").textContent = "6";
-    document.querySelector("[data-compliance-open-count]").textContent = "4";
+    document.querySelector("[data-compliance-confirmed-count]").textContent = String(summary.findingsConfirmed ? 4 : 1);
+    document.querySelector("[data-compliance-review-count]").textContent = String(summary.needsAnswer.length + summary.missingEvidence.length);
+    document.querySelector("[data-compliance-open-count]").textContent = String(tasks.length);
     document.querySelector("[data-compliance-upcoming-count]").textContent = "0";
     document.querySelector("[data-compliance-open-action-detail]").textContent = "setup";
     document.querySelector("[data-compliance-priority-title]").textContent = "Continue setup for 57 The Butts";
-    document.querySelector("[data-compliance-priority-body]").textContent = "CMP has prepared a starting profile from the address and EPC-style lookup. Confirm what CMP found before scores, gaps and service recommendations become reliable.";
+    document.querySelector("[data-compliance-priority-body]").textContent = summary.statusLine;
     document.querySelector("[data-compliance-priority-upload]").textContent = "Review CMP findings";
     document.querySelector("[data-compliance-priority-support]").textContent = "Upload certificates";
     const requestIndicator = document.querySelector("[data-compliance-request-indicator]");
@@ -4497,45 +5102,6 @@ function renderAzPropertySelector(properties) {
   `;
 }
 
-const newPropertyFindingItems = [
-  {
-    title: "Address matched",
-    value: "Flat 42, 57 The Butts, Coventry, CV1 3BJ",
-    status: "Found automatically",
-    action: "Confirm / Edit"
-  },
-  {
-    title: "EPC prepared for review",
-    value: "EPC-style record prepared before relying on it",
-    status: "Prepared for review",
-    action: "Review"
-  },
-  {
-    title: "Property type",
-    value: "Flat / apartment",
-    status: "Needs confirmation",
-    action: "Confirm / Change"
-  },
-  {
-    title: "Bedrooms",
-    value: "Needs confirmation",
-    status: "Needs confirmation",
-    action: "Answer"
-  },
-  {
-    title: "Occupancy / tenancy status",
-    value: "Unknown",
-    status: "Needs answer",
-    action: "Answer"
-  },
-  {
-    title: "Postcode / local checks",
-    value: "Ready for local checks",
-    status: "Ready",
-    action: "Review later"
-  }
-];
-
 const newPropertyGuidedStages = [
   "Property basics",
   "Occupancy / tenancy status",
@@ -4548,14 +5114,14 @@ const newPropertyGuidedStages = [
 ];
 
 function renderNewPropertyFindingRows() {
-  return newPropertyFindingItems.map((item) => `
+  return newPropertyFindingItems().map((item) => `
     <article class="new-property-finding-row">
       <div>
         <h4>${escapeHtml(item.title)}</h4>
         <p>${escapeHtml(item.value)}</p>
       </div>
       <span>${escapeHtml(item.status)}</span>
-      <button type="button" data-new-setup-confirm>${escapeHtml(item.action)}</button>
+      <button type="button" ${item.complete ? "disabled" : "data-new-setup-confirm"}>${escapeHtml(item.action)}</button>
     </article>
   `).join("");
 }
@@ -4570,19 +5136,32 @@ function renderNewPropertyGuidedStages() {
 }
 
 function renderNewPropertySetupSummary() {
+  const summary = newPropertyStatusSummary();
   return `
     <div class="new-property-setup-shell">
       <section class="new-property-findings-panel" aria-labelledby="newPropertyFindingsTitle">
         <div class="new-property-panel-heading">
           <p class="section-kicker">Review CMP findings</p>
           <h3 id="newPropertyFindingsTitle">Review what CMP found</h3>
-          <p>CMP has already matched a few starting details. Confirm or correct them before continuing.</p>
+          <p>${escapeHtml(summary.statusLine)}</p>
+        </div>
+        <div class="score-pair-grid">
+          <article class="score-card ${scoreClass(summary.profileSetupScore)} is-compact">
+            <div><span>Profile setup</span><strong>${summary.profileSetupScore}%</strong></div>
+            <div class="score-meter"><span style="width: ${summary.profileSetupScore}%"></span></div>
+            <small>${escapeHtml(summary.profileSetupHelp)}</small>
+          </article>
+          <article class="score-card ${scoreClass(summary.evidenceConfidenceScore)} is-compact">
+            <div><span>Evidence confidence</span><strong>${summary.evidenceConfidenceScore}%</strong></div>
+            <div class="score-meter"><span style="width: ${summary.evidenceConfidenceScore}%"></span></div>
+            <small>${escapeHtml(summary.evidenceConfidenceHelp)}</small>
+          </article>
         </div>
         <div class="new-property-finding-list">
           ${renderNewPropertyFindingRows()}
         </div>
         <div class="button-row">
-          <button class="primary-button" type="button" data-new-setup-confirm>Confirm these details</button>
+          <button class="primary-button" type="button" data-new-setup-confirm ${summary.findingsConfirmed ? "disabled" : ""}>${summary.findingsConfirmed ? "Findings confirmed" : "Confirm all found details"}</button>
           <button class="secondary-button" type="button" data-new-setup-ask>Ask CMP what this means</button>
         </div>
       </section>
@@ -4850,29 +5429,30 @@ function renderAzOutputPanel(property) {
   const evidence = effectiveEvidenceScore(property);
 
   if (isNewPropertyMode()) {
+    const summary = newPropertyStatusSummary();
     return `
       <aside class="az-output-panel">
         <p class="section-kicker">Checker output</p>
-        <h3>Needs confirmation before scoring</h3>
-        <p class="az-score-explainer">CMP can generate stronger scores once these setup details are confirmed.</p>
+        <h3>${escapeHtml(summary.readinessLabel)}</h3>
+        <p class="az-score-explainer">${escapeHtml(summary.statusLine)}</p>
         <div class="score-pair-grid">
-          <article class="score-card is-compact">
-            <div><span>Profile setup</span><strong>25%</strong></div>
-            <div class="score-meter"><span style="width: 25%"></span></div>
-            <small>Address and EPC context are prepared; landlord details still need confirmation.</small>
+          <article class="score-card ${scoreClass(summary.profileSetupScore)} is-compact">
+            <div><span>Profile setup</span><strong>${summary.profileSetupScore}%</strong></div>
+            <div class="score-meter"><span style="width: ${summary.profileSetupScore}%"></span></div>
+            <small>${escapeHtml(summary.profileSetupHelp)}</small>
           </article>
-          <article class="score-card is-compact">
-            <div><span>Evidence confidence</span><strong>8%</strong></div>
-            <div class="score-meter"><span style="width: 8%"></span></div>
-            <small>No uploaded certificates are stored yet. EPC is only prepared for review.</small>
+          <article class="score-card ${scoreClass(summary.evidenceConfidenceScore)} is-compact">
+            <div><span>Evidence confidence</span><strong>${summary.evidenceConfidenceScore}%</strong></div>
+            <div class="score-meter"><span style="width: ${summary.evidenceConfidenceScore}%"></span></div>
+            <small>${escapeHtml(summary.evidenceConfidenceHelp)}</small>
           </article>
         </div>
         <p class="az-score-note">Prepared data is useful starting context, not legal verification.</p>
         <dl>
-          <div><dt>What CMP found</dt><dd>Address matched, EPC prepared for review, workspace created, postcode ready for local checks</dd></div>
-          <div><dt>Confirm next</dt><dd>Property type, bedrooms and occupancy / tenancy status</dd></div>
-          <div><dt>Documents not uploaded</dt><dd>Gas Safety, Electrical Safety / EICR, alarms and tenancy/deposit evidence if relevant</dd></div>
-          <div><dt>Recommended next step</dt><dd>Confirm what CMP found before scoring gaps or recommending services</dd></div>
+          <div><dt>What CMP found</dt><dd>${escapeHtml(summary.findingsConfirmed ? "Address, EPC starting signal, property type and local-check context confirmed" : "Address matched, EPC prepared for review, workspace created, postcode ready for local checks")}</dd></div>
+          <div><dt>Confirm next</dt><dd>${escapeHtml(summary.needsAnswer.join(", ") || "Core setup answers are confirmed")}</dd></div>
+          <div><dt>Documents not uploaded</dt><dd>${escapeHtml(summary.missingEvidence.join(", ") || "Core documents uploaded for review")}</dd></div>
+          <div><dt>Recommended next step</dt><dd>${escapeHtml(summary.primaryTaskTitle)}</dd></div>
         </dl>
         <button class="secondary-button" type="button" data-az-ask>Ask CMP to explain</button>
       </aside>
@@ -5422,80 +6002,7 @@ function showPortfolioCompliance({ scroll = false } = {}) {
 
 function getEvidenceRows() {
   if (isNewPropertyMode()) {
-    return [
-      {
-        id: "new-epc",
-        title: "EPC",
-        document: "Energy Performance Certificate",
-        propertyId: "the-butts",
-        property: "57 The Butts · CV1 3BJ",
-        source: "Official record signal",
-        sourceClass: "status-watch-text",
-        status: "Prepared for review",
-        statusClass: "status-watch-text",
-        keyDate: "Review before relying on it",
-        filters: ["review", "official"],
-        search: "epc energy performance certificate 57 butts official record prepared review",
-        actions: [
-          { label: "Ask CMP", action: "askEpc" },
-          { label: "Open property", action: "openProperty" }
-        ]
-      },
-      {
-        id: "new-gas",
-        title: "Gas Safety",
-        document: "Gas Safety Certificate",
-        propertyId: "the-butts",
-        property: "57 The Butts · CV1 3BJ",
-        source: "No document uploaded",
-        sourceClass: "status-review-text",
-        status: "Needs landlord input",
-        statusClass: "status-review-text",
-        keyDate: "Unknown",
-        filters: ["missing", "review"],
-        search: "gas safety certificate 57 butts missing no document needs landlord input",
-        actions: [
-          { label: "Upload", action: "uploadGas", primary: true },
-          { label: "Ask CMP", action: "askReview" }
-        ]
-      },
-      {
-        id: "new-eicr",
-        title: "Electrical Safety / EICR",
-        document: "Electrical Installation Condition Report",
-        propertyId: "the-butts",
-        property: "57 The Butts · CV1 3BJ",
-        source: "No document uploaded",
-        sourceClass: "status-review-text",
-        status: "Needs landlord input",
-        statusClass: "status-review-text",
-        keyDate: "Unknown",
-        filters: ["missing", "review"],
-        search: "eicr electrical safety 57 butts missing no document needs landlord input",
-        actions: [
-          { label: "Upload", action: "uploadEicr", primary: true },
-          { label: "Ask CMP", action: "askReview" }
-        ]
-      },
-      {
-        id: "new-tenancy",
-        title: "Tenancy / deposit documents",
-        document: "Tenancy, deposit or prescribed information",
-        propertyId: "the-butts",
-        property: "57 The Butts · CV1 3BJ",
-        source: "Not assessed yet",
-        sourceClass: "status-neutral-text",
-        status: "Depends on occupancy",
-        statusClass: "status-watch-text",
-        keyDate: "Confirm occupancy first",
-        filters: ["missing", "review"],
-        search: "tenancy deposit documents 57 butts occupancy unknown not assessed",
-        actions: [
-          { label: "Continue guided check", action: "az:the-butts", primary: true },
-          { label: "Ask CMP", action: "askTenancy" }
-        ]
-      }
-    ];
+    return newPropertyEvidenceRows();
   }
 
   const rows = [
@@ -5806,6 +6313,10 @@ function renderPortfolioEvidenceState() {
   }
 
   if (isNewPropertyMode()) {
+    const summary = newPropertyStatusSummary();
+    const setupEvidenceRows = newPropertyEvidenceRows();
+    const uploadedRows = setupEvidenceRows.filter((row) => row.filters.includes("uploaded"));
+    const missingRows = setupEvidenceRows.filter((row) => row.filters.includes("missing"));
     if (evidenceKicker) {
       evidenceKicker.textContent = "Evidence Vault";
     }
@@ -5816,16 +6327,16 @@ function renderPortfolioEvidenceState() {
       evidenceAsk.textContent = "Ask CMP what to upload";
     }
     document.querySelector("[data-evidence-count-badge]").textContent = "1 new property profile";
-    document.querySelector("[data-evidence-verified-count]").textContent = "0";
-    document.querySelector("[data-evidence-review-count]").textContent = "1";
-    document.querySelector("[data-evidence-review-detail]").textContent = "EPC prepared for review";
-    document.querySelector("[data-evidence-missing-count]").textContent = "3";
-    document.querySelector("[data-evidence-missing-detail]").textContent = "certificates need input";
+    document.querySelector("[data-evidence-verified-count]").textContent = String(uploadedRows.length);
+    document.querySelector("[data-evidence-review-count]").textContent = String(setupEvidenceRows.length - uploadedRows.length);
+    document.querySelector("[data-evidence-review-detail]").textContent = summary.evidenceConfidenceLabel;
+    document.querySelector("[data-evidence-missing-count]").textContent = String(missingRows.length);
+    document.querySelector("[data-evidence-missing-detail]").textContent = missingRows.length === 1 ? "item needs input" : "items need input";
     document.querySelector("[data-evidence-inbox-count]").textContent = "0";
-    document.querySelector("[data-evidence-health-strength]").textContent = "Starting";
-    document.querySelector("[data-evidence-health-verified]").textContent = "No uploaded documents yet";
-    document.querySelector("[data-evidence-health-missing]").textContent = "Gas Safety, EICR and occupancy evidence need input";
-    document.querySelector("[data-evidence-health-focus]").textContent = "EPC is prepared for review; review before relying on it, then upload certificates you already hold.";
+    document.querySelector("[data-evidence-health-strength]").textContent = `${summary.evidenceConfidenceScore}% evidence confidence`;
+    document.querySelector("[data-evidence-health-verified]").textContent = uploadedRows.length ? `${uploadedRows.length} demo upload${uploadedRows.length === 1 ? "" : "s"} added` : "No uploaded documents yet";
+    document.querySelector("[data-evidence-health-missing]").textContent = summary.missingEvidence.length ? `${summary.missingEvidence.join(", ")} need input` : "Core certificate uploads are present for review";
+    document.querySelector("[data-evidence-health-focus]").textContent = summary.evidenceConfidenceHelp;
     document.querySelector(".evidence-inbox-panel")?.setAttribute("hidden", "");
     document.querySelector(".evidence-toolbar")?.removeAttribute("hidden");
     document.querySelector(".evidence-lower-grid")?.setAttribute("hidden", "");
@@ -5843,7 +6354,7 @@ function renderPortfolioEvidenceState() {
         title.textContent = "57 The Butts evidence profile";
       }
       if (body) {
-        body.textContent = "Starting confidence · no uploaded documents yet";
+        body.textContent = `${summary.evidenceConfidenceLabel} · ${summary.evidenceConfidenceHelp}`;
       }
     }
     document.querySelectorAll("[data-evidence-property-filter]").forEach((button) => {
@@ -6110,88 +6621,7 @@ function activeTaskItems() {
   }
 
   if (isNewPropertyMode()) {
-    return [
-      {
-        id: "new-details",
-        title: "Confirm what CMP found",
-        property: "57 The Butts · CV1 3BJ",
-        propertyId: "the-butts",
-        category: "Property setup",
-        priority: "High",
-        source: "Add property",
-        body: "CMP matched the address and prepared EPC context. Confirm property type, bedrooms and occupancy before CMP scores the property file.",
-        status: "Needs confirmation",
-        suggestedAction: "Confirm found details",
-        board: "todo",
-        filters: ["high"],
-        detail: "CMP created this setup task because the address and EPC signal are prepared, but the landlord still needs to confirm the details before scoring.",
-        search: "property type bedrooms confirm setup 57 butts",
-        actions: [
-          { label: "Confirm what CMP found", action: "az:the-butts", primary: true },
-          { label: "Open property", action: "openProperty" }
-        ]
-      },
-      {
-        id: "new-occupancy",
-        title: "Confirm occupancy / tenancy status",
-        property: "57 The Butts · CV1 3BJ",
-        propertyId: "the-butts",
-        category: "Property setup",
-        priority: "High",
-        source: "Guided check",
-        body: "Occupancy determines which checks, documents and reminders CMP should prioritise.",
-        status: "Needs confirmation",
-        suggestedAction: "Answer the occupancy questions",
-        board: "todo",
-        filters: ["high"],
-        detail: "CMP needs the landlord scenario before treating evidence gaps as final.",
-        search: "occupancy tenancy status confirm setup 57 butts",
-        actions: [
-          { label: "Continue guided check", action: "az:the-butts", primary: true },
-          { label: "Ask CMP", action: "askLicensing" }
-        ]
-      },
-      {
-        id: "new-certificates",
-        title: "Upload certificates you already have",
-        property: "57 The Butts · CV1 3BJ",
-        propertyId: "the-butts",
-        category: "Evidence",
-        priority: "Medium",
-        source: "Evidence Vault",
-        body: "No uploaded documents are stored yet. Start with Gas Safety or Electrical Safety/EICR if available.",
-        status: "No documents uploaded",
-        suggestedAction: "Upload certificates",
-        board: "todo",
-        filters: ["evidence"],
-        detail: "CMP created this task because EPC is only prepared for review and no landlord-uploaded certificates are stored yet.",
-        search: "upload certificates gas safety eicr evidence 57 butts",
-        actions: [
-          { label: "Upload certificates", action: "uploadEicr", primary: true },
-          { label: "Open Evidence Vault", action: "openEvidence" }
-        ]
-      },
-      {
-        id: "new-alarms",
-        title: "Confirm smoke and CO alarm status",
-        property: "57 The Butts · CV1 3BJ",
-        propertyId: "the-butts",
-        category: "Landlord answer",
-        priority: "Medium",
-        source: "Guided check",
-        body: "CMP needs the landlord answer before it can decide whether supporting evidence is needed.",
-        status: "Needs answer",
-        suggestedAction: "Continue guided check",
-        board: "progress",
-        filters: ["evidence"],
-        detail: "Alarm status depends on landlord input and supporting evidence if available.",
-        search: "smoke co alarm status landlord answer 57 butts",
-        actions: [
-          { label: "Continue guided check", action: "az:the-butts", primary: true },
-          { label: "Ask CMP", action: "askLicensing" }
-        ]
-      }
-    ];
+    return newPropertyTaskItems();
   }
 
   if (isFivePropertyMode()) {
@@ -6686,69 +7116,7 @@ function getActivityEvents() {
   }
 
   if (isNewPropertyMode()) {
-    const property = "57 The Butts · CV1 3BJ";
-    return [
-      {
-        id: "new-profile-created",
-        group: "Today",
-        filter: "details",
-        category: "Property setup",
-        title: "Property profile created",
-        property,
-        body: "CMP created the first property workspace for 57 The Butts.",
-        source: "Add property",
-        status: "Created",
-        statusClass: "status-good-text",
-        search: "property profile created add property 57 butts",
-        why: "CMP recorded this because the landlord completed the Add Property flow.",
-        nextAction: "Continue the guided check.",
-        route: "compliance",
-        actions: [
-          makeActivityAction("Continue guided check", "openAz", true),
-          makeActivityAction("Open property", "openProperty")
-        ]
-      },
-      {
-        id: "new-address-matched",
-        group: "Today",
-        filter: "details",
-        category: "Property details",
-        title: "Address matched",
-        property,
-        body: "Flat 42, 57 The Butts, Coventry, CV1 3BJ was matched to the property workspace.",
-        source: "Address lookup",
-        status: "Matched",
-        statusClass: "status-good-text",
-        search: "address matched flat 42 57 butts coventry cv1",
-        why: "CMP recorded this because address matching anchors checks, evidence and tasks to the correct property.",
-        nextAction: "Confirm property type, bedrooms and occupancy.",
-        route: "details",
-        actions: [
-          makeActivityAction("Open details", "openDetails"),
-          makeActivityAction("Ask CMP", "askSetup")
-        ]
-      },
-      {
-        id: "new-epc-prepared",
-        group: "Today",
-        filter: "evidence",
-        category: "Evidence",
-        title: "EPC record prepared for review",
-        property,
-        body: "CMP prepared an EPC signal for landlord review, but no uploaded certificates are stored yet.",
-        source: "Official record signal",
-        status: "Prepared",
-        statusClass: "status-watch-text",
-        search: "epc prepared review official record signal 57 butts",
-        why: "CMP recorded this because EPC context can help start the property file without being treated as legal verification.",
-        nextAction: "Review the EPC context, then upload any certificates already held.",
-        route: "evidence",
-        actions: [
-          makeActivityAction("Open Evidence Vault", "viewEvidence", true),
-          makeActivityAction("Ask CMP", "askEpc")
-        ]
-      }
-    ];
+    return newPropertyActivityEvents();
   }
 
   const property = "57 The Butts · CV1 3BJ";
@@ -7246,6 +7614,11 @@ function renderPortfolioActivityState() {
       : "Use Activity to explain what changed, why CMP recorded it and which property or support action it affects.";
   }
   const supportCreated = Boolean(activeSupportRequestForActivity());
+  const newPropertySummary = isNewPropertyMode() ? newPropertyStatusSummary() : null;
+  const newPropertyTasks = isNewPropertyMode() ? newPropertyTaskItems() : [];
+  const newPropertyEvidenceUpdates = isNewPropertyMode()
+    ? newPropertyEvidenceRows().filter((row) => row.filters.includes("uploaded") || row.id === "new-epc")
+    : [];
   const visitItems = isFivePropertyMode()
     ? [
         "Portfolio Sweep prepared for five properties",
@@ -7254,11 +7627,7 @@ function renderPortfolioActivityState() {
         ...(supportCreated ? ["Support request was created"] : [])
       ]
     : isNewPropertyMode()
-    ? [
-        "Property profile created",
-        "Address matched for 57 The Butts",
-        "EPC record prepared for review"
-      ]
+    ? getActivityEvents().slice(0, 4).map((event) => event.title)
     : isTwoPropertyMode()
     ? [
         "Gas Safety renewal flagged for 18 Willow Brook Drive",
@@ -7280,7 +7649,7 @@ function renderPortfolioActivityState() {
   const watchItems = isFivePropertyMode()
     ? ["3 Station Road onboarding", "18 Willow Brook Gas Safety renewal", "9 Canal View licensing answer"]
     : isNewPropertyMode()
-    ? ["Confirm property details", "Upload certificates", "Continue local licensing check"]
+    ? newPropertySummary.watchItems
     : isTwoPropertyMode()
     ? ["18 Willow Brook Gas Safety renewal", labsState.eicrAdded ? "57 The Butts inspection evidence" : "57 The Butts Electrical Safety", "Local licensing review"]
     : labsState.eicrAdded
@@ -7288,9 +7657,9 @@ function renderPortfolioActivityState() {
     : ["Electrical Safety evidence", "Inspection evidence", "Local licensing review"];
 
   document.querySelector("[data-activity-event-count]").textContent = String(allEvents.length);
-  document.querySelector("[data-activity-evidence-count]").textContent = isNewPropertyMode() ? "1" : isFivePropertyMode() ? String(getPortfolioProperties().reduce((sum, property) => sum + property.verifiedEvidence, 0)) : isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
-  document.querySelector("[data-activity-action-count]").textContent = String((isNewPropertyMode() ? 4 : isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1) + (supportCreated ? 1 : 0) + (labsState.inspectionStatusRecorded ? 1 : 0));
-  document.querySelector("[data-activity-open-count]").textContent = String(isNewPropertyMode() ? 4 : isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1);
+  document.querySelector("[data-activity-evidence-count]").textContent = isNewPropertyMode() ? String(newPropertyEvidenceUpdates.length) : isFivePropertyMode() ? String(getPortfolioProperties().reduce((sum, property) => sum + property.verifiedEvidence, 0)) : isTwoPropertyMode() ? (labsState.eicrAdded ? "6" : "5") : labsState.eicrAdded ? "3" : "2";
+  document.querySelector("[data-activity-action-count]").textContent = String((isNewPropertyMode() ? newPropertyTasks.length : isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1) + (supportCreated ? 1 : 0) + (labsState.inspectionStatusRecorded ? 1 : 0));
+  document.querySelector("[data-activity-open-count]").textContent = String(isNewPropertyMode() ? newPropertyTasks.length : isFivePropertyMode() ? portfolioUrgentActionCount() : isTwoPropertyMode() ? 2 : 1);
   document.querySelector("[data-activity-open-detail]").textContent = isFivePropertyMode()
     ? "portfolio gaps"
     : isNewPropertyMode()
@@ -7696,7 +8065,13 @@ function askChatStatusChips() {
   }
 
   if (isNewPropertyMode()) {
-    return ["Address matched", "EPC prepared", "Details need confirmation", "No uploaded documents yet"];
+    const summary = newPropertyStatusSummary();
+    return [
+      "Address matched",
+      summary.findingsConfirmed ? "Findings confirmed" : "EPC prepared",
+      summary.needsAnswer.length ? `${summary.needsAnswer.length} answers needed` : "Details confirmed",
+      summary.evidenceConfidenceScore ? `${summary.evidenceConfidenceScore}% evidence confidence` : "No uploaded documents yet"
+    ];
   }
 
   if (isFivePropertyMode()) {
@@ -7720,7 +8095,13 @@ function askContextSequenceItems() {
   }
 
   if (isNewPropertyMode()) {
-    return ["Address matched", "EPC prepared", "Setup tasks created", "Evidence awaiting upload"];
+    const summary = newPropertyStatusSummary();
+    return [
+      "Address matched",
+      summary.findingsConfirmed ? "Findings confirmed" : "EPC prepared",
+      `${summary.profileSetupScore}% setup`,
+      summary.evidenceConfidenceScore ? `${summary.evidenceConfidenceScore}% evidence` : "Evidence awaiting upload"
+    ];
   }
 
   if (isFivePropertyMode()) {
@@ -7748,11 +8129,13 @@ function askContextSources() {
   }
 
   if (isNewPropertyMode()) {
+    const summary = newPropertyStatusSummary();
+    const tasks = newPropertyTaskItems();
     return [
-      { name: "Property details", body: "Address and postcode are matched; property type, bedrooms and occupancy need confirmation.", state: "Needs confirmation" },
-      { name: "Evidence Vault", body: "EPC is prepared for review. No uploaded certificates are stored yet.", state: "Starting" },
-      { name: "Compliance Centre", body: "Uses the guided check to turn setup answers into property-specific checks.", state: "Setup stage" },
-      { name: "Tasks", body: "Setup tasks are focused on details, occupancy, certificates and local checks.", state: "4 setup tasks" },
+      { name: "Property details", body: summary.statusLine, state: summary.profileSetupLabel },
+      { name: "Evidence Vault", body: summary.evidenceConfidenceHelp, state: summary.evidenceConfidenceLabel },
+      { name: "Compliance Centre", body: "Uses confirmed setup answers before treating compliance scoring as reliable.", state: summary.readinessLabel },
+      { name: "Tasks", body: "Setup tasks are generated from the property profile state.", state: `${tasks.length} setup ${tasks.length === 1 ? "task" : "tasks"}` },
       { name: "Book a Service", body: "Support recommendations wait until evidence gaps are confirmed.", state: "Not recommended yet" }
     ];
   }
@@ -8387,6 +8770,108 @@ function openNewPropertyEvidence() {
   setAssistantResponse(getGlobalAskAssistantResponse("What evidence should I upload next?"));
 }
 
+function addNewPropertySetupActivity(event) {
+  const setup = newPropertySetup();
+  setup.activity = setup.activity || [];
+  if (setup.activity.some((item) => item.id === event.id)) {
+    return;
+  }
+  setup.activity.unshift(event);
+}
+
+function confirmNewPropertyFindings() {
+  const setup = newPropertySetup();
+  const alreadyConfirmed = Boolean(setup.confirmations.findingsConfirmed);
+
+  setup.identity.addressConfirmed = true;
+  setup.identity.selectedAddressLocked = true;
+  setup.confirmations.findingsConfirmed = true;
+  setup.confirmations.epcAcceptedForDemoReview = true;
+  setup.confirmations.propertyTypeConfirmed = true;
+  setup.confirmations.localChecksStarted = true;
+  setup.foundData.epcStatus = "acceptedForDemoReview";
+  setup.foundData.localChecksStatus = "started";
+  setup.evidence.epc.status = "acceptedStartingSignal";
+  setup.evidence.epc.source = "Accepted starting signal";
+  setup.evidence.epc.label = "EPC accepted for demo review";
+
+  addNewPropertySetupActivity({
+    id: "new-findings-confirmed",
+    filter: "details",
+    category: "Property setup",
+    title: "CMP findings confirmed",
+    body: "The address, EPC starting signal, property type and local-check starting point were confirmed for demo review.",
+    source: "Landlord confirmation",
+    status: "Confirmed",
+    statusClass: "status-good-text",
+    search: "cmp findings confirmed epc starting signal property type local checks 57 butts",
+    why: "CMP recorded this because confirmed found data becomes the property profile baseline.",
+    nextAction: "Answer occupancy and safety questions before compliance scoring.",
+    route: "compliance",
+    actions: [
+      makeActivityAction("Continue guided check", "openAz", true),
+      makeActivityAction("Open Evidence Vault", "viewEvidence")
+    ]
+  });
+
+  renderAllState();
+  renderAssistantPrompts();
+  setAssistantResponse(getGlobalAskAssistantResponse("What should I confirm first?"));
+  showToast(alreadyConfirmed ? "CMP findings are already confirmed." : "CMP findings confirmed — setup score updated.");
+}
+
+function recordNewPropertyEvidenceUpload(type) {
+  const setup = newPropertySetup();
+  const config = {
+    gasSafety: {
+      label: "Gas Safety",
+      id: "new-gas-uploaded",
+      title: "Gas Safety evidence uploaded",
+      body: "A demo Gas Safety certificate was added to the 57 The Butts evidence list.",
+      search: "gas safety evidence uploaded 57 butts"
+    },
+    eicr: {
+      label: "Electrical Safety / EICR",
+      id: "new-eicr-uploaded",
+      title: "EICR evidence uploaded",
+      body: "A demo Electrical Safety/EICR document was added to the 57 The Butts evidence list.",
+      search: "eicr electrical safety evidence uploaded 57 butts"
+    }
+  }[type];
+
+  if (!config || !setup.evidence?.[type]) {
+    return;
+  }
+
+  setup.evidence[type].status = "uploaded";
+  setup.evidence[type].source = "Demo upload";
+  setup.evidence[type].uploadedAt = "Today";
+
+  addNewPropertySetupActivity({
+    id: config.id,
+    filter: "evidence",
+    category: "Evidence",
+    title: config.title,
+    body: config.body,
+    source: "Evidence Vault",
+    status: "Uploaded for review",
+    statusClass: "status-good-text",
+    search: config.search,
+    why: "CMP recorded this because uploaded evidence changes the property evidence confidence.",
+    nextAction: "Continue the guided check so CMP can decide which gaps remain.",
+    route: "evidence",
+    actions: [
+      makeActivityAction("Open Evidence Vault", "viewEvidence", true),
+      makeActivityAction("Ask CMP", "askReview")
+    ]
+  });
+
+  renderAllState();
+  renderAssistantPrompts();
+  setAssistantResponse(getGlobalAskAssistantResponse("What evidence should I upload next?"));
+  showToast(`${config.label} evidence added to this demo property file.`);
+}
+
 function openPropertyWorkspace(tab = "overview", focusSelector = null) {
   if (isEmptyPortfolioMode()) {
     showPortfolioHome({ scroll: true });
@@ -8892,7 +9377,7 @@ function bindPortfolioCompliance() {
 
 	    if (action === "uploadEicr") {
 	      if (isNewPropertyMode()) {
-	        openNewPropertyEvidence();
+	        recordNewPropertyEvidenceUpload("eicr");
 	      } else {
 	        openPropertyWorkspace("documents", "[data-document-upload-panel]");
 	      }
@@ -8904,7 +9389,7 @@ function bindPortfolioCompliance() {
 	      }
 	    } else if (action === "uploadGas") {
 	      if (isNewPropertyMode()) {
-	        openNewPropertyEvidence();
+	        recordNewPropertyEvidenceUpload("gasSafety");
 	      } else {
 	        showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
 	      }
@@ -9109,8 +9594,7 @@ function bindAzChecker() {
     }
 
     if (event.target.closest("[data-new-setup-confirm]")) {
-      startNewPropertyGuidedCheck();
-      showToast("Start by confirming the prepared property details.");
+      confirmNewPropertyFindings();
       return;
     }
 
@@ -9229,7 +9713,7 @@ function handleEvidenceAction(action) {
 	    openPropertyFromPortfolio("willow-brook");
 	  } else if (action === "uploadEicr" || action === "replaceEicr" || action === "replaceGas") {
 	    if (isNewPropertyMode()) {
-	      openNewPropertyEvidence();
+	      recordNewPropertyEvidenceUpload(action === "replaceGas" ? "gasSafety" : "eicr");
 	    } else {
 	      openPropertySmartUpload();
 	    }
@@ -9241,7 +9725,7 @@ function handleEvidenceAction(action) {
 	    }
 	  } else if (action === "uploadGas") {
 	    if (isNewPropertyMode()) {
-	      openNewPropertyEvidence();
+	      recordNewPropertyEvidenceUpload("gasSafety");
 	    } else {
 	      showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
 	    }
@@ -9408,7 +9892,7 @@ function handleTaskAction(action) {
 	    showGlobalServicePage({ scroll: true });
 	  } else if (action === "uploadEicr") {
 	    if (isNewPropertyMode()) {
-	      openNewPropertyEvidence();
+	      recordNewPropertyEvidenceUpload("eicr");
 	    } else {
 	      openPropertySmartUpload();
 	    }
@@ -9427,7 +9911,7 @@ function handleTaskAction(action) {
     openPropertyFromPortfolio("willow-brook");
 	  } else if (action === "uploadGas") {
 	    if (isNewPropertyMode()) {
-	      openNewPropertyEvidence();
+	      recordNewPropertyEvidenceUpload("gasSafety");
 	    } else {
 	      showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
 	    }
@@ -9594,21 +10078,23 @@ function renderActivitySummaryModalState() {
   }
 
   if (isNewPropertyMode()) {
-    evidenceList.innerHTML = `
-      <li>57 The Butts · EPC record prepared for landlord review</li>
-      <li>57 The Butts · no uploaded certificates stored yet</li>
-    `;
-    document.querySelector("[data-activity-summary-open-list]").innerHTML = `
-      <li>Confirm property type and bedrooms</li>
-      <li>Confirm occupancy / tenancy status</li>
-      <li>Upload Gas Safety or EICR evidence if already held</li>
-      <li>Continue local licensing check</li>
-    `;
-    document.querySelector("[data-activity-summary-resolved]").innerHTML = `
-      <li>Address matched</li>
-      <li>Property profile created</li>
-    `;
-    document.querySelector("[data-activity-summary-next]").textContent = "Continue the guided check, then upload any certificates already held for 57 The Butts.";
+    const summary = newPropertyStatusSummary();
+    const tasks = newPropertyTaskItems();
+    const evidenceRows = newPropertyEvidenceRows();
+    evidenceList.innerHTML = evidenceRows
+      .filter((row) => row.id === "new-epc" || row.filters.includes("uploaded"))
+      .map((row) => `<li>${escapeHtml(row.property)} · ${escapeHtml(row.title)}: ${escapeHtml(row.status)}</li>`)
+      .join("");
+    document.querySelector("[data-activity-summary-open-list]").innerHTML = tasks
+      .slice(0, 5)
+      .map((task) => `<li>${escapeHtml(task.title)}</li>`)
+      .join("");
+    document.querySelector("[data-activity-summary-resolved]").innerHTML = [
+      "Address matched",
+      "Property profile created",
+      summary.findingsConfirmed ? "CMP findings confirmed" : ""
+    ].filter(Boolean).map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+    document.querySelector("[data-activity-summary-next]").textContent = summary.primaryTaskTitle;
     return;
   }
 
@@ -9693,9 +10179,15 @@ function renderActivitySummaryModalState() {
 	function handleActivityAction(action) {
 	  if (action === "uploadEicr") {
 	    if (isNewPropertyMode()) {
-	      openNewPropertyEvidence();
+	      recordNewPropertyEvidenceUpload("eicr");
 	    } else {
 	      openPropertySmartUpload();
+	    }
+	  } else if (action === "uploadGas") {
+	    if (isNewPropertyMode()) {
+	      recordNewPropertyEvidenceUpload("gasSafety");
+	    } else {
+	      showToast("Preview only — Gas Safety upload is not connected to a live workflow.");
 	    }
   } else if (action === "askEicr") {
     openAssistant(getActivityAssistantResponse("What still needs attention?"));
