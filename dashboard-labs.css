@@ -9819,7 +9819,7 @@ textarea:focus-visible,
     repeating-linear-gradient(135deg, rgba(31, 122, 83, 0.08) 0 1px, transparent 1px 8px);
 }
 
-.smart-signal-summary span {
+.smart-signal-summary > span {
   color: var(--labs-soft);
   font-size: 0.72rem;
   font-weight: 850;
@@ -9827,7 +9827,7 @@ textarea:focus-visible,
   text-transform: uppercase;
 }
 
-.smart-signal-summary strong {
+.smart-signal-summary > strong {
   font-size: 1.45rem;
   line-height: 1.05;
 }
@@ -9841,20 +9841,37 @@ textarea:focus-visible,
 }
 
 .smart-signal-summary li {
-  display: flex;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
   gap: 8px;
-  align-items: center;
+  align-items: start;
   color: #4c625c;
-  font-size: 0.88rem;
-  font-weight: 720;
 }
 
 .smart-signal-summary li::before {
   content: "";
   width: 7px;
   height: 7px;
+  margin-top: 6px;
   border-radius: 999px;
   background: #1f7a53;
+}
+
+.smart-signal-summary li span {
+  grid-column: 2;
+  color: var(--labs-soft);
+  font-size: 0.66rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  line-height: 1.1;
+  text-transform: uppercase;
+}
+
+.smart-signal-summary li strong {
+  grid-column: 2;
+  color: #17342d;
+  font-size: 0.9rem;
+  line-height: 1.18;
 }
 
 .smart-search-address-card,
@@ -10294,6 +10311,13 @@ textarea:focus-visible,
 .smart-upload-result span {
   color: #526963;
   font-size: 0.88rem;
+  line-height: 1.35;
+}
+
+.smart-upload-result small {
+  color: #526963;
+  font-size: 0.78rem;
+  font-weight: 760;
   line-height: 1.35;
 }
 

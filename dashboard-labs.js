@@ -189,6 +189,7 @@ const labsState = {
   addPropertyStep: 1,
   addPropertyAddress: "Flat 42, 57 The Butts, Coventry, CV1 3BJ",
   smartSearchAnswerPanel: "",
+  smartSearchWorkspaceOpen: false,
   settings: {
     complianceReminders: true,
     evidenceExpiryAlerts: true,
@@ -1892,6 +1893,11 @@ function openPropertyFromPortfolio(propertyId = "the-butts") {
     return;
   }
 
+  if (isNewPropertyMode()) {
+    openPropertyWorkspace("overview");
+    return;
+  }
+
   if (propertyId !== "the-butts") {
     const property = getPortfolioPropertyById(propertyId);
     openTimelineModal("[data-second-property-modal]");
@@ -2133,6 +2139,8 @@ function resetDemoState() {
   labsState.pendingServicePropertyId = "the-butts";
   labsState.addPropertyStep = 1;
   labsState.addPropertyAddress = addPropertyAddresses[0];
+  labsState.smartSearchAnswerPanel = "";
+  labsState.smartSearchWorkspaceOpen = false;
   labsState.propertyDetails = createInitialPropertyDetails();
   labsState.optionalDetails = createInitialOptionalDetails();
   labsState.propertyMemory = createInitialPropertyMemory();
@@ -3044,6 +3052,7 @@ function renderPortfolioHomeState() {
   const homeQuickWin = document.querySelector(".home-quick-win-card");
   const homeKicker = document.querySelector("[data-portfolio-home] .section-kicker");
   const homeTitle = document.querySelector("#portfolioHomeTitle");
+  const homeHeader = document.querySelector(".portfolio-home-header");
   const homeIntro = document.querySelector(".portfolio-home-header p:not(.section-kicker)");
   const homeBadge = document.querySelector(".portfolio-home-header .prototype-badge");
   const smartSearchSection = document.querySelector("[data-smart-search-results]");
@@ -3055,6 +3064,7 @@ function renderPortfolioHomeState() {
   const homeUpcomingSection = document.querySelector("#homeUpcomingTitle")?.closest(".portfolio-section");
 
   if (!properties.length) {
+    homeHeader?.removeAttribute("hidden");
     smartSearchSection?.setAttribute("hidden", "");
     autopilotCard?.removeAttribute("hidden");
     pulseGrid?.removeAttribute("hidden");
@@ -3188,6 +3198,7 @@ function renderPortfolioHomeState() {
   if (isNewPropertyMode()) {
     const summary = newPropertyStatusSummary();
     const tasks = newPropertyTaskItems();
+    homeHeader?.setAttribute("hidden", "");
     if (smartSearchSection) {
       smartSearchSection.hidden = false;
       smartSearchSection.innerHTML = renderSmartSearchResults();
@@ -3365,6 +3376,7 @@ function renderPortfolioHomeState() {
   if (homeKicker) {
     homeKicker.textContent = "Portfolio Home";
   }
+  homeHeader?.removeAttribute("hidden");
   smartSearchSection?.setAttribute("hidden", "");
   autopilotCard?.removeAttribute("hidden");
   pulseGrid?.removeAttribute("hidden");
@@ -3885,7 +3897,7 @@ function renderPortfolioPropertiesState() {
             <span class="tile-icon" data-icon="check"></span>
             <div>
               <strong>You added your first property.</strong>
-              <p>Open the workspace to find out what this property needs to become compliant.</p>
+              <p>Open the workspace to see what this property needs next.</p>
             </div>
           </article>
         ` : ""}
@@ -5382,7 +5394,7 @@ function renderSmartSearchMissingRows(items) {
 function smartSearchQuestionConfigs() {
   return {
     bedrooms: {
-      title: "Confirm bedrooms",
+      title: "How many bedrooms?",
       body: "Choose the bedroom count CMP should use for this property setup.",
       answerKey: "bedrooms",
       confirmationKey: "bedroomsConfirmed",
@@ -5390,7 +5402,7 @@ function smartSearchQuestionConfigs() {
       choices: ["Studio", "1 bedroom", "2 bedrooms", "3 bedrooms", "Not sure"]
     },
     occupancy: {
-      title: "Confirm occupancy / tenancy status",
+      title: "What is the occupancy status?",
       body: "This tells CMP which documents, reminders and checks matter next.",
       answerKey: "occupancy",
       confirmationKey: "occupancyConfirmed",
@@ -5398,7 +5410,7 @@ function smartSearchQuestionConfigs() {
       choices: ["Vacant", "Ready to let", "Currently tenanted", "New purchase review", "Not sure"]
     },
     alarms: {
-      title: "Confirm smoke and CO alarm status",
+      title: "Are smoke and CO alarms checked?",
       body: "Tell CMP whether this is already checked or should remain a follow-up.",
       answerKey: "alarmStatus",
       confirmationKey: "alarmsConfirmed",
@@ -5407,7 +5419,7 @@ function smartSearchQuestionConfigs() {
       choices: ["Confirmed installed/tested", "Need to check", "Not sure"]
     },
     tenancy: {
-      title: "Confirm tenancy/deposit documents",
+      title: "Which tenancy or deposit documents apply?",
       body: "This depends on the occupancy route and helps CMP decide which tenancy documents matter now.",
       answerKey: "tenancyDepositStatus",
       confirmationKey: "tenancyDepositConfirmed",
@@ -5415,7 +5427,7 @@ function smartSearchQuestionConfigs() {
       choices: ["Not currently tenanted", "Tenanted, documents held", "Tenanted, documents missing", "Preparing for new tenancy", "Not sure"]
     },
     inspection: {
-      title: "Confirm inspection evidence",
+      title: "Is there recent inspection evidence?",
       body: "A simple answer is enough for the first setup pass. Documents can be added later.",
       answerKey: "inspectionStatus",
       confirmationKey: "inspectionReviewed",
@@ -5475,11 +5487,13 @@ function renderSmartSearchAnswerPanel() {
 
   const setup = newPropertySetup();
   const current = setup.landlordAnswers?.[config.answerKey] || "Not answered";
+  const questionKeys = Object.keys(configs);
+  const questionIndex = Math.max(0, questionKeys.indexOf(activePanel));
 
   return `
     <article class="smart-answer-panel" data-smart-answer-panel>
       <div>
-        <p class="section-kicker">Quick answer</p>
+        <p class="section-kicker">Question ${questionIndex + 1} of ${questionKeys.length}</p>
         <h4>${escapeHtml(config.title)}</h4>
         <p>${escapeHtml(config.body)}</p>
         <small>Current answer: ${escapeHtml(current)}</small>
@@ -5529,25 +5543,36 @@ function renderSmartSearchResults() {
   const gasStatus = gasUploaded ? "Uploaded for review" : "No document uploaded";
   const eicrStatus = eicrUploaded ? "Uploaded for review" : "No document uploaded";
   const topTask = newPropertyTaskItems(setup)[0]?.title || "Continue setup";
+  const allQuestionsHandled = saved && !nextQuestion;
+  const nextPrimaryLabel = !saved
+    ? "Confirm and save found data"
+    : allQuestionsHandled
+      ? "View property in Properties"
+      : "Answer remaining questions";
+  const nextPrimaryAttr = !saved
+    ? "data-smart-confirm"
+    : allQuestionsHandled
+      ? "data-smart-view-property"
+      : "data-smart-answer-remaining";
 
   return `
     <header class="smart-search-hero is-signal-led">
       <div class="smart-hero-copy">
         <p class="section-kicker">Smart Search Results</p>
         <h2 id="smartSearchResultsTitle">Here&rsquo;s what CMP found about your property</h2>
-        <p>CMP matched the address, checked EPC-style records and prepared a starting property profile. Review the findings, upload anything useful, then save this setup to the property.</p>
+        <p>CMP matched your address, found a likely EPC record, prepared local authority context and extracted useful setup details.</p>
         <span class="smart-hero-badge">57 The Butts &middot; Coventry, CV1 3BJ</span>
       </div>
       <aside class="smart-signal-summary" aria-label="Smart search signal summary">
         <span>Smart search found</span>
         <strong>6 useful property signals</strong>
         <ul>
-          <li>Address matched</li>
-          <li>UPRN prepared</li>
-          <li>Local authority found</li>
-          <li>EPC rating found</li>
-          <li>EPC expiry found</li>
-          <li>Property type assumption prepared</li>
+          <li><span>Found automatically</span><strong>Address matched</strong></li>
+          <li><span>Prepared for review</span><strong>UPRN prepared</strong></li>
+          <li><span>Found automatically</span><strong>Coventry City Council found</strong></li>
+          <li><span>Likely match</span><strong>EPC rating C found</strong></li>
+          <li><span>Likely match</span><strong>EPC valid until February 2034</strong></li>
+          <li><span>Needs landlord input</span><strong>Flat/apartment assumption prepared</strong></li>
         </ul>
       </aside>
     </header>
@@ -5609,7 +5634,7 @@ function renderSmartSearchResults() {
           <div class="smart-section-heading">
             <p class="section-kicker">What CMP found automatically</p>
             <h3>Useful property records are ready to review</h3>
-            <p>CMP has found a likely EPC-style record and extracted useful setup data. Confirm before relying on this.</p>
+            <p>CMP found a likely EPC-style record, address context and local authority signal. Save the useful details, then CMP will only ask for what it could not find.</p>
           </div>
           <div class="smart-found-grid">
             <article class="smart-found-card">
@@ -5646,17 +5671,17 @@ function renderSmartSearchResults() {
               </div>
               <h4>Likely EPC record found</h4>
               <div class="smart-epc-rating-row" aria-label="EPC rating summary">
-                <div><span>Current</span><strong>${escapeHtml(foundData.epcRating || "C")}</strong></div>
-                <div><span>Potential</span><strong>${escapeHtml(foundData.epcPotentialRating || "B")}</strong></div>
+                <div><span>Current rating</span><strong>${escapeHtml(foundData.epcRating || "C")}</strong></div>
+                <div><span>Potential rating</span><strong>${escapeHtml(foundData.epcPotentialRating || "B")}</strong></div>
               </div>
               <dl>
-                <div><dt>Expiry</dt><dd>${escapeHtml(foundData.epcExpiryDate || "February 2034")}</dd></div>
+                <div><dt>Valid until</dt><dd>${escapeHtml(foundData.epcExpiryDate || "February 2034")}</dd></div>
                 <div><dt>Floor area</dt><dd>${escapeHtml(foundData.epcFloorArea || "Needs review")}</dd></div>
                 <div><dt>Property type</dt><dd>${escapeHtml(foundData.epcPropertyType || "Flat / apartment")}</dd></div>
                 <div><dt>Match confidence</dt><dd>${escapeHtml(foundData.epcMatchConfidence || "Likely match")}</dd></div>
               </dl>
               <p>This helps CMP pre-fill the property profile and decide which checks still need evidence.</p>
-              <p>Source: EPC-style record prepared for review</p>
+              <p>Source: EPC-style record prepared as a starting signal</p>
               <small>Review before relying on this. This is a starting signal, not legal verification.</small>
             </article>
             <article class="smart-found-card">
@@ -5748,8 +5773,8 @@ function renderSmartSearchResults() {
         <article class="smart-upload-panel" data-smart-upload-panel>
           <div>
             <p class="section-kicker">Smart Document Drop</p>
-            <h3>Have certificates or property files?</h3>
-            <p>Drop them here and CMP will work out what they are.</p>
+            <h3>Smart Document Drop</h3>
+            <p>Drop certificates, inspection notes or property files here. CMP will classify them and attach useful records to this property.</p>
           </div>
           <div class="smart-drop-zone">
             <span class="source-badge">Prototype file scan</span>
@@ -5757,15 +5782,16 @@ function renderSmartSearchResults() {
             <small>Demo only. Files are recognised locally in this prototype.</small>
           </div>
           <div class="smart-upload-actions">
-            <button class="${gasUploaded ? "secondary-button" : "primary-button"}" type="button" data-smart-upload="gasSafety" ${gasUploaded ? "disabled" : ""}>${gasUploaded ? "Gas Safety demo uploaded" : "Upload Gas Safety demo"}</button>
-            <button class="${eicrUploaded ? "secondary-button" : "primary-button"}" type="button" data-smart-upload="eicr" ${eicrUploaded ? "disabled" : ""}>${eicrUploaded ? "EICR demo uploaded" : "Upload EICR demo"}</button>
+            <button class="secondary-button" type="button" data-smart-upload="gasSafety" ${gasUploaded ? "disabled" : ""}>${gasUploaded ? "Gas Safety demo uploaded" : "Upload Gas Safety demo"}</button>
+            <button class="secondary-button" type="button" data-smart-upload="eicr" ${eicrUploaded ? "disabled" : ""}>${eicrUploaded ? "EICR demo uploaded" : "Upload EICR demo"}</button>
             <button class="text-button" type="button" data-smart-skip-upload>Skip for now</button>
           </div>
           ${(gasUploaded || eicrUploaded) ? `
             <div class="smart-upload-result">
               ${gasUploaded ? "<strong>Gas Safety Certificate recognised</strong>" : ""}
               ${eicrUploaded ? "<strong>Electrical Safety / EICR report recognised</strong>" : ""}
-              <span>Uploaded for review. Not legally verified.</span>
+              <span>Uploaded for review. Not legally verified in this prototype.</span>
+              <small>Evidence confidence, still-needed rows, Ask CMP and activity have updated.</small>
             </div>
           ` : ""}
           <dl>
@@ -5787,10 +5813,15 @@ function renderSmartSearchResults() {
             </div>
           ` : ""}
           <div class="smart-main-actions">
-            <button class="${saved ? "secondary-button" : "primary-button"}" type="button" data-smart-confirm ${saved ? "disabled" : ""}>${saved ? "Found data saved" : "Confirm and save found data"}</button>
-            <button class="secondary-button" type="button" data-smart-edit-details>Edit found details</button>
+            ${saved
+              ? `
+                <button class="primary-button" type="button" ${allQuestionsHandled ? "data-smart-view-property" : "data-smart-answer-remaining"}>${allQuestionsHandled ? "View property in Properties" : "Answer remaining questions"}</button>
+                <button class="secondary-button" type="button" data-smart-confirm disabled>Found data saved</button>
+              `
+              : `<button class="primary-button" type="button" data-smart-confirm>Confirm and save found data</button>`}
+            <button class="secondary-button" type="button" data-smart-scroll-upload>Upload documents</button>
             <button class="text-button" type="button" data-smart-ask>Ask CMP what this means</button>
-            <button class="text-button" type="button" data-smart-scroll-upload>Upload certificates</button>
+            <button class="text-button" type="button" data-smart-edit-details>Edit found details</button>
           </div>
         </article>
       </aside>
@@ -5798,9 +5829,9 @@ function renderSmartSearchResults() {
 
     <section class="smart-next-panel ${saved ? "is-ready" : ""}">
       <div>
-        <p class="section-kicker">${saved ? "Next: answer the remaining unknowns" : "Next after saving"}</p>
-        <h3>${saved ? "Answer only the remaining unknowns" : "Save the found data, then fill the gaps"}</h3>
-        <p>CMP will only ask for information it could not find automatically.</p>
+        <p class="section-kicker">${allQuestionsHandled ? "Property added" : saved ? "Next: answer the remaining unknowns" : "Next: save found data"}</p>
+        <h3>${allQuestionsHandled ? "Core setup unknowns are answered" : saved ? "Answer only the remaining unknowns" : "Save the found data, then fill the gaps"}</h3>
+        <p>${saved ? "CMP will keep asking only for information it could not find automatically." : "Saving turns the scan into the starting property profile."}</p>
       </div>
       <ul>
         ${remainingItems.length
@@ -5808,42 +5839,20 @@ function renderSmartSearchResults() {
           : "<li>Core setup unknowns are answered. Continue the guided check when ready.</li>"}
       </ul>
       <div class="button-row">
-        <button class="primary-button" type="button" data-smart-answer-remaining>Answer remaining questions</button>
-        <button class="secondary-button" type="button" data-smart-scroll-upload>Upload certificates</button>
-        <button class="text-button" type="button" data-smart-view-property>${saved ? "View property in Properties" : "Open property card"}</button>
+        <button class="primary-button" type="button" ${nextPrimaryAttr}>${nextPrimaryLabel}</button>
+        <button class="secondary-button" type="button" data-smart-scroll-upload>Upload documents</button>
+        ${saved
+          ? `<button class="text-button" type="button" ${allQuestionsHandled ? "data-smart-open-workspace" : "data-smart-view-property"}>${allQuestionsHandled ? "Open workspace" : "View property in Properties"}</button>`
+          : `<button class="text-button" type="button" data-smart-ask>Ask CMP what this means</button>`}
       </div>
     </section>
 
-    ${saved ? `
-      <section class="smart-property-handoff-panel">
-        <div>
-          <p class="section-kicker">Property added</p>
-          <h3>57 The Butts is ready in Properties</h3>
-          <p>Use the property card to open the early workspace or continue setup. Portfolio scoring can wait until this profile is more complete.</p>
-        </div>
-        <article class="smart-handoff-card">
-          <div>
-            <span class="status-dot" aria-hidden="true"></span>
-            <strong>57 The Butts</strong>
-            <span class="source-badge">New profile</span>
-          </div>
-          <dl>
-            <div><dt>Profile setup</dt><dd>${summary.profileSetupScore}%</dd></div>
-            <div><dt>Evidence confidence</dt><dd>${summary.evidenceConfidenceScore}%</dd></div>
-            <div><dt>Top unresolved item</dt><dd>${escapeHtml(topTask)}</dd></div>
-          </dl>
-          <div class="button-row">
-            <button class="primary-button" type="button" data-smart-view-property>View property in Properties</button>
-            <button class="secondary-button" type="button" data-smart-open-workspace>Open workspace</button>
-          </div>
-        </article>
-      </section>
-
+    ${saved && labsState.smartSearchWorkspaceOpen ? `
       <section class="smart-workspace-panel" data-smart-workspace-panel>
         <div>
           <p class="section-kicker">Early property workspace</p>
           <h3>57 The Butts workspace</h3>
-          <p>This is the early-stage property workspace created from Smart Search. It stays separate from the mature worked example.</p>
+          <p>This is where CMP will store evidence, tasks, reminders and property-specific compliance guidance.</p>
         </div>
         <div class="smart-workspace-grid">
           <article>
@@ -9646,6 +9655,7 @@ function openPropertyWorkspace(tab = "overview", focusSelector = null) {
     } else if (tab === "services") {
       showGlobalServicePage({ scroll: true });
     } else {
+      labsState.smartSearchWorkspaceOpen = true;
       showPortfolioHome({ scroll: true });
       setAssistantResponse("This is the early workspace for 57 The Butts. CMP knows the saved Smart Search data and keeps the remaining setup items visible before compliance scoring.");
       window.setTimeout(() => scrollToPanel("[data-smart-workspace-panel]"), 90);
@@ -9898,6 +9908,11 @@ function bindPortfolioHome() {
     }
 
     if (event.target.closest("[data-smart-scroll-upload]")) {
+      if (isNewPropertyMode() && labsState.currentView !== "home") {
+        showPortfolioHome({ scroll: true });
+        window.setTimeout(() => scrollToPanel("[data-smart-upload-panel]"), 100);
+        return;
+      }
       scrollToPanel("[data-smart-upload-panel]");
       return;
     }
@@ -9916,9 +9931,18 @@ function bindPortfolioHome() {
       }
       labsState.smartSearchAnswerPanel = nextSmartSearchAnswerField(setup);
       if (labsState.smartSearchAnswerPanel) {
-        renderAllState();
+        if (isNewPropertyMode() && labsState.currentView !== "home") {
+          showPortfolioHome({ scroll: true });
+        } else {
+          renderAllState();
+        }
         window.setTimeout(() => scrollToPanel("[data-smart-answer-panel]"), 80);
       } else {
+        if (isNewPropertyMode() && labsState.currentView !== "home") {
+          showPortfolioHome({ scroll: true });
+        }
+        labsState.smartSearchWorkspaceOpen = true;
+        renderAllState();
         scrollToPanel("[data-smart-workspace-panel]");
         showToast("Remaining inline questions are handled. Open the workspace when ready.");
       }
