@@ -51,6 +51,10 @@
                 <span class="nav-icon" data-icon="layout"></span>
                 Compliance centre
               </a>
+              <a class="nav-item" href="#" data-global-nav="Journey OS">
+                <span class="nav-icon" data-icon="zap"></span>
+                Journey OS
+              </a>
               <a class="nav-item" href="#" data-global-nav="Evidence Vault">
                 <span class="nav-icon" data-icon="file"></span>
                 Evidence Vault
@@ -182,7 +186,7 @@
               <span class="prototype-badge">New landlord setup</span>
             </div>
             <div class="portfolio-header-actions">
-              <button class="primary-button" type="button" data-home-add-property>Add property</button>
+              <button class="primary-button" type="button" data-journey-start>Check My Property</button>
               <button class="secondary-button" type="button" data-home-ask>Ask CMP</button>
             </div>
           </header>
@@ -365,6 +369,8 @@
             </div>
           </article>
         </section>
+
+        <section class="journey-os-page" data-journey-os hidden aria-labelledby="journeyOsTitle"></section>
 
         <section class="portfolio-properties" data-portfolio-properties hidden aria-labelledby="portfolioPropertiesTitle">
           <header class="portfolio-properties-header">
@@ -2442,6 +2448,25 @@
       </section>
 
       <div class="modal-backdrop timeline-backdrop" data-timeline-backdrop hidden></div>
+      <section class="timeline-modal journey-action-modal" role="dialog" aria-modal="true" aria-labelledby="journeyActionModalTitle" data-journey-action-modal hidden>
+        <div class="modal-header">
+          <div>
+            <p class="section-kicker" data-journey-action-kicker>Journey OS simulation</p>
+            <h2 id="journeyActionModalTitle" data-journey-action-title>Prototype action</h2>
+            <p class="modal-property-context" data-journey-action-context>Property · 57 The Butts · CV1 3BJ</p>
+          </div>
+          <button class="icon-button" type="button" aria-label="Close Journey OS action" data-journey-action-close>
+            <span class="nav-icon" data-icon="close"></span>
+          </button>
+        </div>
+        <p class="modal-note" data-journey-action-body>Journey OS placeholder action.</p>
+        <div class="service-choice-list compact-choice-list" data-journey-defer-reasons hidden></div>
+        <div class="button-row" data-journey-action-controls>
+          <button class="primary-button" type="button" data-journey-action-confirm>Update prototype state</button>
+          <button class="secondary-button" type="button" data-journey-action-close>Close</button>
+        </div>
+      </section>
+
       <section class="timeline-modal" role="dialog" aria-modal="true" aria-labelledby="summaryModalTitle" data-summary-modal hidden>
         <div class="modal-header">
           <div>
