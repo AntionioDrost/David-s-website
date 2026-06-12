@@ -497,6 +497,332 @@ const journeyUnknownQuestions = [
   }
 ];
 
+const journeyServiceCatalog = [
+  {
+    id: "gas-safety-certificate",
+    title: "Gas Safety Certificate",
+    category: "Urgent",
+    urgency: "High",
+    linkedComplianceArea: "Gas Safety",
+    linkedActionIds: ["gas-safety", "gas-service"],
+    routeTypes: ["prioritised", "legalMinimum", "riskProtected", "doneForMe"],
+    bundleTags: ["legal essentials", "urgent only", "done for me"],
+    whatItFixes: "Confirms gas appliances and creates renewal evidence.",
+    why: "Gas is unknown or unproven, so CMP keeps it as a core legal blocker until evidence exists.",
+    questions: [
+      "Which gas appliances are present?",
+      "Where is the boiler?",
+      "Any known defects?",
+      "Is tenant access confirmed?",
+      "Preferred dates?",
+      "Parking/access notes?",
+      "Boiler service at the same time?",
+      "CO alarms checked/installed?"
+    ]
+  },
+  {
+    id: "eicr",
+    title: "EICR",
+    category: "Urgent",
+    urgency: "High",
+    linkedComplianceArea: "Electrical Safety",
+    linkedActionIds: ["eicr", "book-eicr"],
+    routeTypes: ["prioritised", "legalMinimum", "riskProtected", "doneForMe"],
+    bundleTags: ["legal essentials", "urgent only", "done for me"],
+    whatItFixes: "Turns missing Electrical Safety evidence into a booked or uploaded route.",
+    why: "CMP has weak or missing EICR evidence for this property.",
+    questions: [
+      "Is the property occupied?",
+      "Where is the consumer unit?",
+      "Any known faults, tripping, burning smells or broken sockets?",
+      "Is there an old EICR?",
+      "Are landlord appliances supplied?",
+      "Smoke alarms checked too?",
+      "Preferred dates/access notes?"
+    ]
+  },
+  {
+    id: "smoke-co-alarm-check",
+    title: "Smoke/CO Alarm Check",
+    category: "Urgent",
+    urgency: "Medium",
+    linkedComplianceArea: "Smoke and CO",
+    linkedActionIds: ["alarms"],
+    routeTypes: ["prioritised", "legalMinimum", "riskProtected", "doneForMe"],
+    bundleTags: ["legal essentials", "urgent only"],
+    whatItFixes: "Confirms alarm presence, test evidence and any replacement need.",
+    why: "Alarm status is unconfirmed or needs supporting evidence.",
+    questions: ["How many storeys?", "Known alarm locations?", "Any tenant-reported faults?", "Preferred access dates?"]
+  },
+  {
+    id: "licensing-check",
+    title: "Licensing Check",
+    category: "Urgent",
+    urgency: "High",
+    linkedComplianceArea: "Licensing",
+    linkedActionIds: ["hmo-licensing", "licence-renewal"],
+    routeTypes: ["prioritised", "legalMinimum", "riskProtected", "doneForMe"],
+    bundleTags: ["legal essentials", "hmo", "risk protected"],
+    whatItFixes: "Checks HMO/selective/additional licensing risk before the landlord treats the file as clear.",
+    why: "Property type, occupancy or local rules suggest licensing needs checking.",
+    questions: [
+      "How many people live there?",
+      "How many households?",
+      "Do they share kitchen/bathroom/toilet?",
+      "Are rooms individually let?",
+      "Do you have a floorplan?",
+      "Do you know room sizes?",
+      "Any council letters?",
+      "Any previous licence?"
+    ]
+  },
+  {
+    id: "deposit-compliance-review",
+    title: "Deposit Compliance Review",
+    category: "Urgent",
+    urgency: "High",
+    linkedComplianceArea: "Deposit",
+    linkedActionIds: ["deposit-review", "prescribed-info"],
+    routeTypes: ["prioritised", "legalMinimum", "riskProtected", "doneForMe"],
+    bundleTags: ["legal essentials", "risk protected"],
+    whatItFixes: "Reviews deposit protection, prescribed information and evidence weakness.",
+    why: "Deposit evidence is missing, weak or unknown.",
+    questions: [
+      "Was a deposit taken?",
+      "How much was taken?",
+      "Which scheme was used, if known?",
+      "Was it protected within 30 days?",
+      "Was prescribed information served?",
+      "Any possession/dispute issue?",
+      "Documents to upload?"
+    ]
+  },
+  {
+    id: "tenancy-document-pack",
+    title: "Tenancy Document Pack",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Tenancy documents",
+    linkedActionIds: ["tenancy-docs"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["risk protected", "void/re-let"],
+    whatItFixes: "Creates a cleaner written terms and serving-evidence route.",
+    why: "Tenancy documents are missing or not yet evidenced.",
+    questions: ["Tenancy status?", "Existing agreement?", "Start date?", "Tenant names?", "Any special clauses?"]
+  },
+  {
+    id: "right-to-rent-review",
+    title: "Right to Rent Evidence Review",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Right to Rent",
+    linkedActionIds: ["right-to-rent"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["risk protected"],
+    whatItFixes: "Builds a clearer evidence trail for identity and tenancy file checks.",
+    why: "Right to Rent evidence is currently unknown.",
+    questions: ["How many occupants?", "Any evidence already held?", "Any repeat checks needed?"]
+  },
+  {
+    id: "condition-inspection",
+    title: "Property Condition Inspection",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Condition",
+    linkedActionIds: ["condition-inspection", "inventory"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["risk protected", "void/re-let"],
+    whatItFixes: "Creates inspection evidence and a prioritised repair record.",
+    why: "Condition evidence is missing or a complaint needs a record.",
+    questions: ["Occupied or vacant?", "Known issues?", "Photos available?", "Preferred access dates?", "Any tenant vulnerability context?"]
+  },
+  {
+    id: "damp-mould-survey",
+    title: "Damp/Mould Survey",
+    category: "Recommended",
+    urgency: "High",
+    linkedComplianceArea: "Condition",
+    linkedActionIds: ["damp-survey", "enforcement-response"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["risk protected", "condition"],
+    whatItFixes: "Turns a damp/mould report into survey, photos and repair evidence.",
+    why: "Damp/mould or council contact is present in this scenario.",
+    questions: [
+      "Which rooms are affected?",
+      "How long has it been happening?",
+      "Has the tenant complained in writing?",
+      "Can you upload photos?",
+      "Is heating working?",
+      "Are extractor fans working?",
+      "Is there a leak or water stain?",
+      "Any occupants who may be more vulnerable to damp/cold issues? Optional."
+    ]
+  },
+  {
+    id: "inventory-check-in",
+    title: "Inventory / Check-In Report",
+    category: "Recommended",
+    urgency: "Low",
+    linkedComplianceArea: "Evidence",
+    linkedActionIds: ["inventory"],
+    routeTypes: ["riskProtected", "doneForMe"],
+    bundleTags: ["risk protected", "void/re-let"],
+    whatItFixes: "Improves possession, damage and repair evidence readiness.",
+    why: "CMP can see the inventory/check-in evidence is absent.",
+    questions: ["Move-in date?", "Furnished or unfurnished?", "Meter readings needed?", "Photo schedule needed?"]
+  },
+  {
+    id: "epc-improvement-plan",
+    title: "EPC Improvement Plan",
+    category: "Future-proof",
+    urgency: "Medium",
+    linkedComplianceArea: "EPC",
+    linkedActionIds: ["epc-e-roadmap", "mees-review", "improvement-0", "book-epc"],
+    routeTypes: ["prioritised", "futureProof", "doneForMe"],
+    bundleTags: ["future proof", "energy"],
+    whatItFixes: "Creates a route from current EPC status towards a stronger rating.",
+    why: "The EPC profile creates future-readiness or MEES risk.",
+    questions: [
+      "New EPC or improvement advice before reassessment?",
+      "Cheapest compliant route or best long-term route?",
+      "Consider insulation?",
+      "Consider heating controls?",
+      "Consider solar/battery?",
+      "Leasehold?",
+      "External changes restricted?",
+      "Budget range?"
+    ]
+  },
+  {
+    id: "annual-monitoring",
+    title: "Annual Compliance Monitoring",
+    category: "Future-proof",
+    urgency: "Low",
+    linkedComplianceArea: "Monitoring",
+    linkedActionIds: ["annual-monitoring", "prs-database"],
+    routeTypes: ["prioritised", "futureProof", "doneForMe"],
+    bundleTags: ["monitoring", "future proof"],
+    whatItFixes: "Keeps expiry dates, law-change watch and annual review visible.",
+    why: "Monitoring prevents evidence and renewal gaps disappearing after setup.",
+    questions: ["Preferred review month?", "Email reminders?", "Portfolio summary?", "Include future EPC C watch?"]
+  },
+  {
+    id: "relet-readiness-pack",
+    title: "Re-let Readiness Pack",
+    category: "Void / Re-let",
+    urgency: "Medium",
+    linkedComplianceArea: "Void / Re-let",
+    linkedActionIds: ["book-epc", "inventory", "condition-inspection"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["void/re-let"],
+    whatItFixes: "Groups clean, clearance, locks, inspection and evidence before marketing.",
+    why: "Vacant or pre-let properties need practical readiness as well as certificates.",
+    questions: ["Target marketing date?", "Cleaning needed?", "Lock change needed?", "Clearance needed?", "Inventory needed?"]
+  }
+];
+
+const journeyDocumentTypes = [
+  { id: "epc", label: "EPC", complianceArea: "EPC", defaultOutcome: "valid" },
+  { id: "gas", label: "Gas Safety Certificate", complianceArea: "Gas Safety", defaultOutcome: "valid" },
+  { id: "eicr", label: "EICR", complianceArea: "Electrical Safety", defaultOutcome: "valid" },
+  { id: "deposit", label: "Deposit Certificate", complianceArea: "Deposit", defaultOutcome: "valid" },
+  { id: "tenancy", label: "Tenancy Agreement / Written Terms", complianceArea: "Tenancy documents", defaultOutcome: "unclear" },
+  { id: "renters-rights", label: "Renters' Rights Information Sheet proof", complianceArea: "Tenant information", defaultOutcome: "missing_key_details" },
+  { id: "right-to-rent", label: "Right to Rent evidence", complianceArea: "Right to Rent", defaultOutcome: "unclear" },
+  { id: "inspection", label: "Inspection report", complianceArea: "Inspection", defaultOutcome: "valid" },
+  { id: "damp-photos", label: "Damp/mould photos", complianceArea: "Condition", defaultOutcome: "missing_key_details" },
+  { id: "council-letter", label: "Council letter", complianceArea: "Enforcement", defaultOutcome: "valid" },
+  { id: "licence", label: "HMO/selective licence", complianceArea: "Licensing", defaultOutcome: "valid" },
+  { id: "insurance", label: "Insurance document", complianceArea: "Insurance", defaultOutcome: "expired" }
+];
+
+const journeyScanOutcomes = {
+  valid: {
+    label: "Valid",
+    status: "accepted",
+    confidence: "High",
+    body: "Evidence accepted. Score improves, expiry reminder is created if relevant, and the linked compliance item updates."
+  },
+  unclear: {
+    label: "Unclear",
+    status: "flagged",
+    confidence: "Medium",
+    body: "Needs landlord confirmation. Evidence confidence partially improves and the action remains amber."
+  },
+  expired: {
+    label: "Expired",
+    status: "flagged",
+    confidence: "High",
+    body: "Evidence stored but marked expired. Replacement service remains recommended."
+  },
+  wrong_property: {
+    label: "Wrong property",
+    status: "rejected",
+    confidence: "High",
+    body: "Evidence rejected or flagged because the address does not match this property."
+  },
+  missing_key_details: {
+    label: "Missing details",
+    status: "flagged",
+    confidence: "Low",
+    body: "Evidence partially accepted. CMP asks for date, address or provider confirmation."
+  }
+};
+
+const journeyScanSteps = [
+  "Upload received",
+  "Reading document",
+  "Checking address",
+  "Extracting dates",
+  "Matching to compliance rule",
+  "Checking expiry",
+  "Updating evidence vault"
+];
+
+const journeyAskPrompts = [
+  "Can I rent this property now?",
+  "What should I do first?",
+  "What can wait?",
+  "Why is my score low?",
+  "What should I book?",
+  "How do I improve the EPC?",
+  "What should I say to the tenant?",
+  "What risks could get expensive?",
+  "What is the cheapest compliant route?",
+  "What is the safest future-proof route?",
+  "What changed in this property brain?"
+];
+
+const journeyTenantMessageTemplates = [
+  { id: "gas-access", title: "Access request for Gas Safety", linkedServiceId: "gas-safety-certificate", body: "Hi [Tenant Name], I hope you're well. We need to arrange access for a gas safety check at [Property Address]. Please let me know which of the following times would be convenient, or suggest another suitable time. Thanks." },
+  { id: "eicr-access", title: "Access request for EICR", linkedServiceId: "eicr", body: "Hi [Tenant Name], I hope you're well. We need to arrange access for an electrical safety inspection at [Property Address]. Please confirm which appointment window works best for you. Thanks." },
+  { id: "damp-photo-request", title: "Damp/mould photo request", linkedServiceId: "damp-mould-survey", body: "Hi [Tenant Name], thanks for reporting the damp/mould issue. Please send clear photos of the affected areas and let me know which rooms are affected, when it started, and whether heating and ventilation are working normally." },
+  { id: "repair-appointment", title: "Repair appointment confirmation", linkedServiceId: "condition-inspection", body: "Hi [Tenant Name], this confirms we are arranging a repair/inspection visit at [Property Address]. Please let me know if the proposed time is unsuitable or if there are any access notes we should pass on." },
+  { id: "routine-inspection", title: "Routine inspection notice", linkedServiceId: "condition-inspection", body: "Hi [Tenant Name], I would like to arrange a routine property inspection at [Property Address]. Please let me know which of the suggested times is convenient. The visit is to check condition and any maintenance needs." },
+  { id: "certificate-follow-up", title: "Certificate/service follow-up", linkedServiceId: "annual-monitoring", body: "Hi [Tenant Name], following the recent property visit/check, I will update the property record and share any relevant next steps. Please let me know if anything has changed since the appointment." },
+  { id: "tenant-doc-request", title: "Tenant document request", linkedServiceId: "tenancy-document-pack", body: "Hi [Tenant Name], I am updating the property records for [Property Address]. Please confirm whether you have received the tenancy information and let me know if anything needs re-sending." },
+  { id: "council-response", title: "Council/enforcement response acknowledgement", linkedServiceId: "damp-mould-survey", body: "Hi [Tenant Name], I acknowledge the issue raised about [Property Address]. I am reviewing the matter and arranging the next practical step. Please send any further photos or updates that may help document the condition." },
+  { id: "general-access", title: "General access follow-up", linkedServiceId: "relet-readiness-pack", body: "Hi [Tenant Name], I need to arrange access to [Property Address] for a property-related visit. Please let me know your availability from the options below, or suggest another time." },
+  { id: "access-refusal-log", title: "Access refusal log message", linkedServiceId: "annual-monitoring", body: "Hi [Tenant Name], I am following up because access has not yet been agreed for the required property visit at [Property Address]. Please contact me with suitable times so the matter can be progressed." }
+];
+
+const journeyMonitoringCatalog = [
+  { id: "epc-expiry-monitor", type: "Expiry reminder", title: "EPC expiry reminder", dueDate: "14 March 2031", urgency: "Low", linkedActionId: "epc-expiry", description: "Monitor EPC expiry and future improvement roadmap." },
+  { id: "gas-renewal-monitor", type: "Expiry reminder", title: "Gas Safety renewal", dueDate: "Unknown until certificate uploaded", urgency: "High", linkedActionId: "gas-safety", description: "Create renewal tracking after evidence is uploaded or booked." },
+  { id: "eicr-renewal-monitor", type: "Expiry reminder", title: "EICR renewal", dueDate: "Unknown until EICR uploaded", urgency: "High", linkedActionId: "eicr", description: "Track Electrical Safety renewal after the current report is known." },
+  { id: "licensing-watch", type: "Licensing watch", title: "Licence renewal unknown", dueDate: "Needs local check", urgency: "Medium", linkedActionId: "hmo-licensing", description: "Keep local licensing visible until the position is confirmed." },
+  { id: "insurance-renewal", type: "Evidence monitoring", title: "Insurance renewal unknown", dueDate: "Unknown", urgency: "Medium", linkedActionId: "insurance", description: "Request insurance evidence and add renewal date later." },
+  { id: "inspection-due", type: "Condition review", title: "Inspection due", dueDate: "Next 30 days", urgency: "Medium", linkedActionId: "condition-inspection", description: "Schedule or upload a condition inspection." },
+  { id: "epc-c-readiness", type: "Law change watch", title: "Future EPC C readiness", dueDate: "Future watch", urgency: "Medium", linkedActionId: "epc-e-roadmap", description: "Track improvement plan and future PRS readiness." },
+  { id: "annual-review", type: "Annual compliance review", title: "Annual compliance review", dueDate: "Every 12 months", urgency: "Low", linkedActionId: "annual-monitoring", description: "Bundle evidence, actions and monitoring into an annual review." }
+];
+
+const journeyPortfolioPreviewProperties = [
+  { id: "willow-brook", address: "18 Willow Brook Drive", issue: "Gas Safety missing", urgency: "High", evidence: "Weak", epc: "C" },
+  { id: "the-butts", address: "57 The Butts", issue: "EICR evidence weak", urgency: "High", evidence: "Building", epc: "C" },
+  { id: "king-street", address: "22 King Street", issue: "EPC E future-risk", urgency: "Medium", evidence: "Medium", epc: "E" }
+];
+
 function createJourneyEvidenceItem(status, evidenceLevel, expiryDate, source, confidence, actionNeeded) {
   return { status, evidenceLevel, expiryDate, source, confidence, actionNeeded };
 }
@@ -613,13 +939,21 @@ function createInitialJourneyState(scenarioId = "clean-property-match") {
     ],
     evidenceVault: [],
     monitoringItems: [],
+    askHistory: [],
+    generatedMessages: [],
+    activeIntake: null,
+    activeScanner: null,
+    activeTenantMessage: null,
+    modalMode: "",
+    scannerTimers: [],
     deferredActions: [],
     activeAction: null,
     autoTimers: [],
     brainTimers: []
   };
   state.actionPlan = buildJourneyActionPlan(state);
-  state.serviceRecommendations = state.actionPlan.recommendedServices;
+  state.serviceRecommendations = buildServiceRecommendations(state);
+  state.monitoringItems = journeyMonitoringCatalog.map((item) => ({ ...item, status: "watching" }));
   return state;
 }
 
@@ -4145,8 +4479,10 @@ function clearJourneyTimers() {
   const state = journeyState();
   (state.autoTimers || []).forEach((timer) => window.clearTimeout(timer));
   (state.brainTimers || []).forEach((timer) => window.clearTimeout(timer));
+  (state.scannerTimers || []).forEach((timer) => window.clearTimeout(timer));
   state.autoTimers = [];
   state.brainTimers = [];
+  state.scannerTimers = [];
 }
 
 function journeyScenario() {
@@ -4300,7 +4636,7 @@ function buildJourneyActionPlan(state = journeyState()) {
   });
 
   brain.Actions = grouped;
-  brain.Scores = recalculateScores(state, grouped);
+  brain.Scores = recalculateJourneyScores(state, grouped);
   return grouped;
 }
 
@@ -4341,10 +4677,384 @@ function allJourneyActions() {
   return Object.values(plan).flat();
 }
 
+function journeyServiceById(serviceId) {
+  return journeyServiceCatalog.find((service) => service.id === serviceId) || journeyServiceCatalog[0];
+}
+
+function journeyServiceForAction(actionId) {
+  return journeyServiceCatalog.find((service) => service.linkedActionIds.includes(actionId)) || journeyServiceCatalog[0];
+}
+
+function serviceStatusFor(state, serviceId) {
+  return state.serviceBasket.find((item) => item.serviceId === serviceId)?.status || "recommended";
+}
+
+function buildServiceRecommendations(state = journeyState()) {
+  const scenario = journeyDemoScenarios[state.scenarioId] || journeyDemoScenarios["clean-property-match"];
+  const actionIds = new Set(Object.values(state.actionPlan || {}).flat().map((action) => action.id));
+  const routeId = state.routeId || "prioritised";
+  return journeyServiceCatalog
+    .filter((service) => service.routeTypes.includes(routeId) || routeId === "prioritised" || service.category === "Urgent")
+    .filter((service) => service.linkedActionIds.some((id) => actionIds.has(id)) || service.id === "annual-monitoring" || (scenario.branch === "noEpc" && service.id === "epc-improvement-plan") || ((scenario.occupancyStatus || "").includes("Vacant") && service.category === "Void / Re-let"))
+    .map((service) => ({
+      ...service,
+      status: serviceStatusFor(state, service.id),
+      knownPropertyData: {
+        address: state.propertyBrain.PropertyIdentity.address,
+        propertyType: state.propertyBrain.PropertyIdentity.propertyType,
+        occupancy: state.propertyBrain.TenancyProfile.occupancyStatus,
+        epc: state.propertyBrain.AutoCheckResults.epcRating,
+        gasStatus: state.answers.gas || "unknown"
+      },
+      selectedAnswers: state.serviceBasket.find((item) => item.serviceId === service.id)?.selectedAnswers || {}
+    }));
+}
+
+function ensureServiceBasketItem(serviceId, status = "added") {
+  const state = journeyState();
+  const service = journeyServiceById(serviceId);
+  const existing = state.serviceBasket.find((item) => item.serviceId === serviceId);
+  if (existing) {
+    existing.status = status;
+    return existing;
+  }
+  const item = {
+    id: `service-${serviceId}-${Date.now()}`,
+    serviceId,
+    title: service.title,
+    category: service.category,
+    urgency: service.urgency,
+    linkedActionId: service.linkedActionIds[0],
+    linkedComplianceArea: service.linkedComplianceArea,
+    status,
+    routeType: state.routeId,
+    knownPropertyData: {
+      address: state.propertyBrain.PropertyIdentity.address,
+      propertyType: state.propertyBrain.PropertyIdentity.propertyType,
+      occupancy: state.propertyBrain.TenancyProfile.occupancyStatus,
+      epc: state.propertyBrain.AutoCheckResults.epcRating
+    },
+    requiredBookingQuestions: service.questions,
+    selectedAnswers: {},
+    bundleTags: service.bundleTags
+  };
+  state.serviceBasket.unshift(item);
+  return item;
+}
+
+function updateServiceStatus(serviceId, status, source = "Service basket") {
+  const state = journeyState();
+  const item = ensureServiceBasketItem(serviceId, status);
+  state.serviceRecommendations = buildServiceRecommendations(state);
+  state.propertyBrain.Scores = recalculateJourneyScores(state, state.actionPlan);
+  addTimelineEvent({
+    title: status === "quote_requested" ? "Quote requested" : status === "booked" ? "Service booked" : "Service added to basket",
+    body: `${item.title} moved to ${status.replace("_", " ")} in the fake service basket.`,
+    type: source
+  });
+  return item;
+}
+
+function applyServicePlan(action) {
+  const state = journeyState();
+  const services = buildServiceRecommendations(state);
+  const urgent = services.filter((service) => service.category === "Urgent");
+  const legal = services.filter((service) => service.bundleTags.includes("legal essentials"));
+  const risk = services.filter((service) => service.bundleTags.includes("risk protected"));
+  const future = services.filter((service) => service.category === "Future-proof");
+  const selected = action === "urgent" ? urgent
+    : action === "legal" ? legal
+    : action === "risk" ? risk
+    : action === "future" ? future
+    : action === "quotes" ? services.slice(0, 5)
+    : services;
+  const status = action === "quotes" ? "quote_requested" : action === "save" ? "added" : action === "concierge" ? "pending" : "booked";
+  selected.forEach((service) => updateServiceStatus(service.id, status, "Service plan"));
+  state.workspaceTab = "services";
+  state.screen = "workspace";
+  state.currentStage = "action";
+  addTimelineEvent({
+    title: action === "quotes" ? "Quote request bundle started" : action === "concierge" ? "Done-for-me concierge started" : "Service bundle started",
+    body: `${selected.length} services updated from the ${journeyRoutes[state.routeId]?.label || "Prioritised"} plan.`,
+    type: "Services"
+  });
+  showJourneyOs({ scroll: false });
+}
+
+function openServiceIntake(serviceId, preferredAction = "added") {
+  const state = journeyState();
+  const service = journeyServiceById(serviceId);
+  state.modalMode = "service-intake";
+  state.activeIntake = {
+    serviceId,
+    preferredAction,
+    answers: {}
+  };
+  state.activeAction = { actionType: "service-intake", actionId: serviceId };
+  renderJourneyActionModal();
+  openTimelineModal("[data-journey-action-modal]");
+}
+
+function saveServiceIntakeAnswer(question, value) {
+  const intake = journeyState().activeIntake;
+  if (!intake) {
+    return;
+  }
+  intake.answers[question] = value;
+}
+
+function completeServiceIntake(serviceId, status) {
+  const state = journeyState();
+  const item = updateServiceStatus(serviceId, status, "Service intake");
+  item.selectedAnswers = { ...(state.activeIntake?.answers || {}) };
+  state.activeIntake = null;
+  state.modalMode = "";
+  state.workspaceTab = "services";
+  state.screen = "workspace";
+  state.currentStage = "action";
+  closeTimelineModals();
+  showJourneyOs({ scroll: false });
+  showToast(`${item.title} updated in fake service basket.`);
+}
+
+function scanOutcomeForDocument(documentTypeId) {
+  const scenario = journeyScenario();
+  if (documentTypeId === "eicr" && stateHasScenario("eicr-missing")) {
+    return "valid";
+  }
+  if (documentTypeId === "deposit" && stateHasScenario("deposit-evidence-missing")) {
+    return "valid";
+  }
+  if (documentTypeId === "council-letter" && stateHasScenario("council-enforcement-contact")) {
+    return "valid";
+  }
+  if (documentTypeId === "epc" && scenario.branch === "noEpc") {
+    return "unclear";
+  }
+  if (documentTypeId === "insurance") {
+    return "expired";
+  }
+  return journeyDocumentTypes.find((item) => item.id === documentTypeId)?.defaultOutcome || "valid";
+}
+
+function stateHasScenario(id) {
+  return journeyState().scenarioId === id;
+}
+
+function openFakeUpload() {
+  const state = journeyState();
+  state.modalMode = "fake-upload";
+  state.activeScanner = { documentTypeId: "", step: 0, outcomeId: "", complete: false };
+  state.activeAction = { actionType: "upload", actionId: "fake-upload" };
+  renderJourneyActionModal();
+  openTimelineModal("[data-journey-action-modal]");
+}
+
+function startFakeUploadScan(documentTypeId) {
+  const state = journeyState();
+  clearJourneyTimers();
+  state.modalMode = "fake-upload";
+  state.activeScanner = {
+    documentTypeId,
+    step: 0,
+    outcomeId: scanOutcomeForDocument(documentTypeId),
+    complete: false
+  };
+  addTimelineEvent({
+    title: "Evidence uploaded/scanned",
+    body: `${journeyDocumentTypes.find((item) => item.id === documentTypeId)?.label || "Document"} entered the fake scanner.`,
+    type: "Evidence scan"
+  });
+  renderJourneyActionModal();
+  journeyScanSteps.forEach((step, index) => {
+    const timer = window.setTimeout(() => {
+      state.activeScanner.step = index + 1;
+      if (index === journeyScanSteps.length - 1) {
+        state.activeScanner.complete = true;
+      }
+      renderJourneyActionModal();
+    }, 220 + index * 260);
+    state.scannerTimers.push(timer);
+  });
+}
+
+function completeFakeScan() {
+  const state = journeyState();
+  const scanner = state.activeScanner;
+  if (!scanner?.documentTypeId) {
+    return;
+  }
+  const doc = journeyDocumentTypes.find((item) => item.id === scanner.documentTypeId);
+  const outcome = journeyScanOutcomes[scanner.outcomeId] || journeyScanOutcomes.valid;
+  const evidence = {
+    id: `doc-${scanner.documentTypeId}-${Date.now()}`,
+    documentType: scanner.documentTypeId,
+    title: doc?.label || "Uploaded document",
+    linkedComplianceArea: doc?.complianceArea || "Evidence",
+    uploadStatus: outcome.status,
+    fakeScanResult: outcome.label,
+    addressMatch: scanner.outcomeId === "wrong_property" ? "Rejected - different address" : "Matched to 57 The Butts",
+    extractedDate: scanner.outcomeId === "missing_key_details" ? "Needs confirmation" : "12 May 2026",
+    expiryDate: scanner.outcomeId === "expired" ? "Expired 04 May 2024" : "11 May 2031",
+    confidence: outcome.confidence,
+    reviewStatus: outcome.status,
+    scoreImpact: scanner.outcomeId === "valid" ? 12 : scanner.outcomeId === "wrong_property" ? 0 : 5,
+    timelineLink: `scan-${Date.now()}`
+  };
+  state.evidenceVault.unshift(evidence);
+  if (scanner.outcomeId === "valid") {
+    if (scanner.documentTypeId === "eicr") {
+      state.propertyBrain.ComplianceEvidence.eicr.status = "found";
+    }
+    if (scanner.documentTypeId === "deposit") {
+      state.propertyBrain.ComplianceEvidence.deposit.status = "found";
+    }
+    if (scanner.documentTypeId === "council-letter") {
+      state.propertyBrain.TenancyProfile.councilContactStatus = "Council evidence uploaded";
+    }
+  }
+  state.actionPlan = buildJourneyActionPlan(state);
+  state.propertyBrain.Scores = recalculateJourneyScores(state, state.actionPlan);
+  addTimelineEvent({
+    title: `Scan result: ${outcome.label}`,
+    body: `${evidence.title} ${outcome.body}`,
+    type: "Evidence scan"
+  });
+  state.activeScanner = null;
+  state.modalMode = "";
+  state.workspaceTab = "evidence";
+  state.screen = "workspace";
+  state.currentStage = "vault";
+  closeTimelineModals();
+  showJourneyOs({ scroll: false });
+}
+
+function generateAskCmpResponse(prompt) {
+  const state = journeyState();
+  const brain = state.propertyBrain;
+  const urgent = (state.actionPlan.urgentLegalBlockers || []).filter((item) => item.status !== "Deferred");
+  const missing = state.actionPlan.missingEvidence || [];
+  const scores = brain.Scores;
+  let body = "";
+  if (prompt.includes("rent this property")) {
+    body = urgent.length
+      ? `Not safely yet. CMP has a simulated EPC ${brain.AutoCheckResults.epcRating}, but ${urgent.slice(0, 4).map((item) => item.title).join(", ")} still need handling before you treat this property as ready.`
+      : "It looks closer to ready, but CMP would still keep monitoring evidence dates and tenant documents before you rely on the file.";
+  } else if (prompt.includes("first")) {
+    body = urgent[0] ? `Start with ${urgent[0].title}. It has the highest risk and unlocks a clearer property file.` : "Start by adding the strongest missing evidence so CMP can improve the property brain.";
+  } else if (prompt.includes("wait")) {
+    body = `Future-proofing can wait longer than legal blockers. Improvements like ${state.actionPlan.improvementOpportunities?.[0]?.title || "annual monitoring"} should stay visible but not block the urgent route.`;
+  } else if (prompt.includes("score low")) {
+    body = `Your scores are low because legal compliance is ${scores.legalComplianceScore}%, evidence strength is ${scores.evidenceStrengthScore}%, and CMP still sees ${missing.length} evidence gaps.`;
+  } else if (prompt.includes("book")) {
+    body = `Book ${buildServiceRecommendations(state).slice(0, 3).map((service) => service.title).join(", ")} first. These map directly to the current risk and evidence gaps.`;
+  } else if (prompt.includes("EPC")) {
+    body = `The EPC is ${brain.AutoCheckResults.epcRating}. CMP would compare the potential rating ${brain.AutoCheckResults.epcPotentialRating}, then build an EPC improvement plan around insulation, controls and reassessment.`;
+  } else if (prompt.includes("tenant")) {
+    body = "Generate a practical access message from the property brain, then log it to the timeline so communication evidence stays visible.";
+  } else if (prompt.includes("expensive")) {
+    body = `The expensive risks are usually unresolved safety certificates, licensing/HMO uncertainty, enforcement contact and damp/mould evidence gaps. CMP is keeping those visible.`;
+  } else if (prompt.includes("cheapest")) {
+    body = "The cheapest compliant route is to handle legal essentials first: EPC if missing, Gas Safety if gas is present, EICR, alarms, deposit evidence and licensing check.";
+  } else if (prompt.includes("future-proof")) {
+    body = "The safest future-proof route adds EPC improvement planning, condition evidence, annual monitoring, insurance dates and licensing watch on top of the legal essentials.";
+  } else {
+    body = `This property brain changed around ${journeyDemoScenarios[state.scenarioId]?.label}. The current route is ${journeyRoutes[state.routeId]?.label}, with ${urgent.length} urgent blockers and ${state.serviceBasket.length} basket items.`;
+  }
+  const response = {
+    id: `ask-${Date.now()}`,
+    prompt,
+    body,
+    actions: ["Book Gas Safety", "Book EICR", "Upload evidence", "Generate tenant message", "Set reminder", "View evidence gaps"]
+  };
+  state.askHistory.unshift(response);
+  addTimelineEvent({ title: "Ask CMP question answered", body: prompt, type: "Ask CMP" });
+  return response;
+}
+
+function generateTenantMessage(templateId) {
+  const state = journeyState();
+  const template = journeyTenantMessageTemplates.find((item) => item.id === templateId) || journeyTenantMessageTemplates[0];
+  const message = {
+    id: `message-${template.id}-${Date.now()}`,
+    title: template.title,
+    body: template.body.replaceAll("[Property Address]", state.propertyBrain.PropertyIdentity.address),
+    linkedServiceId: template.linkedServiceId,
+    status: "draft"
+  };
+  state.activeTenantMessage = message;
+  state.modalMode = "tenant-message";
+  renderJourneyActionModal();
+  openTimelineModal("[data-journey-action-modal]");
+}
+
+function logTenantMessage() {
+  const state = journeyState();
+  const message = state.activeTenantMessage;
+  if (!message) {
+    return;
+  }
+  message.status = "logged";
+  state.generatedMessages.unshift(message);
+  state.evidenceVault.unshift({
+    id: `communication-${Date.now()}`,
+    documentType: "tenant-message",
+    title: message.title,
+    linkedComplianceArea: "Communication evidence",
+    uploadStatus: "accepted",
+    fakeScanResult: "Communication logged",
+    addressMatch: "Linked to property",
+    extractedDate: "Just now",
+    expiryDate: "Not applicable",
+    confidence: "Medium",
+    reviewStatus: "accepted",
+    scoreImpact: 3,
+    timelineLink: message.id
+  });
+  addTimelineEvent({ title: "Message generated", body: `${message.title} logged to the property timeline.`, type: "Tenant message" });
+  state.activeTenantMessage = null;
+  state.modalMode = "";
+  state.workspaceTab = "timeline";
+  state.screen = "workspace";
+  closeTimelineModals();
+  showJourneyOs({ scroll: false });
+}
+
+function upsertMonitoringItem(itemId, status = "watching") {
+  const state = journeyState();
+  const catalogItem = journeyMonitoringCatalog.find((item) => item.id === itemId) || journeyMonitoringCatalog[0];
+  const existing = state.monitoringItems.find((item) => item.id === catalogItem.id);
+  if (existing) {
+    existing.status = status;
+  } else {
+    state.monitoringItems.unshift({ ...catalogItem, status });
+  }
+  addTimelineEvent({ title: "Reminder set", body: `${catalogItem.title} marked as ${status}.`, type: "Monitoring" });
+  state.workspaceTab = "monitoring";
+  state.screen = "workspace";
+  closeTimelineModals();
+  showJourneyOs({ scroll: false });
+}
+
+function recalculateJourneyScores(state = journeyState(), grouped = state.actionPlan || {}) {
+  const base = recalculateScores(state, grouped);
+  const acceptedEvidence = state.evidenceVault.filter((item) => item.reviewStatus === "accepted").length;
+  const bookedServices = state.serviceBasket.filter((item) => ["booked", "pending", "quote_requested"].includes(item.status)).length;
+  const loggedMessages = state.generatedMessages.length;
+  return {
+    legalComplianceScore: clampScore(base.legalComplianceScore + acceptedEvidence * 3 + bookedServices * 2),
+    evidenceStrengthScore: clampScore(base.evidenceStrengthScore + acceptedEvidence * 5 + loggedMessages * 2),
+    conditionRiskScore: base.conditionRiskScore,
+    futureReadinessScore: clampScore(base.futureReadinessScore + state.monitoringItems.filter((item) => item.status === "watching").length),
+    serviceReadinessScore: clampScore(base.serviceReadinessScore + bookedServices * 5 + state.serviceBasket.filter((item) => item.status === "added").length * 2)
+  };
+}
+
 function selectRoute(routeId) {
   const state = journeyState();
   state.routeId = routeId;
   state.actionPlan = buildJourneyActionPlan(state);
+  state.serviceRecommendations = buildServiceRecommendations(state);
   addTimelineEvent({
     title: "Route selected",
     body: `${journeyRoutes[routeId]?.label || "Prioritised"} route selected.`,
@@ -4879,6 +5589,209 @@ function renderJourneyActionGroups(limitForWorkspace = false) {
   }).join("");
 }
 
+function renderJourneyPlanButtons() {
+  return `
+    <section class="journey-plan-controls" aria-label="Journey OS service plan controls">
+      <button class="primary-button" type="button" data-journey-service-plan="urgent">Book urgent only</button>
+      <button class="secondary-button" type="button" data-journey-service-plan="legal">Book legal essentials</button>
+      <button class="secondary-button" type="button" data-journey-service-plan="risk">Build risk-protected plan</button>
+      <button class="secondary-button" type="button" data-journey-service-plan="future">Build future-proof plan</button>
+      <button class="text-button" type="button" data-journey-service-plan="quotes">Request quotes first</button>
+      <button class="text-button" type="button" data-journey-service-plan="concierge">Done-for-me concierge</button>
+    </section>
+  `;
+}
+
+function renderJourneyServiceCard(service) {
+  return `
+    <article class="journey-service-card">
+      <div class="journey-service-top">
+        <span class="source-badge">${escapeHtml(service.category)}</span>
+        <span class="journey-status-chip">${escapeHtml(service.status.replace("_", " "))}</span>
+      </div>
+      <h3>${escapeHtml(service.title)}</h3>
+      <p>${escapeHtml(service.why)}</p>
+      <dl>
+        <div><dt>Fixes</dt><dd>${escapeHtml(service.whatItFixes)}</dd></div>
+        <div><dt>Urgency</dt><dd>${escapeHtml(service.urgency)}</dd></div>
+        <div><dt>Linked area</dt><dd>${escapeHtml(service.linkedComplianceArea)}</dd></div>
+      </dl>
+      <div class="journey-action-buttons">
+        <button class="primary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="booked">Book now</button>
+        <button class="secondary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="quote_requested">Request quote</button>
+        <button class="secondary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="added">Add to basket</button>
+        <button class="text-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="deferred">Save for later</button>
+      </div>
+    </article>
+  `;
+}
+
+function renderJourneyServicesExperience() {
+  const state = journeyState();
+  const services = buildServiceRecommendations(state);
+  const categories = ["Urgent", "Recommended", "Future-proof", "Void / Re-let"];
+  const basket = state.serviceBasket;
+  return `
+    <section class="journey-services-shell">
+      <div class="journey-services-summary">
+        <article>
+          <span>Basket</span>
+          <strong>${basket.length}</strong>
+          <small>fake service items</small>
+        </article>
+        <article>
+          <span>Booked/pending</span>
+          <strong>${basket.filter((item) => ["booked", "pending"].includes(item.status)).length}</strong>
+          <small>supplier-ready simulations</small>
+        </article>
+        <article>
+          <span>Quotes</span>
+          <strong>${basket.filter((item) => item.status === "quote_requested").length}</strong>
+          <small>quote requests</small>
+        </article>
+      </div>
+      ${renderJourneyPlanButtons()}
+      ${categories.map((category) => {
+        const categoryServices = services.filter((service) => service.category === category);
+        if (!categoryServices.length) {
+          return "";
+        }
+        return `
+          <section class="journey-service-group">
+            <div class="section-heading">
+              <p class="section-kicker">${escapeHtml(category)}</p>
+              <h2>${escapeHtml(category)} services</h2>
+            </div>
+            <div class="journey-service-grid">
+              ${categoryServices.map(renderJourneyServiceCard).join("")}
+            </div>
+          </section>
+        `;
+      }).join("")}
+    </section>
+  `;
+}
+
+function renderEvidenceVaultExperience() {
+  const state = journeyState();
+  return `
+    <section class="journey-evidence-shell">
+      <article class="journey-upload-panel">
+        <div>
+          <p class="section-kicker">Fake upload scanner</p>
+          <h3>Scan evidence into the property brain</h3>
+          <p>Choose a fake document type. CMP will simulate reading, matching, extracting dates and updating evidence.</p>
+        </div>
+        <button class="primary-button" type="button" data-journey-open-upload>Upload evidence simulation</button>
+      </article>
+      <div class="journey-evidence-grid">
+        ${state.evidenceVault.length ? state.evidenceVault.map((item) => `
+          <article class="journey-evidence-card">
+            <span class="journey-status-chip">${escapeHtml(item.reviewStatus || item.uploadStatus)}</span>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.fakeScanResult)} · ${escapeHtml(item.linkedComplianceArea)}</p>
+            <dl>
+              <div><dt>Address</dt><dd>${escapeHtml(item.addressMatch)}</dd></div>
+              <div><dt>Date</dt><dd>${escapeHtml(item.extractedDate)}</dd></div>
+              <div><dt>Expiry</dt><dd>${escapeHtml(item.expiryDate)}</dd></div>
+              <div><dt>Confidence</dt><dd>${escapeHtml(item.confidence)}</dd></div>
+            </dl>
+          </article>
+        `).join("") : `
+          <article class="journey-evidence-card">
+            <h3>No scanned evidence yet</h3>
+            <p>Upload a fake EPC, Gas Safety, EICR, deposit certificate, council letter or inspection report to see the vault update.</p>
+          </article>
+        `}
+      </div>
+    </section>
+  `;
+}
+
+function renderAskCmpExperience() {
+  const state = journeyState();
+  const latest = state.askHistory[0];
+  return `
+    <section class="journey-ask-shell">
+      <article class="journey-ask-note">
+        <p class="section-kicker">Ask CMP</p>
+        <h3>Property-specific simulated assistant</h3>
+        <p>Demo mode: Ask CMP responses are simulated from local property data.</p>
+      </article>
+      <div class="journey-ask-chips">
+        ${journeyAskPrompts.map((prompt) => `<button type="button" data-journey-ask-prompt="${escapeHtml(prompt)}">${escapeHtml(prompt)}</button>`).join("")}
+      </div>
+      <article class="journey-ask-response">
+        <span>${latest ? escapeHtml(latest.prompt) : "Suggested question"}</span>
+        <p>${latest ? escapeHtml(latest.body) : "Ask what to do first, what can wait, what to book, or what to say to the tenant."}</p>
+        <div class="journey-action-buttons">
+          <button class="secondary-button" type="button" data-journey-service="gas-safety-certificate" data-service-action="booked">Book Gas Safety</button>
+          <button class="secondary-button" type="button" data-journey-service="eicr" data-service-action="booked">Book EICR</button>
+          <button class="secondary-button" type="button" data-journey-open-upload>Upload evidence</button>
+          <button class="text-button" type="button" data-journey-message="gas-access">Generate tenant message</button>
+          <button class="text-button" type="button" data-journey-monitor="annual-review">Set reminder</button>
+        </div>
+      </article>
+    </section>
+  `;
+}
+
+function renderMonitoringExperience() {
+  const state = journeyState();
+  return `
+    <section class="journey-monitoring-shell">
+      <div class="journey-monitor-grid">
+        ${state.monitoringItems.map((item) => `
+          <article class="journey-monitor-card">
+            <span class="source-badge">${escapeHtml(item.type)}</span>
+            <h3>${escapeHtml(item.title)}</h3>
+            <p>${escapeHtml(item.description)}</p>
+            <dl>
+              <div><dt>Due</dt><dd>${escapeHtml(item.dueDate)}</dd></div>
+              <div><dt>Urgency</dt><dd>${escapeHtml(item.urgency)}</dd></div>
+              <div><dt>Status</dt><dd>${escapeHtml(item.status || "watching")}</dd></div>
+            </dl>
+            <div class="journey-action-buttons">
+              <button class="secondary-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="watching">Set reminder</button>
+              <button class="text-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="watched">Mark watched</button>
+              <button class="text-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="deferred">Defer</button>
+            </div>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
+function renderPortfolioPreviewExperience() {
+  const urgentCount = journeyPortfolioPreviewProperties.filter((property) => property.urgency === "High").length;
+  return `
+    <section class="journey-portfolio-preview">
+      <div class="section-heading">
+        <p class="section-kicker">Portfolio preview</p>
+        <h2>How Journey OS scales across properties</h2>
+        <p>A compact fake portfolio view that shows the future global value without rebuilding the whole dashboard.</p>
+      </div>
+      <div class="journey-services-summary">
+        <article><span>Total properties</span><strong>${journeyPortfolioPreviewProperties.length}</strong><small>preview files</small></article>
+        <article><span>Urgent actions</span><strong>${urgentCount}</strong><small>need attention</small></article>
+        <article><span>EPC future-risk</span><strong>1</strong><small>property at E</small></article>
+        <article><span>Monitoring items</span><strong>${journeyState().monitoringItems.length}</strong><small>watching</small></article>
+      </div>
+      <div class="journey-portfolio-grid">
+        ${journeyPortfolioPreviewProperties.map((property) => `
+          <article class="journey-portfolio-card">
+            <span class="source-badge">${escapeHtml(property.urgency)} urgency</span>
+            <h3>${escapeHtml(property.address)}</h3>
+            <p>${escapeHtml(property.issue)}</p>
+            <small>EPC ${escapeHtml(property.epc)} · evidence ${escapeHtml(property.evidence)}</small>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderJourneyActionPlan() {
   return renderJourneyShell(`
     <section class="journey-step-panel">
@@ -4889,7 +5802,9 @@ function renderJourneyActionPlan() {
       </div>
       ${renderJourneyScores()}
       ${renderRouteSelector()}
+      ${renderJourneyPlanButtons()}
       ${renderJourneyActionGroups()}
+      ${renderJourneyServicesExperience()}
       <div class="journey-sticky-next">
         <button class="primary-button" type="button" data-journey-go="workspace">Open Property Workspace</button>
       </div>
@@ -4907,34 +5822,19 @@ function renderWorkspaceTabContent() {
     return `<div class="journey-workspace-grid">${renderJourneyActionGroups(true)}</div>`;
   }
   if (tab === "evidence") {
-    return `
-      <section class="journey-workspace-grid">
-        <article class="journey-workspace-card"><h3>Evidence Vault</h3><p>${state.evidenceVault.length || "No"} simulated uploads recorded.</p>${state.evidenceVault.map((item) => `<span>${escapeHtml(item.title)}</span>`).join("") || "<span>EPC, Gas Safety, EICR and tenancy proof still need evidence decisions.</span>"}</article>
-        <article class="journey-workspace-card"><h3>Missing evidence</h3>${(state.actionPlan.missingEvidence || []).slice(0, 5).map((item) => `<p>${escapeHtml(item.title)}</p>`).join("")}</article>
-      </section>
-    `;
+    return renderEvidenceVaultExperience();
   }
   if (tab === "services") {
-    return `
-      <section class="journey-workspace-grid">
-        <article class="journey-workspace-card"><h3>Service basket</h3><p>${state.serviceBasket.length || "No"} placeholder services selected.</p>${state.serviceBasket.map((item) => `<span>${escapeHtml(item.title)}</span>`).join("") || "<span>Book service from any action card to start the basket.</span>"}</article>
-        <article class="journey-workspace-card"><h3>Recommended services</h3>${(state.actionPlan.recommendedServices || []).slice(0, 5).map((item) => `<p>${escapeHtml(item.title)}</p>`).join("")}</article>
-      </section>
-    `;
+    return renderJourneyServicesExperience();
   }
   if (tab === "timeline") {
     return `<section class="journey-timeline">${state.timelineEvents.map((event) => `<article><span>${escapeHtml(event.time)} · ${escapeHtml(event.type)}</span><h3>${escapeHtml(event.title)}</h3><p>${escapeHtml(event.body)}</p></article>`).join("")}</section>`;
   }
   if (tab === "ask") {
-    return `<article class="journey-workspace-card"><h3>Ask CMP placeholder</h3><p>Based on this property brain, your next best action is ${escapeHtml(topAction?.title || "to keep building the action plan")}.</p><button class="primary-button" type="button" data-journey-action="ask" data-action-id="${escapeHtml(topAction?.id || "next-action")}">Ask about next action</button></article>`;
+    return renderAskCmpExperience();
   }
   if (tab === "monitoring") {
-    return `
-      <section class="journey-workspace-grid">
-        <article class="journey-workspace-card"><h3>Monitoring preview</h3><p>${state.monitoringItems.length || "No"} reminders added.</p>${state.monitoringItems.map((item) => `<span>${escapeHtml(item.title)}</span>`).join("") || "<span>EPC, Gas, EICR, licensing and inspection dates can be tracked here.</span>"}</article>
-        <article class="journey-workspace-card"><h3>Monitor forever</h3><p>CMP would keep expiry dates, future EPC risk, landlord answers and deferred actions visible.</p></article>
-      </section>
-    `;
+    return renderMonitoringExperience();
   }
   return `
     <section class="journey-workspace-overview">
@@ -4952,6 +5852,7 @@ function renderWorkspaceTabContent() {
       <article class="journey-workspace-card"><h3>What CMP still needs</h3><p>${(state.actionPlan.missingEvidence || []).slice(0, 3).map((item) => item.title).join(", ") || "No missing evidence on this route."}</p></article>
       <article class="journey-workspace-card"><h3>Recommended services</h3><p>${(state.actionPlan.recommendedServices || []).slice(0, 3).map((item) => item.title).join(", ") || "No service basket started yet."}</p></article>
     </section>
+    ${renderPortfolioPreviewExperience()}
   `;
 }
 
@@ -5099,49 +6000,137 @@ function journeyActionById(actionId) {
   };
 }
 
-function openActionModal(actionType, actionId) {
+function renderServiceIntakeModal() {
   const state = journeyState();
-  const action = journeyActionById(actionId);
-  state.activeAction = { actionType, actionId };
-  const copy = {
-    upload: {
-      kicker: "Upload evidence",
-      title: "Upload evidence simulation",
-      body: `Upload evidence simulation will be added in the next pass. For now, CMP can mark "${action.title}" as a prototype evidence update and improve the evidence score.`
-    },
-    book: {
-      kicker: "Book service",
-      title: "Service booking simulation",
-      body: `Service booking simulation will be added in the next pass. For now, CMP can add "${action.title}" to the service basket.`
-    },
-    ask: {
-      kicker: "Ask CMP",
-      title: "Fake property-specific response",
-      body: `Based on this property brain, your next best action is ${action.title}. CMP would explain the risk, evidence needed and route options without claiming this is a live legal review.`
-    },
-    reminder: {
-      kicker: "Set reminder",
-      title: "Monitoring reminder simulation",
-      body: `CMP can add a fake monitoring item for "${action.title}" so it stays visible in the workspace.`
-    },
-    defer: {
-      kicker: "Defer action",
-      title: "Defer without hiding risk",
-      body: `Choose why "${action.title}" is being deferred. Deferred does not mean solved; CMP keeps the risk visible.`
-    }
-  }[actionType] || {
-    kicker: "Journey OS",
-    title: "Prototype action",
-    body: "This is a local Journey OS placeholder."
-  };
+  const intake = state.activeIntake;
+  const service = journeyServiceById(intake?.serviceId);
+  return `
+    <section class="journey-intake-modal">
+      <div class="journey-known-data">
+        <h3>What CMP already knows</h3>
+        <dl>
+          <div><dt>Address</dt><dd>${escapeHtml(state.propertyBrain.PropertyIdentity.address)}</dd></div>
+          <div><dt>Occupancy</dt><dd>${escapeHtml(state.propertyBrain.TenancyProfile.occupancyStatus)}</dd></div>
+          <div><dt>EPC</dt><dd>${escapeHtml(state.propertyBrain.AutoCheckResults.epcRating)}</dd></div>
+          <div><dt>Property type</dt><dd>${escapeHtml(state.propertyBrain.PropertyIdentity.propertyType)}</dd></div>
+        </dl>
+      </div>
+      <div class="journey-intake-questions">
+        <h3>Supplier-ready questions</h3>
+        ${service.questions.map((question, index) => `
+          <label>
+            <span>${escapeHtml(question)}</span>
+            <input type="text" value="${escapeHtml(intake?.answers?.[question] || (index < 2 ? "CMP demo answer" : ""))}" data-intake-question="${escapeHtml(question)}" placeholder="Prototype answer">
+          </label>
+        `).join("")}
+      </div>
+      <div class="journey-action-buttons">
+        <button class="primary-button" type="button" data-service-intake-complete="${escapeHtml(service.id)}" data-service-final-status="booked">Book now</button>
+        <button class="secondary-button" type="button" data-service-intake-complete="${escapeHtml(service.id)}" data-service-final-status="quote_requested">Request quote</button>
+        <button class="secondary-button" type="button" data-service-intake-complete="${escapeHtml(service.id)}" data-service-final-status="added">Add to basket</button>
+        <button class="text-button" type="button" data-service-intake-complete="${escapeHtml(service.id)}" data-service-final-status="deferred">Save for later</button>
+      </div>
+    </section>
+  `;
+}
 
-  document.querySelector("[data-journey-action-kicker]").textContent = copy.kicker;
-  document.querySelector("[data-journey-action-title]").textContent = copy.title;
-  document.querySelector("[data-journey-action-body]").textContent = copy.body;
-  document.querySelector("[data-journey-action-context]").textContent = `Property · ${state.propertyBrain.PropertyIdentity.address}`;
+function renderFakeUploadModal() {
+  const scanner = journeyState().activeScanner;
+  if (!scanner?.documentTypeId) {
+    return `
+      <section class="journey-upload-modal">
+        <h3>Choose a fake document type</h3>
+        <div class="journey-document-grid">
+          ${journeyDocumentTypes.map((documentType) => `
+            <button type="button" data-fake-scan-doc="${escapeHtml(documentType.id)}">
+              <strong>${escapeHtml(documentType.label)}</strong>
+              <small>${escapeHtml(documentType.complianceArea)}</small>
+            </button>
+          `).join("")}
+        </div>
+      </section>
+    `;
+  }
+  const doc = journeyDocumentTypes.find((item) => item.id === scanner.documentTypeId);
+  const outcome = journeyScanOutcomes[scanner.outcomeId] || journeyScanOutcomes.valid;
+  return `
+    <section class="journey-upload-modal">
+      <h3>${escapeHtml(doc?.label || "Document")} scanner</h3>
+      <div class="journey-scan-rail">
+        ${journeyScanSteps.map((step, index) => `
+          <article class="${index < scanner.step ? "is-complete" : index === scanner.step ? "is-active" : ""}">
+            <span>${index < scanner.step ? "Done" : index === scanner.step ? "Scanning" : "Waiting"}</span>
+            <strong>${escapeHtml(step)}</strong>
+          </article>
+        `).join("")}
+      </div>
+      ${scanner.complete ? `
+        <article class="journey-scan-result">
+          <span class="journey-status-chip">${escapeHtml(outcome.label)}</span>
+          <h3>${escapeHtml(outcome.body)}</h3>
+          <button class="primary-button" type="button" data-fake-scan-accept>Accept scan result</button>
+        </article>
+      ` : ""}
+    </section>
+  `;
+}
+
+function renderAskCmpModal() {
+  const latest = journeyState().askHistory[0] || {
+    prompt: "What should I do first?",
+    body: "Start with the highest-risk service and evidence gap. CMP is using local simulated property data only."
+  };
+  return `
+    <section class="journey-ask-modal">
+      <span>${escapeHtml(latest.prompt)}</span>
+      <p>${escapeHtml(latest.body)}</p>
+      <div class="journey-action-buttons">
+        <button class="secondary-button" type="button" data-journey-service="gas-safety-certificate" data-service-action="booked">Book Gas Safety</button>
+        <button class="secondary-button" type="button" data-journey-service="eicr" data-service-action="booked">Book EICR</button>
+        <button class="secondary-button" type="button" data-journey-open-upload>Upload evidence</button>
+        <button class="text-button" type="button" data-journey-message="gas-access">Generate tenant message</button>
+        <button class="text-button" type="button" data-journey-monitor="annual-review">Set reminder</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderTenantMessageModal() {
+  const message = journeyState().activeTenantMessage;
+  return `
+    <section class="journey-message-modal">
+      <h3>${escapeHtml(message?.title || "Tenant message")}</h3>
+      <div class="journey-message-body">${escapeHtml(message?.body || "").replace(/\n/g, "<br>")}</div>
+      <p class="modal-note">Practical draft only. Depending on the situation, it may need professional review before sending.</p>
+      <div class="journey-action-buttons">
+        <button class="secondary-button" type="button" data-toast="Message copied in this prototype.">Copy placeholder</button>
+        <button class="primary-button" type="button" data-journey-log-message>Log to timeline</button>
+      </div>
+    </section>
+  `;
+}
+
+function renderJourneyActionModal() {
+  const state = journeyState();
+  const mode = state.modalMode || state.activeAction?.actionType || "ask";
+  const content = document.querySelector("[data-journey-action-content]");
   const reasons = document.querySelector("[data-journey-defer-reasons]");
+  const controls = document.querySelector("[data-journey-action-controls]");
+  const action = journeyActionById(state.activeAction?.actionId || "journey-action");
+  const labels = {
+    "service-intake": ["Service intake", journeyServiceById(state.activeIntake?.serviceId).title, "CMP has prefilled the supplier-ready job from the property brain. No supplier is contacted."],
+    "fake-upload": ["Fake upload scanner", "Upload evidence simulation", "Choose a document type and let CMP simulate scanning, matching and evidence scoring."],
+    "ask-cmp": ["Ask CMP", "Property-specific simulated response", "Demo mode: Ask CMP responses are simulated from local property data."],
+    "tenant-message": ["Tenant message", "Generated tenant message", "Create a practical draft and log it as communication evidence if useful."],
+    defer: ["Defer action", "Defer without hiding risk", `Choose why "${action.title}" is being deferred. Deferred does not mean solved.`]
+  }[mode] || ["Journey OS", action.title, "This prototype action updates local state and returns to the workspace."];
+
+  document.querySelector("[data-journey-action-kicker]").textContent = labels[0];
+  document.querySelector("[data-journey-action-title]").textContent = labels[1];
+  document.querySelector("[data-journey-action-body]").textContent = labels[2];
+  document.querySelector("[data-journey-action-context]").textContent = `Property · ${state.propertyBrain.PropertyIdentity.address}`;
   if (reasons) {
-    reasons.hidden = actionType !== "defer";
+    reasons.hidden = mode !== "defer";
     reasons.innerHTML = ["cost", "waiting for tenant", "booked elsewhere", "not urgent", "unsure"].map((reason, index) => `
       <label class="choice-option">
         <input type="radio" name="journey-defer-reason" value="${escapeHtml(reason)}" ${index === 0 ? "checked" : ""}>
@@ -5149,6 +6138,46 @@ function openActionModal(actionType, actionId) {
       </label>
     `).join("");
   }
+  if (content) {
+    content.innerHTML = mode === "service-intake" ? renderServiceIntakeModal()
+      : mode === "fake-upload" ? renderFakeUploadModal()
+      : mode === "ask-cmp" ? renderAskCmpModal()
+      : mode === "tenant-message" ? renderTenantMessageModal()
+      : "";
+  }
+  if (controls) {
+    controls.innerHTML = mode === "defer"
+      ? `<button class="primary-button" type="button" data-journey-action-confirm>Defer and keep visible</button><button class="secondary-button" type="button" data-journey-action-close>Close</button>`
+      : `<button class="secondary-button" type="button" data-journey-action-close>Close</button>`;
+  }
+}
+
+function openActionModal(actionType, actionId) {
+  const state = journeyState();
+  const action = journeyActionById(actionId);
+  if (actionType === "book") {
+    openServiceIntake(journeyServiceForAction(action.id).id, "booked");
+    return;
+  }
+  if (actionType === "upload") {
+    openFakeUpload();
+    return;
+  }
+  if (actionType === "ask") {
+    state.modalMode = "ask-cmp";
+    state.activeAction = { actionType, actionId };
+    generateAskCmpResponse(`What should I do about ${action.title}?`);
+    renderJourneyActionModal();
+    openTimelineModal("[data-journey-action-modal]");
+    return;
+  }
+  if (actionType === "reminder") {
+    upsertMonitoringItem("annual-review", "watching");
+    return;
+  }
+  state.modalMode = actionType;
+  state.activeAction = { actionType, actionId };
+  renderJourneyActionModal();
   openTimelineModal("[data-journey-action-modal]");
 }
 
@@ -5250,6 +6279,76 @@ function bindJourneyOs() {
     const actionButton = event.target.closest("[data-journey-action]");
     if (actionButton) {
       openActionModal(actionButton.dataset.journeyAction, actionButton.dataset.actionId || "journey-action");
+      return;
+    }
+
+    const servicePlan = event.target.closest("[data-journey-service-plan]");
+    if (servicePlan) {
+      applyServicePlan(servicePlan.dataset.journeyServicePlan);
+      return;
+    }
+
+    const serviceButton = event.target.closest("[data-journey-service]");
+    if (serviceButton) {
+      openServiceIntake(serviceButton.dataset.journeyService, serviceButton.dataset.serviceAction || "added");
+      return;
+    }
+
+    const directServiceButton = event.target.closest("[data-journey-service-direct]");
+    if (directServiceButton) {
+      updateServiceStatus(directServiceButton.dataset.journeyServiceDirect, directServiceButton.dataset.serviceStatus || "added");
+      journeyState().workspaceTab = "services";
+      journeyState().screen = "workspace";
+      showJourneyOs({ scroll: false });
+      return;
+    }
+
+    const intakeComplete = event.target.closest("[data-service-intake-complete]");
+    if (intakeComplete) {
+      document.querySelectorAll("[data-intake-question]").forEach((input) => {
+        saveServiceIntakeAnswer(input.dataset.intakeQuestion, input.value);
+      });
+      completeServiceIntake(intakeComplete.dataset.serviceIntakeComplete, intakeComplete.dataset.serviceFinalStatus || "added");
+      return;
+    }
+
+    if (event.target.closest("[data-journey-open-upload]")) {
+      openFakeUpload();
+      return;
+    }
+
+    const fakeScanDoc = event.target.closest("[data-fake-scan-doc]");
+    if (fakeScanDoc) {
+      startFakeUploadScan(fakeScanDoc.dataset.fakeScanDoc);
+      return;
+    }
+
+    if (event.target.closest("[data-fake-scan-accept]")) {
+      completeFakeScan();
+      return;
+    }
+
+    const askPrompt = event.target.closest("[data-journey-ask-prompt]");
+    if (askPrompt) {
+      generateAskCmpResponse(askPrompt.dataset.journeyAskPrompt);
+      renderJourneyOsState();
+      return;
+    }
+
+    const messageButton = event.target.closest("[data-journey-message]");
+    if (messageButton) {
+      generateTenantMessage(messageButton.dataset.journeyMessage);
+      return;
+    }
+
+    if (event.target.closest("[data-journey-log-message]")) {
+      logTenantMessage();
+      return;
+    }
+
+    const monitorButton = event.target.closest("[data-journey-monitor]");
+    if (monitorButton) {
+      upsertMonitoringItem(monitorButton.dataset.journeyMonitor, monitorButton.dataset.monitorStatus || "watching");
       return;
     }
 

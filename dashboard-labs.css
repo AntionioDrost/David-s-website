@@ -14693,6 +14693,256 @@ body.checker-is-active .portfolio-stage-purpose li {
   max-width: 680px;
 }
 
+.journey-plan-controls,
+.journey-ask-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 14px 0 18px;
+}
+
+.journey-services-shell,
+.journey-evidence-shell,
+.journey-ask-shell,
+.journey-monitoring-shell,
+.journey-portfolio-preview {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.journey-services-summary,
+.journey-portfolio-grid,
+.journey-service-grid,
+.journey-evidence-grid,
+.journey-monitor-grid,
+.journey-document-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.journey-services-summary article,
+.journey-service-card,
+.journey-evidence-card,
+.journey-upload-panel,
+.journey-ask-note,
+.journey-ask-response,
+.journey-monitor-card,
+.journey-portfolio-card,
+.journey-known-data,
+.journey-intake-questions,
+.journey-scan-result {
+  border: 1px solid var(--labs-border);
+  border-radius: var(--labs-radius-sm);
+  padding: 16px;
+  background: var(--labs-surface-soft);
+}
+
+.journey-services-summary article {
+  display: grid;
+  gap: 4px;
+}
+
+.journey-services-summary span,
+.journey-service-card dt,
+.journey-evidence-card dt,
+.journey-monitor-card dt,
+.journey-known-data dt {
+  color: var(--labs-muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.journey-services-summary strong {
+  font-size: 1.6rem;
+}
+
+.journey-service-group {
+  display: grid;
+  gap: 12px;
+}
+
+.journey-service-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.journey-status-chip {
+  display: inline-flex;
+  width: fit-content;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: var(--labs-blue-soft);
+  color: var(--labs-blue);
+  font-size: 0.76rem;
+  font-weight: 800;
+  text-transform: capitalize;
+}
+
+.journey-service-card dl,
+.journey-evidence-card dl,
+.journey-monitor-card dl,
+.journey-known-data dl {
+  display: grid;
+  gap: 7px;
+  margin: 12px 0;
+}
+
+.journey-service-card dl div,
+.journey-evidence-card dl div,
+.journey-monitor-card dl div,
+.journey-known-data dl div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--labs-border);
+  padding-bottom: 6px;
+}
+
+.journey-service-card dd,
+.journey-evidence-card dd,
+.journey-monitor-card dd,
+.journey-known-data dd {
+  margin: 0;
+  text-align: right;
+  font-weight: 750;
+}
+
+.journey-upload-panel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  background: linear-gradient(135deg, var(--labs-green-soft), rgba(255, 255, 255, 0.92));
+}
+
+.journey-evidence-card,
+.journey-monitor-card,
+.journey-portfolio-card {
+  display: grid;
+  gap: 8px;
+}
+
+.journey-ask-chips button,
+.journey-document-grid button {
+  min-height: 48px;
+  border: 1px solid var(--labs-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  text-align: left;
+  color: var(--labs-ink);
+  background: var(--labs-surface);
+}
+
+.journey-ask-chips button:hover,
+.journey-document-grid button:hover {
+  border-color: rgba(41, 122, 87, 0.34);
+  background: var(--labs-green-soft);
+}
+
+.journey-ask-response {
+  background: var(--labs-green-soft);
+}
+
+.journey-ask-response > span,
+.journey-ask-modal > span {
+  display: inline-flex;
+  border-radius: 999px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.75);
+  color: var(--labs-green-dark);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.journey-modal-content {
+  display: grid;
+  gap: 14px;
+}
+
+.journey-intake-modal,
+.journey-upload-modal,
+.journey-ask-modal,
+.journey-message-modal {
+  display: grid;
+  gap: 14px;
+}
+
+.journey-intake-modal {
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.journey-intake-questions {
+  display: grid;
+  gap: 10px;
+}
+
+.journey-intake-questions label {
+  display: grid;
+  gap: 6px;
+  color: var(--labs-muted);
+  font-size: 0.82rem;
+  font-weight: 750;
+}
+
+.journey-intake-questions input {
+  min-height: 38px;
+  border: 1px solid var(--labs-border);
+  border-radius: 9px;
+  padding: 0 10px;
+  color: var(--labs-ink);
+  background: var(--labs-surface);
+}
+
+.journey-scan-rail {
+  display: grid;
+  gap: 8px;
+}
+
+.journey-scan-rail article {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid var(--labs-border);
+  border-radius: 10px;
+  padding: 10px 12px;
+  background: var(--labs-surface);
+}
+
+.journey-scan-rail article.is-active {
+  border-color: rgba(67, 107, 124, 0.34);
+  background: var(--labs-blue-soft);
+}
+
+.journey-scan-rail article.is-complete {
+  border-color: rgba(41, 122, 87, 0.28);
+  background: var(--labs-green-soft);
+}
+
+.journey-scan-rail span {
+  color: var(--labs-muted);
+  font-size: 0.78rem;
+  font-weight: 750;
+}
+
+.journey-message-body {
+  min-height: 160px;
+  border: 1px solid var(--labs-border);
+  border-radius: 12px;
+  padding: 14px;
+  background: var(--labs-surface);
+  color: var(--labs-ink);
+  line-height: 1.55;
+}
+
+.journey-portfolio-preview {
+  border-top: 1px solid var(--labs-border);
+  padding-top: 18px;
+}
+
 @media (max-width: 1100px) {
   .journey-os-header,
   .journey-hero-panel,
@@ -14714,8 +14964,18 @@ body.checker-is-active .portfolio-stage-purpose li {
   .journey-score-grid,
   .journey-action-grid,
   .journey-workspace-grid,
-  .journey-workspace-overview {
+  .journey-workspace-overview,
+  .journey-services-summary,
+  .journey-portfolio-grid,
+  .journey-service-grid,
+  .journey-evidence-grid,
+  .journey-monitor-grid,
+  .journey-document-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .journey-intake-modal {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -14747,8 +15007,29 @@ body.checker-is-active .portfolio-stage-purpose li {
   .journey-score-grid,
   .journey-action-grid,
   .journey-workspace-grid,
-  .journey-workspace-overview {
+  .journey-workspace-overview,
+  .journey-services-summary,
+  .journey-portfolio-grid,
+  .journey-service-grid,
+  .journey-evidence-grid,
+  .journey-monitor-grid,
+  .journey-document-grid {
     grid-template-columns: 1fr;
+  }
+
+  .journey-upload-panel,
+  .journey-service-card dl div,
+  .journey-evidence-card dl div,
+  .journey-monitor-card dl div,
+  .journey-known-data dl div {
+    display: grid;
+  }
+
+  .journey-service-card dd,
+  .journey-evidence-card dd,
+  .journey-monitor-card dd,
+  .journey-known-data dd {
+    text-align: left;
   }
 
   .journey-workspace-card.is-primary {

@@ -6,6 +6,11 @@
 - Added a central mock `journeyState` and `propertyBrain` model in `dashboard-labs.js`.
 - Added fake property search, auto checks, property match branches, review found data, unknowns wizard, property brain animation, action plan, route selector, workspace tabs, timeline, service basket, evidence vault and monitoring preview.
 - Added demo scenarios for clean match, multiple matches, no EPC, EPC risk, HMO, flat/block, damp/mould, council contact, done-for-me and portfolio preview cases.
+- Added the wow-layer pass: richer fake service baskets, service intakes, fake upload scanner, contextual Ask CMP responses, tenant message generator, monitoring cards and portfolio preview.
+
+## Demo Script
+
+Use `CMP_JOURNEY_OS_DEMO_SCRIPT.md` for the recommended walkthrough paths, including clean property, no EPC, HMO risk, damp/mould, council/enforcement, service booking, upload scanning, Ask CMP, tenant messages, monitoring and portfolio preview.
 
 ## How To Open And Test
 
