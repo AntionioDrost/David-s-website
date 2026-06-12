@@ -1,93 +1,104 @@
 # CMP Journey OS Demo Script
 
-## Core Demo Path
+## Quick 2-Minute Demo
+
+Use this route when Nick needs the product idea fast.
 
 1. Open `dashboard-labs.html`.
 2. Click `Check My Property`.
-3. Use the default `Clean property match` scenario.
-4. Run the address flow, confirm the clean match, review found data, answer unknowns, build the property brain, open the action plan, then enter the Property Workspace.
-5. Explain the core promise: CMP checks what it can, asks what it must, builds a property brain, then routes every branch back to the workspace.
+3. Keep `Clean property match` selected.
+4. Click `Check My Property`, use the demo address, and run fake auto checks.
+5. Confirm the property match and point out: CMP checked what it could automatically.
+6. On Review Found Data, point out EPC, local authority, property type, heating and data gaps.
+7. Answer the unknowns quickly with the first option each time and point out: only landlord-confirmed facts are being asked.
+8. Build the property brain and open the Action Plan.
+9. Click `Book urgent only` to show the fake service basket updating.
+10. Open Property Workspace > Ask CMP, click `Can I rent this property now?`, then generate a tenant message.
+11. Open Monitoring and point out that the property is now watched over time.
 
-## Scenario Paths
+What this proves: CMP can turn a messy landlord compliance journey into one guided property workspace.
 
-- Clean property journey: default scenario, confirm match, show scores and action plan.
-- Multiple match journey: switch to `Multiple EPC/address matches`, show multiple EPC/address choices, select one, explain identity confidence.
-- No EPC journey: switch to `No EPC found`, choose currently rented or advertised, show EPC as an urgent action.
-- EPC E future-risk journey: switch to `EPC E future-risk`, show future-risk and EPC improvement plan.
-- EPC F/G urgent journey: switch to `EPC F/G urgent MEES risk`, show urgent MEES risk and EPC service recommendation.
-- Occupied property journey: switch to `Occupied normal single household`, answer deposit/tenancy questions, show evidence gaps.
-- Vacant/pre-let journey: switch to `Vacant/pre-let property`, show void/re-let services and readiness actions.
-- Flat/block journey: switch to `Flat/block/common parts`, show leasehold/common-parts evidence logic.
-- HMO risk journey: switch to `HMO/high-occupancy risk`, show licensing/HMO route and service basket.
-- Damp/mould journey: switch to `Damp/mould complaint`, show Damp/Mould Survey and repair evidence route.
-- Council/enforcement journey: switch to `Council/enforcement contact`, show enforcement response support and council letter upload path.
-- Done-for-me journey: switch to `Done-for-me landlord`, show concierge-style service basket.
+## Full 10-Minute Demo
 
-## Wow Layer Paths
+Use this route for a fuller product walkthrough.
 
-- Upload evidence journey:
-  1. Open Workspace > Evidence.
-  2. Click `Upload evidence simulation`.
-  3. Choose EICR, Deposit Certificate, Council letter or Insurance.
-  4. Watch the fake scan stages.
-  5. Accept the scan result and show evidence vault/timeline update.
+1. Start with `EPC E future-risk`.
+2. Run the add-property and auto-check flow.
+3. Confirm the property, then point out the future-risk EPC copy on Review Found Data.
+4. Answer unknowns to add a side route:
+   - Choose `Flat` to show common-parts logic, or `Room in shared house` / `5+ people` to show HMO risk.
+   - Choose `Damp/mould` or `Council contacted me` to show condition/enforcement support.
+   - Choose `I want someone to handle it for me` to show the done-for-me route.
+5. Build the property brain and open the Action Plan.
+6. Switch between Legal Minimum, Risk-Protected, Future-Proof and Done-For-Me routes.
+7. In Services, open Gas Safety or EICR to show supplier-ready fake intake.
+8. In Evidence, upload:
+   - EICR for a valid scan.
+   - EPC (expired demo) for an expired scan.
+   - Deposit Certificate for deposit evidence.
+   - Council letter for enforcement context.
+   - Damp/mould photos for partial/flagged condition evidence.
+9. In Ask CMP, click `What should I book?`, then use the response buttons.
+10. Generate and log a tenant message.
+11. Open Timeline to show the property history.
+12. Open Monitoring and Portfolio preview to show long-term value.
 
-- Book service journey:
-  1. Open Workspace > Services.
-  2. Open a Gas Safety, EICR, Licensing, Deposit or Damp/Mould service.
-  3. Show what CMP already knows and the supplier-ready questions.
-  4. Book now, request quote, add to basket or save for later.
+What this proves: Journey OS is not just a checklist. It is a property brain that updates evidence, services, questions, scores, timeline and monitoring.
 
-- Ask CMP journey:
-  1. Open Workspace > Ask CMP.
-  2. Click `Can I rent this property now?` or `What should I book?`.
-  3. Show the scripted property-specific response and action buttons.
+## Scenario Demo Map
 
-- Tenant message journey:
-  1. From Ask CMP, click `Generate tenant message`.
-  2. Show the editable-looking practical draft.
-  3. Log to timeline.
+| Scenario switcher option | What to click | What to point out | What it proves |
+| --- | --- | --- | --- |
+| Clean property match | Confirm match, answer unknowns, build brain | Smooth mainline flow | CMP can guide a normal landlord path |
+| Multiple EPC/address matches | Select a record or `I'm not sure` | Identity confidence and warning route | CMP can handle uncertain property identity |
+| No EPC found | Choose rented, advertised, vacant, upload or manual | EPC remains visible until solved | CMP does not hide missing evidence |
+| EPC E future-risk | Continue to Action Plan | Future-risk and improvement plan | CMP can distinguish legal-now from future risk |
+| EPC F/G urgent MEES risk | Continue to Action Plan | Urgent MEES wording and EPC service | CMP can escalate high-risk energy cases |
+| Occupied normal single household | Answer deposit/docs/gas/EICR questions | Active tenancy evidence gaps | CMP asks what APIs cannot know |
+| Vacant/pre-let property | Open Services | Void/re-let readiness pack | CMP supports pre-let planning |
+| Currently advertised property | Review EPC/action plan | Pre-let blockers | CMP can warn before marketing/renting |
+| Flat/block/common parts | Choose flat route | Common-parts/freeholder evidence | CMP adds property-type side routes |
+| HMO/high-occupancy risk | Choose room or 5+ people | Licensing and HMO services | CMP can branch into HMO risk |
+| Converted/multiple-unit property | Continue to Action Plan | Planning/fire separation risk | CMP can flag classification uncertainty |
+| Gas unknown | Ask CMP or Services | Gas Safety remains unconfirmed | Unknown does not equal safe |
+| EICR missing | Upload valid EICR | Evidence and score improvement | The fake scanner updates the brain |
+| Deposit evidence missing | Upload Deposit Certificate | Deposit evidence route improves | Evidence can reduce admin risk |
+| Damp/mould complaint | Open Services and tenant message | Damp survey and repair evidence | CMP connects condition risk to action |
+| Council/enforcement contact | Upload Council letter | Enforcement response support | CMP can preserve escalation context |
+| Done-for-me landlord | Click concierge/service buttons | Pending service basket | CMP can sell a managed route |
+| Portfolio landlord preview | Workspace Overview | Multi-property stats | Journey OS scales to portfolio value |
 
-- Monitoring journey:
-  1. Open Workspace > Monitoring.
-  2. Set reminder, mark watched or defer a monitoring card.
-  3. Show timeline update and monitoring status.
+## What Is Simulated
 
-- Portfolio preview journey:
-  1. Open Workspace > Overview.
-  2. Scroll to Portfolio preview.
-  3. Show 18 Willow Brook Drive, 57 The Butts and 22 King Street with portfolio-level stats.
+- Fake APIs for address, UPRN, EPC, local authority, licensing and property clues.
+- Fake EPC records and fake match confidence.
+- Fake document upload, scanning, extraction, address matching and expiry checking.
+- Fake service basket, quote request, booking intake and supplier-ready questions.
+- Fake Ask CMP responses generated from local state.
+- Fake tenant messages and timeline logging.
+- Fake monitoring reminders and portfolio stats.
 
-## What Is Fake
+## What Would Be Real Later
 
-- API checks, UPRN, EPC, licensing, local authority and property clues.
-- Document upload, scanning, extraction, address matching and expiry checking.
-- Ask CMP responses.
-- Tenant messages.
-- Supplier booking, quote requests and service basket.
-- Monitoring reminders and portfolio stats.
-
-## What Needs Real Integrations Later
-
-- Official property/address and UPRN lookup.
-- EPC register lookup.
-- Local authority/licensing data.
-- Secure document upload and storage.
-- Real document scanning/extraction.
-- Supplier availability, booking and quote workflows.
-- Payments.
-- Account-backed persistence.
-- Professional/legal review workflows.
+- EPC API lookup.
+- Address and UPRN lookup.
+- Local authority and licensing datasets.
+- Secure document upload and evidence storage.
+- Document intelligence for extraction, dates, address match and classification.
+- Supplier availability, quote and booking workflows.
+- Payment or quote approval workflow.
+- Real compliance rules engine with professional/legal review boundaries.
+- User accounts, roles, permissions and audit history.
 
 ## Known Limitations
 
-- Local prototype state only.
-- No legal advice or compliance guarantee.
-- No real messages are sent.
-- No suppliers are contacted.
-- No documents are uploaded.
-- Some outcomes are scenario-guided rather than fully rule-driven.
+- The prototype is local state only and resets on reload.
+- No document leaves the browser and no supplier is contacted.
+- Ask CMP is scripted; it is not live AI.
+- Tenant messages are practical drafts only and may need professional review depending on the situation.
+- Some scoring changes are deliberately simple so the demo remains understandable.
+- The current visual pass is demo-ready polish, not final product design.
 
 ## Suggested Next Pass
 
-Create a tighter Nick-facing guided demo mode with scripted narration, fewer visible controls, and a polished happy-path sequence for five core stories: clean check, no EPC, HMO risk, damp/mould, and done-for-me.
+Create a Nick-facing guided demo mode with a single narrated route, fewer visible testing controls, and a reset button for five polished stories: clean property, no EPC, HMO risk, damp/mould/council contact and done-for-me.

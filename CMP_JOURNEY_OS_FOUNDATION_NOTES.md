@@ -12,6 +12,10 @@
 
 Use `CMP_JOURNEY_OS_DEMO_SCRIPT.md` for the recommended walkthrough paths, including clean property, no EPC, HMO risk, damp/mould, council/enforcement, service booking, upload scanning, Ask CMP, tenant messages, monitoring and portfolio preview.
 
+## QA And Polish Report
+
+Use `CMP_JOURNEY_OS_QA_REPORT.md` for the focused demo-readiness pass, including scenario coverage, action-path fixes, browser checks, remaining limitations and suggested next pass.
+
 ## How To Open And Test
 
 1. Open `dashboard-labs.html`.

@@ -14369,6 +14369,13 @@ body.checker-is-active .portfolio-stage-purpose li {
   line-height: 1.2;
 }
 
+.journey-spine li em {
+  color: var(--labs-muted);
+  font-size: 0.68rem;
+  font-style: normal;
+  font-weight: 750;
+}
+
 .journey-spine li.is-current {
   border-color: rgba(41, 122, 87, 0.34);
   background: var(--labs-green-soft);
@@ -14631,6 +14638,25 @@ body.checker-is-active .portfolio-stage-purpose li {
   border-style: dashed;
 }
 
+.journey-action-insight {
+  display: grid;
+  gap: 4px;
+  margin: 12px 0;
+  border-left: 3px solid var(--labs-green);
+  padding-left: 10px;
+}
+
+.journey-action-insight strong,
+.journey-deferred-note {
+  color: var(--labs-green-dark);
+  font-weight: 850;
+}
+
+.journey-deferred-note {
+  display: block;
+  margin-top: 8px;
+}
+
 .journey-action-buttons {
   display: flex;
   flex-wrap: wrap;
@@ -14699,6 +14725,13 @@ body.checker-is-active .portfolio-stage-purpose li {
   flex-wrap: wrap;
   gap: 8px;
   margin: 14px 0 18px;
+}
+
+.journey-plan-controls p {
+  flex-basis: 100%;
+  margin: 0 0 2px;
+  color: var(--labs-muted);
+  font-size: 0.86rem;
 }
 
 .journey-services-shell,
@@ -14782,6 +14815,25 @@ body.checker-is-active .portfolio-stage-purpose li {
   text-transform: capitalize;
 }
 
+.journey-status-chip.is-booked,
+.journey-status-chip.is-pending,
+.journey-status-chip.is-accepted {
+  background: var(--labs-green-soft);
+  color: var(--labs-green-dark);
+}
+
+.journey-status-chip.is-quote-requested,
+.journey-status-chip.is-flagged {
+  background: var(--labs-amber-soft);
+  color: var(--labs-amber);
+}
+
+.journey-status-chip.is-deferred,
+.journey-status-chip.is-rejected {
+  background: var(--labs-neutral-soft);
+  color: var(--labs-muted);
+}
+
 .journey-service-card dl,
 .journey-evidence-card dl,
 .journey-monitor-card dl,
@@ -14844,6 +14896,34 @@ body.checker-is-active .portfolio-stage-purpose li {
 }
 
 .journey-ask-response {
+  background: var(--labs-green-soft);
+}
+
+.journey-message-picker {
+  border: 1px solid var(--labs-border);
+  border-radius: var(--labs-radius-sm);
+  padding: 16px;
+  background: var(--labs-surface-soft);
+}
+
+.journey-message-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.journey-message-grid button {
+  min-height: 44px;
+  border: 1px solid var(--labs-border);
+  border-radius: 10px;
+  padding: 9px 11px;
+  text-align: left;
+  color: var(--labs-ink);
+  background: var(--labs-surface);
+}
+
+.journey-message-grid button:hover {
+  border-color: rgba(41, 122, 87, 0.34);
   background: var(--labs-green-soft);
 }
 
@@ -14999,6 +15079,10 @@ body.checker-is-active .portfolio-stage-purpose li {
     align-items: center;
   }
 
+  .journey-spine li em {
+    grid-column: 2;
+  }
+
   .journey-route-selector,
   .journey-progress-grid,
   .journey-data-grid,
@@ -15023,6 +15107,14 @@ body.checker-is-active .portfolio-stage-purpose li {
   .journey-monitor-card dl div,
   .journey-known-data dl div {
     display: grid;
+  }
+
+  .journey-message-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .journey-action-modal {
+    max-width: min(680px, calc(100vw - 24px));
   }
 
   .journey-service-card dd,

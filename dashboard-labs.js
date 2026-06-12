@@ -723,6 +723,7 @@ const journeyServiceCatalog = [
 
 const journeyDocumentTypes = [
   { id: "epc", label: "EPC", complianceArea: "EPC", defaultOutcome: "valid" },
+  { id: "epc-expired", label: "EPC (expired demo)", complianceArea: "EPC", defaultOutcome: "expired" },
   { id: "gas", label: "Gas Safety Certificate", complianceArea: "Gas Safety", defaultOutcome: "valid" },
   { id: "eicr", label: "EICR", complianceArea: "Electrical Safety", defaultOutcome: "valid" },
   { id: "deposit", label: "Deposit Certificate", complianceArea: "Deposit", defaultOutcome: "valid" },
@@ -4747,11 +4748,28 @@ function updateServiceStatus(serviceId, status, source = "Service basket") {
   const item = ensureServiceBasketItem(serviceId, status);
   state.serviceRecommendations = buildServiceRecommendations(state);
   state.propertyBrain.Scores = recalculateJourneyScores(state, state.actionPlan);
+  const titleByStatus = {
+    added: "Service added to basket",
+    quote_requested: "Quote requested",
+    booked: "Service booked",
+    pending: "Service pending",
+    completed: "Service completed",
+    deferred: "Service saved for later"
+  };
+  const statusCopy = {
+    added: "added to the basket",
+    quote_requested: "sent to the fake quote queue",
+    booked: "moved to booked/pending in the fake basket",
+    pending: "moved to the done-for-me pending list",
+    completed: "marked complete in the prototype",
+    deferred: "saved for later. This does not mean solved; CMP keeps the linked risk visible"
+  };
   addTimelineEvent({
-    title: status === "quote_requested" ? "Quote requested" : status === "booked" ? "Service booked" : "Service added to basket",
-    body: `${item.title} moved to ${status.replace("_", " ")} in the fake service basket.`,
+    title: titleByStatus[status] || "Service basket updated",
+    body: `${item.title} ${statusCopy[status] || `moved to ${status.replace("_", " ")}`}.`,
     type: source
   });
+  state.branchEffects.unshift(status === "deferred" ? "Service saved for later - risk still visible" : `${item.title} updated in service basket`);
   return item;
 }
 
@@ -4819,6 +4837,9 @@ function completeServiceIntake(serviceId, status) {
 
 function scanOutcomeForDocument(documentTypeId) {
   const scenario = journeyScenario();
+  if (documentTypeId === "epc-expired") {
+    return "expired";
+  }
   if (documentTypeId === "eicr" && stateHasScenario("eicr-missing")) {
     return "valid";
   }
@@ -4893,7 +4914,7 @@ function completeFakeScan() {
     linkedComplianceArea: doc?.complianceArea || "Evidence",
     uploadStatus: outcome.status,
     fakeScanResult: outcome.label,
-    addressMatch: scanner.outcomeId === "wrong_property" ? "Rejected - different address" : "Matched to 57 The Butts",
+    addressMatch: scanner.outcomeId === "wrong_property" ? "Rejected - different address" : `Matched to ${state.propertyBrain.PropertyIdentity.address}`,
     extractedDate: scanner.outcomeId === "missing_key_details" ? "Needs confirmation" : "12 May 2026",
     expiryDate: scanner.outcomeId === "expired" ? "Expired 04 May 2024" : "11 May 2031",
     confidence: outcome.confidence,
@@ -4903,6 +4924,14 @@ function completeFakeScan() {
   };
   state.evidenceVault.unshift(evidence);
   if (scanner.outcomeId === "valid") {
+    if (scanner.documentTypeId === "epc") {
+      state.propertyBrain.ComplianceEvidence.epc.status = "found";
+      state.propertyBrain.AutoCheckResults.epcFound = true;
+      state.propertyBrain.AutoCheckResults.epcRecordStatus = "Uploaded EPC accepted";
+    }
+    if (scanner.documentTypeId === "gas") {
+      state.propertyBrain.ComplianceEvidence.gasSafety.status = "found";
+    }
     if (scanner.documentTypeId === "eicr") {
       state.propertyBrain.ComplianceEvidence.eicr.status = "found";
     }
@@ -4912,6 +4941,32 @@ function completeFakeScan() {
     if (scanner.documentTypeId === "council-letter") {
       state.propertyBrain.TenancyProfile.councilContactStatus = "Council evidence uploaded";
     }
+    if (scanner.documentTypeId === "licence") {
+      state.propertyBrain.ComplianceEvidence.licensing.status = "found";
+    }
+    if (["inspection", "damp-photos"].includes(scanner.documentTypeId)) {
+      state.propertyBrain.ComplianceEvidence.inspectionReports.status = "found";
+      state.propertyBrain.ComplianceEvidence.repairLogs.status = "review";
+    }
+  }
+  if (scanner.outcomeId === "expired") {
+    state.branchEffects.unshift(`${evidence.title} stored as expired - replacement action remains visible`);
+    state.monitoringItems.unshift({
+      id: `expired-${scanner.documentTypeId}-${Date.now()}`,
+      type: "Expiry reminder",
+      title: `Replace expired ${evidence.title}`,
+      dueDate: "Now",
+      urgency: "High",
+      linkedActionId: scanner.documentTypeId.startsWith("epc") ? "book-epc" : "insurance",
+      description: "CMP stored the evidence but keeps the replacement route visible because expired evidence is not solved.",
+      status: "watching"
+    });
+  }
+  if (scanner.outcomeId === "wrong_property") {
+    state.branchEffects.unshift("Evidence rejected - wrong property");
+  }
+  if (["unclear", "missing_key_details"].includes(scanner.outcomeId)) {
+    state.branchEffects.unshift("Evidence partly useful - CMP still needs confirmation");
   }
   state.actionPlan = buildJourneyActionPlan(state);
   state.propertyBrain.Scores = recalculateJourneyScores(state, state.actionPlan);
@@ -4936,6 +4991,7 @@ function generateAskCmpResponse(prompt) {
   const missing = state.actionPlan.missingEvidence || [];
   const scores = brain.Scores;
   let body = "";
+  const propertyContext = `${brain.PropertyIdentity.address} is recorded as ${brain.PropertyIdentity.propertyType} on the ${journeyRoutes[state.routeId]?.label || "Prioritised"} route.`;
   if (prompt.includes("rent this property")) {
     body = urgent.length
       ? `Not safely yet. CMP has a simulated EPC ${brain.AutoCheckResults.epcRating}, but ${urgent.slice(0, 4).map((item) => item.title).join(", ")} still need handling before you treat this property as ready.`
@@ -4961,11 +5017,12 @@ function generateAskCmpResponse(prompt) {
   } else {
     body = `This property brain changed around ${journeyDemoScenarios[state.scenarioId]?.label}. The current route is ${journeyRoutes[state.routeId]?.label}, with ${urgent.length} urgent blockers and ${state.serviceBasket.length} basket items.`;
   }
+  const basketCopy = state.serviceBasket.length ? ` ${state.serviceBasket.length} service item${state.serviceBasket.length === 1 ? "" : "s"} are already in the fake basket.` : " No service basket has been started yet.";
   const response = {
     id: `ask-${Date.now()}`,
     prompt,
-    body,
-    actions: ["Book Gas Safety", "Book EICR", "Upload evidence", "Generate tenant message", "Set reminder", "View evidence gaps"]
+    body: `${propertyContext} ${body}${basketCopy}`,
+    actions: ["Book Gas Safety", "Book EICR", "Upload evidence", "Add legal essentials to basket", "Generate tenant message", "Set reminder", "View evidence gaps", "Escalate placeholder"]
   };
   state.askHistory.unshift(response);
   addTimelineEvent({ title: "Ask CMP question answered", body: prompt, type: "Ask CMP" });
@@ -5030,6 +5087,7 @@ function upsertMonitoringItem(itemId, status = "watching") {
     state.monitoringItems.unshift({ ...catalogItem, status });
   }
   addTimelineEvent({ title: "Reminder set", body: `${catalogItem.title} marked as ${status}.`, type: "Monitoring" });
+  journeyState().branchEffects.unshift(status === "deferred" ? "Monitoring deferred - CMP will keep it visible" : `${catalogItem.title} monitoring updated`);
   state.workspaceTab = "monitoring";
   state.screen = "workspace";
   closeTimelineModals();
@@ -5194,6 +5252,7 @@ function renderJourneySpine() {
           <li class="${index < currentIndex ? "is-complete" : index === currentIndex ? "is-current" : "is-upcoming"}">
             <span>${index + 1}</span>
             <strong>${escapeHtml(stage.label)}</strong>
+            <em>${index < currentIndex ? "Complete" : index === currentIndex ? "You are here" : "Coming up"}</em>
           </li>
         `).join("")}
       </ol>
@@ -5432,10 +5491,10 @@ function renderJourneyReview() {
         <div>${auto.epcRecommendations.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
       </section>
       <div class="button-row">
-        <button class="primary-button" type="button" data-journey-go="unknowns">Continue</button>
+        <button class="primary-button" type="button" data-journey-go="unknowns">Answer landlord-only unknowns</button>
         <button class="secondary-button" type="button" data-journey-go="add">Edit / this is not my property</button>
-        <button class="secondary-button" type="button" data-journey-action="upload" data-action-id="epc-upload">Upload evidence placeholder</button>
-        <button class="text-button" type="button" data-journey-action="book" data-action-id="book-epc">Book EPC placeholder</button>
+        <button class="secondary-button" type="button" data-journey-action="upload" data-action-id="epc-upload">Upload evidence simulation</button>
+        <button class="text-button" type="button" data-journey-action="book" data-action-id="book-epc">Prepare EPC booking</button>
       </div>
     </section>
   `);
@@ -5466,7 +5525,7 @@ function renderUnknownsWizard() {
       <div class="journey-step-heading">
         <p class="section-kicker">Question ${state.unknownIndex + 1} of ${journeyUnknownQuestions.length}</p>
         <h2>${escapeHtml(question.title)}</h2>
-        <p>${escapeHtml(question.why)}</p>
+        <p>Only you can confirm this. ${escapeHtml(question.why)} This answer may add a side route, but every route returns to the workspace.</p>
       </div>
       <div class="journey-choice-grid">
         ${question.options.map((option) => `
@@ -5537,13 +5596,23 @@ function renderJourneyScores() {
 }
 
 function renderJourneyActionCard(action) {
+  const recommendation = action.risk === "high"
+    ? "Handle this before treating the file as ready."
+    : action.risk === "medium"
+      ? "Keep this visible and either evidence, book, ask or defer with a reason."
+      : "Track this so it does not disappear later.";
   return `
     <article class="journey-action-card ${action.status === "Deferred" ? "is-deferred" : ""}">
       <div>
         <span class="source-badge">${escapeHtml(action.risk)} risk</span>
         <h3>${escapeHtml(action.title)}</h3>
         <p>${escapeHtml(action.body)}</p>
+        <div class="journey-action-insight">
+          <strong>CMP recommends</strong>
+          <span>${escapeHtml(recommendation)}</span>
+        </div>
         <small>Status: ${escapeHtml(action.status)}</small>
+        ${action.status === "Deferred" ? `<small class="journey-deferred-note">Deferred does not mean solved. CMP keeps this risk visible in the action plan and timeline.</small>` : ""}
       </div>
       <div class="journey-action-buttons">
         <button class="secondary-button" type="button" data-journey-action="upload" data-action-id="${escapeHtml(action.id)}">Upload evidence</button>
@@ -5592,6 +5661,7 @@ function renderJourneyActionGroups(limitForWorkspace = false) {
 function renderJourneyPlanButtons() {
   return `
     <section class="journey-plan-controls" aria-label="Journey OS service plan controls">
+      <p>Every plan button updates the fake basket, timeline and property brain. No supplier is contacted.</p>
       <button class="primary-button" type="button" data-journey-service-plan="urgent">Book urgent only</button>
       <button class="secondary-button" type="button" data-journey-service-plan="legal">Book legal essentials</button>
       <button class="secondary-button" type="button" data-journey-service-plan="risk">Build risk-protected plan</button>
@@ -5603,11 +5673,18 @@ function renderJourneyPlanButtons() {
 }
 
 function renderJourneyServiceCard(service) {
+  const statusClass = `is-${service.status.replace(/_/g, "-")}`;
+  const nextStep = service.status === "recommended" ? "Open intake or add to basket"
+    : service.status === "added" ? "Ready to quote or book"
+      : service.status === "quote_requested" ? "Waiting for fake quotes"
+        : service.status === "booked" ? "Fake booking in progress"
+          : service.status === "deferred" ? "Saved for later - risk still visible"
+            : "In progress";
   return `
     <article class="journey-service-card">
       <div class="journey-service-top">
         <span class="source-badge">${escapeHtml(service.category)}</span>
-        <span class="journey-status-chip">${escapeHtml(service.status.replace("_", " "))}</span>
+        <span class="journey-status-chip ${escapeHtml(statusClass)}">${escapeHtml(service.status.replace("_", " "))}</span>
       </div>
       <h3>${escapeHtml(service.title)}</h3>
       <p>${escapeHtml(service.why)}</p>
@@ -5615,6 +5692,7 @@ function renderJourneyServiceCard(service) {
         <div><dt>Fixes</dt><dd>${escapeHtml(service.whatItFixes)}</dd></div>
         <div><dt>Urgency</dt><dd>${escapeHtml(service.urgency)}</dd></div>
         <div><dt>Linked area</dt><dd>${escapeHtml(service.linkedComplianceArea)}</dd></div>
+        <div><dt>Next</dt><dd>${escapeHtml(nextStep)}</dd></div>
       </dl>
       <div class="journey-action-buttons">
         <button class="primary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="booked">Book now</button>
@@ -5661,6 +5739,7 @@ function renderJourneyServicesExperience() {
             <div class="section-heading">
               <p class="section-kicker">${escapeHtml(category)}</p>
               <h2>${escapeHtml(category)} services</h2>
+              <p>CMP is recommending these from the current property brain, not from a live supplier directory.</p>
             </div>
             <div class="journey-service-grid">
               ${categoryServices.map(renderJourneyServiceCard).join("")}
@@ -5687,7 +5766,7 @@ function renderEvidenceVaultExperience() {
       <div class="journey-evidence-grid">
         ${state.evidenceVault.length ? state.evidenceVault.map((item) => `
           <article class="journey-evidence-card">
-            <span class="journey-status-chip">${escapeHtml(item.reviewStatus || item.uploadStatus)}</span>
+            <span class="journey-status-chip is-${escapeHtml((item.reviewStatus || item.uploadStatus || "unknown").replace(/_/g, "-"))}">${escapeHtml(item.reviewStatus || item.uploadStatus)}</span>
             <h3>${escapeHtml(item.title)}</h3>
             <p>${escapeHtml(item.fakeScanResult)} · ${escapeHtml(item.linkedComplianceArea)}</p>
             <dl>
@@ -5728,8 +5807,18 @@ function renderAskCmpExperience() {
           <button class="secondary-button" type="button" data-journey-service="gas-safety-certificate" data-service-action="booked">Book Gas Safety</button>
           <button class="secondary-button" type="button" data-journey-service="eicr" data-service-action="booked">Book EICR</button>
           <button class="secondary-button" type="button" data-journey-open-upload>Upload evidence</button>
+          <button class="secondary-button" type="button" data-journey-service-plan="legal">Add legal essentials to basket</button>
           <button class="text-button" type="button" data-journey-message="gas-access">Generate tenant message</button>
           <button class="text-button" type="button" data-journey-monitor="annual-review">Set reminder</button>
+          <button class="text-button" type="button" data-journey-workspace-tab-link="evidence">View evidence gaps</button>
+          <button class="text-button" type="button" data-journey-escalate>Escalate placeholder</button>
+        </div>
+      </article>
+      <article class="journey-message-picker">
+        <h3>Tenant message generator</h3>
+        <p>Generate a practical draft from this property brain, then log it to the timeline if useful.</p>
+        <div class="journey-message-grid">
+          ${journeyTenantMessageTemplates.map((template) => `<button type="button" data-journey-message="${escapeHtml(template.id)}">${escapeHtml(template.title)}</button>`).join("")}
         </div>
       </article>
     </section>
@@ -5754,6 +5843,7 @@ function renderMonitoringExperience() {
             <div class="journey-action-buttons">
               <button class="secondary-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="watching">Set reminder</button>
               <button class="text-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="watched">Mark watched</button>
+              <button class="text-button" type="button" data-journey-monitor="annual-review" data-monitor-status="watching">Add annual review</button>
               <button class="text-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="deferred">Defer</button>
             </div>
           </article>
@@ -6088,8 +6178,11 @@ function renderAskCmpModal() {
         <button class="secondary-button" type="button" data-journey-service="gas-safety-certificate" data-service-action="booked">Book Gas Safety</button>
         <button class="secondary-button" type="button" data-journey-service="eicr" data-service-action="booked">Book EICR</button>
         <button class="secondary-button" type="button" data-journey-open-upload>Upload evidence</button>
+        <button class="secondary-button" type="button" data-journey-service-plan="legal">Add legal essentials to basket</button>
         <button class="text-button" type="button" data-journey-message="gas-access">Generate tenant message</button>
         <button class="text-button" type="button" data-journey-monitor="annual-review">Set reminder</button>
+        <button class="text-button" type="button" data-journey-workspace-tab-link="evidence">View evidence gaps</button>
+        <button class="text-button" type="button" data-journey-escalate>Escalate placeholder</button>
       </div>
     </section>
   `;
@@ -6103,7 +6196,7 @@ function renderTenantMessageModal() {
       <div class="journey-message-body">${escapeHtml(message?.body || "").replace(/\n/g, "<br>")}</div>
       <p class="modal-note">Practical draft only. Depending on the situation, it may need professional review before sending.</p>
       <div class="journey-action-buttons">
-        <button class="secondary-button" type="button" data-toast="Message copied in this prototype.">Copy placeholder</button>
+        <button class="secondary-button" type="button" data-toast="Message copied in this prototype.">Copy draft</button>
         <button class="primary-button" type="button" data-journey-log-message>Log to timeline</button>
       </div>
     </section>
@@ -6191,11 +6284,11 @@ function confirmJourneyAction() {
 
   const action = journeyActionById(active.actionId);
   if (active.actionType === "upload") {
-    state.evidenceVault.unshift({ id: `evidence-${Date.now()}`, title: `${action.title} evidence placeholder`, status: "Uploaded simulation" });
-    addTimelineEvent({ title: "Evidence placeholder uploaded", body: `${action.title} evidence marked as simulated upload.`, type: "Evidence" });
+    state.evidenceVault.unshift({ id: `evidence-${Date.now()}`, title: `${action.title} evidence simulation`, status: "Uploaded simulation" });
+    addTimelineEvent({ title: "Evidence simulation uploaded", body: `${action.title} evidence marked as simulated upload.`, type: "Evidence" });
   } else if (active.actionType === "book") {
     state.serviceBasket.unshift({ id: `service-${Date.now()}`, title: action.title, status: "Selected simulation" });
-    addTimelineEvent({ title: "Service placeholder selected", body: `${action.title} added to the fake service basket.`, type: "Services" });
+    addTimelineEvent({ title: "Service simulation selected", body: `${action.title} added to the fake service basket.`, type: "Services" });
   } else if (active.actionType === "reminder") {
     state.monitoringItems.unshift({ id: `monitor-${Date.now()}`, title: action.title, status: "Reminder simulation" });
     addTimelineEvent({ title: "Reminder added", body: `${action.title} added to the monitoring preview.`, type: "Monitoring" });
@@ -6210,8 +6303,9 @@ function confirmJourneyAction() {
   }
 
   state.actionPlan = buildJourneyActionPlan(state);
-  state.propertyBrain.Scores = recalculateScores(state, state.actionPlan);
+  state.propertyBrain.Scores = recalculateJourneyScores(state, state.actionPlan);
   state.currentStage = active.actionType === "upload" ? "vault" : active.actionType === "reminder" ? "monitor" : "action";
+  state.workspaceTab = active.actionType === "defer" ? "compliance" : state.workspaceTab;
   state.screen = "workspace";
   closeTimelineModals();
   showJourneyOs({ scroll: false });
@@ -6343,6 +6437,39 @@ function bindJourneyOs() {
 
     if (event.target.closest("[data-journey-log-message]")) {
       logTenantMessage();
+      return;
+    }
+
+    const tabLink = event.target.closest("[data-journey-workspace-tab-link]");
+    if (tabLink) {
+      const state = journeyState();
+      state.workspaceTab = tabLink.dataset.journeyWorkspaceTabLink;
+      state.screen = "workspace";
+      state.currentStage = tabLink.dataset.journeyWorkspaceTabLink === "evidence" ? "vault" : "action";
+      addTimelineEvent({
+        title: "Workspace section opened",
+        body: `${tabLink.textContent.trim()} selected from a Journey OS action.`,
+        type: "Workspace"
+      });
+      closeTimelineModals();
+      showJourneyOs({ scroll: false });
+      return;
+    }
+
+    if (event.target.closest("[data-journey-escalate]")) {
+      const state = journeyState();
+      state.workspaceTab = "services";
+      state.screen = "workspace";
+      state.currentStage = "action";
+      addTimelineEvent({
+        title: "Professional escalation placeholder added",
+        body: "CMP would package the property brain, evidence gaps and timeline for human review. No real escalation was sent.",
+        type: "Escalation"
+      });
+      state.branchEffects.unshift("Professional escalation placeholder added");
+      closeTimelineModals();
+      showJourneyOs({ scroll: false });
+      showToast("Escalation placeholder added to the prototype timeline.");
       return;
     }
 
