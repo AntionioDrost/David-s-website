@@ -68,10 +68,10 @@ function createInitialPropertySetup() {
       epcRating: "C",
       epcPotentialRating: "B",
       epcExpiryDate: "February 2034",
-      epcFloorArea: "Needs review",
+      epcFloorArea: "92 m²",
       epcPropertyType: "Flat / apartment",
       epcBuiltForm: "Purpose-built flat",
-      epcMatchConfidence: "Prepared for review",
+      epcMatchConfidence: "Likely match",
       postcodeMetadataFound: true,
       localAuthorityFound: true,
       localChecksStatus: "ready"
@@ -185,6 +185,7 @@ const labsState = {
   pendingServicePropertyId: "the-butts",
   addPropertyStep: 1,
   addPropertyAddress: "Flat 42, 57 The Butts, Coventry, CV1 3BJ",
+  smartSearchAnswerPanel: "",
   settings: {
     complianceReminders: true,
     evidenceExpiryAlerts: true,
@@ -315,6 +316,7 @@ function newPropertyStatusSummary(setup = newPropertySetup()) {
     confirmations.bedroomsConfirmed ? "" : "Bedrooms",
     confirmations.occupancyConfirmed ? "" : "Occupancy",
     confirmations.gasSafetyRelevanceConfirmed ? "" : "Gas Safety relevance",
+    confirmations.eicrStatusConfirmed ? "" : "EICR status",
     confirmations.alarmsConfirmed ? "" : "Smoke and CO alarms"
   ].filter(Boolean);
 
@@ -338,7 +340,7 @@ function newPropertyStatusSummary(setup = newPropertySetup()) {
     missingEvidence: missingCertificates,
     needsAnswer,
     watchItems: [
-      confirmations.findingsConfirmed ? "Found details confirmed" : "Review CMP findings",
+      confirmations.findingsConfirmed ? "Smart search saved" : "Review smart search results",
       evidence.epc?.status === "acceptedStartingSignal" ? "EPC accepted as starting signal" : "EPC prepared for review",
       missingCertificates.length ? `${missingCertificates.length} evidence items still missing` : "Core certificates uploaded"
     ],
@@ -546,8 +548,31 @@ function newPropertyTaskItems(setup = newPropertySetup()) {
       detail: "CMP created this setup task because the address and EPC signal are prepared, but the landlord still needs to confirm the found details before scoring.",
       search: "property type confirm setup 57 butts cmp findings",
       actions: [
-        { label: "Review CMP findings", action: "reviewFindings", primary: true },
+        { label: "Review smart search", action: "reviewFindings", primary: true },
         { label: "Ask CMP", action: "askLicensing" }
+      ]
+    });
+  }
+
+  if (summary.findingsConfirmed && !setup.confirmations?.bedroomsConfirmed) {
+    tasks.push({
+      id: "new-bedrooms",
+      title: "Confirm bedrooms",
+      property,
+      propertyId: "the-butts",
+      category: "Property setup",
+      priority: "High",
+      source: "Smart Search setup",
+      body: "CMP could not reliably infer the bedroom count from the found records.",
+      status: "Needs landlord input",
+      suggestedAction: "Answer the bedroom question",
+      board: "todo",
+      filters: ["high"],
+      detail: "Bedroom count helps CMP tailor reminders, inspections and future local checks.",
+      search: "bedrooms bedroom count confirm setup 57 butts",
+      actions: [
+        { label: "Answer bedrooms", action: "reviewFindings", primary: true },
+        { label: "Ask CMP", action: "askSetup" }
       ]
     });
   }
@@ -654,7 +679,7 @@ function newPropertyActivityEvents(setup = newPropertySetup()) {
       nextAction: "Review what CMP found.",
       route: "compliance",
       actions: [
-        makeActivityAction("Review CMP findings", "reviewFindings", true),
+        makeActivityAction("Review smart search", "reviewFindings", true),
         makeActivityAction("Open property", "openProperty")
       ]
     },
@@ -707,34 +732,43 @@ function newPropertyAskResponse(prompt = "", setup = newPropertySetup()) {
   const summary = newPropertyStatusSummary(setup);
   const lowerPrompt = prompt.toLowerCase();
   const remaining = [...summary.needsAnswer, ...summary.missingEvidence].slice(0, 4).join(", ");
+  const gasUploaded = isNewPropertyEvidenceUploaded(setup, "gasSafety");
+  const eicrUploaded = isNewPropertyEvidenceUploaded(setup, "eicr");
 
   if (lowerPrompt.includes("epc")) {
     return summary.findingsConfirmed
       ? "CMP saved the EPC-style record as a starting signal for this property. It helps setup, but it is not legal verification. Upload or confirm the actual certificate before relying on it."
-      : "CMP found an EPC-style match for 57 The Butts with rating C and potential B. Save the smart search results before CMP uses it as setup context.";
+      : "CMP found a likely EPC-style match for 57 The Butts with rating C, potential B, a February 2034 expiry and 92 m² floor area. Review before relying on this, then save it as a starting signal.";
   }
 
   if (lowerPrompt.includes("evidence") || lowerPrompt.includes("upload")) {
-    return summary.evidenceConfidenceScore === 0
-      ? "No uploaded certificates are stored yet. You can upload Gas Safety or Electrical Safety/EICR documents during setup, and CMP will add anything useful to this property."
-      : `Evidence confidence is ${summary.evidenceConfidenceScore}%. Uploaded documents are now attached to this property setup; ${remaining || "the remaining answers"} still need review or confirmation.`;
+    if (gasUploaded && eicrUploaded) {
+      return "Gas Safety and Electrical Safety / EICR evidence have been added to this property setup. CMP will not ask for the same certificates again unless they need review.";
+    }
+    if (gasUploaded) {
+      return "Gas Safety evidence has been added to this property setup. CMP will not ask for the same certificate again unless it needs review.";
+    }
+    if (eicrUploaded) {
+      return "Electrical Safety / EICR evidence has been added to this property setup. CMP can now update evidence confidence and reduce missing evidence prompts.";
+    }
+    return "No uploaded certificates are stored yet. You can upload Gas Safety or Electrical Safety/EICR documents during setup, and CMP will add anything useful to this property.";
   }
 
   if (lowerPrompt.includes("not know") || lowerPrompt.includes("confirm")) {
     return summary.findingsConfirmed
       ? `Smart search findings are saved. CMP still needs ${remaining || "the landlord-only answers"} before the property score is reliable.`
-      : "CMP matched the address, prepared an EPC-style record and found Coventry City Council as the local authority. Save these findings, then CMP will ask for the missing information it could not find automatically.";
+      : "CMP has matched the address, prepared EPC-style data and found local authority context. Save these findings, then CMP will only ask for information it could not find automatically.";
   }
 
   if (lowerPrompt.includes("found")) {
     return summary.findingsConfirmed
       ? "Smart search findings are saved. CMP still needs bedrooms, occupancy, Gas Safety relevance, EICR status and alarm answers before the property score is reliable."
-      : "CMP matched the address, prepared an EPC-style record and found Coventry City Council as the local authority. Save these findings, then CMP will ask for the missing information it could not find automatically.";
+      : "CMP has matched the address, prepared EPC-style data and found local authority context. Save these findings, then CMP will only ask for information it could not find automatically.";
   }
 
   return summary.findingsConfirmed
-    ? "Smart search findings are saved. CMP still needs bedrooms, occupancy, Gas Safety relevance, EICR status and alarm answers before the property score is reliable."
-    : "CMP matched the address, prepared an EPC-style record and found Coventry City Council as the local authority. Save these findings, then CMP will ask for the missing information it could not find automatically.";
+    ? "Smart search findings are saved. CMP still needs bedrooms, occupancy, safety evidence and alarm answers before the property score becomes reliable."
+    : "CMP has matched the address, prepared EPC-style data and found local authority context. Save these findings, then CMP will only ask for information it could not find automatically.";
 }
 
 const iconPaths = {
@@ -976,7 +1010,7 @@ function newPropertyProfile() {
     strength: summary.evidenceConfidenceScore,
     evidenceScore: summary.evidenceConfidenceScore,
     complianceScore: summary.readinessScore || 0,
-    focus: summary.findingsConfirmed ? "Guided setup" : "Review CMP findings",
+    focus: summary.findingsConfirmed ? "Guided setup" : "Review smart search",
     focusArea: "Setup confirmation",
     state: summary.profileSetupLabel,
     statusDetail: summary.readinessLabel,
@@ -3118,7 +3152,7 @@ function renderPortfolioHomeState() {
       }
     });
     if (summaryPrimary) {
-      summaryPrimary.textContent = "Review CMP findings";
+      summaryPrimary.textContent = "Review smart search";
     }
     if (summarySecondary) {
       summarySecondary.textContent = "Upload certificates";
@@ -3152,7 +3186,7 @@ function renderPortfolioHomeState() {
     document.querySelector("[data-home-priority-area]").textContent = "Starting signals";
     document.querySelector("[data-home-priority-status]").textContent = summary.readinessLabel;
     document.querySelector("[data-home-priority-body]").textContent = summary.statusLine;
-    document.querySelector("[data-home-upload-priority]").textContent = "Review CMP findings";
+    document.querySelector("[data-home-upload-priority]").textContent = "Review smart search";
     document.querySelector("[data-home-arrange-priority]").textContent = "Upload certificates";
     if (workspaceShortcut) {
       workspaceShortcut.textContent = "Ask CMP what matters first";
@@ -3220,7 +3254,7 @@ function renderPortfolioHomeState() {
             <small>${escapeHtml(summary.evidenceConfidenceHelp)}</small>
           </div>
           <div class="button-row">
-            <button class="primary-button" type="button" data-az-mode="single">Review CMP findings</button>
+            <button class="primary-button" type="button" data-az-mode="single">Review smart search</button>
             <button class="secondary-button" type="button" data-home-upload-priority>Upload certificates</button>
             <button class="text-button" type="button" data-home-open-property-id="the-butts">Open workspace</button>
           </div>
@@ -3244,7 +3278,7 @@ function renderPortfolioHomeState() {
     const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
     if (upcomingGrid) {
       upcomingGrid.innerHTML = [
-        ["Review CMP findings", "Step 1", "Confirm the matched address, EPC context, property type, bedrooms and occupancy.", "Review findings", 'data-az-mode="single"'],
+        ["Review smart search", "Step 1", "Confirm the matched address, EPC context, property type, bedrooms and occupancy.", "Review findings", 'data-az-mode="single"'],
         ["Complete guided compliance check", "Step 2", "Answer what CMP cannot know, then upload evidence if you already have it.", "Open check", "data-new-setup-start"]
       ].map(([title, badge, body, action, buttonAttr]) => `
         <article class="portfolio-upcoming-card">
@@ -5256,13 +5290,67 @@ function renderSmartSearchMissingRows(items) {
     const row = typeof item === "string"
       ? { label: item, status: "Needs landlord input", className: "" }
       : item;
+    const statusClass = row.statusClass || row.className || "";
+    const actionAttributes = row.actionField
+      ? `data-smart-answer-field="${escapeHtml(row.actionField)}"`
+      : row.actionAttr || "";
+    const action = row.actionLabel
+      ? `<button class="secondary-button compact-answer-button" type="button" ${actionAttributes}>${escapeHtml(row.actionLabel)}</button>`
+      : "";
     return `
-    <li>
-      <span>${escapeHtml(row.label)}</span>
-      <strong class="${escapeHtml(row.className || "")}">${escapeHtml(row.status)}</strong>
+    <li class="${row.complete ? "is-complete" : ""}">
+      <span class="smart-missing-copy">
+        <strong>${escapeHtml(row.label)}</strong>
+        ${row.note ? `<small>${escapeHtml(row.note)}</small>` : ""}
+      </span>
+      <span class="smart-missing-meta">
+        <span class="smart-status-pill ${escapeHtml(statusClass)}">${escapeHtml(row.status)}</span>
+        ${action}
+      </span>
     </li>
   `;
   }).join("");
+}
+
+function renderSmartSearchAnswerPanel() {
+  const activePanel = labsState.smartSearchAnswerPanel;
+  if (!["bedrooms", "occupancy"].includes(activePanel)) {
+    return "";
+  }
+
+  const setup = newPropertySetup();
+  const config = activePanel === "bedrooms"
+    ? {
+        title: "Confirm bedrooms",
+        body: "Choose the bedroom count CMP should use for this property setup.",
+        field: "bedrooms",
+        current: setup.landlordAnswers?.bedrooms || "Not answered",
+        choices: ["Studio", "1 bedroom", "2 bedrooms", "3 bedrooms", "Not sure"]
+      }
+    : {
+        title: "Confirm occupancy / tenancy status",
+        body: "This tells CMP which documents, reminders and checks matter next.",
+        field: "occupancy",
+        current: setup.landlordAnswers?.occupancy || "Not answered",
+        choices: ["Vacant", "Ready to let", "Currently tenanted", "New purchase review", "Not sure"]
+      };
+
+  return `
+    <article class="smart-answer-panel" data-smart-answer-panel>
+      <div>
+        <p class="section-kicker">Quick answer</p>
+        <h4>${escapeHtml(config.title)}</h4>
+        <p>${escapeHtml(config.body)}</p>
+        <small>Current answer: ${escapeHtml(config.current)}</small>
+      </div>
+      <div class="smart-answer-options">
+        ${config.choices.map((choice) => `
+          <button class="secondary-button" type="button" data-smart-answer-choice="${escapeHtml(config.field)}" data-smart-answer-value="${escapeHtml(choice)}">${escapeHtml(choice)}</button>
+        `).join("")}
+      </div>
+      <button class="text-button" type="button" data-smart-answer-close>Close</button>
+    </article>
+  `;
 }
 
 function renderSmartSearchResults() {
@@ -5271,29 +5359,45 @@ function renderSmartSearchResults() {
   const identity = setup.identity || {};
   const foundData = setup.foundData || {};
   const evidence = setup.evidence || {};
+  const confirmations = setup.confirmations || {};
   const saved = Boolean(summary.findingsConfirmed);
   const gasUploaded = isNewPropertyEvidenceUploaded(setup, "gasSafety");
   const eicrUploaded = isNewPropertyEvidenceUploaded(setup, "eicr");
+  const bedroomsAnswered = Boolean(confirmations.bedroomsConfirmed);
+  const occupancyAnswered = Boolean(confirmations.occupancyConfirmed);
   const remainingItems = [
-    "Confirm bedrooms",
-    "Confirm occupancy / tenancy status",
-    gasUploaded ? "" : "Upload Gas Safety if relevant",
-    eicrUploaded ? "" : "Upload or arrange Electrical Safety / EICR",
-    "Confirm smoke and CO alarm status"
+    bedroomsAnswered ? "" : "Bedrooms",
+    occupancyAnswered ? "" : "Occupancy / tenancy status",
+    gasUploaded || confirmations.gasSafetyRelevanceConfirmed ? "" : "Gas Safety relevance / certificate",
+    eicrUploaded || confirmations.eicrStatusConfirmed ? "" : "Electrical Safety / EICR status",
+    confirmations.alarmsConfirmed ? "" : "Smoke and CO alarm status",
+    confirmations.tenancyDepositConfirmed ? "" : "Tenancy/deposit documents if relevant",
+    evidence.inspection?.status === "uploaded" ? "" : "Inspection evidence"
   ].filter(Boolean);
+  const epcStatus = saved ? "Accepted as starting signal" : "Ready to review";
+  const gasStatus = gasUploaded ? "Uploaded for review" : "No document uploaded";
+  const eicrStatus = eicrUploaded ? "Uploaded for review" : "No document uploaded";
 
   return `
-    <header class="smart-search-hero">
-      <div>
+    <header class="smart-search-hero is-signal-led">
+      <div class="smart-hero-copy">
         <p class="section-kicker">Smart Search Results</p>
         <h2 id="smartSearchResultsTitle">Here&rsquo;s what CMP found about your property</h2>
-        <p>CMP matched the address, checked EPC-style records and prepared a starting property profile. Review the findings, then save them to this property.</p>
+        <p>CMP matched the address, checked EPC-style records and prepared a starting property profile. Review the findings, upload anything useful, then save this setup to the property.</p>
+        <span class="smart-hero-badge">57 The Butts &middot; Coventry, CV1 3BJ</span>
       </div>
-      <div class="smart-search-address-card">
-        <span>Property</span>
-        <strong>57 The Butts</strong>
-        <small>Coventry, CV1 3BJ</small>
-      </div>
+      <aside class="smart-signal-summary" aria-label="Smart search signal summary">
+        <span>Smart search found</span>
+        <strong>6 useful property signals</strong>
+        <ul>
+          <li>Address matched</li>
+          <li>UPRN prepared</li>
+          <li>Local authority found</li>
+          <li>EPC rating found</li>
+          <li>EPC expiry found</li>
+          <li>Property type assumption prepared</li>
+        </ul>
+      </aside>
     </header>
 
     ${saved ? `
@@ -5301,7 +5405,7 @@ function renderSmartSearchResults() {
         <span class="tile-icon" data-icon="check"></span>
         <div>
           <strong>Smart search saved to this property.</strong>
-          <p>Found data is now part of the property setup. CMP will only ask for information it could not find automatically.</p>
+          <p>CMP will now only ask for information it could not find automatically.</p>
         </div>
       </article>
     ` : ""}
@@ -5317,14 +5421,19 @@ function renderSmartSearchResults() {
         <div class="score-meter"><span style="width: ${summary.evidenceConfidenceScore}%"></span></div>
         <small>${escapeHtml(summary.evidenceConfidenceHelp)}</small>
       </article>
+      <article class="score-card is-compact smart-readiness-card">
+        <div><span>Property compliance</span><strong>Setup first</strong></div>
+        <small>Complete setup before compliance scoring.</small>
+      </article>
     </section>
 
     <section class="smart-search-layout">
       <div class="smart-search-main">
-        <article class="smart-search-panel">
+        <article class="smart-search-panel smart-found-panel">
           <div class="smart-section-heading">
-            <p class="section-kicker">Found automatically</p>
+            <p class="section-kicker">What CMP found automatically</p>
             <h3>Useful property records are ready to review</h3>
+            <p>CMP has found a likely EPC-style record and extracted useful setup data. Confirm before relying on this.</p>
           </div>
           <div class="smart-found-grid">
             <article class="smart-found-card">
@@ -5332,22 +5441,18 @@ function renderSmartSearchResults() {
                 <span class="source-badge">Address matched</span>
                 <span class="doc-status ${saved ? "status-good-text" : "status-watch-text"}">${saved ? "Saved and locked" : "Locked after save"}</span>
               </div>
-              <h4>Flat 42, 57 The Butts, Coventry, CV1 3BJ</h4>
+              <h4>${escapeHtml(identity.address || "Flat 42, 57 The Butts, Coventry, CV1 3BJ")}</h4>
               <p>Source: Confirmed from address selection</p>
-              <small>UPRN ${escapeHtml(identity.uprn || "DEMO-UPRN-57TB")}</small>
+              <small>Identity data locks after save.</small>
             </article>
             <article class="smart-found-card">
               <div class="smart-card-top">
-                <span class="source-badge">EPC match found</span>
-                <span class="doc-status ${saved ? "status-watch-text" : "status-review-text"}">${saved ? "Saved as starting signal" : "Needs review"}</span>
+                <span class="source-badge">UPRN prepared</span>
+                <span class="doc-status ${saved ? "status-good-text" : "status-watch-text"}">${saved ? "Saved" : "Ready to save"}</span>
               </div>
-              <h4>Rating ${escapeHtml(foundData.epcRating || "C")} · potential ${escapeHtml(foundData.epcPotentialRating || "B")}</h4>
-              <dl>
-                <div><dt>Expiry</dt><dd>${escapeHtml(foundData.epcExpiryDate || "February 2034")}</dd></div>
-                <div><dt>Floor area</dt><dd>${escapeHtml(foundData.epcFloorArea || "Needs review")}</dd></div>
-              </dl>
-              <p>Source: EPC-style record prepared for review</p>
-              <small>Needs review before relying on it.</small>
+              <h4>${escapeHtml(identity.uprn || "DEMO-UPRN-57TB")}</h4>
+              <p>Source: address lookup style identity signal</p>
+              <small>Useful for connecting future records to this property.</small>
             </article>
             <article class="smart-found-card">
               <div class="smart-card-top">
@@ -5358,6 +5463,25 @@ function renderSmartSearchResults() {
               <p>Source: postcode/local authority context</p>
               <small>Local and licensing checks can continue after setup facts are confirmed.</small>
             </article>
+            <article class="smart-found-card is-epc">
+              <div class="smart-card-top">
+                <span class="source-badge">EPC match found</span>
+                <span class="doc-status ${saved ? "status-watch-text" : "status-review-text"}">${escapeHtml(epcStatus)}</span>
+              </div>
+              <h4>Likely EPC record found</h4>
+              <div class="smart-epc-rating-row" aria-label="EPC rating summary">
+                <div><span>Current</span><strong>${escapeHtml(foundData.epcRating || "C")}</strong></div>
+                <div><span>Potential</span><strong>${escapeHtml(foundData.epcPotentialRating || "B")}</strong></div>
+              </div>
+              <dl>
+                <div><dt>Expiry</dt><dd>${escapeHtml(foundData.epcExpiryDate || "February 2034")}</dd></div>
+                <div><dt>Floor area</dt><dd>${escapeHtml(foundData.epcFloorArea || "Needs review")}</dd></div>
+                <div><dt>Property type</dt><dd>${escapeHtml(foundData.epcPropertyType || "Flat / apartment")}</dd></div>
+                <div><dt>Match confidence</dt><dd>${escapeHtml(foundData.epcMatchConfidence || "Likely match")}</dd></div>
+              </dl>
+              <p>Source: EPC-style record prepared for review</p>
+              <small>Review before relying on this. This is a starting signal, not legal verification.</small>
+            </article>
             <article class="smart-found-card">
               <div class="smart-card-top">
                 <span class="source-badge">Property type assumption</span>
@@ -5367,29 +5491,55 @@ function renderSmartSearchResults() {
               <p>Source: EPC/address assumption</p>
               <small>Confirm or correct this in the remaining questions.</small>
             </article>
+            <article class="smart-found-card">
+              <div class="smart-card-top">
+                <span class="source-badge">Local checks ready</span>
+                <span class="doc-status ${saved ? "status-good-text" : "status-watch-text"}">${saved ? "Started" : "Ready"}</span>
+              </div>
+              <h4>Postcode and licensing context prepared</h4>
+              <p>Source: postcode/local authority context</p>
+              <small>CMP will use this once bedrooms, occupancy and evidence are clearer.</small>
+            </article>
           </div>
         </article>
 
         <article class="smart-search-panel smart-missing-panel">
           <div class="smart-section-heading">
-            <p class="section-kicker">CMP could not find yet</p>
+            <p class="section-kicker">Still needed from you</p>
             <h3>These stay open until you answer or upload evidence</h3>
           </div>
           <ul class="smart-missing-list">
             ${renderSmartSearchMissingRows([
-              "Bedrooms",
-              "Occupancy / tenancy status",
+              {
+                label: "Bedrooms",
+                note: bedroomsAnswered ? setup.landlordAnswers.bedrooms : "CMP could not infer this reliably.",
+                status: bedroomsAnswered ? "Answered" : "Needs landlord input",
+                statusClass: bedroomsAnswered ? "is-found" : "is-needed",
+                complete: bedroomsAnswered,
+                actionLabel: bedroomsAnswered ? "Change" : "Answer",
+                actionField: "bedrooms"
+              },
+              {
+                label: "Occupancy / tenancy status",
+                note: occupancyAnswered ? setup.landlordAnswers.occupancy : "Decides which checks and documents matter next.",
+                status: occupancyAnswered ? "Answered" : "Needs landlord input",
+                statusClass: occupancyAnswered ? "is-found" : "is-needed",
+                complete: occupancyAnswered,
+                actionLabel: occupancyAnswered ? "Change" : "Answer",
+                actionField: "occupancy"
+              },
               gasUploaded
-                ? { label: "Gas Safety Certificate", status: "Uploaded for review", className: "is-found" }
-                : "Gas Safety Certificate",
+                ? { label: "Gas Safety Certificate", note: "Demo evidence is attached to this setup.", status: "Uploaded for review", statusClass: "is-found", complete: true }
+                : { label: "Gas Safety Certificate", note: "Upload if available. Relevance can be confirmed later.", status: "Upload if available", statusClass: "is-needed", actionLabel: "Upload", actionAttr: "data-smart-scroll-upload" },
               eicrUploaded
-                ? { label: "Electrical Safety / EICR", status: "Uploaded for review", className: "is-found" }
-                : "Electrical Safety / EICR",
-              "Smoke and CO alarm status",
-              "Tenancy/deposit documents",
-              "Inspection evidence"
+                ? { label: "Electrical Safety / EICR", note: "Demo evidence is attached to this setup.", status: "Uploaded for review", statusClass: "is-found", complete: true }
+                : { label: "Electrical Safety / EICR", note: "Upload now or arrange later.", status: "Upload if available", statusClass: "is-needed", actionLabel: "Upload", actionAttr: "data-smart-scroll-upload" },
+              { label: "Smoke and CO alarm status", note: "Landlord answer needed.", status: "Needs landlord input", statusClass: "is-needed" },
+              { label: "Tenancy/deposit documents", note: "Depends on occupancy.", status: "Depends on occupancy", statusClass: "is-watch" },
+              { label: "Inspection evidence", note: "Can skip during first setup.", status: "Can skip for now", statusClass: "is-watch" }
             ])}
           </ul>
+          ${renderSmartSearchAnswerPanel()}
         </article>
       </div>
 
@@ -5405,18 +5555,27 @@ function renderSmartSearchResults() {
             <button class="${eicrUploaded ? "secondary-button" : "primary-button"}" type="button" data-smart-upload="eicr" ${eicrUploaded ? "disabled" : ""}>${eicrUploaded ? "EICR demo uploaded" : "Upload EICR demo"}</button>
             <button class="text-button" type="button" data-smart-skip-upload>Skip for now</button>
           </div>
+          ${(gasUploaded || eicrUploaded) ? `
+            <p class="smart-upload-result">Uploaded demo files are now attached to this property setup and reflected in evidence confidence.</p>
+          ` : ""}
           <dl>
-            <div><dt>Gas Safety</dt><dd>${escapeHtml(evidence.gasSafety?.status === "uploaded" ? "Uploaded for review" : "No document uploaded")}</dd></div>
-            <div><dt>EICR</dt><dd>${escapeHtml(evidence.eicr?.status === "uploaded" ? "Uploaded for review" : "No document uploaded")}</dd></div>
+            <div><dt>Gas Safety</dt><dd>${escapeHtml(gasStatus)}</dd></div>
+            <div><dt>EICR</dt><dd>${escapeHtml(eicrStatus)}</dd></div>
           </dl>
         </article>
 
-        <article class="smart-action-panel">
+        <article class="smart-action-panel ${saved ? "is-saved" : ""}" data-smart-save-panel>
           <div>
-            <p class="section-kicker">Save found data</p>
+            <p class="section-kicker">Save found data to this property</p>
             <h3>${saved ? "Found data saved" : "Confirm the smart search once"}</h3>
             <p>${saved ? "CMP will not ask you to confirm these found details again." : "This saves the address, EPC starting signal, property type assumption and local context to the property setup."}</p>
           </div>
+          ${saved ? `
+            <div class="smart-action-success">
+              <strong>Smart search saved to this property.</strong>
+              <span>CMP will now only ask for information it could not find automatically.</span>
+            </div>
+          ` : ""}
           <div class="smart-main-actions">
             <button class="${saved ? "secondary-button" : "primary-button"}" type="button" data-smart-confirm ${saved ? "disabled" : ""}>${saved ? "Found data saved" : "Confirm and save found data"}</button>
             <button class="secondary-button" type="button" data-smart-edit-details>Edit found details</button>
@@ -5427,14 +5586,16 @@ function renderSmartSearchResults() {
       </aside>
     </section>
 
-    <section class="smart-next-panel">
+    <section class="smart-next-panel ${saved ? "is-ready" : ""}">
       <div>
-        <p class="section-kicker">${saved ? "What CMP still needs" : "Next after saving"}</p>
+        <p class="section-kicker">${saved ? "Next: answer the remaining unknowns" : "Next after saving"}</p>
         <h3>${saved ? "Answer only the remaining unknowns" : "Save the found data, then fill the gaps"}</h3>
         <p>CMP will only ask for information it could not find automatically.</p>
       </div>
       <ul>
-        ${remainingItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
+        ${remainingItems.length
+          ? remainingItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
+          : "<li>Core setup unknowns are answered. Continue the guided check when ready.</li>"}
       </ul>
       <div class="button-row">
         <button class="primary-button" type="button" data-smart-answer-remaining>Answer remaining questions</button>
@@ -9088,22 +9249,88 @@ function confirmNewPropertyFindings() {
   showToast(alreadyConfirmed ? "Smart search findings are already saved." : "Smart search saved to this property.");
 }
 
+function recordSmartSearchAnswer(field, value) {
+  const setup = newPropertySetup();
+  const isKnown = value !== "Not sure";
+  const config = {
+    bedrooms: {
+      label: "Bedrooms",
+      confirmationKey: "bedroomsConfirmed",
+      answerKey: "bedrooms",
+      nextResponse: isKnown
+        ? `Bedrooms saved as ${value}. CMP can use that in the property setup score and future checks.`
+        : "Bedrooms kept open. CMP will continue to treat bedroom count as unknown until it is confirmed."
+    },
+    occupancy: {
+      label: "Occupancy / tenancy status",
+      confirmationKey: "occupancyConfirmed",
+      answerKey: "occupancy",
+      nextResponse: isKnown
+        ? `Occupancy saved as ${value}. CMP can now tailor tenancy, deposit and evidence prompts around that route.`
+        : "Occupancy kept open. CMP will avoid treating tenancy or deposit prompts as reliable until this is confirmed."
+    }
+  }[field];
+
+  if (!config) {
+    return;
+  }
+
+  setup.landlordAnswers[config.answerKey] = value;
+  setup.confirmations[config.confirmationKey] = isKnown;
+  labsState.smartSearchAnswerPanel = "";
+
+  addNewPropertySetupActivity({
+    id: `new-${field}-answer-${Date.now()}`,
+    filter: "details",
+    category: "Landlord answer",
+    title: `${config.label} ${isKnown ? "confirmed" : "left open"}`,
+    body: `${config.label}: ${value}.`,
+    source: "Smart Search setup",
+    status: isKnown ? "Confirmed" : "Unknown",
+    statusClass: isKnown ? "status-good-text" : "status-watch-text",
+    search: `${field} answer ${value} 57 butts smart search setup`,
+    why: "CMP recorded this because landlord answers improve the property setup profile.",
+    nextAction: "Continue answering the remaining unknowns.",
+    route: "details",
+    actions: [
+      makeActivityAction("Review setup", "reviewFindings", true),
+      makeActivityAction("Ask CMP", "askSetup")
+    ]
+  });
+
+  renderAllState();
+  renderAssistantPrompts();
+  setAssistantResponse(config.nextResponse);
+  showToast(isKnown ? `${config.label} answer saved.` : `${config.label} kept open for later.`);
+  window.setTimeout(() => scrollToPanel("[data-smart-search-results]"), 80);
+}
+
 function recordNewPropertyEvidenceUpload(type) {
   const setup = newPropertySetup();
   const config = {
     gasSafety: {
       label: "Gas Safety",
+      toast: "Valid demo Gas Safety evidence added to this property.",
+      response: "Gas Safety evidence has been added to this property setup. CMP will not ask for the same certificate again unless it needs review.",
       id: "new-gas-uploaded",
       title: "Gas Safety evidence uploaded",
       body: "A demo Gas Safety certificate was added to the 57 The Butts evidence list.",
-      search: "gas safety evidence uploaded 57 butts"
+      search: "gas safety evidence uploaded 57 butts",
+      confirmationKey: "gasSafetyRelevanceConfirmed",
+      answerKey: "gasAppliances",
+      answerValue: "Gas Safety certificate uploaded"
     },
     eicr: {
       label: "Electrical Safety / EICR",
+      toast: "Electrical Safety / EICR evidence added to this property.",
+      response: "Electrical Safety / EICR evidence has been added to this property setup. CMP can now update evidence confidence and reduce missing evidence prompts.",
       id: "new-eicr-uploaded",
       title: "EICR evidence uploaded",
       body: "A demo Electrical Safety/EICR document was added to the 57 The Butts evidence list.",
-      search: "eicr electrical safety evidence uploaded 57 butts"
+      search: "eicr electrical safety evidence uploaded 57 butts",
+      confirmationKey: "eicrStatusConfirmed",
+      answerKey: "eicrAvailable",
+      answerValue: "EICR uploaded"
     }
   }[type];
 
@@ -9114,6 +9341,8 @@ function recordNewPropertyEvidenceUpload(type) {
   setup.evidence[type].status = "uploaded";
   setup.evidence[type].source = "Demo upload";
   setup.evidence[type].uploadedAt = "Today";
+  setup.confirmations[config.confirmationKey] = true;
+  setup.landlordAnswers[config.answerKey] = config.answerValue;
 
   addNewPropertySetupActivity({
     id: config.id,
@@ -9121,23 +9350,23 @@ function recordNewPropertyEvidenceUpload(type) {
     category: "Evidence",
     title: config.title,
     body: config.body,
-    source: "Evidence Vault",
+    source: "Smart Search setup",
     status: "Uploaded for review",
     statusClass: "status-good-text",
     search: config.search,
     why: "CMP recorded this because uploaded evidence changes the property evidence confidence.",
     nextAction: "Continue the guided check so CMP can decide which gaps remain.",
-    route: "evidence",
+    route: "details",
     actions: [
-      makeActivityAction("Open Evidence Vault", "viewEvidence", true),
+      makeActivityAction("Review setup", "reviewFindings", true),
       makeActivityAction("Ask CMP", "askReview")
     ]
   });
 
   renderAllState();
   renderAssistantPrompts();
-  setAssistantResponse(getGlobalAskAssistantResponse("What evidence should I upload next?"));
-  showToast(`${config.label} evidence added to this demo property file.`);
+  setAssistantResponse(config.response);
+  showToast(config.toast);
 }
 
 function openPropertyWorkspace(tab = "overview", focusSelector = null) {
@@ -9368,6 +9597,29 @@ function bindPortfolioHome() {
       return;
     }
 
+    const smartAnswerFieldButton = event.target.closest("[data-smart-answer-field]");
+    if (smartAnswerFieldButton) {
+      labsState.smartSearchAnswerPanel = smartAnswerFieldButton.dataset.smartAnswerField;
+      renderAllState();
+      window.setTimeout(() => scrollToPanel("[data-smart-answer-panel]"), 80);
+      return;
+    }
+
+    const smartAnswerChoice = event.target.closest("[data-smart-answer-choice]");
+    if (smartAnswerChoice) {
+      recordSmartSearchAnswer(
+        smartAnswerChoice.dataset.smartAnswerChoice,
+        smartAnswerChoice.dataset.smartAnswerValue
+      );
+      return;
+    }
+
+    if (event.target.closest("[data-smart-answer-close]")) {
+      labsState.smartSearchAnswerPanel = "";
+      renderAllState();
+      return;
+    }
+
     if (event.target.closest("[data-smart-confirm]")) {
       confirmNewPropertyFindings();
       window.setTimeout(() => scrollToPanel("[data-smart-search-results]"), 80);
@@ -9395,7 +9647,23 @@ function bindPortfolioHome() {
     }
 
     if (event.target.closest("[data-smart-answer-remaining]")) {
-      startNewPropertyGuidedCheck();
+      const setup = newPropertySetup();
+      if (!setup.confirmations.findingsConfirmed) {
+        showToast("Save the smart search findings first, then CMP will ask the remaining unknowns.");
+        scrollToPanel("[data-smart-save-panel]");
+        return;
+      }
+      labsState.smartSearchAnswerPanel = !setup.confirmations.bedroomsConfirmed
+        ? "bedrooms"
+        : !setup.confirmations.occupancyConfirmed
+          ? "occupancy"
+          : "";
+      if (labsState.smartSearchAnswerPanel) {
+        renderAllState();
+        window.setTimeout(() => scrollToPanel("[data-smart-answer-panel]"), 80);
+      } else {
+        startNewPropertyGuidedCheck();
+      }
       return;
     }
 
