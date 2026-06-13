@@ -150,13 +150,13 @@ const journeyStages = [
   { id: "start", label: "Start" },
   { id: "addProperty", label: "Add Property" },
   { id: "autoChecks", label: "Auto Checks" },
-  { id: "confirmProperty", label: "Confirm Property" },
-  { id: "unknowns", label: "Answer Unknowns" },
-  { id: "brain", label: "Property Brain" },
-  { id: "actionPlan", label: "Action Plan" },
-  { id: "action", label: "Upload / Book / Ask / Defer" },
-  { id: "vault", label: "Evidence Vault" },
-  { id: "monitor", label: "Monitor Forever" }
+  { id: "confirmProperty", label: "Confirm", fullLabel: "Confirm Property" },
+  { id: "unknowns", label: "Unknowns", fullLabel: "Answer Unknowns" },
+  { id: "brain", label: "Brain", fullLabel: "Property Brain" },
+  { id: "actionPlan", label: "Plan", fullLabel: "Action Plan" },
+  { id: "action", label: "Actions", fullLabel: "Upload / Book / Ask / Defer" },
+  { id: "vault", label: "Vault", fullLabel: "Evidence Vault" },
+  { id: "monitor", label: "Monitor", fullLabel: "Monitor Forever" }
 ];
 
 const journeyAutoCheckSteps = [
@@ -5251,7 +5251,7 @@ function renderJourneySpine() {
         ${journeyStages.map((stage, index) => `
           <li class="${index < currentIndex ? "is-complete" : index === currentIndex ? "is-current" : "is-upcoming"}">
             <span>${index + 1}</span>
-            <strong>${escapeHtml(stage.label)}</strong>
+            <strong title="${escapeHtml(stage.fullLabel || stage.label)}">${escapeHtml(stage.label)}</strong>
             <em>${index < currentIndex ? "Complete" : index === currentIndex ? "You are here" : "Coming up"}</em>
           </li>
         `).join("")}
@@ -5263,14 +5263,18 @@ function renderJourneySpine() {
 function renderJourneyScenarioSwitcher() {
   const state = journeyState();
   return `
-    <label class="journey-scenario-switcher">
-      <span>Demo scenario</span>
-      <select data-journey-scenario-select>
-        ${Object.entries(journeyDemoScenarios).map(([id, scenario]) => `
-          <option value="${escapeHtml(id)}" ${state.scenarioId === id ? "selected" : ""}>${escapeHtml(scenario.label)}</option>
-        `).join("")}
-      </select>
-    </label>
+    <section class="journey-prototype-controls" aria-label="Prototype controls">
+      <p>Prototype controls</p>
+      <label class="journey-scenario-switcher">
+        <span>Demo scenario</span>
+        <select data-journey-scenario-select>
+          ${Object.entries(journeyDemoScenarios).map(([id, scenario]) => `
+            <option value="${escapeHtml(id)}" ${state.scenarioId === id ? "selected" : ""}>${escapeHtml(scenario.label)}</option>
+          `).join("")}
+        </select>
+      </label>
+      <small>Visible in demo/testing mode only.</small>
+    </section>
   `;
 }
 
@@ -5280,9 +5284,9 @@ function renderJourneyShell(screenHtml) {
     <header class="journey-os-header">
       <div>
         <p class="section-kicker">CMP Journey OS</p>
-        <h1 id="journeyOsTitle">Check My Property</h1>
-        <p>Fake but convincing end-to-end compliance journey for testing landlord decisions, mock document intelligence and service routes.</p>
-        <span class="prototype-badge">Demo mode: this prototype simulates API checks, compliance analysis and document intelligence.</span>
+        <h1 id="journeyOsTitle">Build a property brain</h1>
+        <p>Start with an address. CMP simulates checks, asks landlord-only unknowns, then creates the property workspace and action plan.</p>
+        <span class="prototype-badge">Prototype mode: simulated API checks, document intelligence and service routes. No live lookup performed.</span>
       </div>
       <div class="journey-os-header-actions">
         ${renderJourneyScenarioSwitcher()}
@@ -5290,9 +5294,17 @@ function renderJourneyShell(screenHtml) {
       </div>
     </header>
     ${renderJourneySpine()}
-    <div class="journey-branch-effects" aria-live="polite">
-      ${state.branchEffects.slice(0, 4).map((effect) => `<span>${escapeHtml(effect)}</span>`).join("")}
-    </div>
+    ${state.branchEffects.length ? `
+      <section class="journey-branch-effects" aria-live="polite">
+        <div>
+          <strong>Latest route changes</strong>
+          <small>These side routes were added by the current demo answers or scenario.</small>
+        </div>
+        <div>
+          ${state.branchEffects.slice(0, 4).map((effect) => `<span>${escapeHtml(effect)}</span>`).join("")}
+        </div>
+      </section>
+    ` : ""}
     ${screenHtml}
   `;
 }
@@ -5336,7 +5348,7 @@ function renderJourneyAddProperty() {
           <input type="text" name="address" value="${escapeHtml(state.addressInput)}" placeholder="Flat 42, 57 The Butts...">
         </label>
         <div class="button-row">
-          <button class="primary-button" type="submit">Run fake auto checks</button>
+          <button class="primary-button" type="submit">Run simulated auto checks</button>
           <button class="secondary-button" type="button" data-journey-use-demo-address>Use demo address</button>
         </div>
       </form>
@@ -5351,7 +5363,7 @@ function renderJourneyAutoChecks() {
       <div class="journey-step-heading">
         <p class="section-kicker">Auto Checks</p>
         <h2>Running simulated property checks</h2>
-        <p>CMP is pretending to call official records, property clues and document intelligence. This should feel smart, but it is local prototype state.</p>
+        <p>CMP checked this automatically using local demo data. The real product would connect official records, property clues and document intelligence here.</p>
       </div>
       <div class="journey-progress-grid">
         ${journeyAutoCheckSteps.map((step, index) => `
@@ -5493,7 +5505,7 @@ function renderJourneyReview() {
       <div class="button-row">
         <button class="primary-button" type="button" data-journey-go="unknowns">Answer landlord-only unknowns</button>
         <button class="secondary-button" type="button" data-journey-go="add">Edit / this is not my property</button>
-        <button class="secondary-button" type="button" data-journey-action="upload" data-action-id="epc-upload">Upload evidence simulation</button>
+        <button class="secondary-button" type="button" data-journey-action="upload" data-action-id="epc-upload">Simulate evidence upload</button>
         <button class="text-button" type="button" data-journey-action="book" data-action-id="book-epc">Prepare EPC booking</button>
       </div>
     </section>
@@ -5514,7 +5526,7 @@ function renderUnknownsWizard() {
         </div>
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-build-brain>Build Property Brain</button>
-          <button class="secondary-button" type="button" data-journey-go="workspace">Skip to workspace</button>
+          <button class="secondary-button" type="button" data-journey-go="workspace">Open workspace preview</button>
         </div>
       </section>
     `);
@@ -5591,6 +5603,31 @@ function renderJourneyScores() {
           <div><i style="width: ${value}%"></i></div>
         </article>
       `).join("")}
+    </section>
+  `;
+}
+
+function renderJourneyPlanSummary() {
+  const state = journeyState();
+  const actions = allJourneyActions();
+  const nextAction = actions.find((action) => action.status !== "Deferred") || actions[0];
+  const routeLabel = journeyRoutes[state.routeId]?.label || "Prioritised";
+  const urgentCount = actions.filter((action) => action.risk === "high").length;
+  const evidenceCount = (state.actionPlan.missingEvidence || []).length;
+  const serviceCount = buildServiceRecommendations(state).length;
+  return `
+    <section class="journey-plan-summary" aria-label="Action plan summary">
+      <div>
+        <p class="section-kicker">Next best action</p>
+        <h3>${escapeHtml(nextAction?.title || "Open the property workspace")}</h3>
+        <p>${escapeHtml(nextAction?.body || "CMP has created a simulated action plan from the property brain.")}</p>
+      </div>
+      <div class="journey-plan-summary-stats">
+        <span><strong>${escapeHtml(routeLabel)}</strong> selected route</span>
+        <span><strong>${urgentCount}</strong> urgent blockers</span>
+        <span><strong>${evidenceCount}</strong> evidence gaps</span>
+        <span><strong>${serviceCount}</strong> recommended services</span>
+      </div>
     </section>
   `;
 }
@@ -5761,7 +5798,7 @@ function renderEvidenceVaultExperience() {
           <h3>Scan evidence into the property brain</h3>
           <p>Choose a fake document type. CMP will simulate reading, matching, extracting dates and updating evidence.</p>
         </div>
-        <button class="primary-button" type="button" data-journey-open-upload>Upload evidence simulation</button>
+        <button class="primary-button" type="button" data-journey-open-upload>Simulate evidence upload</button>
       </article>
       <div class="journey-evidence-grid">
         ${state.evidenceVault.length ? state.evidenceVault.map((item) => `
@@ -5891,6 +5928,7 @@ function renderJourneyActionPlan() {
         <p>Choose how you want CMP to organise the same property brain. The plan reorders and filters without losing risk visibility.</p>
       </div>
       ${renderJourneyScores()}
+      ${renderJourneyPlanSummary()}
       ${renderRouteSelector()}
       ${renderJourneyPlanButtons()}
       ${renderJourneyActionGroups()}
@@ -5962,9 +6000,9 @@ function renderPropertyWorkspace() {
     <section class="journey-workspace">
       <header class="journey-workspace-header">
         <div>
-          <p class="section-kicker">Property Workspace</p>
+          <p class="section-kicker">Property Workspace Created</p>
           <h2>${escapeHtml(brain.PropertyIdentity.address)}</h2>
-          <p>${escapeHtml(brain.PropertyIdentity.propertyType)} · ${escapeHtml(brain.PropertyIdentity.localAuthority)} · ${escapeHtml(journeyRoutes[state.routeId]?.label || "Prioritised")} route</p>
+          <p>Created from simulated checks, landlord answers and the ${escapeHtml(journeyRoutes[state.routeId]?.label || "Prioritised")} route. Every action below updates this local demo property brain.</p>
         </div>
         <div class="journey-workspace-meta">
           <span>UPRN ${escapeHtml(brain.PropertyIdentity.uprn)}</span>
@@ -6212,7 +6250,7 @@ function renderJourneyActionModal() {
   const action = journeyActionById(state.activeAction?.actionId || "journey-action");
   const labels = {
     "service-intake": ["Service intake", journeyServiceById(state.activeIntake?.serviceId).title, "CMP has prefilled the supplier-ready job from the property brain. No supplier is contacted."],
-    "fake-upload": ["Fake upload scanner", "Upload evidence simulation", "Choose a document type and let CMP simulate scanning, matching and evidence scoring."],
+    "fake-upload": ["Fake upload scanner", "Simulate evidence upload", "Choose a document type and let CMP simulate scanning, matching and evidence scoring."],
     "ask-cmp": ["Ask CMP", "Property-specific simulated response", "Demo mode: Ask CMP responses are simulated from local property data."],
     "tenant-message": ["Tenant message", "Generated tenant message", "Create a practical draft and log it as communication evidence if useful."],
     defer: ["Defer action", "Defer without hiding risk", `Choose why "${action.title}" is being deferred. Deferred does not mean solved.`]

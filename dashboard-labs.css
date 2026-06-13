@@ -15294,3 +15294,286 @@ body.checker-is-active .portfolio-stage-purpose li {
     position: static;
   }
 }
+
+/* Journey OS clarity pass: keep the setup journey visually separate from the finished workspace. */
+body.journey-os-active .utility-bar,
+body.journey-os-active .property-header,
+body.journey-os-active .tab-bar {
+  display: none;
+}
+
+body.journey-os-active .workspace {
+  max-width: min(1140px, 100%);
+  padding-top: 16px;
+}
+
+@media (min-width: 1241px) {
+  body.journey-os-active .labs-shell {
+    grid-template-columns: minmax(210px, 230px) minmax(0, 1.08fr) minmax(260px, 300px);
+    gap: clamp(16px, 2vw, 24px);
+  }
+
+  body.journey-os-active .assistant-rail {
+    max-width: 300px;
+  }
+}
+
+body.journey-os-active .journey-os-header {
+  align-items: start;
+  border-top: 3px solid rgba(41, 122, 87, 0.28);
+}
+
+body.journey-os-active .journey-os-header h1 {
+  max-width: 720px;
+}
+
+body.journey-os-active .journey-os-header p:not(.section-kicker) {
+  max-width: 760px;
+  font-size: 1rem;
+}
+
+.journey-prototype-controls {
+  display: grid;
+  gap: 7px;
+  width: min(320px, 100%);
+  border: 1px solid rgba(67, 107, 124, 0.12);
+  border-radius: 18px;
+  padding: 12px;
+  background: rgba(250, 252, 249, 0.78);
+}
+
+.journey-prototype-controls p,
+.journey-prototype-controls small {
+  margin: 0;
+  color: var(--labs-muted);
+}
+
+.journey-prototype-controls p {
+  font-size: 0.72rem;
+  font-weight: 850;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.journey-prototype-controls small {
+  font-size: 0.72rem;
+  line-height: 1.35;
+}
+
+.journey-scenario-switcher {
+  width: 100%;
+}
+
+body.journey-os-active .journey-spine-card {
+  overflow: hidden;
+}
+
+body.journey-os-active .journey-spine-copy p {
+  margin-bottom: 12px;
+  font-size: 0.98rem;
+}
+
+body.journey-os-active .journey-spine {
+  grid-template-columns: repeat(10, minmax(82px, 1fr));
+  gap: 8px;
+  padding: 2px 2px 6px;
+  scroll-padding-inline: 2px;
+  scroll-snap-type: x proximity;
+}
+
+body.journey-os-active .journey-spine li {
+  min-width: 0;
+  min-height: 86px;
+  padding: 11px;
+  scroll-snap-align: start;
+}
+
+body.journey-os-active .journey-spine li strong {
+  font-size: 0.76rem;
+  line-height: 1.18;
+}
+
+body.journey-os-active .journey-spine li em {
+  font-size: 0.66rem;
+}
+
+body.journey-os-active .journey-spine li.is-upcoming {
+  opacity: 0.72;
+}
+
+body.journey-os-active .journey-branch-effects {
+  align-items: center;
+  justify-content: space-between;
+  border: 1px solid rgba(41, 122, 87, 0.12);
+  border-radius: 18px;
+  padding: 12px 14px;
+  background: rgba(250, 252, 249, 0.78);
+}
+
+body.journey-os-active .journey-branch-effects > div:first-child {
+  display: grid;
+  gap: 2px;
+}
+
+body.journey-os-active .journey-branch-effects strong {
+  color: var(--labs-ink);
+  font-size: 0.84rem;
+}
+
+body.journey-os-active .journey-branch-effects small {
+  color: var(--labs-muted);
+  font-size: 0.76rem;
+}
+
+body.journey-os-active .journey-branch-effects > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+body.journey-os-active .journey-data-grid article {
+  display: grid;
+  align-content: start;
+  gap: 9px;
+  min-height: 92px;
+}
+
+body.journey-os-active .journey-data-grid span {
+  display: block;
+  color: #526864;
+  font-size: 0.76rem;
+  letter-spacing: 0.02em;
+}
+
+body.journey-os-active .journey-data-grid strong {
+  display: block;
+  color: var(--labs-ink);
+  font-size: clamp(1rem, 1.5vw, 1.18rem);
+  line-height: 1.25;
+}
+
+.journey-plan-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(260px, 0.75fr);
+  gap: 18px;
+  margin: 18px 0;
+  border: 1px solid rgba(41, 122, 87, 0.16);
+  border-radius: 20px;
+  padding: 20px;
+  background:
+    radial-gradient(circle at 100% 0%, rgba(167, 228, 189, 0.16), transparent 32%),
+    linear-gradient(145deg, rgba(235, 247, 237, 0.95), rgba(255, 255, 255, 0.94));
+  box-shadow: var(--journey-shadow-soft);
+}
+
+.journey-plan-summary h3 {
+  margin: 0;
+  color: var(--labs-ink);
+  font-size: clamp(1.2rem, 2vw, 1.55rem);
+}
+
+.journey-plan-summary p {
+  margin: 8px 0 0;
+  color: var(--labs-muted);
+  line-height: 1.55;
+}
+
+.journey-plan-summary-stats {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.journey-plan-summary-stats span {
+  display: grid;
+  gap: 3px;
+  min-height: 62px;
+  border: 1px solid rgba(41, 122, 87, 0.12);
+  border-radius: 14px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.72);
+  color: var(--labs-muted);
+  font-size: 0.76rem;
+  font-weight: 750;
+}
+
+.journey-plan-summary-stats strong {
+  color: var(--labs-green-dark);
+  font-size: 1rem;
+}
+
+body.journey-os-active .journey-action-group:first-of-type {
+  border-color: rgba(185, 97, 21, 0.2);
+  background:
+    linear-gradient(180deg, rgba(255, 250, 244, 0.96), rgba(255, 255, 255, 0.94));
+}
+
+body.journey-os-active .journey-action-card {
+  gap: 12px;
+}
+
+body.journey-os-active .journey-action-card h3,
+body.journey-os-active .journey-service-card h3 {
+  margin-bottom: 2px;
+  line-height: 1.24;
+}
+
+body.journey-os-active .journey-action-buttons {
+  align-items: center;
+}
+
+body.journey-os-active .assistant-rail .recent-activity h3 {
+  font-size: 0.86rem;
+}
+
+body.journey-os-active .assistant-rail .recent-activity h3::after {
+  content: "Portfolio-wide";
+  display: inline-flex;
+  margin-left: 8px;
+  border-radius: 999px;
+  padding: 3px 7px;
+  color: var(--labs-green-dark);
+  background: rgba(235, 247, 237, 0.9);
+  font-size: 0.62rem;
+  font-weight: 850;
+  vertical-align: middle;
+}
+
+@media (max-width: 1240px) {
+  body.journey-os-active .workspace {
+    max-width: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .journey-plan-summary,
+  .journey-hero-panel {
+    grid-template-columns: 1fr;
+  }
+
+  body.journey-os-active .journey-branch-effects {
+    display: grid;
+    justify-content: stretch;
+  }
+
+  body.journey-os-active .journey-branch-effects > div:last-child {
+    justify-content: flex-start;
+  }
+}
+
+@media (max-width: 720px) {
+  body.journey-os-active .journey-spine {
+    grid-template-columns: 1fr;
+    padding-bottom: 0;
+    overflow: visible;
+  }
+
+  body.journey-os-active .journey-spine li {
+    min-height: 0;
+  }
+
+  .journey-plan-summary-stats {
+    grid-template-columns: 1fr;
+  }
+}
