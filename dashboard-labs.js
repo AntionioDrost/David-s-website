@@ -737,6 +737,160 @@ const journeyDocumentTypes = [
   { id: "insurance", label: "Insurance document", complianceArea: "Insurance", defaultOutcome: "expired" }
 ];
 
+const guidedDemoStories = {
+  "clean-property-check": {
+    title: "Clean property check",
+    scenarioId: "clean-property-match",
+    proof: "CMP makes a confusing compliance process feel manageable.",
+    time: "2 minutes",
+    motif: "match",
+    moments: [
+      {
+        name: "Story intro",
+        stage: "start",
+        screen: "start",
+        note: "Open with the product promise: CMP starts with a property, not a form.",
+        callout: "This is simulated data, but the journey is the important part: CMP finds what it can, asks what it must, and returns every route to a property workspace."
+      },
+      {
+        name: "Start from address",
+        stage: "addProperty",
+        screen: "add",
+        note: "Show that the landlord can start from a simple address.",
+        callout: "The landlord starts with one familiar input. The real product would connect address and UPRN lookup here."
+      },
+      {
+        name: "Auto checks reveal",
+        stage: "autoChecks",
+        screen: "autoChecks",
+        autoComplete: true,
+        note: "CMP checks what it can before asking the landlord anything.",
+        callout: "Address, EPC, local authority, licensing and property clues are checked before the landlord has to answer unknowns."
+      },
+      {
+        name: "Clean property match",
+        stage: "confirmProperty",
+        screen: "match",
+        note: "The property match gives confidence before the action plan.",
+        callout: "A clean match turns raw records into a confirmed starting point for the property brain."
+      },
+      {
+        name: "Review found data",
+        stage: "confirmProperty",
+        screen: "review",
+        note: "Point out what CMP found automatically.",
+        callout: "CMP separates what it found from what it still needs. This keeps the landlord from facing a giant form."
+      },
+      {
+        name: "Unknowns handled",
+        stage: "unknowns",
+        screen: "unknowns",
+        answers: {
+          occupancy: "occupied",
+          propertyType: "flat",
+          occupants: "oneTwo",
+          gas: "yes",
+          eicr: "noProof",
+          alarms: "tested",
+          deposit: "noProof",
+          tenancyDocs: "noProof",
+          condition: "none",
+          intent: "risk"
+        },
+        note: "Landlord-only details are asked progressively, not all at once.",
+        callout: "Only landlord-confirmed details are asked here: occupancy, gas, documents, condition and intent."
+      },
+      {
+        name: "Property brain built",
+        stage: "brain",
+        screen: "brain",
+        brainComplete: true,
+        note: "Show the intelligence moment, not a loading spinner.",
+        callout: "CMP combines records, landlord answers, evidence, service routes and monitoring into one property brain."
+      },
+      {
+        name: "Action plan reveal",
+        stage: "actionPlan",
+        screen: "actionPlan",
+        note: "The output is prioritised, not a flat checklist.",
+        callout: "CMP separates urgent blockers, missing evidence, condition risk, future risk and service opportunities."
+      },
+      {
+        name: "Workspace and monitoring",
+        stage: "monitor",
+        screen: "workspace",
+        workspaceTab: "monitoring",
+        note: "End on the subscription value: the property stays watched.",
+        callout: "The long-term value is monitoring: expiry dates, law watch, licensing watch and annual review."
+      }
+    ]
+  },
+  "no-epc-found": {
+    title: "No EPC found",
+    scenarioId: "no-epc-found",
+    proof: "No API result becomes an action, not a dead end.",
+    time: "2-3 minutes",
+    motif: "gap",
+    moments: [
+      { name: "Story intro", stage: "start", screen: "start", note: "Frame missing records as a product opportunity.", callout: "This story shows how CMP turns a missing EPC into a clear next action." },
+      { name: "No EPC scenario", stage: "addProperty", screen: "add", note: "Use the same starting point.", callout: "The landlord still starts from an address. The difference is what CMP finds." },
+      { name: "Auto checks find gap", stage: "autoChecks", screen: "autoChecks", autoComplete: true, note: "Show that missing data is handled calmly.", callout: "A failed lookup is not a dead end. CMP makes the gap visible and keeps going." },
+      { name: "No EPC branch", stage: "confirmProperty", screen: "match", note: "Choose the property context.", callout: "CMP asks the minimum context needed to decide whether EPC is urgent, pre-let or uploadable." },
+      { name: "EPC action added", stage: "confirmProperty", screen: "review", noEpcChoice: "advertised", note: "The missing record becomes a blocker/action.", callout: "Because the property is being advertised, CMP keeps EPC visible as a pre-let blocker." },
+      { name: "Action plan", stage: "actionPlan", screen: "actionPlan", noEpcChoice: "advertised", note: "Point to Book EPC and Upload EPC routes.", callout: "The action plan now has a practical route: book an EPC, upload evidence, or continue with a warning." },
+      { name: "Workspace evidence watch", stage: "vault", screen: "workspace", workspaceTab: "evidence", noEpcChoice: "advertised", note: "End with the evidence gap still visible.", callout: "No EPC remains monitored in the property workspace until evidence is found, uploaded or booked." }
+    ]
+  },
+  "hmo-licensing-risk": {
+    title: "HMO/licensing risk",
+    scenarioId: "hmo-high-occupancy-risk",
+    proof: "User answers modify the journey intelligently.",
+    time: "3 minutes",
+    motif: "route",
+    moments: [
+      { name: "Story intro", stage: "start", screen: "start", note: "Explain that records alone cannot know household structure.", callout: "This story shows a specialist side route appearing from landlord answers." },
+      { name: "HMO scenario", stage: "addProperty", screen: "add", note: "Same address-first journey.", callout: "CMP keeps the same main journey but changes the action plan as risk is discovered." },
+      { name: "Property type answer", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "room" }, unknownIndex: 2, note: "Choose the shared-house answer.", callout: "This answer adds a possible HMO route without sending the user into a separate dead-end workflow." },
+      { name: "Occupants answer", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus" }, unknownIndex: 3, note: "Choose 5+ occupants.", callout: "Occupancy and household answers change licensing, fire safety and room-measurement risk." },
+      { name: "Licensing route added", stage: "actionPlan", screen: "actionPlan", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "risk" }, note: "The action plan should now prioritise licensing/HMO services.", callout: "CMP ties the licensing route back into the same action plan instead of creating a separate checklist." },
+      { name: "Service basket", stage: "action", screen: "workspace", workspaceTab: "services", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "risk" }, servicePlan: "legal", note: "Show licensing, fire and safety services.", callout: "Recommendations are tied to property risks, not random upsells." },
+      { name: "Monitoring", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "risk" }, note: "Show that licensing watch remains live.", callout: "The workspace keeps HMO/licensing watch visible over time." }
+    ]
+  },
+  "damp-mould-enforcement": {
+    title: "Damp, mould and enforcement risk",
+    scenarioId: "damp-mould-complaint",
+    proof: "CMP handles real property risk, not just certificates.",
+    time: "3 minutes",
+    motif: "condition",
+    moments: [
+      { name: "Story intro", stage: "start", screen: "start", note: "Explain that compliance is also condition and communication.", callout: "This story shows CMP handling risk that lives outside certificates." },
+      { name: "Condition scenario", stage: "addProperty", screen: "add", note: "Use damp/mould scenario.", callout: "A tenant complaint changes the route because condition evidence matters." },
+      { name: "Condition answer", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", condition: "dampMould" }, unknownIndex: 9, note: "Select damp/mould as the known issue.", callout: "This answer adds a condition risk route and repair evidence path." },
+      { name: "Action plan", stage: "actionPlan", screen: "actionPlan", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "noProof", alarms: "noProof", deposit: "noProof", tenancyDocs: "noProof", condition: "dampMould", intent: "risk" }, note: "Point to damp survey and repair evidence.", callout: "CMP connects condition risk to services, evidence and tenant communication." },
+      { name: "Tenant message", stage: "action", screen: "workspace", workspaceTab: "ask", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "noProof", alarms: "noProof", deposit: "noProof", tenancyDocs: "noProof", condition: "dampMould", intent: "risk" }, tenantMessage: "damp-photos", note: "Show practical tenant communication.", callout: "The tenant message is a practical draft and can be logged to the timeline as communication evidence." },
+      { name: "Evidence and timeline", stage: "vault", screen: "workspace", workspaceTab: "timeline", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "noProof", alarms: "noProof", deposit: "noProof", tenancyDocs: "noProof", condition: "dampMould", intent: "risk" }, addConditionEvidence: true, note: "Show evidence trail value.", callout: "Photos, messages and service actions become a timeline, not loose paperwork." },
+      { name: "Monitoring", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "noProof", alarms: "noProof", deposit: "noProof", tenancyDocs: "noProof", condition: "dampMould", intent: "risk" }, tenantMessage: "damp-photos", addConditionEvidence: true, note: "Show condition follow-up.", callout: "CMP keeps condition follow-up visible so a complaint does not disappear after one action." }
+    ]
+  },
+  "done-for-me-plan": {
+    title: "Done-for-me compliance plan",
+    scenarioId: "done-for-me-landlord",
+    proof: "CMP can become a service concierge, not just a checklist.",
+    time: "3 minutes",
+    motif: "concierge",
+    moments: [
+      { name: "Story intro", stage: "start", screen: "start", note: "Frame the commercial service vision.", callout: "This story shows how CMP can move from diagnosis to done-for-me service orchestration." },
+      { name: "Done-for-me scenario", stage: "addProperty", screen: "add", note: "Start with the same simple property check.", callout: "The journey does not change for the landlord. CMP changes the route behind the scenes." },
+      { name: "Landlord intent", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, note: "Choose the done-for-me intent.", callout: "The landlord does not need to know what to book. CMP translates risk into a service plan." },
+      { name: "Action plan", stage: "actionPlan", screen: "actionPlan", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", note: "Show the same property brain in concierge mode.", callout: "The action plan becomes a commercial path: urgent first, evidence next, monitoring always on." },
+      { name: "Service basket reveal", stage: "action", screen: "workspace", workspaceTab: "services", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "concierge", note: "Show the service basket as a plan, not a directory.", callout: "Service bundles are generated from risks: legal essentials, risk protection, future-proofing and monitoring." },
+      { name: "Quote or book", stage: "action", screen: "workspace", workspaceTab: "services", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "quotes", note: "Show quote-first commercial option.", callout: "The landlord can request quotes first, book urgent only, or hand the whole plan to CMP." },
+      { name: "Monitoring and workspace", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "concierge", note: "End on recurring value.", callout: "The subscription value is ongoing: renewals, law watch, evidence watch and portfolio priority." }
+    ]
+  }
+};
+
 const journeyScanOutcomes = {
   valid: {
     label: "Valid",
@@ -1003,6 +1157,14 @@ const labsState = {
   smartSearchAnswerPanel: "",
   smartSearchWorkspaceOpen: false,
   journeyState: createInitialJourneyState(),
+  guidedDemo: {
+    enabled: false,
+    activeStoryId: "",
+    activeMomentIndex: 0,
+    mode: "landing",
+    lastNormalScenarioId: "clean-property-match",
+    hasSeenLanding: false
+  },
   settings: {
     complianceReminders: true,
     evidenceExpiryAlerts: true,
@@ -3727,6 +3889,7 @@ const portfolioBodyClasses = [
   "portfolio-activity-active",
   "portfolio-utility-active",
   "journey-os-active",
+  "journey-guided-active",
   "checker-is-active"
 ];
 
@@ -4520,6 +4683,243 @@ function applyDemoScenario(scenarioId) {
   showToast("Journey OS scenario updated.");
 }
 
+function guidedDemoState() {
+  if (!labsState.guidedDemo) {
+    labsState.guidedDemo = {
+      enabled: false,
+      activeStoryId: "",
+      activeMomentIndex: 0,
+      mode: "landing",
+      lastNormalScenarioId: journeyState().scenarioId,
+      hasSeenLanding: false
+    };
+  }
+  return labsState.guidedDemo;
+}
+
+function currentGuidedStory() {
+  const demo = guidedDemoState();
+  return guidedDemoStories[demo.activeStoryId] || null;
+}
+
+function currentGuidedMoment() {
+  const story = currentGuidedStory();
+  const demo = guidedDemoState();
+  return story?.moments?.[demo.activeMomentIndex] || null;
+}
+
+function syncGuidedDemoClass() {
+  document.body.classList.toggle("journey-guided-active", Boolean(guidedDemoState().enabled));
+}
+
+function resetJourneyStateForGuidedStory(storyId) {
+  const story = guidedDemoStories[storyId] || guidedDemoStories["clean-property-check"];
+  clearJourneyTimers();
+  labsState.journeyState = createInitialJourneyState(story.scenarioId);
+  const state = journeyState();
+  addTimelineEvent({
+    title: `${story.title} story started`,
+    body: "Guided demo reset this property brain with simulated data.",
+    type: "Guided demo"
+  });
+  return state;
+}
+
+function applyGuidedAnswerSet(answers = {}, unknownIndex = null) {
+  const orderedAnswers = journeyUnknownQuestions
+    .map((question) => [question.id, answers[question.id]])
+    .filter(([, answerId]) => Boolean(answerId));
+
+  orderedAnswers.forEach(([questionId, answerId]) => {
+    answerUnknown(questionId, answerId);
+  });
+
+  const state = journeyState();
+  state.unknownIndex = unknownIndex ?? (orderedAnswers.length ? journeyUnknownQuestions.length : state.unknownIndex);
+  state.actionPlan = buildJourneyActionPlan(state);
+  state.serviceRecommendations = buildServiceRecommendations(state);
+}
+
+function addGuidedTenantMessage(templateId = "damp-photos") {
+  const state = journeyState();
+  const template = journeyTenantMessageTemplates.find((item) => item.id === templateId) || journeyTenantMessageTemplates[0];
+  const message = {
+    id: `guided-message-${template.id}`,
+    title: template.title,
+    body: template.body.replaceAll("[Property Address]", state.propertyBrain.PropertyIdentity.address),
+    linkedServiceId: template.linkedServiceId,
+    status: "logged"
+  };
+  state.generatedMessages.unshift(message);
+  addTimelineEvent({
+    title: "Tenant message generated",
+    body: `${message.title} prepared and logged in guided demo mode.`,
+    type: "Tenant message"
+  });
+}
+
+function addGuidedConditionEvidence() {
+  const state = journeyState();
+  state.evidenceVault.unshift({
+    id: "guided-damp-evidence",
+    documentType: "damp-photos",
+    title: "Damp/mould photos",
+    linkedComplianceArea: "Condition",
+    uploadStatus: "accepted",
+    fakeScanResult: "Guided scan accepted",
+    addressMatch: `Matched to ${state.propertyBrain.PropertyIdentity.address}`,
+    extractedDate: "Just now",
+    expiryDate: "Not applicable",
+    confidence: "Medium",
+    reviewStatus: "accepted",
+    scoreImpact: 5,
+    timelineLink: "guided-damp-evidence"
+  });
+  addTimelineEvent({
+    title: "Evidence and communication logged",
+    body: "Damp/mould photo evidence and tenant communication were added to the guided timeline.",
+    type: "Evidence scan"
+  });
+}
+
+function enterGuidedDemo(storyId = "") {
+  const demo = guidedDemoState();
+  demo.enabled = true;
+  demo.lastNormalScenarioId = journeyState().scenarioId;
+  demo.hasSeenLanding = true;
+  syncGuidedDemoClass();
+
+  if (storyId && guidedDemoStories[storyId]) {
+    startGuidedStory(storyId);
+    return;
+  }
+
+  demo.activeStoryId = "";
+  demo.activeMomentIndex = 0;
+  demo.mode = "landing";
+  showJourneyOs({ scroll: true });
+  renderJourneyOsState();
+}
+
+function exitGuidedDemo() {
+  const demo = guidedDemoState();
+  demo.enabled = false;
+  demo.activeStoryId = "";
+  demo.activeMomentIndex = 0;
+  demo.mode = "landing";
+  syncGuidedDemoClass();
+  showJourneyOs({ scroll: false });
+  renderJourneyOsState();
+  showToast("Exited guided demo mode.");
+}
+
+function resetGuidedDemo(storyId = "") {
+  const demo = guidedDemoState();
+  const targetStoryId = storyId || demo.activeStoryId;
+  if (targetStoryId && guidedDemoStories[targetStoryId]) {
+    startGuidedStory(targetStoryId);
+    return;
+  }
+  enterGuidedDemo();
+}
+
+function startGuidedStory(storyId) {
+  const story = guidedDemoStories[storyId] || guidedDemoStories["clean-property-check"];
+  const demo = guidedDemoState();
+  demo.enabled = true;
+  demo.activeStoryId = storyId in guidedDemoStories ? storyId : "clean-property-check";
+  demo.activeMomentIndex = 0;
+  demo.mode = "story";
+  syncGuidedDemoClass();
+  applyGuidedMoment(demo.activeStoryId, 0);
+}
+
+function advanceGuidedMoment(direction = 1) {
+  const demo = guidedDemoState();
+  const story = currentGuidedStory();
+  if (!story) {
+    enterGuidedDemo();
+    return;
+  }
+  const nextIndex = Math.max(0, Math.min(story.moments.length - 1, demo.activeMomentIndex + direction));
+  applyGuidedMoment(demo.activeStoryId, nextIndex);
+}
+
+function openGuidedWorkspacePreview() {
+  const state = journeyState();
+  state.screen = "workspace";
+  state.currentStage = "monitor";
+  state.workspaceTab = state.workspaceTab || "overview";
+  addTimelineEvent({
+    title: "Guided workspace opened",
+    body: "Presenter opened the workspace to show the property brain destination.",
+    type: "Guided demo"
+  });
+  showJourneyOs({ scroll: false });
+  renderJourneyOsState();
+}
+
+function applyGuidedMoment(storyId, momentIndex) {
+  const story = guidedDemoStories[storyId] || guidedDemoStories["clean-property-check"];
+  const moment = story.moments[momentIndex] || story.moments[0];
+  const demo = guidedDemoState();
+  demo.enabled = true;
+  demo.activeStoryId = storyId in guidedDemoStories ? storyId : "clean-property-check";
+  demo.activeMomentIndex = story.moments.indexOf(moment);
+  demo.mode = "story";
+  syncGuidedDemoClass();
+
+  const state = resetJourneyStateForGuidedStory(demo.activeStoryId);
+  if (moment.autoComplete) {
+    state.autoCheckStep = journeyAutoCheckSteps.length;
+    addTimelineEvent({
+      title: "Auto checks completed",
+      body: "Address, EPC, authority, licensing and property clues were revealed in guided mode.",
+      type: "Auto checks"
+    });
+  }
+  if (moment.noEpcChoice) {
+    handleNoEpcChoice(moment.noEpcChoice);
+  }
+  if (moment.answers) {
+    applyGuidedAnswerSet(moment.answers, moment.unknownIndex);
+  }
+  if (moment.route) {
+    state.routeId = moment.route;
+    state.actionPlan = buildJourneyActionPlan(state);
+    state.serviceRecommendations = buildServiceRecommendations(state);
+  }
+  if (moment.brainComplete) {
+    state.brainStep = journeyBrainSteps.length;
+    state.actionPlan = buildJourneyActionPlan(state);
+    state.serviceRecommendations = buildServiceRecommendations(state);
+    addTimelineEvent({
+      title: "Property brain built",
+      body: "Guided demo combined simulated records, landlord answers, services and monitoring.",
+      type: "Property brain"
+    });
+  }
+  if (moment.servicePlan) {
+    applyServicePlan(moment.servicePlan);
+  }
+  if (moment.tenantMessage) {
+    addGuidedTenantMessage(moment.tenantMessage);
+  }
+  if (moment.addConditionEvidence) {
+    addGuidedConditionEvidence();
+  }
+
+  state.currentStage = moment.stage;
+  state.screen = moment.screen;
+  if (moment.workspaceTab) {
+    state.workspaceTab = moment.workspaceTab;
+  }
+  state.actionPlan = buildJourneyActionPlan(state);
+  state.serviceRecommendations = buildServiceRecommendations(state);
+  showJourneyOs({ scroll: false });
+  renderJourneyOsState();
+}
+
 function updatePropertyBrain(partialUpdate) {
   const state = journeyState();
   state.propertyBrain = {
@@ -5239,6 +5639,125 @@ function answerUnknown(questionId, answerId) {
   renderJourneyOsState();
 }
 
+function renderGuidedStoryCards() {
+  return Object.entries(guidedDemoStories).map(([id, story]) => `
+    <article class="journey-guided-story-card">
+      <div class="journey-story-motif is-${escapeHtml(story.motif)}" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+      <p class="section-kicker">${escapeHtml(story.time)}</p>
+      <h3>${escapeHtml(story.title)}</h3>
+      <p>${escapeHtml(story.proof)}</p>
+      <small>Scenario: ${escapeHtml(journeyDemoScenarios[story.scenarioId]?.label || story.scenarioId)}</small>
+      <button class="secondary-button" type="button" data-guided-story="${escapeHtml(id)}">Start story</button>
+    </article>
+  `).join("");
+}
+
+function renderGuidedDemoLanding() {
+  return `
+    <section class="journey-guided-landing" aria-labelledby="guidedDemoTitle">
+      <div class="journey-guided-hero">
+        <div>
+          <p class="section-kicker">Presenter demo</p>
+          <h1 id="guidedDemoTitle">CMP Journey OS guided demo</h1>
+          <p>Five short stories showing how CMP turns messy landlord compliance into a clear property action plan.</p>
+          <span class="prototype-badge">Guided demo mode: simulated data, real product journey.</span>
+          <div class="button-row">
+            <button class="primary-button" type="button" data-guided-story="clean-property-check">Run the 2-minute demo</button>
+            <button class="secondary-button" type="button" data-guided-scroll-stories>Choose a story</button>
+            <button class="text-button" type="button" data-guided-exit>Exit guided demo</button>
+          </div>
+        </div>
+        <aside class="journey-guided-vision-card">
+          <strong>What Nick should see</strong>
+          <p>CMP checks records, asks only what records cannot know, builds a property brain, then turns risk into services and monitoring.</p>
+          <div class="journey-guided-orbit" aria-hidden="true">
+            <span>Records</span>
+            <span>Answers</span>
+            <span>Evidence</span>
+            <span>Services</span>
+            <i></i>
+          </div>
+        </aside>
+      </div>
+      <section class="journey-guided-story-grid" id="guidedStoryGrid">
+        ${renderGuidedStoryCards()}
+      </section>
+      <section class="journey-guided-simulation-note">
+        <strong>What is simulated</strong>
+        <p>API checks, EPC lookup, licensing signals, document scanning, Ask CMP responses, supplier booking and monitoring are all local prototype state. No live lookup is performed.</p>
+      </section>
+    </section>
+  `;
+}
+
+function renderGuidedPresenterPanel() {
+  const demo = guidedDemoState();
+  const story = currentGuidedStory();
+  const moment = currentGuidedMoment();
+  if (!demo.enabled || !story || !moment) {
+    return "";
+  }
+  const progress = story.moments.length ? Math.round(((demo.activeMomentIndex + 1) / story.moments.length) * 100) : 0;
+  const isLast = demo.activeMomentIndex >= story.moments.length - 1;
+  return `
+    <section class="journey-guided-presenter" aria-label="Guided demo presenter controls">
+      <div class="journey-guided-presenter-main">
+        <span>Guided demo</span>
+        <strong>${escapeHtml(story.title)}</strong>
+        <small>${escapeHtml(moment.name)} · ${demo.activeMomentIndex + 1} of ${story.moments.length}</small>
+        <div class="journey-guided-progress"><i style="width: ${progress}%"></i></div>
+        <p>${escapeHtml(moment.note)}</p>
+      </div>
+      <div class="journey-guided-presenter-actions">
+        <button class="secondary-button" type="button" data-guided-back ${demo.activeMomentIndex === 0 ? "disabled" : ""}>Back</button>
+        <button class="primary-button" type="button" data-guided-next>${isLast ? "Finish story" : "Next moment"}</button>
+        <button class="text-button" type="button" data-guided-restart>Restart story</button>
+        <button class="text-button" type="button" data-guided-open-workspace>Open workspace</button>
+        <button class="text-button" type="button" data-guided-reset>Reset demo</button>
+        <button class="text-button" type="button" data-guided-exit>Exit guided demo</button>
+      </div>
+      <small class="journey-guided-presenter-note">Presenter mode keeps the walkthrough focused. Exit to return to normal testing controls.</small>
+    </section>
+  `;
+}
+
+function renderGuidedCallout() {
+  const demo = guidedDemoState();
+  const moment = currentGuidedMoment();
+  if (!demo.enabled || !moment?.callout) {
+    return "";
+  }
+  return `
+    <aside class="journey-guided-callout">
+      <span>Presenter note</span>
+      <p>${escapeHtml(moment.callout)}</p>
+    </aside>
+  `;
+}
+
+function renderGuidedBrainVisual() {
+  if (!guidedDemoState().enabled) {
+    return "";
+  }
+  return `
+    <section class="journey-brain-visual" aria-label="Property brain visual">
+      <svg viewBox="0 0 600 260" role="presentation" aria-hidden="true">
+        <path d="M300 130 118 62M300 130 116 198M300 130 300 38M300 130 482 62M300 130 484 198"></path>
+      </svg>
+      <div class="journey-brain-node is-core">Property brain</div>
+      <div class="journey-brain-node is-records">Public records</div>
+      <div class="journey-brain-node is-answers">Landlord answers</div>
+      <div class="journey-brain-node is-evidence">Evidence</div>
+      <div class="journey-brain-node is-services">Service routes</div>
+      <div class="journey-brain-node is-monitoring">Monitoring</div>
+    </section>
+  `;
+}
+
 function renderJourneySpine() {
   const state = journeyState();
   const currentIndex = journeyStages.findIndex((stage) => stage.id === state.currentStage);
@@ -5280,7 +5799,9 @@ function renderJourneyScenarioSwitcher() {
 
 function renderJourneyShell(screenHtml) {
   const state = journeyState();
+  const guided = guidedDemoState();
   return `
+    ${renderGuidedPresenterPanel()}
     <header class="journey-os-header">
       <div>
         <p class="section-kicker">CMP Journey OS</p>
@@ -5289,11 +5810,24 @@ function renderJourneyShell(screenHtml) {
         <span class="prototype-badge">Prototype mode: simulated API checks, document intelligence and service routes. No live lookup performed.</span>
       </div>
       <div class="journey-os-header-actions">
-        ${renderJourneyScenarioSwitcher()}
-        <button class="secondary-button" type="button" data-journey-reset>Reset Journey OS</button>
+        ${guided.enabled ? `
+          <section class="journey-guided-status-card" aria-label="Guided demo status">
+            <span>Guided demo mode</span>
+            <strong>Simulated data, real product journey</strong>
+            <div class="button-row">
+              <button class="secondary-button" type="button" data-guided-reset>Reset demo</button>
+              <button class="text-button" type="button" data-guided-exit>Exit</button>
+            </div>
+          </section>
+        ` : `
+          ${renderJourneyScenarioSwitcher()}
+          <button class="primary-button" type="button" data-guided-enter>Guided demo</button>
+          <button class="secondary-button" type="button" data-journey-reset>Reset Journey OS</button>
+        `}
       </div>
     </header>
     ${renderJourneySpine()}
+    ${renderGuidedCallout()}
     ${state.branchEffects.length ? `
       <section class="journey-branch-effects" aria-live="polite">
         <div>
@@ -5560,6 +6094,7 @@ function renderJourneyBrain() {
         <h2>CMP is building your property brain</h2>
         <p>Fake analysis is combining simulated records, landlord answers, evidence gaps and service routes.</p>
       </div>
+      ${renderGuidedBrainVisual()}
       <div class="journey-progress-grid">
         ${journeyBrainSteps.map((step, index) => `
           <article class="journey-progress-card ${index < state.brainStep ? "is-complete" : index === state.brainStep ? "is-active" : ""}">
@@ -6024,6 +6559,14 @@ function renderJourneyOsState() {
     return;
   }
 
+  syncGuidedDemoClass();
+  const guided = guidedDemoState();
+  if (guided.enabled && guided.mode === "landing" && !guided.activeStoryId) {
+    page.innerHTML = renderGuidedDemoLanding();
+    hydrateIcons();
+    return;
+  }
+
   const state = journeyState();
   const screens = {
     start: renderJourneyStart,
@@ -6049,6 +6592,7 @@ function showJourneyOs({ scroll = false } = {}) {
     response: "Journey OS is running in demo mode with simulated API checks, compliance analysis and document intelligence.",
     scroll
   });
+  syncGuidedDemoClass();
 }
 
 function runMockAutoChecks() {
@@ -6355,6 +6899,70 @@ function bindJourneyOs() {
     if (event.target.closest("[data-journey-start]")) {
       event.preventDefault();
       showJourneyOs({ scroll: true });
+      return;
+    }
+
+    if (event.target.closest("[data-guided-enter]")) {
+      event.preventDefault();
+      closeTimelineModals();
+      enterGuidedDemo();
+      return;
+    }
+
+    const guidedStoryButton = event.target.closest("[data-guided-story]");
+    if (guidedStoryButton) {
+      event.preventDefault();
+      closeTimelineModals();
+      startGuidedStory(guidedStoryButton.dataset.guidedStory);
+      return;
+    }
+
+    if (event.target.closest("[data-guided-scroll-stories]")) {
+      event.preventDefault();
+      document.querySelector("#guidedStoryGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      return;
+    }
+
+    if (event.target.closest("[data-guided-next]")) {
+      event.preventDefault();
+      const story = currentGuidedStory();
+      const demo = guidedDemoState();
+      if (story && demo.activeMomentIndex >= story.moments.length - 1) {
+        openGuidedWorkspacePreview();
+        showToast("Guided story finished in the Property Workspace.");
+      } else {
+        advanceGuidedMoment(1);
+      }
+      return;
+    }
+
+    if (event.target.closest("[data-guided-back]")) {
+      event.preventDefault();
+      advanceGuidedMoment(-1);
+      return;
+    }
+
+    if (event.target.closest("[data-guided-restart]")) {
+      event.preventDefault();
+      resetGuidedDemo(guidedDemoState().activeStoryId);
+      return;
+    }
+
+    if (event.target.closest("[data-guided-open-workspace]")) {
+      event.preventDefault();
+      openGuidedWorkspacePreview();
+      return;
+    }
+
+    if (event.target.closest("[data-guided-reset]")) {
+      event.preventDefault();
+      resetGuidedDemo(guidedDemoState().activeStoryId);
+      return;
+    }
+
+    if (event.target.closest("[data-guided-exit]")) {
+      event.preventDefault();
+      exitGuidedDemo();
       return;
     }
 
@@ -14116,7 +14724,7 @@ function bindDemoState() {
   });
   document.querySelector("[data-demo-guide-start]")?.addEventListener("click", () => {
     closeTimelineModals();
-    showPortfolioHome({ scroll: true });
+    enterGuidedDemo("clean-property-check");
   });
 
   document.querySelectorAll("[data-demo-state-option]").forEach((button) => {
@@ -16161,6 +16769,9 @@ bindSmartUpload();
 bindServices();
 bindPropertyDetails();
 showPortfolioHome();
+if (new URLSearchParams(window.location.search).get("journeyDemo") === "nick") {
+  enterGuidedDemo();
+}
 if (isEmptyPortfolioMode() || isNewPropertyMode()) {
   setAssistantResponse(getGlobalAskDefaultResponse());
 }

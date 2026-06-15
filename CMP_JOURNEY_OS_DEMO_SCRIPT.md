@@ -99,6 +99,75 @@ What this proves: Journey OS is not just a checklist. It is a property brain tha
 - Some scoring changes are deliberately simple so the demo remains understandable.
 - The current visual pass is demo-ready polish, not final product design.
 
+## Nick-Facing Guided Demo Mode
+
+Use `Guided demo` inside Journey OS, or open `dashboard-labs.html?journeyDemo=nick`.
+
+Recommended opening line:
+
+> This is simulated data, but the journey is the important part. The real product would connect EPC, address, licensing and document intelligence later. Right now we are testing whether the landlord journey makes sense and whether the commercial service paths feel compelling.
+
+### 2-Minute Demo Script
+
+1. Open Journey OS and click `Guided demo`.
+2. Click `Run the 2-minute demo`.
+3. Use `Next moment` through:
+   - address start,
+   - simulated auto checks,
+   - clean property match,
+   - review found data,
+   - landlord-only unknowns,
+   - property brain,
+   - action plan,
+   - workspace monitoring.
+4. Point out: CMP checks what it can before asking questions.
+5. Point out: every branch returns to one property workspace.
+6. End on Monitoring and say: this is the subscription value.
+
+### 10-Minute Demo Script
+
+1. Start with the clean property story to explain the mainline.
+2. Restart and run `No EPC found`.
+3. Show that a missing EPC becomes a clear action, not a dead end.
+4. Run `HMO/licensing risk`.
+5. Point out that landlord answers add licensing and safety services.
+6. Run `Damp, mould and enforcement risk`.
+7. Show tenant message and timeline/evidence value.
+8. Run `Done-for-me compliance plan`.
+9. Show the service basket and quote/book/concierge options.
+10. End in Monitoring and portfolio preview.
+
+### Five Story Map
+
+| Guided story | What to click | What to point out | Question for Nick |
+| --- | --- | --- | --- |
+| Clean property check | Run 2-minute demo | Property brain turns a property into a plan | Does the main landlord journey make sense? |
+| No EPC found | Start `No EPC found` | Missing data becomes an action | Is this a strong way to handle failed lookups? |
+| HMO/licensing risk | Start `HMO/licensing risk` | Answers add a specialist side route | Which HMO/licensing services feel commercial? |
+| Damp, mould and enforcement risk | Start `Damp, mould and enforcement risk` | Condition, evidence and messages join the same workspace | Does this go beyond certificate checking in the right way? |
+| Done-for-me compliance plan | Start `Done-for-me compliance plan` | CMP becomes a service concierge | Would landlords pay for this managed route? |
+
+### What Is Simulated In Guided Mode
+
+- Fake API checks.
+- Fake EPC checks.
+- Fake local authority and licensing checks.
+- Fake document scanning.
+- Fake service booking and quote requests.
+- Fake Ask CMP responses.
+- Fake monitoring.
+
+### What Would Be Real Later
+
+- EPC API.
+- Address and UPRN lookup.
+- Local authority and licensing lookup.
+- Secure evidence storage.
+- Document intelligence.
+- Real supplier booking and quotes.
+- Real compliance rules engine.
+- Accounts, roles and permissions.
+
 ## Suggested Next Pass
 
-Create a Nick-facing guided demo mode with a single narrated route, fewer visible testing controls, and a reset button for five polished stories: clean property, no EPC, HMO risk, damp/mould/council contact and done-for-me.
+After testing with Nick, convert the strongest story into a tighter sales/demo route and decide which underlying integration should be built properly first.
