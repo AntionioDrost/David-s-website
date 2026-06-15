@@ -136,8 +136,9 @@ Recommended opening line:
 6. Run `Damp, mould and enforcement risk`.
 7. Show tenant message and timeline/evidence value.
 8. Run `Done-for-me compliance plan`.
-9. Show the service basket and quote/book/concierge options.
-10. End in Monitoring and portfolio preview.
+9. Show the service basket and click one quote/book/concierge option through to the fake confirmation.
+10. Point out the pending/generated evidence in Evidence Vault, the Compliance Centre bridge, and Monitoring follow-up.
+11. End in Monitoring and portfolio preview.
 
 ### Five Story Map
 
@@ -148,6 +149,10 @@ Recommended opening line:
 | HMO/licensing risk | Start `HMO/licensing risk` | Answers add a specialist side route | Which HMO/licensing services feel commercial? |
 | Damp, mould and enforcement risk | Start `Damp, mould and enforcement risk` | Condition, evidence and messages join the same workspace | Does this go beyond certificate checking in the right way? |
 | Done-for-me compliance plan | Start `Done-for-me compliance plan` | CMP becomes a service concierge | Would landlords pay for this managed route? |
+
+### Service Journey Test Add-On
+
+After any story reaches the workspace, click a service next step such as `Book legal essentials`, `Request quotes first`, `Book EPC assessment` or `Book damp/mould survey`. The prototype should show a fake confirmation, update service status, add pending/generated evidence, update monitoring, and return to the workspace without any live supplier, payment or upload integration.
 
 ### What Is Simulated In Guided Mode
 

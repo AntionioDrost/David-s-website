@@ -18,7 +18,8 @@
 - Show landlord-only unknowns.
 - Show the property brain moment.
 - Show the action plan as the core output.
-- Show one service basket path.
+- Show one service basket path through fake booking or quote confirmation.
+- Show how the fake service creates pending/generated evidence and monitoring.
 - Show one Ask CMP response or tenant message.
 - End in Monitoring to explain recurring value.
 
@@ -37,4 +38,5 @@
 
 - EPC, UPRN/address, licensing, scanning, booking and Ask CMP are simulated in this prototype.
 - The current goal is to test the journey, product story and service paths.
+- Fake booking references, quote requests and generated service evidence are local demo states.
 - Real APIs, document intelligence, secure evidence storage and supplier booking would be later implementation layers.

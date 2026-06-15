@@ -15013,6 +15013,8 @@ body.checker-is-active .portfolio-stage-purpose li {
 }
 
 .journey-intake-modal,
+.journey-service-detail-modal,
+.journey-confirmation-modal,
 .journey-upload-modal,
 .journey-ask-modal,
 .journey-message-modal {
@@ -15022,6 +15024,90 @@ body.checker-is-active .portfolio-stage-purpose li {
 
 .journey-intake-modal {
   grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+}
+
+.journey-service-detail-hero,
+.journey-confirmation-banner,
+.journey-property-brain-updated {
+  border: 1px solid rgba(31, 137, 94, 0.16);
+  border-radius: 20px;
+  padding: 18px;
+  background:
+    radial-gradient(circle at top right, rgba(35, 126, 88, 0.12), transparent 38%),
+    linear-gradient(135deg, rgba(236, 248, 241, 0.96), rgba(255, 255, 255, 0.96));
+  box-shadow: 0 18px 42px rgba(17, 54, 42, 0.08);
+}
+
+.journey-service-detail-hero h3,
+.journey-confirmation-banner h3 {
+  margin: 10px 0 6px;
+  color: var(--labs-ink);
+  font-size: 1.35rem;
+}
+
+.journey-service-detail-hero p,
+.journey-confirmation-banner p,
+.journey-property-brain-updated p {
+  margin: 0;
+  color: var(--labs-muted);
+  line-height: 1.55;
+}
+
+.journey-service-detail-grid,
+.journey-confirmation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.journey-service-detail-grid article,
+.journey-confirmation-grid article {
+  display: grid;
+  gap: 5px;
+  border: 1px solid var(--journey-line);
+  border-radius: 16px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.86);
+}
+
+.journey-service-detail-grid span,
+.journey-confirmation-grid span,
+.journey-service-question-list {
+  color: var(--labs-muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.journey-service-detail-grid strong,
+.journey-confirmation-grid strong,
+.journey-property-brain-updated strong {
+  color: var(--labs-ink);
+}
+
+.journey-service-question-list {
+  display: grid;
+  gap: 7px;
+  margin: 8px 0 0;
+  padding-left: 18px;
+  line-height: 1.45;
+}
+
+.journey-status-chip.is-added,
+.journey-status-chip.is-pending-evidence,
+.journey-status-chip.is-uploaded {
+  background: rgba(227, 241, 246, 0.9);
+  color: var(--labs-blue);
+}
+
+.journey-status-chip.is-completed {
+  background: var(--labs-green-soft);
+  color: var(--labs-green-dark);
+}
+
+.journey-status-chip.is-expired,
+.journey-status-chip.is-review {
+  background: var(--labs-amber-soft);
+  color: var(--labs-amber);
 }
 
 .journey-intake-questions {
@@ -15118,6 +15204,8 @@ body.checker-is-active .portfolio-stage-purpose li {
   .journey-services-summary,
   .journey-portfolio-grid,
   .journey-service-grid,
+  .journey-service-detail-grid,
+  .journey-confirmation-grid,
   .journey-evidence-grid,
   .journey-monitor-grid,
   .journey-document-grid {
@@ -16222,6 +16310,11 @@ body.journey-guided-active .journey-services-shell .journey-plan-controls {
   .journey-guided-next-grid button,
   .journey-service-filters button {
     width: 100%;
+  }
+
+  .journey-service-detail-grid,
+  .journey-confirmation-grid {
+    grid-template-columns: 1fr;
   }
 
   .journey-brain-visual {

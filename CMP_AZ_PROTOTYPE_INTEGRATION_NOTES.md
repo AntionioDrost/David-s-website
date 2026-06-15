@@ -12,6 +12,7 @@ Branch: `labs/cmp-journey-os-v1`
 - Bridged Compliance Centre to active Journey OS scores, blockers, evidence gaps, service actions and monitoring.
 - Bridged Evidence Vault to active Journey OS fake scans and missing evidence.
 - Added context-aware Ask CMP copy for dashboard, Journey, Compliance Centre, Evidence Vault and service contexts.
+- Completed the fake service lifecycle so service plans, bookings, quotes and completed services update Evidence Vault, Compliance Centre, Monitoring and Timeline.
 
 ## Journey OS flow fixes
 
@@ -22,6 +23,7 @@ Branch: `labs/cmp-journey-os-v1`
 - Action Plan includes an `Edit answers` note so the flow no longer feels one-way.
 - Service recommendations now have filter chips and clearer lifecycle labels.
 - Guided demo story endings now surface story-specific next-step actions in the workspace.
+- Service next steps now show fake confirmations with supplier-ready status, expected evidence, references and return paths.
 
 ## What was preserved
 
@@ -36,7 +38,7 @@ Branch: `labs/cmp-journey-os-v1`
 - Multi-select was added for condition issues only; other questions remain intentionally simple.
 - Service filtering is local presentation state only.
 - Ask CMP remains scripted and local.
-- Evidence scanning, service bookings, supplier statuses and monitoring are simulations only.
+- Evidence scanning, service bookings, supplier statuses and monitoring are simulations only, but they now update the same local property brain for demo continuity.
 
 ## What still needs a final audit
 

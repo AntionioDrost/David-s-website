@@ -718,6 +718,253 @@ const journeyServiceCatalog = [
     whatItFixes: "Groups clean, clearance, locks, inspection and evidence before marketing.",
     why: "Vacant or pre-let properties need practical readiness as well as certificates.",
     questions: ["Target marketing date?", "Cleaning needed?", "Lock change needed?", "Clearance needed?", "Inventory needed?"]
+  },
+  {
+    id: "epc-assessment",
+    title: "EPC Assessment",
+    category: "Urgent",
+    urgency: "High",
+    linkedComplianceArea: "EPC",
+    linkedActionIds: ["epc-urgent", "book-epc", "epc-expiry"],
+    routeTypes: ["prioritised", "legalMinimum", "futureProof", "doneForMe"],
+    bundleTags: ["legal essentials", "urgent only", "energy"],
+    whatItFixes: "Books a fresh EPC assessment or replaces a missing/expired EPC route.",
+    why: "CMP cannot rely on the EPC profile until a current certificate exists.",
+    questions: ["Preferred assessor access?", "Is the property occupied?", "Any loft access?", "Any recent insulation/heating upgrades?", "Preferred dates?"]
+  },
+  {
+    id: "prescribed-info-evidence",
+    title: "Prescribed Information Evidence",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Deposit",
+    linkedActionIds: ["prescribed-info", "deposit-review"],
+    routeTypes: ["riskProtected", "doneForMe"],
+    bundleTags: ["evidence recovery", "risk protected"],
+    whatItFixes: "Creates a recoverable evidence trail for prescribed information and deposit documents.",
+    why: "Deposit evidence is weak until the served information is recorded.",
+    questions: ["Which scheme was used?", "Date served, if known?", "Tenant names?", "Any email/post evidence?", "Any dispute or possession concern?"]
+  },
+  {
+    id: "evidence-pack-review",
+    title: "Evidence Pack Review",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Evidence",
+    linkedActionIds: ["right-to-rent", "tenancy-docs", "inventory"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["evidence recovery", "risk protected"],
+    whatItFixes: "Reviews the file and turns weak proof into a clear evidence recovery list.",
+    why: "CMP can see several pieces of evidence are missing or low confidence.",
+    questions: ["Which documents do you already have?", "Any tenant communications?", "Any certificates booked elsewhere?", "Preferred review priority?"]
+  },
+  {
+    id: "pest-control",
+    title: "Pest Control",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Condition",
+    linkedActionIds: ["pest-condition-risk", "condition-inspection"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["condition", "risk protected"],
+    whatItFixes: "Creates a treatment route and evidence trail for pest or habitability concerns.",
+    why: "A pest issue should become an inspection/treatment record, not a loose note.",
+    questions: ["Which rooms are affected?", "How long has this been happening?", "Photos available?", "Tenant access confirmed?", "Any previous treatment?"]
+  },
+  {
+    id: "heating-hot-water-repair",
+    title: "Heating/Hot Water Repair",
+    category: "Recommended",
+    urgency: "High",
+    linkedComplianceArea: "Condition",
+    linkedActionIds: ["damp-condition-risk", "condition-inspection", "gas-service"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["condition", "risk protected", "urgent only"],
+    whatItFixes: "Routes heating or hot-water issues into repair evidence and tenant follow-up.",
+    why: "Heating, hot water and damp risks can escalate quickly without proof of response.",
+    questions: ["What is not working?", "Since when?", "Any vulnerable occupants? Optional.", "Is heating currently safe?", "Preferred repair access?"]
+  },
+  {
+    id: "roof-gutter-inspection",
+    title: "Roof/Gutter Inspection",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Condition",
+    linkedActionIds: ["damp-condition-risk", "condition-inspection"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["condition", "risk protected"],
+    whatItFixes: "Checks roof, gutter or leak routes and creates condition evidence.",
+    why: "Leak clues should connect to a survey and repair chronology.",
+    questions: ["Where is water entering?", "Any ceiling stains?", "Photos available?", "Recent storms or gutter overflow?", "Access notes?"]
+  },
+  {
+    id: "fire-risk-assessment",
+    title: "Fire Risk Assessment",
+    category: "Urgent",
+    urgency: "High",
+    linkedComplianceArea: "Licensing",
+    linkedActionIds: ["hmo-licensing", "hmo-bundle", "alarms"],
+    routeTypes: ["prioritised", "riskProtected", "doneForMe"],
+    bundleTags: ["hmo", "legal essentials", "risk protected"],
+    whatItFixes: "Adds fire-safety review for HMO, flat/common-parts or high-occupancy routes.",
+    why: "Possible HMO or shared-use risk needs fire-safety evidence before being treated as low risk.",
+    questions: ["How many storeys?", "Any shared escape route?", "Fire doors present?", "Alarm system type?", "Floorplan available?"]
+  },
+  {
+    id: "room-measurement",
+    title: "Room Measurement",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Licensing",
+    linkedActionIds: ["hmo-licensing", "hmo-bundle"],
+    routeTypes: ["riskProtected", "doneForMe"],
+    bundleTags: ["hmo", "evidence recovery"],
+    whatItFixes: "Checks room-size evidence for HMO/licensing readiness.",
+    why: "Room measurements may be needed before a licensing route feels supplier-ready.",
+    questions: ["How many lettable rooms?", "Any floorplan?", "Access to each room?", "Are rooms individually let?"]
+  },
+  {
+    id: "hmo-licence-application",
+    title: "Licensing Application Support",
+    category: "Urgent",
+    urgency: "High",
+    linkedComplianceArea: "Licensing",
+    linkedActionIds: ["hmo-licensing", "hmo-bundle"],
+    routeTypes: ["legalMinimum", "riskProtected", "doneForMe"],
+    bundleTags: ["hmo", "legal essentials", "done for me"],
+    whatItFixes: "Packages occupancy, room, fire and council evidence for a licensing route.",
+    why: "If licensing applies, CMP should turn the risk into a prepared application workflow.",
+    questions: ["Which council?", "Any previous licence?", "Manager details?", "Floorplan?", "Certificates available?", "Room sizes known?"]
+  },
+  {
+    id: "epc-c-roadmap",
+    title: "EPC C Roadmap",
+    category: "Future-proof",
+    urgency: "Medium",
+    linkedComplianceArea: "EPC",
+    linkedActionIds: ["epc-e-roadmap", "decent-homes", "improvement-0"],
+    routeTypes: ["futureProof", "doneForMe"],
+    bundleTags: ["future proof", "energy"],
+    whatItFixes: "Turns EPC future-risk into a staged improvement plan.",
+    why: "A roadmap helps avoid last-minute energy compliance and upgrade decisions.",
+    questions: ["Cheapest route or long-term value?", "Budget range?", "Leasehold restrictions?", "Any grants to consider?", "Tenant disruption limits?"]
+  },
+  {
+    id: "loft-insulation-quote",
+    title: "Loft Insulation Quote",
+    category: "Future-proof",
+    urgency: "Low",
+    linkedComplianceArea: "EPC",
+    linkedActionIds: ["improvement-0", "epc-e-roadmap"],
+    routeTypes: ["futureProof", "doneForMe"],
+    bundleTags: ["future proof", "energy"],
+    whatItFixes: "Explores a low-cost/high-impact EPC improvement.",
+    why: "CMP found insulation as a likely improvement opportunity.",
+    questions: ["Loft access?", "Current insulation depth?", "Any boarding?", "Tenant access?", "Budget range?"]
+  },
+  {
+    id: "heating-controls-trvs",
+    title: "Heating Controls / TRVs",
+    category: "Future-proof",
+    urgency: "Low",
+    linkedComplianceArea: "EPC",
+    linkedActionIds: ["improvement-1", "epc-e-roadmap"],
+    routeTypes: ["futureProof", "doneForMe"],
+    bundleTags: ["future proof", "energy"],
+    whatItFixes: "Creates an upgrade quote route for controls and radiator valves.",
+    why: "Heating controls can improve comfort, evidence and future-readiness.",
+    questions: ["Current heating system?", "TRVs already fitted?", "Smart thermostat interest?", "Preferred access dates?"]
+  },
+  {
+    id: "solar-pv-feasibility",
+    title: "Solar PV Feasibility",
+    category: "Future-proof",
+    urgency: "Low",
+    linkedComplianceArea: "EPC",
+    linkedActionIds: ["epc-e-roadmap", "decent-homes"],
+    routeTypes: ["futureProof", "doneForMe"],
+    bundleTags: ["future proof", "energy"],
+    whatItFixes: "Adds an optional long-term energy feasibility route.",
+    why: "Future-proof planning can include high-impact upgrades once urgent blockers are controlled.",
+    questions: ["Roof orientation known?", "Leasehold restrictions?", "Battery interest?", "Budget range?", "Tenant disruption limits?"]
+  },
+  {
+    id: "mees-exemption-review",
+    title: "MEES Exemption Review",
+    category: "Urgent",
+    urgency: "High",
+    linkedComplianceArea: "EPC",
+    linkedActionIds: ["mees-review", "epc-urgent"],
+    routeTypes: ["legalMinimum", "futureProof", "doneForMe"],
+    bundleTags: ["legal essentials", "energy", "urgent only"],
+    whatItFixes: "Reviews urgent EPC F/G improvement or exemption evidence routes.",
+    why: "EPC F/G needs a clear improvement or exemption path before the risk is treated as handled.",
+    questions: ["Current EPC rating?", "Improvements already attempted?", "Quotes obtained?", "Exemption reason?", "Tenancy status?"]
+  },
+  {
+    id: "end-tenancy-clean",
+    title: "End-of-Tenancy Clean",
+    category: "Void / Re-let",
+    urgency: "Low",
+    linkedComplianceArea: "Void / Re-let",
+    linkedActionIds: ["condition-inspection", "inventory"],
+    routeTypes: ["riskProtected", "doneForMe"],
+    bundleTags: ["void/re-let"],
+    whatItFixes: "Adds practical re-let readiness to the compliance route.",
+    why: "Void/re-let work should sit alongside certificates and evidence.",
+    questions: ["Target date?", "Furnished?", "Appliances included?", "Key collection?", "Parking/access?"]
+  },
+  {
+    id: "property-clearance",
+    title: "Property Clearance",
+    category: "Void / Re-let",
+    urgency: "Low",
+    linkedComplianceArea: "Void / Re-let",
+    linkedActionIds: ["condition-inspection", "inventory"],
+    routeTypes: ["riskProtected", "doneForMe"],
+    bundleTags: ["void/re-let"],
+    whatItFixes: "Creates a clearance route before inspection, inventory or re-let.",
+    why: "Clearance affects readiness and evidence quality.",
+    questions: ["Items to remove?", "Any hazardous waste?", "Photos available?", "Access notes?"]
+  },
+  {
+    id: "lock-change",
+    title: "Lock Change",
+    category: "Void / Re-let",
+    urgency: "Medium",
+    linkedComplianceArea: "Void / Re-let",
+    linkedActionIds: ["condition-inspection", "inventory"],
+    routeTypes: ["riskProtected", "doneForMe"],
+    bundleTags: ["void/re-let"],
+    whatItFixes: "Adds a practical security step for void or re-let readiness.",
+    why: "Lock change can be part of making a property ready and evidenced.",
+    questions: ["How many external doors?", "Any communal entry?", "Preferred dates?", "Key handover notes?"]
+  },
+  {
+    id: "checkout-report",
+    title: "Check-Out Report",
+    category: "Void / Re-let",
+    urgency: "Medium",
+    linkedComplianceArea: "Evidence",
+    linkedActionIds: ["inventory", "condition-inspection"],
+    routeTypes: ["riskProtected", "doneForMe"],
+    bundleTags: ["void/re-let", "evidence recovery"],
+    whatItFixes: "Creates end-of-tenancy condition evidence and repair priorities.",
+    why: "A check-out report helps connect repair, deposit and re-let decisions.",
+    questions: ["Move-out date?", "Inventory available?", "Meter reads needed?", "Photo schedule needed?", "Deposit dispute risk?"]
+  },
+  {
+    id: "done-for-me-concierge",
+    title: "Done-for-Me Concierge",
+    category: "Recommended",
+    urgency: "Medium",
+    linkedComplianceArea: "Service coordination",
+    linkedActionIds: ["annual-monitoring", "gas-safety", "eicr", "deposit-review"],
+    routeTypes: ["doneForMe"],
+    bundleTags: ["done for me", "risk protected", "legal essentials", "future proof"],
+    whatItFixes: "Groups urgent compliance, evidence recovery, quote handling and monitoring into one managed route.",
+    why: "The landlord asked CMP to handle the plan rather than manually choosing every service.",
+    questions: ["Preferred contact method?", "Budget range?", "Urgent-only or full plan?", "Tenant access permission?", "Quote approval preference?"]
   }
 ];
 
@@ -956,7 +1203,12 @@ const journeyAskPrompts = [
   "What risks could get expensive?",
   "What is the cheapest compliant route?",
   "What is the safest future-proof route?",
-  "What changed in this property brain?"
+  "What changed in this property brain?",
+  "What did my booking change?",
+  "What evidence is still missing?",
+  "What is waiting on a service?",
+  "What can I mark complete?",
+  "What should I do after requesting quotes?"
 ];
 
 const journeyTenantMessageTemplates = [
@@ -1113,6 +1365,8 @@ function createInitialJourneyState(scenarioId = "clean-property-match") {
     activeIntake: null,
     activeScanner: null,
     activeTenantMessage: null,
+    activeServiceDetail: "",
+    activeConfirmation: null,
     modalMode: "",
     scannerTimers: [],
     deferredActions: [],
@@ -4738,9 +4992,88 @@ function serviceLifecycleLabel(status = "recommended") {
     booked: "Booked",
     pending: "In progress",
     completed: "Completed",
-    deferred: "Saved for later"
+    deferred: "Saved for later",
+    required: "Required",
+    pending_evidence: "Pending from booking",
+    uploaded: "Uploaded",
+    accepted: "Verified simulation",
+    rejected: "Rejected",
+    expired: "Expired",
+    review: "Needs review"
   };
   return labels[status] || status.replace(/_/g, " ");
+}
+
+function serviceEvidenceConfig(serviceId) {
+  const service = journeyServiceById(serviceId);
+  const fallback = {
+    title: `${service.title} evidence`,
+    area: service.linkedComplianceArea,
+    renewalId: "evidence-review-due",
+    dueDate: "Follow-up in 14 days",
+    expiryDate: "Review date to confirm",
+    actionId: service.linkedActionIds[0] || service.id
+  };
+  const configs = {
+    "gas-safety-certificate": { title: "Gas Safety Certificate", area: "Gas Safety", renewalId: "gas-renewal", dueDate: "12 months after certificate", expiryDate: "14 June 2027", actionId: "gas-safety" },
+    eicr: { title: "EICR", area: "Electrical Safety", renewalId: "eicr-renewal", dueDate: "5-year renewal watch", expiryDate: "14 June 2031", actionId: "eicr" },
+    "smoke-co-alarm-check": { title: "Smoke/CO Alarm Check Report", area: "Smoke and CO", renewalId: "evidence-review-due", dueDate: "Next tenancy / annual review", expiryDate: "Annual review", actionId: "alarms" },
+    "licensing-check": { title: "Licensing Check Report", area: "Licensing", renewalId: "licensing-watch", dueDate: "Council/licence watch", expiryDate: "Council result pending", actionId: "hmo-licensing" },
+    "hmo-licence-application": { title: "Licence Application Pack", area: "Licensing", renewalId: "licensing-watch", dueDate: "Council response watch", expiryDate: "Council result pending", actionId: "hmo-licensing" },
+    "fire-risk-assessment": { title: "Fire Risk Assessment", area: "Licensing", renewalId: "evidence-review-due", dueDate: "Annual review", expiryDate: "Annual review", actionId: "hmo-bundle" },
+    "room-measurement": { title: "Room Measurement Evidence", area: "Licensing", renewalId: "evidence-review-due", dueDate: "Before licence application", expiryDate: "Not applicable", actionId: "hmo-licensing" },
+    "epc-assessment": { title: "EPC Assessment", area: "EPC", renewalId: "epc-expiry-monitor", dueDate: "10-year EPC watch", expiryDate: "14 June 2036", actionId: "book-epc" },
+    "epc-improvement-plan": { title: "EPC Improvement Plan", area: "EPC", renewalId: "epc-c-readiness", dueDate: "Future EPC C watch", expiryDate: "Roadmap review due", actionId: "epc-e-roadmap" },
+    "epc-c-roadmap": { title: "EPC C Roadmap", area: "EPC", renewalId: "epc-c-readiness", dueDate: "Quarterly improvement watch", expiryDate: "Roadmap review due", actionId: "epc-e-roadmap" },
+    "mees-exemption-review": { title: "MEES Improvement/Exemption Review", area: "EPC", renewalId: "epc-c-readiness", dueDate: "Urgent MEES follow-up", expiryDate: "Review outcome pending", actionId: "mees-review" },
+    "deposit-compliance-review": { title: "Deposit Compliance Review", area: "Deposit", renewalId: "evidence-review-due", dueDate: "Evidence review due", expiryDate: "Not applicable", actionId: "deposit-review" },
+    "prescribed-info-evidence": { title: "Prescribed Information Evidence", area: "Deposit", renewalId: "evidence-review-due", dueDate: "Evidence review due", expiryDate: "Not applicable", actionId: "prescribed-info" },
+    "right-to-rent-review": { title: "Right to Rent Evidence Review", area: "Right to Rent", renewalId: "evidence-review-due", dueDate: "Repeat check watch", expiryDate: "Status dependent", actionId: "right-to-rent" },
+    "tenancy-document-pack": { title: "Tenancy Document Pack", area: "Tenancy documents", renewalId: "evidence-review-due", dueDate: "Evidence review due", expiryDate: "Not applicable", actionId: "tenancy-docs" },
+    "inventory-check-in": { title: "Inventory / Check-In Report", area: "Evidence", renewalId: "inspection-due", dueDate: "Next tenancy/check-out", expiryDate: "Not applicable", actionId: "inventory" },
+    "checkout-report": { title: "Check-Out Report", area: "Evidence", renewalId: "inspection-due", dueDate: "End of tenancy follow-up", expiryDate: "Not applicable", actionId: "inventory" },
+    "damp-mould-survey": { title: "Damp/Mould Survey Report", area: "Condition", renewalId: "condition-review", dueDate: "Follow-up in 14 days", expiryDate: "Review follow-up", actionId: "damp-survey" },
+    "pest-control": { title: "Pest Control Treatment Record", area: "Condition", renewalId: "condition-review", dueDate: "Follow-up in 14 days", expiryDate: "Treatment follow-up", actionId: "pest-condition-risk" },
+    "condition-inspection": { title: "Property Condition Inspection", area: "Condition", renewalId: "inspection-due", dueDate: "Inspection follow-up", expiryDate: "Annual review", actionId: "condition-inspection" },
+    "heating-hot-water-repair": { title: "Heating/Hot Water Repair Record", area: "Condition", renewalId: "condition-review", dueDate: "Repair follow-up", expiryDate: "Review follow-up", actionId: "damp-condition-risk" },
+    "roof-gutter-inspection": { title: "Roof/Gutter Inspection Report", area: "Condition", renewalId: "condition-review", dueDate: "Repair follow-up", expiryDate: "Review follow-up", actionId: "damp-condition-risk" },
+    "annual-monitoring": { title: "Annual Compliance Review Plan", area: "Monitoring", renewalId: "annual-review", dueDate: "Annual review", expiryDate: "15 June 2027", actionId: "annual-monitoring" },
+    "done-for-me-concierge": { title: "Done-for-Me Concierge Plan", area: "Service coordination", renewalId: "annual-review", dueDate: "Concierge follow-up", expiryDate: "Monthly review", actionId: "annual-monitoring" }
+  };
+  return { ...fallback, ...(configs[serviceId] || {}) };
+}
+
+function serviceConfirmationFor(status, item, services = [journeyServiceById(item.serviceId)]) {
+  const referencePrefix = status === "quote_requested" ? "CMP-QUOTE" : status === "booked" ? "CMP-BOOK" : status === "pending" ? "CMP-JOB" : status === "completed" ? "CMP-EVID" : "CMP-BASKET";
+  const reference = `${referencePrefix}-${String(Date.now()).slice(-6)}`;
+  const titles = {
+    added: "Service added to basket",
+    quote_requested: "Quote request prepared",
+    booked: "Booking prepared",
+    pending: "Service marked in progress",
+    completed: "Service completed",
+    deferred: "Service saved for later"
+  };
+  const bodies = {
+    added: "CMP added this to the fake basket. Risk stays visible until the service is quoted, booked, completed or evidence is uploaded.",
+    quote_requested: "CMP prepared supplier-ready quote details. Compliance risk remains open until the quote becomes a booking or evidence is accepted.",
+    booked: "CMP prepared a fake booking, added pending evidence, updated monitoring and logged the next step.",
+    pending: "CMP marked the fake job in progress and kept the evidence follow-up visible.",
+    completed: "CMP generated simulated evidence, updated the property brain, refreshed monitoring and logged completion.",
+    deferred: "CMP saved this for later without treating it as solved."
+  };
+  return {
+    id: `confirmation-${reference}`,
+    title: titles[status] || "Service updated",
+    body: bodies[status] || "The fake service state was updated.",
+    reference,
+    status,
+    serviceIds: services.map((service) => service.id),
+    services: services.map((service) => service.title),
+    evidenceExpected: services.map((service) => serviceEvidenceConfig(service.id).title),
+    nextStep: status === "quote_requested" ? "Review the quote request or mark it accepted." : status === "completed" ? "View generated evidence or set renewal monitoring." : "Return to the workspace or continue with the service basket.",
+    property: journeyState().propertyBrain.PropertyIdentity.address
+  };
 }
 
 function serviceMatchesFilter(service, filterId = journeyState().serviceFilter || "all") {
@@ -5283,9 +5616,125 @@ function ensureServiceBasketItem(serviceId, status = "added") {
   return item;
 }
 
+function upsertJourneyEvidenceFromService(serviceId, status) {
+  if (!["booked", "pending", "completed"].includes(status)) {
+    return null;
+  }
+  const state = journeyState();
+  const service = journeyServiceById(serviceId);
+  const config = serviceEvidenceConfig(serviceId);
+  const evidenceId = `service-evidence-${serviceId}`;
+  const existing = state.evidenceVault.find((item) => item.id === evidenceId);
+  const completed = status === "completed";
+  const evidence = {
+    id: evidenceId,
+    documentType: "service-generated",
+    title: completed ? `${config.title} - generated simulation` : `${config.title} pending`,
+    linkedComplianceArea: config.area,
+    linkedServiceId: serviceId,
+    linkedActionId: config.actionId,
+    uploadStatus: completed ? "accepted" : "pending_evidence",
+    fakeScanResult: completed ? "Generated by completed fake service" : "Pending from fake booking",
+    addressMatch: `Linked to ${state.propertyBrain.PropertyIdentity.address}`,
+    extractedDate: completed ? "15 June 2026" : "Awaiting service result",
+    expiryDate: config.expiryDate,
+    confidence: completed ? "High" : "Medium",
+    reviewStatus: completed ? "accepted" : "pending_evidence",
+    scoreImpact: completed ? 10 : 4,
+    timelineLink: `service-${serviceId}`,
+    sourceService: service.title
+  };
+  if (existing) {
+    Object.assign(existing, evidence);
+  } else {
+    state.evidenceVault.unshift(evidence);
+  }
+  return existing || evidence;
+}
+
+function updateComplianceEvidenceFromService(serviceId, status) {
+  const state = journeyState();
+  const service = journeyServiceById(serviceId);
+  const compliance = state.propertyBrain.ComplianceEvidence;
+  const serviceState = status === "completed" ? "found" : ["booked", "pending"].includes(status) ? "booked" : "review";
+  const area = service.linkedComplianceArea;
+  if (area === "Gas Safety") compliance.gasSafety.status = serviceState;
+  if (area === "Electrical Safety") compliance.eicr.status = serviceState;
+  if (area === "EPC") {
+    compliance.epc.status = serviceState;
+    if (status === "completed") {
+      state.propertyBrain.AutoCheckResults.epcFound = true;
+      state.propertyBrain.AutoCheckResults.epcRecordStatus = "Service-generated EPC evidence accepted";
+      if (state.propertyBrain.AutoCheckResults.epcRating === "Unknown") {
+        state.propertyBrain.AutoCheckResults.epcRating = "C";
+        state.propertyBrain.AutoCheckResults.epcPotentialRating = "B";
+      }
+    }
+  }
+  if (area === "Smoke and CO") compliance.smokeCo.status = serviceState;
+  if (area === "Deposit") compliance.deposit.status = serviceState;
+  if (area === "Licensing") compliance.licensing.status = serviceState;
+  if (["Condition", "Void / Re-let"].includes(area)) {
+    compliance.inspectionReports.status = serviceState;
+    compliance.repairLogs.status = status === "completed" ? "found" : "review";
+  }
+  if (["Right to Rent", "Tenancy documents", "Evidence"].includes(area)) {
+    const key = area === "Right to Rent" ? "rightToRent" : area === "Tenancy documents" ? "tenancyDocs" : "inspectionReports";
+    compliance[key].status = serviceState;
+  }
+}
+
+function upsertMonitoringFromService(serviceId, status) {
+  const state = journeyState();
+  const service = journeyServiceById(serviceId);
+  const config = serviceEvidenceConfig(serviceId);
+  const id = status === "quote_requested" ? `quote-follow-up-${serviceId}` : `service-follow-up-${serviceId}`;
+  const title = status === "quote_requested" ? `${service.title} quote follow-up` : status === "completed" ? `${config.title} renewal / review` : `${service.title} service follow-up`;
+  const existing = state.monitoringItems.find((item) => item.id === id);
+  const item = {
+    id,
+    type: status === "quote_requested" ? "Quote follow-up" : status === "completed" ? "Renewal watch" : "Service follow-up",
+    title,
+    dueDate: status === "quote_requested" ? "Follow up in 3 days" : config.dueDate,
+    urgency: service.urgency,
+    linkedServiceId: serviceId,
+    linkedActionId: config.actionId,
+    linkedEvidenceId: `service-evidence-${serviceId}`,
+    description: status === "quote_requested"
+      ? "CMP is waiting on quote response before this risk can move toward solved."
+      : status === "completed"
+        ? "CMP created simulated evidence and will keep renewal or review visible."
+        : "CMP is waiting for service completion and evidence return.",
+    status: "watching"
+  };
+  if (existing) {
+    Object.assign(existing, item);
+  } else {
+    state.monitoringItems.unshift(item);
+  }
+  return item;
+}
+
+function applyServiceLifecycleSideEffects(serviceId, status, source = "Service basket") {
+  if (["booked", "pending", "completed"].includes(status)) {
+    const evidence = upsertJourneyEvidenceFromService(serviceId, status);
+    updateComplianceEvidenceFromService(serviceId, status);
+    upsertMonitoringFromService(serviceId, status);
+    addTimelineEvent({
+      title: status === "completed" ? "Evidence generated from service" : "Evidence pending from booking",
+      body: `${evidence?.title || journeyServiceById(serviceId).title} linked to Evidence Vault and Monitoring.`,
+      type: source
+    });
+  }
+  if (status === "quote_requested") {
+    upsertMonitoringFromService(serviceId, status);
+  }
+}
+
 function updateServiceStatus(serviceId, status, source = "Service basket") {
   const state = journeyState();
   const item = ensureServiceBasketItem(serviceId, status);
+  applyServiceLifecycleSideEffects(serviceId, status, source);
   state.serviceRecommendations = buildServiceRecommendations(state);
   state.propertyBrain.Scores = recalculateJourneyScores(state, state.actionPlan);
   const titleByStatus = {
@@ -5313,6 +5762,21 @@ function updateServiceStatus(serviceId, status, source = "Service basket") {
   return item;
 }
 
+function removeServiceFromBasket(serviceId) {
+  const state = journeyState();
+  const service = journeyServiceById(serviceId);
+  state.serviceBasket = state.serviceBasket.filter((item) => item.serviceId !== serviceId);
+  state.branchEffects.unshift(`${service.title} removed from basket`);
+  addTimelineEvent({
+    title: "Service removed from basket",
+    body: `${service.title} removed from the fake basket. Linked risk remains visible in the action plan.`,
+    type: "Services"
+  });
+  state.serviceRecommendations = buildServiceRecommendations(state);
+  state.propertyBrain.Scores = recalculateJourneyScores(state, state.actionPlan);
+  showToast(`${service.title} removed from basket. Risk still visible.`);
+}
+
 function applyServicePlan(action) {
   const state = journeyState();
   const services = buildServiceRecommendations(state);
@@ -5331,12 +5795,29 @@ function applyServicePlan(action) {
   state.workspaceTab = "services";
   state.screen = "workspace";
   state.currentStage = "action";
+  state.activeConfirmation = {
+    ...serviceConfirmationFor(status, ensureServiceBasketItem(selected[0]?.id || services[0]?.id || "annual-monitoring", status), selected),
+    title: action === "quotes" ? "Quote request bundle prepared"
+      : action === "concierge" ? "Done-for-Me concierge plan prepared"
+        : action === "future" ? "Future-proof plan prepared"
+          : action === "risk" ? "Risk-protected plan prepared"
+            : action === "legal" ? "Legal essentials bundle prepared"
+              : "Urgent service bundle prepared",
+    body: action === "quotes"
+      ? "CMP prepared quote requests from the current property brain. Compliance risk remains open until quotes become bookings or evidence is accepted."
+      : action === "concierge"
+        ? "CMP grouped urgent compliance, evidence recovery and monitoring into a fake concierge route. No supplier was contacted."
+        : `${selected.length} service${selected.length === 1 ? "" : "s"} moved into the fake ${serviceLifecycleLabel(status).toLowerCase()} state.`,
+    planAction: action
+  };
   addTimelineEvent({
     title: action === "quotes" ? "Quote request bundle started" : action === "concierge" ? "Done-for-me concierge started" : "Service bundle started",
     body: `${selected.length} services updated from the ${journeyRoutes[state.routeId]?.label || "Prioritised"} plan.`,
     type: "Services"
   });
-  showJourneyOs({ scroll: false });
+  state.modalMode = "service-confirmation";
+  renderJourneyActionModal();
+  openTimelineModal("[data-journey-action-modal]");
 }
 
 function openServiceIntake(serviceId, preferredAction = "added") {
@@ -5365,13 +5846,14 @@ function completeServiceIntake(serviceId, status) {
   const state = journeyState();
   const item = updateServiceStatus(serviceId, status, "Service intake");
   item.selectedAnswers = { ...(state.activeIntake?.answers || {}) };
+  item.reference = item.reference || `${status === "quote_requested" ? "CMP-QUOTE" : "CMP-BOOK"}-${String(Date.now()).slice(-6)}`;
+  state.activeConfirmation = serviceConfirmationFor(status, item, [journeyServiceById(serviceId)]);
   state.activeIntake = null;
-  state.modalMode = "";
+  state.modalMode = "service-confirmation";
   state.workspaceTab = "services";
   state.screen = "workspace";
   state.currentStage = "action";
-  closeTimelineModals();
-  showJourneyOs({ scroll: false });
+  renderJourneyActionModal();
   showToast(`${item.title} updated in fake service basket.`);
 }
 
@@ -5530,9 +6012,33 @@ function generateAskCmpResponse(prompt) {
   const urgent = (state.actionPlan.urgentLegalBlockers || []).filter((item) => item.status !== "Deferred");
   const missing = state.actionPlan.missingEvidence || [];
   const scores = brain.Scores;
+  const booked = state.serviceBasket.filter((item) => ["booked", "pending"].includes(item.status));
+  const quotes = state.serviceBasket.filter((item) => item.status === "quote_requested");
+  const completed = state.serviceBasket.filter((item) => item.status === "completed");
+  const pendingEvidence = state.evidenceVault.filter((item) => item.reviewStatus === "pending_evidence");
   let body = "";
   const propertyContext = `${brain.PropertyIdentity.address} is recorded as ${brain.PropertyIdentity.propertyType} on the ${journeyRoutes[state.routeId]?.label || "Prioritised"} route.`;
-  if (prompt.includes("rent this property")) {
+  if (prompt.includes("booking change")) {
+    body = booked.length
+      ? `Your fake bookings moved ${booked.map((item) => item.title).join(", ")} into a supplier-ready state. CMP also added pending evidence and monitoring follow-ups, but the risk is not solved until evidence is accepted or the service is completed.`
+      : "No booking has been prepared yet. Add a service or use Book legal essentials to create pending evidence and monitoring.";
+  } else if (prompt.includes("waiting on a service")) {
+    body = booked.length || quotes.length
+      ? `CMP is waiting on ${[...booked, ...quotes].map((item) => `${item.title} (${serviceLifecycleLabel(item.status)})`).join(", ")}. Quote requests do not close compliance risk; completed services or accepted evidence do.`
+      : "Nothing is waiting on a service yet. Your next step is to book, request a quote, or upload evidence.";
+  } else if (prompt.includes("mark complete")) {
+    body = booked.length
+      ? `You can mark ${booked[0].title} in progress or complete from the Services tab. Completion will generate simulated evidence and refresh Compliance Centre and Monitoring.`
+      : completed.length
+        ? `${completed[0].title} is already complete in the prototype. View generated evidence or set renewal monitoring.`
+        : "There is not a booked service ready to complete yet.";
+  } else if (prompt.includes("requesting quotes")) {
+    body = quotes.length
+      ? `CMP has prepared quote requests for ${quotes.map((item) => item.title).join(", ")}. Your risk remains open until a quote is accepted, booked, completed, or evidence is uploaded.`
+      : "No quote requests exist yet. Request quotes first is useful when cost or supplier choice matters, but it does not make compliance solved.";
+  } else if (prompt.includes("evidence still missing") || prompt.includes("evidence is still missing")) {
+    body = `${missing.length} action-plan evidence gap${missing.length === 1 ? "" : "s"} remain. ${pendingEvidence.length ? `${pendingEvidence.length} evidence item${pendingEvidence.length === 1 ? " is" : "s are"} pending from fake bookings.` : "No pending service evidence has been created yet."}`;
+  } else if (prompt.includes("rent this property")) {
     body = urgent.length
       ? `Not safely yet. CMP has a simulated EPC ${brain.AutoCheckResults.epcRating}, but ${urgent.slice(0, 4).map((item) => item.title).join(", ")} still need handling before you treat this property as ready.`
       : "It looks closer to ready, but CMP would still keep monitoring evidence dates and tenant documents before you rely on the file.";
@@ -5557,7 +6063,7 @@ function generateAskCmpResponse(prompt) {
   } else {
     body = `This property brain changed around ${journeyDemoScenarios[state.scenarioId]?.label}. The current route is ${journeyRoutes[state.routeId]?.label}, with ${urgent.length} urgent blockers and ${state.serviceBasket.length} basket items.`;
   }
-  const basketCopy = state.serviceBasket.length ? ` ${state.serviceBasket.length} service item${state.serviceBasket.length === 1 ? "" : "s"} are already in the fake basket.` : " No service basket has been started yet.";
+  const basketCopy = state.serviceBasket.length ? ` ${state.serviceBasket.length} service item${state.serviceBasket.length === 1 ? "" : "s"} are already in the fake basket, including ${booked.length} booked/in-progress and ${quotes.length} quote request${quotes.length === 1 ? "" : "s"}.` : " No service basket has been started yet.";
   const response = {
     id: `ask-${Date.now()}`,
     prompt,
@@ -6642,6 +7148,61 @@ function renderJourneyPlanButtons() {
   `;
 }
 
+function renderServiceLifecycleButtons(service) {
+  const status = service.status || serviceStatusFor(journeyState(), service.id);
+  if (status === "recommended") {
+    return `
+      <button class="primary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="booked">Book now</button>
+      <button class="secondary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="quote_requested">Request quote</button>
+      <button class="secondary-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="added">Add to basket</button>
+      <button class="text-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="deferred">Save for later</button>
+    `;
+  }
+  if (status === "added") {
+    return `
+      <button class="primary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="booked">Book now</button>
+      <button class="secondary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="quote_requested">Request quote</button>
+      <button class="secondary-button" type="button" data-journey-service-remove="${escapeHtml(service.id)}">Remove from basket</button>
+      <button class="text-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="deferred">Save for later</button>
+    `;
+  }
+  if (status === "quote_requested") {
+    return `
+      <button class="primary-button" type="button" data-journey-service-view="${escapeHtml(service.id)}">View quote request</button>
+      <button class="secondary-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="booked">Mark quote accepted</button>
+      <button class="secondary-button" type="button" data-journey-service-note="${escapeHtml(service.id)}">Add note</button>
+      <button class="text-button" type="button" data-journey-confirm-workspace>Return to workspace</button>
+    `;
+  }
+  if (status === "booked") {
+    return `
+      <button class="primary-button" type="button" data-journey-service-view="${escapeHtml(service.id)}">View booking</button>
+      <button class="secondary-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="pending">Mark service in progress</button>
+      <button class="secondary-button" type="button" data-journey-message="gas-access">Generate tenant message</button>
+      <button class="text-button" type="button" data-journey-confirm-workspace>Return to workspace</button>
+    `;
+  }
+  if (status === "pending") {
+    return `
+      <button class="primary-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="completed">Mark completed</button>
+      <button class="secondary-button" type="button" data-journey-open-upload>Upload evidence</button>
+      <button class="secondary-button" type="button" data-journey-service-note="${escapeHtml(service.id)}">Add timeline note</button>
+    `;
+  }
+  if (status === "completed") {
+    return `
+      <button class="primary-button" type="button" data-journey-confirm-evidence>View generated evidence</button>
+      <button class="secondary-button" type="button" data-journey-view-timeline>View timeline</button>
+      <button class="secondary-button" type="button" data-journey-monitor="${escapeHtml(serviceEvidenceConfig(service.id).renewalId)}">Set renewal reminder</button>
+      <button class="text-button" type="button" data-journey-confirm-workspace>Return to workspace</button>
+    `;
+  }
+  return `
+    <button class="primary-button" type="button" data-journey-service-view="${escapeHtml(service.id)}">View status</button>
+    <button class="secondary-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="added">Add back to basket</button>
+  `;
+}
+
 function renderJourneyServiceCard(service) {
   const statusClass = `is-${service.status.replace(/_/g, "-")}`;
   const statusLabel = serviceLifecycleLabel(service.status);
@@ -6652,16 +7213,6 @@ function renderJourneyServiceCard(service) {
           : service.status === "completed" ? "Completed in this prototype session"
             : service.status === "deferred" ? "Saved for later - risk still visible"
               : "In progress";
-  const primaryLabel = service.status === "recommended" || service.status === "added"
-    ? "Book now"
-    : ["booked", "pending"].includes(service.status)
-      ? "View fake booking"
-      : service.status === "quote_requested"
-        ? "View fake quote request"
-        : service.status === "completed"
-          ? "Completed"
-          : "Book again";
-  const primaryStatus = service.status === "quote_requested" ? "quote_requested" : ["booked", "pending"].includes(service.status) ? "pending" : service.status === "completed" ? "completed" : "booked";
   return `
     <article class="journey-service-card">
       <div class="journey-service-top">
@@ -6677,10 +7228,8 @@ function renderJourneyServiceCard(service) {
         <div><dt>Next</dt><dd>${escapeHtml(nextStep)}</dd></div>
       </dl>
       <div class="journey-action-buttons">
-        <button class="primary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="${escapeHtml(primaryStatus)}" ${service.status === "completed" ? "disabled" : ""}>${escapeHtml(primaryLabel)}</button>
-        ${service.status === "quote_requested" ? "" : `<button class="secondary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="quote_requested">Request quote</button>`}
-        ${service.status === "recommended" ? `<button class="secondary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="added">Add to basket</button>` : `<button class="secondary-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="completed">Mark complete</button>`}
-        <button class="text-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="deferred">Save for later</button>
+        <button class="text-button" type="button" data-journey-service-detail="${escapeHtml(service.id)}">View details</button>
+        ${renderServiceLifecycleButtons(service)}
       </div>
     </article>
   `;
@@ -7099,8 +7648,14 @@ function renderServiceIntakeModal() {
   const state = journeyState();
   const intake = state.activeIntake;
   const service = journeyServiceById(intake?.serviceId);
+  const status = serviceStatusFor(state, service.id);
   return `
     <section class="journey-intake-modal">
+      <div class="journey-service-detail-hero">
+        <span class="journey-status-chip is-${escapeHtml(status.replace(/_/g, "-"))}">${escapeHtml(serviceLifecycleLabel(status))}</span>
+        <h3>${escapeHtml(service.title)}</h3>
+        <p>${escapeHtml(service.whatItFixes)}</p>
+      </div>
       <div class="journey-known-data">
         <h3>What CMP already knows</h3>
         <dl>
@@ -7108,10 +7663,13 @@ function renderServiceIntakeModal() {
           <div><dt>Occupancy</dt><dd>${escapeHtml(state.propertyBrain.TenancyProfile.occupancyStatus)}</dd></div>
           <div><dt>EPC</dt><dd>${escapeHtml(state.propertyBrain.AutoCheckResults.epcRating)}</dd></div>
           <div><dt>Property type</dt><dd>${escapeHtml(state.propertyBrain.PropertyIdentity.propertyType)}</dd></div>
+          <div><dt>Linked area</dt><dd>${escapeHtml(service.linkedComplianceArea)}</dd></div>
+          <div><dt>Urgency</dt><dd>${escapeHtml(service.urgency)}</dd></div>
         </dl>
       </div>
       <div class="journey-intake-questions">
         <h3>Supplier-ready questions</h3>
+        <p>CMP has filled the property context. These are the remaining fake supplier-ready details.</p>
         ${service.questions.map((question, index) => `
           <label>
             <span>${escapeHtml(question)}</span>
@@ -7124,6 +7682,108 @@ function renderServiceIntakeModal() {
         <button class="secondary-button" type="button" data-service-intake-complete="${escapeHtml(service.id)}" data-service-final-status="quote_requested">Request quote</button>
         <button class="secondary-button" type="button" data-service-intake-complete="${escapeHtml(service.id)}" data-service-final-status="added">Add to basket</button>
         <button class="text-button" type="button" data-service-intake-complete="${escapeHtml(service.id)}" data-service-final-status="deferred">Save for later</button>
+      </div>
+    </section>
+  `;
+}
+
+function openServiceDetail(serviceId) {
+  const state = journeyState();
+  state.activeServiceDetail = serviceId;
+  state.modalMode = "service-detail";
+  state.activeAction = { actionType: "service-detail", actionId: serviceId };
+  renderJourneyActionModal();
+  openTimelineModal("[data-journey-action-modal]");
+}
+
+function openServiceConfirmation(serviceId, status = serviceStatusFor(journeyState(), serviceId)) {
+  const state = journeyState();
+  const item = ensureServiceBasketItem(serviceId, status);
+  state.activeConfirmation = serviceConfirmationFor(status, item, [journeyServiceById(serviceId)]);
+  state.modalMode = "service-confirmation";
+  renderJourneyActionModal();
+  openTimelineModal("[data-journey-action-modal]");
+}
+
+function renderServiceDetailModal() {
+  const state = journeyState();
+  const service = journeyServiceById(state.activeServiceDetail || state.activeIntake?.serviceId);
+  const status = serviceStatusFor(state, service.id);
+  const config = serviceEvidenceConfig(service.id);
+  const known = buildServiceRecommendations(state).find((item) => item.id === service.id)?.knownPropertyData || {};
+  return `
+    <section class="journey-service-detail-modal">
+      <div class="journey-service-detail-hero">
+        <span class="journey-status-chip is-${escapeHtml(status.replace(/_/g, "-"))}">${escapeHtml(serviceLifecycleLabel(status))}</span>
+        <h3>${escapeHtml(service.title)}</h3>
+        <p>${escapeHtml(service.why)}</p>
+      </div>
+      <div class="journey-service-detail-grid">
+        <article>
+          <span>What it fixes</span>
+          <strong>${escapeHtml(service.whatItFixes)}</strong>
+        </article>
+        <article>
+          <span>Linked property</span>
+          <strong>${escapeHtml(state.propertyBrain.PropertyIdentity.address)}</strong>
+        </article>
+        <article>
+          <span>Compliance area</span>
+          <strong>${escapeHtml(service.linkedComplianceArea)}</strong>
+        </article>
+        <article>
+          <span>Expected evidence</span>
+          <strong>${escapeHtml(config.title)}</strong>
+        </article>
+      </div>
+      <div class="journey-known-data">
+        <h3>What CMP already knows</h3>
+        <dl>
+          <div><dt>Property type</dt><dd>${escapeHtml(known.propertyType || state.propertyBrain.PropertyIdentity.propertyType)}</dd></div>
+          <div><dt>Occupancy</dt><dd>${escapeHtml(known.occupancy || state.propertyBrain.TenancyProfile.occupancyStatus)}</dd></div>
+          <div><dt>EPC</dt><dd>${escapeHtml(String(known.epc || state.propertyBrain.AutoCheckResults.epcRating))}</dd></div>
+          <div><dt>Current status</dt><dd>${escapeHtml(serviceLifecycleLabel(status))}</dd></div>
+        </dl>
+      </div>
+      <div class="journey-intake-questions">
+        <h3>Supplier still needs</h3>
+        <ul class="journey-service-question-list">
+          ${service.questions.slice(0, 7).map((question) => `<li>${escapeHtml(question)}</li>`).join("")}
+        </ul>
+      </div>
+      <div class="journey-action-buttons">
+        ${renderServiceLifecycleButtons(service)}
+      </div>
+    </section>
+  `;
+}
+
+function renderServiceConfirmationModal() {
+  const state = journeyState();
+  const confirmation = state.activeConfirmation || serviceConfirmationFor("added", ensureServiceBasketItem("annual-monitoring", "added"));
+  return `
+    <section class="journey-confirmation-modal">
+      <div class="journey-confirmation-banner">
+        <span class="journey-status-chip is-${escapeHtml(confirmation.status.replace(/_/g, "-"))}">${escapeHtml(serviceLifecycleLabel(confirmation.status))}</span>
+        <h3>${escapeHtml(confirmation.title)}</h3>
+        <p>${escapeHtml(confirmation.body)}</p>
+      </div>
+      <div class="journey-confirmation-grid">
+        <article><span>Property</span><strong>${escapeHtml(confirmation.property)}</strong></article>
+        <article><span>Reference</span><strong>${escapeHtml(confirmation.reference)}</strong></article>
+        <article><span>Services</span><strong>${escapeHtml(confirmation.services.join(", ") || "Service plan")}</strong></article>
+        <article><span>Evidence expected</span><strong>${escapeHtml(confirmation.evidenceExpected.join(", ") || "Evidence follow-up")}</strong></article>
+      </div>
+      <article class="journey-property-brain-updated">
+        <strong>Property brain updated</strong>
+        <p>${escapeHtml(confirmation.nextStep)} CMP updated timeline, service state, evidence where relevant and monitoring reminders locally.</p>
+      </article>
+      <div class="journey-action-buttons">
+        <button class="primary-button" type="button" data-journey-confirm-workspace>View workspace</button>
+        <button class="secondary-button" type="button" data-journey-confirm-services>View service basket</button>
+        <button class="secondary-button" type="button" data-journey-confirm-evidence>View generated evidence</button>
+        <button class="text-button" type="button" data-journey-message="gas-access">Generate tenant message</button>
+        <button class="text-button" type="button" data-journey-monitor="annual-review">Set reminder</button>
       </div>
     </section>
   `;
@@ -7216,7 +7876,9 @@ function renderJourneyActionModal() {
   const controls = document.querySelector("[data-journey-action-controls]");
   const action = journeyActionById(state.activeAction?.actionId || "journey-action");
   const labels = {
+    "service-detail": ["Service detail", journeyServiceById(state.activeServiceDetail).title, "This fake service detail is generated from the property brain, current risks and required evidence."],
     "service-intake": ["Service intake", journeyServiceById(state.activeIntake?.serviceId).title, "CMP has prefilled the supplier-ready job from the property brain. No supplier is contacted."],
+    "service-confirmation": ["Service confirmation", state.activeConfirmation?.title || "Service journey updated", "This is a local/mock confirmation. No supplier was contacted and no payment was taken."],
     "fake-upload": ["Fake upload scanner", "Simulate evidence upload", "Choose a document type and let CMP simulate scanning, matching and evidence scoring."],
     "ask-cmp": ["Ask CMP", "Property-specific simulated response", "Demo mode: Ask CMP responses are simulated from local property data."],
     "tenant-message": ["Tenant message", "Generated tenant message", "Create a practical draft and log it as communication evidence if useful."],
@@ -7237,7 +7899,9 @@ function renderJourneyActionModal() {
     `).join("");
   }
   if (content) {
-    content.innerHTML = mode === "service-intake" ? renderServiceIntakeModal()
+    content.innerHTML = mode === "service-detail" ? renderServiceDetailModal()
+      : mode === "service-intake" ? renderServiceIntakeModal()
+      : mode === "service-confirmation" ? renderServiceConfirmationModal()
       : mode === "fake-upload" ? renderFakeUploadModal()
       : mode === "ask-cmp" ? renderAskCmpModal()
       : mode === "tenant-message" ? renderTenantMessageModal()
@@ -7246,6 +7910,8 @@ function renderJourneyActionModal() {
   if (controls) {
     controls.innerHTML = mode === "defer"
       ? `<button class="primary-button" type="button" data-journey-action-confirm>Defer and keep visible</button><button class="secondary-button" type="button" data-journey-action-close>Close</button>`
+      : mode === "service-confirmation"
+        ? `<button class="secondary-button" type="button" data-journey-action-close>Close</button>`
       : `<button class="secondary-button" type="button" data-journey-action-close>Close</button>`;
   }
 }
@@ -7492,18 +8158,57 @@ function bindJourneyOs() {
       return;
     }
 
+    const serviceDetail = event.target.closest("[data-journey-service-detail]");
+    if (serviceDetail) {
+      openServiceDetail(serviceDetail.dataset.journeyServiceDetail);
+      return;
+    }
+
     const serviceButton = event.target.closest("[data-journey-service]");
     if (serviceButton) {
       openServiceIntake(serviceButton.dataset.journeyService, serviceButton.dataset.serviceAction || "added");
       return;
     }
 
-    const directServiceButton = event.target.closest("[data-journey-service-direct]");
-    if (directServiceButton) {
-      updateServiceStatus(directServiceButton.dataset.journeyServiceDirect, directServiceButton.dataset.serviceStatus || "added");
+    const serviceView = event.target.closest("[data-journey-service-view]");
+    if (serviceView) {
+      openServiceConfirmation(serviceView.dataset.journeyServiceView);
+      return;
+    }
+
+    const serviceRemove = event.target.closest("[data-journey-service-remove]");
+    if (serviceRemove) {
+      removeServiceFromBasket(serviceRemove.dataset.journeyServiceRemove);
       journeyState().workspaceTab = "services";
       journeyState().screen = "workspace";
       showJourneyOs({ scroll: false });
+      return;
+    }
+
+    const serviceNote = event.target.closest("[data-journey-service-note]");
+    if (serviceNote) {
+      const service = journeyServiceById(serviceNote.dataset.journeyServiceNote);
+      addTimelineEvent({
+        title: "Service note added",
+        body: `${service.title}: fake note added for supplier follow-up.`,
+        type: "Services"
+      });
+      journeyState().branchEffects.unshift(`${service.title} note added to timeline`);
+      showToast("Service note added to timeline.");
+      renderJourneyOsState();
+      return;
+    }
+
+    const directServiceButton = event.target.closest("[data-journey-service-direct]");
+    if (directServiceButton) {
+      const status = directServiceButton.dataset.serviceStatus || "added";
+      const item = updateServiceStatus(directServiceButton.dataset.journeyServiceDirect, status);
+      journeyState().activeConfirmation = serviceConfirmationFor(status, item, [journeyServiceById(item.serviceId)]);
+      journeyState().modalMode = "service-confirmation";
+      journeyState().workspaceTab = "services";
+      journeyState().screen = "workspace";
+      renderJourneyActionModal();
+      openTimelineModal("[data-journey-action-modal]");
       return;
     }
 
@@ -7554,6 +8259,46 @@ function bindJourneyOs() {
 
     if (event.target.closest("[data-journey-log-message]")) {
       logTenantMessage();
+      return;
+    }
+
+    if (event.target.closest("[data-journey-confirm-workspace]")) {
+      const state = journeyState();
+      state.screen = "workspace";
+      state.currentStage = "monitor";
+      state.workspaceTab = "overview";
+      closeTimelineModals();
+      showJourneyOs({ scroll: false });
+      return;
+    }
+
+    if (event.target.closest("[data-journey-confirm-services]")) {
+      const state = journeyState();
+      state.screen = "workspace";
+      state.currentStage = "action";
+      state.workspaceTab = "services";
+      closeTimelineModals();
+      showJourneyOs({ scroll: false });
+      return;
+    }
+
+    if (event.target.closest("[data-journey-confirm-evidence]")) {
+      const state = journeyState();
+      state.screen = "workspace";
+      state.currentStage = "vault";
+      state.workspaceTab = "evidence";
+      closeTimelineModals();
+      showJourneyOs({ scroll: false });
+      return;
+    }
+
+    if (event.target.closest("[data-journey-view-timeline]")) {
+      const state = journeyState();
+      state.screen = "workspace";
+      state.currentStage = "vault";
+      state.workspaceTab = "timeline";
+      closeTimelineModals();
+      showJourneyOs({ scroll: false });
       return;
     }
 
@@ -8147,18 +8892,23 @@ function renderJourneyComplianceBridge() {
   }
   const gapList = document.querySelector("[data-compliance-gap-list]");
   if (gapList) {
-    gapList.innerHTML = [...urgent, ...missing, ...condition, ...future].slice(0, 8).map((action) => `
-      <article class="compliance-gap-card">
-        <div>
-          <h3>${escapeHtml(action.title)}</h3>
-          <p>${escapeHtml(action.body)}</p>
-        </div>
-        <div class="compliance-gap-actions">
-          <button class="primary-button" type="button" data-journey-go="actionPlan">Open plan</button>
-          <button class="text-button" type="button" data-journey-action="book" data-action-id="${escapeHtml(action.id)}">Book service</button>
-        </div>
-      </article>
-    `).join("");
+    gapList.innerHTML = [...urgent, ...missing, ...condition, ...future].slice(0, 8).map((action) => {
+      const service = journeyServiceForAction(action.id);
+      const status = serviceStatusFor(state, service.id);
+      return `
+        <article class="compliance-gap-card">
+          <div>
+            <h3>${escapeHtml(action.title)}</h3>
+            <p>${escapeHtml(action.body)}</p>
+            <span class="matrix-pill status-watch-text">${escapeHtml(service.title)} · ${escapeHtml(serviceLifecycleLabel(status))}</span>
+          </div>
+          <div class="compliance-gap-actions">
+            <button class="primary-button" type="button" data-journey-go="actionPlan">Open plan</button>
+            <button class="text-button" type="button" data-journey-action="book" data-action-id="${escapeHtml(action.id)}">${status === "recommended" ? "Book service" : "View service"}</button>
+          </div>
+        </article>
+      `;
+    }).join("");
   }
   if (forecastHeading) {
     forecastHeading.querySelector(".section-kicker").textContent = "Monitoring";
@@ -11070,6 +11820,7 @@ function journeyEvidenceRowsForVault() {
     search: `${item.title} ${item.linkedComplianceArea} ${address}`,
     actions: [
       { label: "Open evidence tab", action: "journeyEvidence", primary: true },
+      ...(item.linkedServiceId ? [{ label: "View linked service", action: `journeyService:${item.linkedServiceId}` }] : []),
       { label: "Ask CMP", action: "askReview" }
     ]
   }));
@@ -14829,6 +15580,10 @@ function handleEvidenceAction(action) {
     state.screen = "workspace";
     state.currentStage = "vault";
     showJourneyOs({ scroll: true });
+  } else if (action?.startsWith("journeyService:")) {
+    const serviceId = action.split(":")[1];
+    showJourneyOs({ scroll: true });
+    openServiceDetail(serviceId);
   } else if (action === "reviewFindings") {
     openNewPropertyFindings();
   } else if (action === "startGuidedCheck") {

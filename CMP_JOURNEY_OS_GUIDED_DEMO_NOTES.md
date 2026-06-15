@@ -29,6 +29,7 @@
 - Presenter callouts that explain why each moment matters.
 - Guided auto-check reveal styling.
 - Property brain network visual showing records, answers, evidence, services and monitoring converging.
+- Guided next-step buttons now route into completed fake service journeys: booking intake, quote request, generated evidence, monitoring and workspace return.
 
 ## Known Limitations
 
@@ -36,6 +37,7 @@
 - Story steps are deterministic and presenter-stepped, not fully automated.
 - The guided mode orchestrates existing state rather than replacing the prototype.
 - No real APIs, document storage, AI, supplier booking, payments or legal analysis are included.
+- Fake booking confirmations, quote references and generated evidence are local prototype state only.
 
 ## What To Test Next
 
