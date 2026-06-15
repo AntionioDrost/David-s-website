@@ -1,5 +1,29 @@
 # CMP Journey OS Demo Script
 
+## Final Nick Rehearsal Route
+
+Start here unless Nick specifically asks for free exploration.
+
+Opening line:
+
+> This is simulated data, but the journey is the important part. The real product would connect EPC, address, licensing and document intelligence later. Right now we are testing whether the landlord journey makes sense and whether the commercial service paths feel compelling.
+
+Recommended link:
+
+`dashboard-labs.html?journeyDemo=nick`
+
+Fast route:
+
+1. Click `Run the 2-minute demo`.
+2. Step through address, auto checks, clean match and found data.
+3. Point out that CMP checks records first, then asks only landlord-only unknowns.
+4. Show the property brain and action plan.
+5. Click `Book legal essentials` or `Request quotes first`.
+6. Show the fake confirmation and explain no supplier/payment/upload is real.
+7. Open Evidence Vault, Compliance Centre, Ask CMP and Monitoring to prove the same property brain powers the wider product.
+
+If you have more time, switch to No EPC, HMO/licensing, damp/mould and done-for-me stories from guided mode. End each story by clicking one next-step action so the demo shows commercial follow-through rather than stopping at the workspace.
+
 ## Quick 2-Minute Demo
 
 Use this route when Nick needs the product idea fast.

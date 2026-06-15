@@ -677,7 +677,7 @@ const journeyServiceCatalog = [
     category: "Future-proof",
     urgency: "Medium",
     linkedComplianceArea: "EPC",
-    linkedActionIds: ["epc-e-roadmap", "mees-review", "improvement-0", "book-epc"],
+    linkedActionIds: ["epc-e-roadmap", "mees-review", "improvement-0"],
     routeTypes: ["prioritised", "futureProof", "doneForMe"],
     bundleTags: ["future proof", "energy"],
     whatItFixes: "Creates a route from current EPC status towards a stronger rating.",
@@ -5569,7 +5569,7 @@ function buildServiceRecommendations(state = journeyState()) {
   const routeId = state.routeId || "prioritised";
   return journeyServiceCatalog
     .filter((service) => service.routeTypes.includes(routeId) || routeId === "prioritised" || service.category === "Urgent")
-    .filter((service) => service.linkedActionIds.some((id) => actionIds.has(id)) || service.id === "annual-monitoring" || (scenario.branch === "noEpc" && service.id === "epc-improvement-plan") || ((scenario.occupancyStatus || "").includes("Vacant") && service.category === "Void / Re-let"))
+    .filter((service) => service.linkedActionIds.some((id) => actionIds.has(id)) || service.id === "annual-monitoring" || (scenario.branch === "noEpc" && service.id === "epc-assessment") || ((scenario.occupancyStatus || "").includes("Vacant") && service.category === "Void / Re-let"))
     .map((service) => ({
       ...service,
       status: serviceStatusFor(state, service.id),
@@ -6499,7 +6499,7 @@ function guidedNextStepsForStory(storyId = guidedDemoState().activeStoryId) {
       ["Set monitoring", "data-journey-monitor=\"annual-review\""]
     ],
     "no-epc-found": [
-      ["Book EPC assessment", "data-journey-service=\"epc-improvement-plan\" data-service-action=\"booked\""],
+      ["Book EPC assessment", "data-journey-service=\"epc-assessment\" data-service-action=\"booked\""],
       ["Upload existing EPC", "data-journey-open-upload"],
       ["Continue with warning", "data-journey-go=\"actionPlan\""],
       ["Set EPC reminder", "data-journey-monitor=\"epc-expiry-monitor\""],
@@ -6507,8 +6507,8 @@ function guidedNextStepsForStory(storyId = guidedDemoState().activeStoryId) {
     ],
     "hmo-licensing-risk": [
       ["Book licensing check", "data-journey-service=\"licensing-check\" data-service-action=\"booked\""],
-      ["Book fire risk assessment", "data-journey-service=\"smoke-co-alarm-check\" data-service-action=\"booked\""],
-      ["Add room measurement", "data-journey-service=\"condition-inspection\" data-service-action=\"added\""],
+      ["Book fire risk assessment", "data-journey-service=\"fire-risk-assessment\" data-service-action=\"booked\""],
+      ["Add room measurement", "data-journey-service=\"room-measurement\" data-service-action=\"added\""],
       ["Request quote bundle", "data-journey-service-plan=\"quotes\""],
       ["Ask CMP about HMO risk", "data-journey-ask-prompt=\"What risks could get expensive?\""]
     ],
@@ -7150,6 +7150,7 @@ function renderJourneyPlanButtons() {
 
 function renderServiceLifecycleButtons(service) {
   const status = service.status || serviceStatusFor(journeyState(), service.id);
+  const messageTemplate = tenantMessageForService(service.id);
   if (status === "recommended") {
     return `
       <button class="primary-button" type="button" data-journey-service="${escapeHtml(service.id)}" data-service-action="booked">Book now</button>
@@ -7178,7 +7179,7 @@ function renderServiceLifecycleButtons(service) {
     return `
       <button class="primary-button" type="button" data-journey-service-view="${escapeHtml(service.id)}">View booking</button>
       <button class="secondary-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="pending">Mark service in progress</button>
-      <button class="secondary-button" type="button" data-journey-message="gas-access">Generate tenant message</button>
+      <button class="secondary-button" type="button" data-journey-message="${escapeHtml(messageTemplate)}">Generate tenant message</button>
       <button class="text-button" type="button" data-journey-confirm-workspace>Return to workspace</button>
     `;
   }
@@ -7201,6 +7202,33 @@ function renderServiceLifecycleButtons(service) {
     <button class="primary-button" type="button" data-journey-service-view="${escapeHtml(service.id)}">View status</button>
     <button class="secondary-button" type="button" data-journey-service-direct="${escapeHtml(service.id)}" data-service-status="added">Add back to basket</button>
   `;
+}
+
+function tenantMessageForService(serviceId = "") {
+  const mapping = {
+    "gas-safety-certificate": "gas-access",
+    eicr: "eicr-access",
+    "smoke-co-alarm-check": "certificate-follow-up",
+    "licensing-check": "council-response",
+    "hmo-licence-application": "council-response",
+    "fire-risk-assessment": "routine-inspection",
+    "room-measurement": "routine-inspection",
+    "epc-assessment": "general-access",
+    "epc-improvement-plan": "general-access",
+    "deposit-compliance-review": "tenant-doc-request",
+    "prescribed-info-evidence": "tenant-doc-request",
+    "right-to-rent-review": "tenant-doc-request",
+    "tenancy-document-pack": "tenant-doc-request",
+    "inventory-check-in": "routine-inspection",
+    "checkout-report": "routine-inspection",
+    "condition-inspection": "routine-inspection",
+    "damp-mould-survey": "damp-photo-request",
+    "pest-control": "repair-appointment",
+    "heating-hot-water-repair": "repair-appointment",
+    "roof-gutter-inspection": "repair-appointment",
+    "done-for-me-concierge": "certificate-follow-up"
+  };
+  return mapping[serviceId] || "general-access";
 }
 
 function renderJourneyServiceCard(service) {
@@ -7761,6 +7789,7 @@ function renderServiceDetailModal() {
 function renderServiceConfirmationModal() {
   const state = journeyState();
   const confirmation = state.activeConfirmation || serviceConfirmationFor("added", ensureServiceBasketItem("annual-monitoring", "added"));
+  const messageTemplate = tenantMessageForService(confirmation.serviceIds?.[0] || "");
   return `
     <section class="journey-confirmation-modal">
       <div class="journey-confirmation-banner">
@@ -7782,7 +7811,7 @@ function renderServiceConfirmationModal() {
         <button class="primary-button" type="button" data-journey-confirm-workspace>View workspace</button>
         <button class="secondary-button" type="button" data-journey-confirm-services>View service basket</button>
         <button class="secondary-button" type="button" data-journey-confirm-evidence>View generated evidence</button>
-        <button class="text-button" type="button" data-journey-message="gas-access">Generate tenant message</button>
+        <button class="text-button" type="button" data-journey-message="${escapeHtml(messageTemplate)}">Generate tenant message</button>
         <button class="text-button" type="button" data-journey-monitor="annual-review">Set reminder</button>
       </div>
     </section>
