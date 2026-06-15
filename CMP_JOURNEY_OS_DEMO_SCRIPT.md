@@ -103,6 +103,8 @@ What this proves: Journey OS is not just a checklist. It is a property brain tha
 
 Use `Guided demo` inside Journey OS, or open `dashboard-labs.html?journeyDemo=nick`.
 
+For the full A-Z prototype, the normal landlord-facing entry is now `Add / check property` in the sidebar, `Check My Property` on the dashboard, or `dashboard-labs.html?state=new-property`. All three routes lead into the same simulated Journey OS property check, then return to the Property Workspace, Compliance Centre, Evidence Vault, services and monitoring.
+
 Recommended opening line:
 
 > This is simulated data, but the journey is the important part. The real product would connect EPC, address, licensing and document intelligence later. Right now we are testing whether the landlord journey makes sense and whether the commercial service paths feel compelling.

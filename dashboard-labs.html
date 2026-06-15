@@ -53,7 +53,7 @@
               </a>
               <a class="nav-item" href="#" data-global-nav="Journey OS">
                 <span class="nav-icon" data-icon="zap"></span>
-                Journey OS
+                Add / check property
               </a>
               <a class="nav-item" href="#" data-global-nav="Evidence Vault">
                 <span class="nav-icon" data-icon="file"></span>
@@ -2852,24 +2852,78 @@
         <div class="modal-header">
           <div>
             <p class="section-kicker">Demo controls</p>
-            <h2 id="demoStateModalTitle">Demo state</h2>
+            <h2 id="demoStateModalTitle">Demo Control Centre</h2>
           </div>
           <button class="icon-button" type="button" aria-label="Close demo state" data-demo-state-close>
             <span class="nav-icon" data-icon="close"></span>
           </button>
         </div>
-        <p class="modal-note">Switch the local demo between common landlord journey states.</p>
-        <div class="demo-state-options" role="list">
-          <button class="secondary-button" type="button" data-demo-state-option="empty-portfolio">Empty portfolio</button>
-          <button class="secondary-button" type="button" data-demo-state-option="new-property">New property</button>
-          <button class="secondary-button" type="button" data-demo-state-option="one-property">Worked example</button>
-          <button class="secondary-button" type="button" data-demo-state-option="two-property">Portfolio demo</button>
-          <button class="secondary-button" type="button" data-demo-state-option="five-property">Five-property portfolio</button>
-          <button class="secondary-button" type="button" data-demo-state-option="reset">Reset demo</button>
-          <button class="secondary-button" type="button" data-demo-state-option="before-eicr">Before EICR</button>
-          <button class="secondary-button" type="button" data-demo-state-option="after-eicr">After EICR</button>
-          <button class="secondary-button" type="button" data-demo-state-option="after-support">After support request</button>
-          <button class="secondary-button" type="button" data-demo-state-option="after-quick-win">After quick win</button>
+        <p class="modal-note">Switch the local demo between portfolio states, property-check scenarios and presenter stories. Everything stays simulated and local.</p>
+        <div class="demo-control-centre">
+          <section class="demo-control-section">
+            <div>
+              <p class="section-kicker">Global app state</p>
+              <h3>Portfolio surfaces</h3>
+            </div>
+            <div class="demo-state-options" role="list">
+              <button class="secondary-button" type="button" data-demo-state-option="empty-portfolio">Empty portfolio</button>
+              <button class="secondary-button" type="button" data-demo-state-option="new-property">New property</button>
+              <button class="secondary-button" type="button" data-demo-state-option="one-property">Worked example</button>
+              <button class="secondary-button" type="button" data-demo-state-option="two-property">Portfolio demo</button>
+              <button class="secondary-button" type="button" data-demo-state-option="five-property">Five-property portfolio</button>
+              <button class="secondary-button" type="button" data-demo-state-option="before-eicr">Before EICR</button>
+              <button class="secondary-button" type="button" data-demo-state-option="after-eicr">After EICR</button>
+              <button class="secondary-button" type="button" data-demo-state-option="after-support">After support request</button>
+              <button class="secondary-button" type="button" data-demo-state-option="after-quick-win">After quick win</button>
+            </div>
+          </section>
+
+          <section class="demo-control-section">
+            <div>
+              <p class="section-kicker">Property check scenario</p>
+              <h3>Journey OS engine</h3>
+            </div>
+            <div class="demo-state-options" role="list">
+              <button class="secondary-button" type="button" data-journey-demo-option="clean-property-match">Clean property match</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="multiple-epc-address-matches">Multiple matches</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="no-epc-found">No EPC found</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="epc-e-future-risk">EPC E future-risk</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="epc-fg-urgent-mees-risk">EPC F/G urgent risk</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="hmo-high-occupancy-risk">HMO/high-occupancy</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="flat-block-common-parts">Flat/block</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="converted-multiple-unit-property">Converted property</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="damp-mould-complaint">Damp/mould</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="council-enforcement-contact">Council enforcement</button>
+              <button class="secondary-button" type="button" data-journey-demo-option="done-for-me-landlord">Done-for-me</button>
+            </div>
+          </section>
+
+          <section class="demo-control-section">
+            <div>
+              <p class="section-kicker">Guided stories</p>
+              <h3>Nick-facing walkthrough</h3>
+            </div>
+            <div class="demo-state-options" role="list">
+              <button class="primary-button" type="button" data-guided-story="clean-property-check">Run 2-minute demo</button>
+              <button class="secondary-button" type="button" data-guided-story="clean-property-check">Clean property</button>
+              <button class="secondary-button" type="button" data-guided-story="no-epc-found">No EPC found</button>
+              <button class="secondary-button" type="button" data-guided-story="hmo-licensing-risk">HMO/licensing risk</button>
+              <button class="secondary-button" type="button" data-guided-story="damp-mould-enforcement">Damp/mould/enforcement</button>
+              <button class="secondary-button" type="button" data-guided-story="done-for-me-plan">Done-for-me</button>
+            </div>
+          </section>
+
+          <section class="demo-control-section">
+            <div>
+              <p class="section-kicker">Reset</p>
+              <h3>Return to a clean prototype state</h3>
+            </div>
+            <div class="demo-state-options" role="list">
+              <button class="secondary-button" type="button" data-journey-reset>Reset current journey</button>
+              <button class="secondary-button" type="button" data-demo-state-option="reset">Reset full demo state</button>
+              <button class="text-button" type="button" data-guided-exit>Exit guided demo</button>
+            </div>
+          </section>
         </div>
       </section>
 
