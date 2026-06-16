@@ -16334,3 +16334,585 @@ body.journey-guided-active .journey-services-shell .journey-plan-controls {
   .journey-brain-node.is-services { top: 58%; }
   .journey-brain-node.is-monitoring { top: 86%; bottom: auto; }
 }
+
+/* Civic Property Intelligence OS alignment layer.
+   Late overrides only: preserves prototype flow/state logic while rebalancing brand, status and evidence hierarchy. */
+:root {
+  --civic-ink: #102033;
+  --civic-navy: #17324d;
+  --civic-graphite: #1f2937;
+  --civic-slate: #334155;
+  --civic-stone: #f7f3ec;
+  --civic-stone-strong: #eee7dc;
+  --civic-surface: #ffffff;
+  --civic-border: #d8d3c8;
+  --civic-success: #0f7a52;
+  --civic-success-bg: #e7f4ee;
+  --civic-warning: #b45309;
+  --civic-warning-text: #92400e;
+  --civic-warning-bg: #fff4d6;
+  --civic-danger: #b42318;
+  --civic-danger-bg: #fdeaea;
+  --civic-blue: #1d4f91;
+  --civic-ai: #0e7490;
+  --civic-unknown: #475569;
+  --civic-unknown-bg: #f1f5f9;
+  --civic-shadow: 0 18px 44px rgba(16, 32, 51, 0.09);
+  --civic-shadow-soft: 0 1px 2px rgba(16, 32, 51, 0.08);
+  --civic-focus: 0 0 0 4px rgba(29, 79, 145, 0.18);
+
+  --labs-bg: var(--civic-stone);
+  --labs-bg-soft: var(--civic-stone-strong);
+  --labs-surface: var(--civic-surface);
+  --labs-surface-soft: #fbfaf7;
+  --labs-surface-raised: rgba(255, 255, 255, 0.96);
+  --labs-ink: var(--civic-ink);
+  --labs-muted: var(--civic-slate);
+  --labs-soft: #64748b;
+  --labs-border: rgba(16, 32, 51, 0.12);
+  --labs-border-strong: rgba(16, 32, 51, 0.22);
+  --labs-green: var(--civic-success);
+  --labs-green-dark: #0c6848;
+  --labs-green-soft: var(--civic-success-bg);
+  --labs-amber: var(--civic-warning-text);
+  --labs-amber-soft: var(--civic-warning-bg);
+  --labs-blue: var(--civic-blue);
+  --labs-blue-soft: #e8f0fa;
+  --labs-neutral-soft: var(--civic-unknown-bg);
+  --labs-shadow: var(--civic-shadow);
+  --labs-card-shadow: var(--civic-shadow-soft);
+  --labs-hover-shadow: 0 20px 52px rgba(16, 32, 51, 0.12);
+  --journey-line: rgba(16, 32, 51, 0.12);
+  --journey-surface-soft: #fbfaf7;
+}
+
+body {
+  background:
+    linear-gradient(rgba(16, 32, 51, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 32, 51, 0.028) 1px, transparent 1px),
+    linear-gradient(180deg, #fbfaf7 0%, var(--civic-stone) 54%, #eee7dc 100%);
+  background-size: 44px 44px, 44px 44px, auto;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible,
+[tabindex]:focus-visible {
+  outline: none;
+  box-shadow: var(--civic-focus);
+}
+
+.labs-sidebar,
+.assistant-rail {
+  border-color: rgba(16, 32, 51, 0.14);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(251, 250, 247, 0.93));
+  box-shadow: 0 18px 54px rgba(16, 32, 51, 0.1);
+}
+
+.brand-mark {
+  color: #fff;
+  background: linear-gradient(180deg, var(--civic-navy), var(--civic-ink));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12), 0 12px 24px rgba(16, 32, 51, 0.18);
+}
+
+.brand-lockup small,
+.mobile-brand span:last-child {
+  color: var(--civic-slate);
+}
+
+.nav-group h2,
+.section-kicker {
+  color: #64748b;
+  letter-spacing: 0.08em;
+}
+
+.nav-item {
+  color: var(--civic-slate);
+}
+
+.nav-item.is-active,
+.nav-item:hover,
+.property-option.is-current,
+.tab-button.is-active {
+  color: var(--civic-navy);
+  border-color: rgba(29, 79, 145, 0.2);
+  background: #edf4fb;
+  box-shadow: inset 3px 0 0 var(--civic-blue);
+}
+
+.property-header,
+.portfolio-home-header,
+.portfolio-properties-header,
+.portfolio-compliance-header,
+.portfolio-evidence-header,
+.portfolio-tasks-header,
+.portfolio-activity-header,
+.utility-hero-card,
+.journey-os-header,
+.journey-guided-hero,
+.compliance-header,
+.documents-header,
+.services-header,
+.timeline-header,
+.passport-header {
+  border-color: rgba(16, 32, 51, 0.14);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(247, 243, 236, 0.92)),
+    var(--civic-surface);
+  box-shadow: var(--civic-shadow);
+}
+
+.property-header h1,
+.portfolio-home-header h1,
+.portfolio-properties-header h1,
+.portfolio-compliance-header h1,
+.portfolio-evidence-header h1,
+.portfolio-tasks-header h1,
+.portfolio-activity-header h1,
+.journey-os-header h1,
+.journey-guided-hero h1,
+.compliance-header h1,
+.documents-header h1,
+.services-header h1,
+.timeline-header h1,
+.passport-header h1 {
+  color: var(--civic-ink);
+  letter-spacing: 0;
+}
+
+.prototype-badge,
+.source-badge,
+.source-pill,
+.confidence-pill {
+  color: var(--civic-blue);
+  background: #e8f0fa;
+  border: 1px solid rgba(29, 79, 145, 0.14);
+}
+
+.primary-button {
+  color: #fff;
+  background: linear-gradient(180deg, #1f5f9e, var(--civic-blue));
+  box-shadow: 0 12px 24px rgba(29, 79, 145, 0.18);
+}
+
+.primary-button:hover {
+  background: linear-gradient(180deg, #234f85, var(--civic-navy));
+}
+
+.portfolio-autopilot-card .primary-button,
+.next-action-card .primary-button,
+.primary-service-card .primary-button,
+.service-option-preview.commercial-service-card .primary-button,
+.journey-guided-presenter .primary-button,
+.journey-action-card .primary-button,
+.journey-service-card .primary-button,
+.journey-confirmation-banner .primary-button {
+  color: #fff;
+  background: linear-gradient(180deg, #1f5f9e, var(--civic-blue));
+  box-shadow: 0 12px 24px rgba(29, 79, 145, 0.22);
+}
+
+.portfolio-autopilot-card .primary-button:hover,
+.next-action-card .primary-button:hover,
+.primary-service-card .primary-button:hover,
+.service-option-preview.commercial-service-card .primary-button:hover,
+.journey-guided-presenter .primary-button:hover,
+.journey-action-card .primary-button:hover,
+.journey-service-card .primary-button:hover,
+.journey-confirmation-banner .primary-button:hover {
+  background: linear-gradient(180deg, #234f85, var(--civic-navy));
+}
+
+.secondary-button,
+.demo-state-button {
+  color: var(--civic-navy);
+  border-color: rgba(23, 50, 77, 0.18);
+  background: #fff;
+}
+
+.text-button {
+  color: var(--civic-blue);
+}
+
+.status-good,
+.summary-card.status-good,
+.essential-card.status-good {
+  border-color: rgba(15, 122, 82, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(231, 244, 238, 0.9));
+}
+
+.status-review,
+.summary-card.status-review,
+.essential-card.status-review,
+.document-row.is-missing {
+  border-color: rgba(180, 83, 9, 0.26);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(255, 244, 214, 0.9));
+}
+
+.status-watch,
+.summary-card.status-watch,
+.essential-card.status-watch {
+  border-color: rgba(29, 79, 145, 0.2);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(232, 240, 250, 0.9));
+}
+
+.status-neutral,
+.summary-card.status-neutral,
+.essential-card.status-neutral {
+  border-color: rgba(71, 85, 105, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(241, 245, 249, 0.92));
+}
+
+.status-good-text,
+.journey-status-chip.is-booked,
+.journey-status-chip.is-accepted,
+.journey-status-chip.is-completed,
+.journey-status-chip.is-uploaded {
+  color: var(--civic-success);
+}
+
+.status-review-text,
+.journey-status-chip.is-expired,
+.journey-status-chip.is-review,
+.journey-status-chip.is-flagged {
+  color: var(--civic-warning-text);
+}
+
+.status-watch-text,
+.journey-status-chip.is-quote-requested,
+.journey-status-chip.is-pending,
+.journey-status-chip.is-pending-evidence,
+.journey-status-chip.is-added {
+  color: var(--civic-blue);
+}
+
+.status-neutral-text,
+.journey-status-chip.is-deferred,
+.journey-status-chip.is-rejected {
+  color: var(--civic-unknown);
+}
+
+.doc-status,
+.matrix-pill,
+.smart-status-pill,
+.journey-status-chip {
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, currentColor 9%, #ffffff);
+}
+
+.tile-icon {
+  color: var(--civic-navy);
+  background: #edf4fb;
+  box-shadow: inset 0 0 0 1px rgba(29, 79, 145, 0.13);
+}
+
+.status-good .tile-icon {
+  color: var(--civic-success);
+  background: var(--civic-success-bg);
+}
+
+.status-review .tile-icon,
+.status-review .nav-icon {
+  color: var(--civic-warning-text);
+  background: var(--civic-warning-bg);
+}
+
+.status-watch .tile-icon {
+  color: var(--civic-blue);
+  background: #e8f0fa;
+}
+
+.assistant-rail,
+.ask-command-centre,
+.ask-chat-panel,
+.utility-response-card,
+.journey-ask-response,
+.journey-ask-modal {
+  border-color: rgba(14, 116, 144, 0.18);
+}
+
+.ask-chat-surface,
+.assistant-response,
+[data-assistant-response],
+.journey-ask-response,
+.journey-ask-modal {
+  color: var(--civic-ink);
+  background:
+    linear-gradient(135deg, rgba(232, 246, 250, 0.98), rgba(255, 255, 255, 0.96));
+  border-color: rgba(14, 116, 144, 0.2);
+  box-shadow: 0 18px 42px rgba(14, 116, 144, 0.1);
+}
+
+.ask-chat-surface::before {
+  display: none;
+}
+
+.assistant-response p,
+[data-assistant-response] p,
+[data-utility-ask-response],
+[data-ask-chat-response] {
+  white-space: pre-line;
+}
+
+.ask-chat-status-row span,
+.ask-check-chip-row span,
+.ask-context-sequence span {
+  color: var(--civic-ai);
+  background: #e6f6f9;
+  border: 1px solid rgba(14, 116, 144, 0.14);
+}
+
+.ask-chat-status-row i {
+  background: var(--civic-ai);
+  box-shadow: 0 0 0 5px rgba(14, 116, 144, 0.12);
+}
+
+.ask-source-card,
+.evidence-row,
+.document-row,
+.vault-list-card,
+.evidence-list-card,
+.missing-evidence-card,
+.property-evidence-health-card,
+.compliance-matrix-wrap,
+.compliance-gap-card,
+.compliance-readiness-card {
+  border-color: rgba(16, 32, 51, 0.13);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.compliance-header,
+.compliance-start-card,
+.compliance-gap-card,
+.compliance-readiness-card {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(247, 243, 236, 0.9));
+}
+
+.journey-stage-card.is-current,
+.journey-choice.is-selected,
+.scenario-option.is-active,
+.timeline-filter-row button.is-active,
+.properties-filter-row button.is-active,
+.properties-view-toggle button.is-active,
+.evidence-property-filter button.is-active,
+.service-focus-tabs button.is-active,
+.service-property-selector button.is-active,
+.journey-service-filters button.is-active {
+  color: var(--civic-navy);
+  border-color: rgba(29, 79, 145, 0.24);
+  background: #edf4fb;
+  box-shadow: inset 0 0 0 1px rgba(29, 79, 145, 0.08);
+}
+
+.journey-guided-presenter,
+.journey-guided-vision-card,
+.portfolio-autopilot-card,
+.next-action-card,
+.primary-service-card,
+.service-option-preview.commercial-service-card,
+.journey-property-brain-updated,
+.journey-service-detail-hero,
+.journey-confirmation-banner {
+  border-color: rgba(23, 50, 77, 0.24);
+  background:
+    linear-gradient(135deg, rgba(23, 50, 77, 0.98), rgba(16, 32, 51, 0.96));
+  color: #fff;
+  box-shadow: 0 24px 64px rgba(16, 32, 51, 0.2);
+}
+
+.journey-guided-presenter p,
+.journey-guided-presenter small,
+.journey-guided-presenter-note,
+.journey-guided-vision-card p,
+.portfolio-autopilot-card p,
+.portfolio-autopilot-card small,
+.next-action-card p,
+.primary-service-card p,
+.service-option-preview.commercial-service-card p,
+.journey-property-brain-updated p,
+.journey-service-detail-hero p,
+.journey-confirmation-banner p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.portfolio-autopilot-card h2,
+.portfolio-autopilot-card h3,
+.next-action-card h2,
+.next-action-card h3,
+.primary-service-card h2,
+.primary-service-card h3,
+.service-option-preview.commercial-service-card h3,
+.journey-property-brain-updated h3,
+.journey-service-detail-hero h3,
+.journey-confirmation-banner h3 {
+  color: #fff;
+}
+
+.journey-guided-orbit i {
+  background:
+    radial-gradient(circle, rgba(232, 246, 250, 0.96), rgba(14, 116, 144, 0.82));
+  box-shadow: 0 0 34px rgba(14, 116, 144, 0.28);
+}
+
+.journey-guided-progress i,
+.journey-progress-bar i,
+.score-meter i {
+  background: linear-gradient(90deg, var(--civic-blue), var(--civic-ai));
+}
+
+.journey-deferred-note,
+.timeline-resolved-note {
+  color: var(--civic-warning-text);
+  background: var(--civic-warning-bg);
+  border-color: rgba(180, 83, 9, 0.18);
+}
+
+.toast,
+.smart-modal,
+.timeline-modal,
+.drawer-panel {
+  border-color: rgba(16, 32, 51, 0.16);
+  background: rgba(255, 255, 255, 0.97);
+  box-shadow: 0 24px 72px rgba(16, 32, 51, 0.18);
+}
+
+@media (max-width: 640px) {
+  .labs-shell {
+    width: 100%;
+    background: var(--civic-stone);
+    overflow-x: hidden;
+  }
+
+  .workspace {
+    width: 100%;
+    max-width: calc(100vw - 48px);
+    margin-right: auto;
+    margin-left: auto;
+    overflow-x: hidden;
+  }
+
+  .portfolio-home-header,
+  .portfolio-autopilot-card,
+  .portfolio-summary-panel,
+  .home-priority-card,
+  .portfolio-summary-panel > *,
+  .home-priority-card > * {
+    width: 100%;
+  }
+
+  .portfolio-home-header,
+  .portfolio-autopilot-card {
+    width: 100%;
+    max-width: 100%;
+    margin-right: 0;
+    margin-left: 0;
+  }
+
+  .portfolio-home-header *,
+  .portfolio-autopilot-card *,
+  .portfolio-summary-panel *,
+  .home-priority-card * {
+    min-width: 0;
+    max-width: 100%;
+    white-space: normal;
+  }
+
+  .portfolio-home-header h1,
+  .portfolio-autopilot-card h2,
+  .portfolio-summary-panel h3,
+  .home-priority-card h3,
+  .portfolio-home-header p,
+  .portfolio-autopilot-card p,
+  .portfolio-summary-panel p,
+  .home-priority-card p {
+    overflow-wrap: anywhere;
+    word-break: normal;
+  }
+
+  .portfolio-home-header h1,
+  .portfolio-home-header p,
+  .portfolio-autopilot-card h2,
+  .portfolio-autopilot-card > div > p,
+  .portfolio-summary-panel h3,
+  .portfolio-summary-panel p,
+  .home-priority-card h3,
+  .home-priority-card p {
+    max-width: calc(100vw - 112px);
+  }
+
+  .portfolio-summary-panel h3,
+  .portfolio-summary-panel p,
+  .home-priority-card h3,
+  .home-priority-card p {
+    max-width: 260px;
+  }
+
+  .property-header,
+  .portfolio-home-header,
+  .portfolio-properties-header,
+  .portfolio-compliance-header,
+  .portfolio-evidence-header,
+  .portfolio-tasks-header,
+  .portfolio-activity-header,
+  .journey-os-header,
+  .journey-guided-hero,
+  .compliance-header,
+  .documents-header,
+  .services-header,
+  .timeline-header {
+    box-shadow: var(--civic-shadow-soft);
+  }
+
+  .doc-status,
+  .matrix-pill,
+  .journey-status-chip {
+    white-space: normal;
+  }
+
+  .workspace,
+  .portfolio-home,
+  .portfolio-autopilot-card,
+  .portfolio-summary-panel,
+  .home-priority-card,
+  .next-action-card,
+  .primary-service-card,
+  .journey-action-card,
+  .journey-service-card {
+    min-width: 0;
+    max-width: 100%;
+    overflow-wrap: anywhere;
+  }
+
+  .portfolio-summary-panel,
+  .home-priority-card,
+  .next-action-card {
+    grid-template-columns: 1fr;
+  }
+
+  .portfolio-summary-panel .tile-icon,
+  .home-priority-card .tile-icon {
+    justify-self: start;
+  }
+
+  .portfolio-autopilot-card .button-row,
+  .portfolio-autopilot-card .button-row button,
+  .portfolio-header-actions,
+  .portfolio-header-actions button {
+    width: 100%;
+  }
+
+  .demo-state-strip,
+  .portfolio-prompt-row,
+  .button-row {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+}

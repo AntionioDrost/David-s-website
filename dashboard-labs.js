@@ -152,7 +152,7 @@ const journeyStages = [
   { id: "autoChecks", label: "Auto Checks" },
   { id: "confirmProperty", label: "Confirm", fullLabel: "Confirm Property" },
   { id: "unknowns", label: "Unknowns", fullLabel: "Answer Unknowns" },
-  { id: "brain", label: "Brain", fullLabel: "Property Brain" },
+  { id: "brain", label: "Profile", fullLabel: "Property Intelligence" },
   { id: "actionPlan", label: "Plan", fullLabel: "Action Plan" },
   { id: "action", label: "Actions", fullLabel: "Upload / Book / Ask / Defer" },
   { id: "vault", label: "Vault", fullLabel: "Evidence Vault" },
@@ -165,7 +165,7 @@ const journeyAutoCheckSteps = [
   "Finding local authority",
   "Checking possible licensing area",
   "Reading property clues",
-  "Preparing property brain"
+  "Preparing property intelligence"
 ];
 
 const journeyBrainSteps = [
@@ -1030,7 +1030,7 @@ const guidedDemoStories = {
         stage: "confirmProperty",
         screen: "match",
         note: "The property match gives confidence before the action plan.",
-        callout: "A clean match turns raw records into a confirmed starting point for the property brain."
+        callout: "A clean match turns raw records into a clear starting point for the Property Compliance Profile."
       },
       {
         name: "Review found data",
@@ -1059,12 +1059,12 @@ const guidedDemoStories = {
         callout: "Only landlord-confirmed details are asked here: occupancy, gas, documents, condition and intent."
       },
       {
-        name: "Property brain built",
+        name: "Property Intelligence built",
         stage: "brain",
         screen: "brain",
         brainComplete: true,
         note: "Show the intelligence moment, not a loading spinner.",
-        callout: "CMP combines records, landlord answers, evidence, service routes and monitoring into one property brain."
+        callout: "CMP combines records, landlord answers, evidence, service routes and monitoring into one Property Intelligence profile."
       },
       {
         name: "Action plan reveal",
@@ -1141,7 +1141,7 @@ const guidedDemoStories = {
       { name: "Story intro", stage: "start", screen: "start", note: "Frame the commercial service vision.", callout: "This story shows how CMP can move from diagnosis to done-for-me service orchestration." },
       { name: "Done-for-me scenario", stage: "addProperty", screen: "add", note: "Start with the same simple property check.", callout: "The journey does not change for the landlord. CMP changes the route behind the scenes." },
       { name: "Landlord intent", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, note: "Choose the done-for-me intent.", callout: "The landlord does not need to know what to book. CMP translates risk into a service plan." },
-      { name: "Action plan", stage: "actionPlan", screen: "actionPlan", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", note: "Show the same property brain in concierge mode.", callout: "The action plan becomes a commercial path: urgent first, evidence next, monitoring always on." },
+      { name: "Action plan", stage: "actionPlan", screen: "actionPlan", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", note: "Show the same Property Compliance Profile in concierge mode.", callout: "The action plan becomes a commercial path: urgent first, evidence next, monitoring always on." },
       { name: "Service basket reveal", stage: "action", screen: "workspace", workspaceTab: "services", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "concierge", note: "Show the service basket as a plan, not a directory.", callout: "Service bundles are generated from risks: legal essentials, risk protection, future-proofing and monitoring." },
       { name: "Quote or book", stage: "action", screen: "workspace", workspaceTab: "services", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "quotes", note: "Show quote-first commercial option.", callout: "The landlord can request quotes first, book urgent only, or hand the whole plan to CMP." },
       { name: "Monitoring and workspace", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "concierge", note: "End on recurring value.", callout: "The subscription value is ongoing: renewals, law watch, evidence watch and portfolio priority." }
@@ -1203,7 +1203,7 @@ const journeyAskPrompts = [
   "What risks could get expensive?",
   "What is the cheapest compliant route?",
   "What is the safest future-proof route?",
-  "What changed in this property brain?",
+  "What changed in this Property Intelligence profile?",
   "What did my booking change?",
   "What evidence is still missing?",
   "What is waiting on a service?",
@@ -2215,8 +2215,8 @@ const portfolioFivePropertyDefinitions = [
     complianceScore: 100,
     evidenceScore: 100,
     focus: "Keep evidence current",
-    focusArea: "Fully compliant",
-    state: "Fully compliant",
+    focusArea: "Evidence-ready",
+    state: "Evidence-ready",
     statusDetail: "All core checks and evidence recorded",
     priority: "Monitor renewal dates",
     priorityBody: "CMP has all core evidence for this property. Keep renewal reminders active and continue routine inspections.",
@@ -2227,7 +2227,7 @@ const portfolioFivePropertyDefinitions = [
     recommendedService: "None needed",
     workspaceAvailable: false,
     mostUrgent: false,
-    search: "24 maple court fully compliant all evidence complete gas eicr epc alarms tenancy licensing inspection"
+    search: "24 maple court evidence ready all core evidence complete gas eicr epc alarms tenancy licensing inspection"
   },
   {
     id: "canal-view",
@@ -2943,7 +2943,7 @@ const activityAssistantResponses = {
 };
 
 const activityPostEicrAssistantResponses = {
-  "What changed recently?": "Your EICR was verified and the Electrical Safety gap was resolved. The next useful item is inspection evidence.",
+  "What changed recently?": "Your EICR was verified and the Electrical Safety item moved to evidence accepted. The next useful item is inspection evidence.",
   "What still needs attention?": "Inspection evidence is now the main useful upload. Licensing review is still in progress.",
   "Summarise portfolio activity": "The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
   "Why was this recorded?": "CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
@@ -3018,6 +3018,22 @@ const guidePreviews = [
 
 const defaultAssistantResponse = "CMP can organise evidence, identify gaps and suggest the next useful action for this property.";
 
+function formatControlledAssistantResponse(message) {
+  const response = (message || defaultAssistantResponse).trim();
+
+  if (response.startsWith("Summary:")) {
+    return response;
+  }
+
+  return [
+    `Summary: ${response}`,
+    "Based on: Simulated demo data from the local property record, Evidence Vault, Compliance Centre, tasks and service basket.",
+    "What this means: Treat this as source-backed prototype guidance for prioritising review, evidence and support steps.",
+    "Suggested next action: Check the linked evidence or action before booking, uploading or deferring anything.",
+    "Limits: Prototype mode only. No live lookup performed and this is not legal advice."
+  ].join("\n\n");
+}
+
 const scanStages = [
   "Reading documents...",
   "Identifying document types...",
@@ -3061,7 +3077,7 @@ function setAssistantResponse(message) {
   const response = document.querySelector("[data-assistant-response] p");
 
   if (response) {
-    response.textContent = message || defaultAssistantResponse;
+    response.textContent = formatControlledAssistantResponse(message);
   }
 }
 
@@ -3595,9 +3611,9 @@ function getPortfolioAssistantResponse(prompt) {
 
   if (isFivePropertyMode()) {
     const responses = {
-      "Summarise my portfolio": `You have five properties in this Labs portfolio. ${fullyCompliantProperties().length} is fully compliant, portfolio compliance is ${portfolioComplianceScore()}%, and portfolio evidence is ${portfolioEvidenceScore()}%.`,
+      "Summarise my portfolio": `You have five properties in this Labs portfolio. ${fullyCompliantProperties().length} is evidence-ready, portfolio compliance is ${portfolioComplianceScore()}%, and portfolio evidence is ${portfolioEvidenceScore()}%.`,
       "What should I do today?": "Start with 3 Station Road onboarding gaps, then handle 18 Willow Brook Drive Gas Safety renewal and 9 Canal View licensing uncertainty.",
-      "Which property needs attention?": "3 Station Road has the lowest readiness score. 18 Willow Brook Drive has the urgent renewal item, while 24 Maple Court is fully compliant.",
+      "Which property needs attention?": "3 Station Road has the lowest readiness score. 18 Willow Brook Drive has the urgent renewal item, while 24 Maple Court is evidence-ready.",
       "What evidence am I missing?": `${portfolioEvidenceGapCount()} evidence gaps remain across the five-property portfolio. Station Road has the largest setup gap; Canal View needs licensing evidence.`,
       "Ask CMP why this matters": "CMP separates compliance score from evidence score so a property can have decent paperwork but still need scenario-specific answers.",
       "Ask CMP what I need": "Run Portfolio Sweep, resolve Station Road onboarding evidence, confirm Canal View licensing, then review Willow Brook renewal evidence."
@@ -3639,7 +3655,7 @@ function getPropertiesAssistantResponse(prompt) {
   if (isFivePropertyMode()) {
     const responses = {
       "Which property needs attention?": "3 Station Road needs attention first because both compliance and evidence scores are low. 18 Willow Brook Drive and 9 Canal View also need targeted review.",
-      "Summarise my properties": "The portfolio contains five properties in different states, including one fully compliant file: 24 Maple Court.",
+      "Summarise my properties": "The portfolio contains five properties in different states, including one evidence-ready file: 24 Maple Court.",
       "What should I open first?": "Open the A-Z Checker or focus 3 Station Road to show the new-purchase onboarding state.",
       "How do I add another property?": "Use Add property to preview onboarding; this five-property state is static demo data."
     };
@@ -3680,7 +3696,7 @@ function getComplianceCentreAssistantResponse(prompt) {
       "What should I fix first?": "Fix 3 Station Road first because it has the lowest compliance and evidence scores. Then confirm Willow Brook Gas Safety renewal and Canal View licensing.",
       "Which evidence is missing?": `${portfolioEvidenceGapCount()} evidence gaps remain. Station Road is missing the largest set; Canal View has licensing-specific uncertainty.`,
       "What expires soon?": "18 Willow Brook Drive has the clearest upcoming renewal item: Gas Safety evidence is needed soon.",
-      "Summarise my compliance position": `Portfolio compliance is ${portfolioComplianceScore()}% and evidence is ${portfolioEvidenceScore()}%. 24 Maple Court is fully compliant.`
+      "Summarise my compliance position": `Portfolio compliance is ${portfolioComplianceScore()}% and evidence is ${portfolioEvidenceScore()}%. 24 Maple Court is evidence-ready.`
     };
     return responses[prompt] || defaultAssistantResponse;
   }
@@ -3782,9 +3798,9 @@ function getActivityAssistantResponse(prompt) {
 
   if (isFivePropertyMode()) {
     const responses = {
-      "What changed recently?": "CMP prepared a five-property Portfolio Sweep and identified 24 Maple Court as fully compliant.",
+      "What changed recently?": "CMP prepared a five-property Portfolio Sweep and identified 24 Maple Court as evidence-ready.",
       "What still needs attention?": "3 Station Road onboarding, Willow Brook Gas Safety renewal and Canal View licensing are the main items.",
-      "Summarise portfolio activity": "The activity feed shows the portfolio sweep, fully compliant property, renewal items and evidence gaps by property.",
+      "Summarise portfolio activity": "The activity feed shows the portfolio sweep, evidence-ready property, renewal items and evidence gaps by property.",
       "Why was this recorded?": "CMP records the portfolio sweep so the landlord can see why property-specific actions were created."
     };
     return responses[prompt] || defaultAssistantResponse;
@@ -4029,13 +4045,13 @@ function getJourneyBridgeAssistantResponse(prompt) {
   const address = brain.PropertyIdentity.address;
 
   if (labsState.currentView === "home") {
-    return `${address} is the active simulated property brain. The biggest current priority is ${urgent[0]?.title || "keeping monitoring live"}. Use Add / check property to continue the A-Z journey.`;
+    return `${address} is the active simulated Property Intelligence profile. The biggest current priority is ${urgent[0]?.title || "keeping monitoring live"}. Use Add / check property to continue the A-Z journey.`;
   }
   if (labsState.currentView === "journeyOs") {
     return `Journey OS is building the ${route} route for ${address}. CMP checks simulated records first, then asks only landlord-only unknowns before returning to the workspace.`;
   }
   if (labsState.currentView === "complianceCentre") {
-    return `Compliance Centre is now reading the Journey OS property brain: ${urgent.length} urgent blocker${urgent.length === 1 ? "" : "s"}, ${missing.length} evidence gap${missing.length === 1 ? "" : "s"}, and ${state.serviceBasket.length} fake service item${state.serviceBasket.length === 1 ? "" : "s"}.`;
+    return `Compliance Centre is now reading the Journey OS Property Intelligence profile: ${urgent.length} urgent blocker${urgent.length === 1 ? "" : "s"}, ${missing.length} evidence gap${missing.length === 1 ? "" : "s"}, and ${state.serviceBasket.length} fake service item${state.serviceBasket.length === 1 ? "" : "s"}.`;
   }
   if (labsState.currentView === "evidenceVault") {
     return state.evidenceVault.length
@@ -4043,7 +4059,7 @@ function getJourneyBridgeAssistantResponse(prompt) {
       : `Evidence Vault is waiting for simulated uploads for ${address}. Start with ${missing[0]?.title || "EICR, Gas Safety or tenancy evidence"} or use the fake scanner.`;
   }
   if (labsState.currentView === "bookService") {
-    return `Services should follow the property brain, not a generic directory. The current recommended first service is ${buildServiceRecommendations(state)[0]?.title || "Annual Compliance Monitoring"}.`;
+    return `Services should follow the Property Intelligence profile, not a generic directory. The current recommended first service is ${buildServiceRecommendations(state)[0]?.title || "Annual Compliance Monitoring"}.`;
   }
   return `For ${address}, CMP would prioritise ${urgent[0]?.title || missing[0]?.title || "monitoring and evidence quality"} on the ${route} route.`;
 }
@@ -4735,21 +4751,21 @@ function renderPortfolioHomeState() {
   }
   if (autopilotBody) {
     autopilotBody.textContent = isFivePropertyMode()
-      ? "CMP has compared five properties, separated compliance readiness from evidence completeness and found one fully compliant file."
+      ? "CMP has compared five properties, separated compliance readiness from evidence completeness and found one evidence-ready file."
       : isTwoPropertyMode()
       ? "CMP has compared both properties and found the most time-sensitive action first, while keeping other evidence gaps visible."
       : "CMP has reviewed the information currently stored for your property and highlighted the most useful action to take next.";
   }
   document.querySelector("[data-home-summary-title]").textContent = isTwoPropertyMode()
     ? isFivePropertyMode()
-      ? "Portfolio sweep: 1 fully compliant, 2 urgent actions"
+      ? "Portfolio sweep: 1 evidence-ready, 2 urgent actions"
       : "Priority 1: Gas Safety renewal — 18 Willow Brook Drive"
     : labsState.eicrAdded
       ? "Add recent inspection evidence for 57 The Butts"
       : "Check whether 57 The Butts has a current EICR";
   document.querySelector("[data-home-summary-body]").textContent = isTwoPropertyMode()
     ? isFivePropertyMode()
-      ? `${fullyCompliantProperties().length} property is fully compliant. ${portfolioUrgentActionCount()} urgent actions and ${portfolioEvidenceGapCount()} evidence gaps remain across the portfolio.`
+      ? `${fullyCompliantProperties().length} property is evidence-ready. ${portfolioUrgentActionCount()} urgent actions and ${portfolioEvidenceGapCount()} evidence gaps remain across the portfolio.`
       : "Gas Safety renewal is approaching sooner, so this is the first portfolio action to deal with."
     : labsState.eicrAdded
       ? "Electrical Safety is recorded. Inspection evidence is the next useful improvement."
@@ -4791,7 +4807,7 @@ function renderPortfolioHomeState() {
   document.querySelector("[data-home-priority-area]").textContent = urgentProperty.focusArea;
   document.querySelector("[data-home-priority-status]").textContent = urgentProperty.state;
   document.querySelector("[data-home-priority-body]").textContent = isFivePropertyMode()
-    ? `${urgentProperty.label}: ${urgentProperty.priorityBody} Portfolio-wide: ${fullyCompliantProperties().length} property is fully compliant and ${portfolioEvidenceGapCount()} evidence gaps remain.`
+    ? `${urgentProperty.label}: ${urgentProperty.priorityBody} Portfolio-wide: ${fullyCompliantProperties().length} property is evidence-ready and ${portfolioEvidenceGapCount()} evidence gaps remain.`
     : isTwoPropertyMode()
     ? `Priority 1: ${urgentProperty.focus} — ${urgentProperty.address}. ${urgentProperty.priorityBody} Also watch: 57 The Butts ${labsState.eicrAdded ? "needs inspection evidence next." : "still needs Electrical Safety evidence."}`
     : `${urgentProperty.label}: ${urgentProperty.priorityBody}`;
@@ -5059,7 +5075,7 @@ function serviceConfirmationFor(status, item, services = [journeyServiceById(ite
     quote_requested: "CMP prepared supplier-ready quote details. Compliance risk remains open until the quote becomes a booking or evidence is accepted.",
     booked: "CMP prepared a fake booking, added pending evidence, updated monitoring and logged the next step.",
     pending: "CMP marked the fake job in progress and kept the evidence follow-up visible.",
-    completed: "CMP generated simulated evidence, updated the property brain, refreshed monitoring and logged completion.",
+    completed: "CMP generated simulated evidence, updated the Property Intelligence profile, refreshed monitoring and logged completion.",
     deferred: "CMP saved this for later without treating it as solved."
   };
   return {
@@ -5169,7 +5185,7 @@ function resetJourneyStateForGuidedStory(storyId) {
   const state = journeyState();
   addTimelineEvent({
     title: `${story.title} story started`,
-    body: "Guided demo reset this property brain with simulated data.",
+    body: "Guided demo reset this Property Intelligence profile with simulated data.",
     type: "Guided demo"
   });
   return state;
@@ -5302,7 +5318,7 @@ function openGuidedWorkspacePreview() {
   state.workspaceTab = state.workspaceTab || "overview";
   addTimelineEvent({
     title: "Guided workspace opened",
-    body: "Presenter opened the workspace to show the property brain destination.",
+    body: "Presenter opened the workspace to show the Property Intelligence profile destination.",
     type: "Guided demo"
   });
   showJourneyOs({ scroll: false });
@@ -5804,7 +5820,7 @@ function applyServicePlan(action) {
             : action === "legal" ? "Legal essentials bundle prepared"
               : "Urgent service bundle prepared",
     body: action === "quotes"
-      ? "CMP prepared quote requests from the current property brain. Compliance risk remains open until quotes become bookings or evidence is accepted."
+      ? "CMP prepared quote requests from the current Property Intelligence profile. Compliance risk remains open until quotes become bookings or evidence is accepted."
       : action === "concierge"
         ? "CMP grouped urgent compliance, evidence recovery and monitoring into a fake concierge route. No supplier was contacted."
         : `${selected.length} service${selected.length === 1 ? "" : "s"} moved into the fake ${serviceLifecycleLabel(status).toLowerCase()} state.`,
@@ -6043,7 +6059,7 @@ function generateAskCmpResponse(prompt) {
       ? `Not safely yet. CMP has a simulated EPC ${brain.AutoCheckResults.epcRating}, but ${urgent.slice(0, 4).map((item) => item.title).join(", ")} still need handling before you treat this property as ready.`
       : "It looks closer to ready, but CMP would still keep monitoring evidence dates and tenant documents before you rely on the file.";
   } else if (prompt.includes("first")) {
-    body = urgent[0] ? `Start with ${urgent[0].title}. It has the highest risk and unlocks a clearer property file.` : "Start by adding the strongest missing evidence so CMP can improve the property brain.";
+    body = urgent[0] ? `Start with ${urgent[0].title}. It has the highest risk and unlocks a clearer property file.` : "Start by adding the strongest missing evidence so CMP can improve the Property Intelligence profile.";
   } else if (prompt.includes("wait")) {
     body = `Future-proofing can wait longer than legal blockers. Improvements like ${state.actionPlan.improvementOpportunities?.[0]?.title || "annual monitoring"} should stay visible but not block the urgent route.`;
   } else if (prompt.includes("score low")) {
@@ -6053,7 +6069,7 @@ function generateAskCmpResponse(prompt) {
   } else if (prompt.includes("EPC")) {
     body = `The EPC is ${brain.AutoCheckResults.epcRating}. CMP would compare the potential rating ${brain.AutoCheckResults.epcPotentialRating}, then build an EPC improvement plan around insulation, controls and reassessment.`;
   } else if (prompt.includes("tenant")) {
-    body = "Generate a practical access message from the property brain, then log it to the timeline so communication evidence stays visible.";
+    body = "Generate a practical access message from the Property Intelligence profile, then log it to the timeline so communication evidence stays visible.";
   } else if (prompt.includes("expensive")) {
     body = `The expensive risks are usually unresolved safety certificates, licensing/HMO uncertainty, enforcement contact and damp/mould evidence gaps. CMP is keeping those visible.`;
   } else if (prompt.includes("cheapest")) {
@@ -6061,7 +6077,7 @@ function generateAskCmpResponse(prompt) {
   } else if (prompt.includes("future-proof")) {
     body = "The safest future-proof route adds EPC improvement planning, condition evidence, annual monitoring, insurance dates and licensing watch on top of the legal essentials.";
   } else {
-    body = `This property brain changed around ${journeyDemoScenarios[state.scenarioId]?.label}. The current route is ${journeyRoutes[state.routeId]?.label}, with ${urgent.length} urgent blockers and ${state.serviceBasket.length} basket items.`;
+    body = `This Property Intelligence profile changed around ${journeyDemoScenarios[state.scenarioId]?.label}. The current route is ${journeyRoutes[state.routeId]?.label}, with ${urgent.length} urgent blockers and ${state.serviceBasket.length} basket items.`;
   }
   const basketCopy = state.serviceBasket.length ? ` ${state.serviceBasket.length} service item${state.serviceBasket.length === 1 ? "" : "s"} are already in the fake basket, including ${booked.length} booked/in-progress and ${quotes.length} quote request${quotes.length === 1 ? "" : "s"}.` : " No service basket has been started yet.";
   const response = {
@@ -6175,7 +6191,7 @@ function selectPropertyMatch(matchId) {
   state.actionPlan = buildJourneyActionPlan(state);
   addTimelineEvent({
     title: "Property match confirmed",
-    body: matchId === "uncertain" ? "Property identity kept with low confidence and warning." : "Selected property match saved to the Journey OS property brain.",
+    body: matchId === "uncertain" ? "Property identity kept with low confidence and warning." : "Selected property match saved to the Journey OS Property Intelligence profile.",
     type: "Property match"
   });
   setJourneyStage("confirmProperty", "review");
@@ -6205,7 +6221,7 @@ function handleNoEpcChoice(choice) {
       source: "No EPC branch"
     };
     brain.TenancyProfile.occupancyStatus = carriedOccupancy.label;
-    state.branchEffects.unshift("CMP carried this answer into the property brain");
+    state.branchEffects.unshift("CMP carried this answer into the Property Intelligence profile");
   }
   state.branchEffects.unshift(choice === "vacant" ? "Book EPC before marketing added" : choice === "upload" ? "EPC evidence upload route added" : "Book EPC assessment added");
   state.actionPlan = buildJourneyActionPlan(state);
@@ -6404,7 +6420,7 @@ function renderGuidedDemoLanding() {
         </div>
         <aside class="journey-guided-vision-card">
           <strong>What Nick should see</strong>
-          <p>CMP checks records, asks only what records cannot know, builds a property brain, then turns risk into services and monitoring.</p>
+          <p>CMP checks records, asks only what records cannot know, builds a Property Intelligence profile, then turns risk into services and monitoring.</p>
           <div class="journey-guided-orbit" aria-hidden="true">
             <span>Records</span>
             <span>Answers</span>
@@ -6545,7 +6561,7 @@ function renderGuidedNextStepsPanel() {
       <div>
         <p class="section-kicker">Next steps</p>
         <h3>${escapeHtml(story.title)} commercial follow-through</h3>
-        <p>The story now returns to the same property brain. Pick one next action to show booking, evidence, Ask CMP or monitoring.</p>
+        <p>The story now returns to the same Property Intelligence profile. Pick one next action to show booking, evidence, Ask CMP or monitoring.</p>
       </div>
       <div class="journey-guided-next-grid">
         ${guidedNextStepsForStory(demo.activeStoryId).map(([label, attrs]) => `
@@ -6603,7 +6619,7 @@ function renderJourneyShell(screenHtml) {
     <header class="journey-os-header">
       <div>
         <p class="section-kicker">CMP Journey OS</p>
-        <h1 id="journeyOsTitle">Build a property brain</h1>
+        <h1 id="journeyOsTitle">Build a Property Intelligence profile</h1>
         <p>Start with an address. CMP simulates checks, asks landlord-only unknowns, then creates the property workspace and action plan.</p>
         <span class="prototype-badge">Prototype mode: simulated API checks, document intelligence and service routes. No live lookup performed.</span>
       </div>
@@ -6646,7 +6662,7 @@ function renderJourneyStart() {
     <section class="journey-hero-panel">
       <div>
         <p class="section-kicker">Start</p>
-        <h2>Build a property brain before choosing what to fix</h2>
+        <h2>Build a Property Intelligence profile before choosing what to fix</h2>
         <p>Start with an address. CMP will simulate official checks, ask only for the things public records cannot know, and return every route to a property workspace.</p>
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-go="add">Check My Property</button>
@@ -6892,10 +6908,10 @@ function renderUnknownsWizard() {
         <div class="journey-step-heading">
           <p class="section-kicker">Answer Unknowns</p>
           <h2>Unknowns handled</h2>
-          <p>CMP has enough simulated context to build the property brain and action plan.</p>
+          <p>CMP has enough simulated context to build the Property Intelligence profile and action plan.</p>
         </div>
         <div class="button-row">
-          <button class="primary-button" type="button" data-journey-build-brain>Build Property Brain</button>
+          <button class="primary-button" type="button" data-journey-build-brain>Build Property Intelligence</button>
           <button class="secondary-button" type="button" data-journey-go="workspace">Open workspace preview</button>
         </div>
       </section>
@@ -6913,7 +6929,7 @@ function renderUnknownsWizard() {
         <article class="journey-carried-answer">
           <span>Already answered from ${escapeHtml(state.carriedAnswers.occupancy.source)}</span>
           <strong>${escapeHtml(state.carriedAnswers.occupancy.label)}</strong>
-          <p>CMP carried this into the property brain and will continue with landlord-only unknowns.</p>
+          <p>CMP carried this into the Property Intelligence profile and will continue with landlord-only unknowns.</p>
         </article>
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-continue-carried>Continue with carried answer</button>
@@ -6984,7 +7000,7 @@ function renderJourneyCarriedAnswerNote() {
     <div class="journey-carried-answer journey-carried-answer--compact">
       <span>CMP carried this from the No EPC branch</span>
       <strong>${escapeHtml(carried.label)}</strong>
-      <p>This answer is already in the property brain, so CMP will not ask the same occupancy question twice.</p>
+      <p>This answer is already in the Property Intelligence profile, so CMP will not ask the same occupancy question twice.</p>
     </div>
   `;
 }
@@ -6994,8 +7010,8 @@ function renderJourneyBrain() {
   return renderJourneyShell(`
     <section class="journey-step-panel">
       <div class="journey-step-heading">
-        <p class="section-kicker">Property Brain</p>
-        <h2>CMP is building your property brain</h2>
+        <p class="section-kicker">Property Intelligence</p>
+        <h2>CMP is building your Property Intelligence profile</h2>
         <p>Fake analysis is combining simulated records, landlord answers, evidence gaps and service routes.</p>
       </div>
       ${renderGuidedBrainVisual()}
@@ -7059,7 +7075,7 @@ function renderJourneyPlanSummary() {
       <div>
         <p class="section-kicker">Next best action</p>
         <h3>${escapeHtml(nextAction?.title || "Open the property workspace")}</h3>
-        <p>${escapeHtml(nextAction?.body || "CMP has created a simulated action plan from the property brain.")}</p>
+        <p>${escapeHtml(nextAction?.body || "CMP has created a simulated action plan from the Property Intelligence profile.")}</p>
       </div>
       <div class="journey-plan-summary-stats">
         <span><strong>${escapeHtml(routeLabel)}</strong> selected route</span>
@@ -7137,7 +7153,7 @@ function renderJourneyActionGroups(limitForWorkspace = false) {
 function renderJourneyPlanButtons() {
   return `
     <section class="journey-plan-controls" aria-label="Journey OS service plan controls">
-      <p>Every plan button updates the fake basket, timeline and property brain. No supplier is contacted.</p>
+      <p>Every plan button updates the fake basket, timeline and Property Intelligence profile. No supplier is contacted.</p>
       <button class="primary-button" type="button" data-journey-service-plan="urgent">Book urgent only</button>
       <button class="secondary-button" type="button" data-journey-service-plan="legal">Book legal essentials</button>
       <button class="secondary-button" type="button" data-journey-service-plan="risk">Build risk-protected plan</button>
@@ -7303,7 +7319,7 @@ function renderJourneyServicesExperience() {
             <div class="section-heading">
               <p class="section-kicker">${escapeHtml(category)}</p>
               <h2>${escapeHtml(category)} services</h2>
-              <p>CMP is recommending these from the current property brain, not from a live supplier directory.</p>
+              <p>CMP is recommending these from the current Property Intelligence profile, not from a live supplier directory.</p>
             </div>
             <div class="journey-service-grid">
               ${categoryServices.map(renderJourneyServiceCard).join("")}
@@ -7322,7 +7338,7 @@ function renderEvidenceVaultExperience() {
       <article class="journey-upload-panel">
         <div>
           <p class="section-kicker">Fake upload scanner</p>
-          <h3>Scan evidence into the property brain</h3>
+          <h3>Scan evidence into the Property Intelligence profile</h3>
           <p>Choose a fake document type. CMP will simulate reading, matching, extracting dates and updating evidence.</p>
         </div>
         <button class="primary-button" type="button" data-journey-open-upload>Simulate evidence upload</button>
@@ -7380,7 +7396,7 @@ function renderAskCmpExperience() {
       </article>
       <article class="journey-message-picker">
         <h3>Tenant message generator</h3>
-        <p>Generate a practical draft from this property brain, then log it to the timeline if useful.</p>
+        <p>Generate a practical draft from this Property Intelligence profile, then log it to the timeline if useful.</p>
         <div class="journey-message-grid">
           ${journeyTenantMessageTemplates.map((template) => `<button type="button" data-journey-message="${escapeHtml(template.id)}">${escapeHtml(template.title)}</button>`).join("")}
         </div>
@@ -7452,7 +7468,7 @@ function renderJourneyActionPlan() {
       <div class="journey-step-heading">
         <p class="section-kicker">Results / Action Plan</p>
         <h2>Your simulated CMP action plan</h2>
-        <p>Choose how you want CMP to organise the same property brain. The plan reorders and filters without losing risk visibility.</p>
+        <p>Choose how you want CMP to organise the same Property Intelligence profile. The plan reorders and filters without losing risk visibility.</p>
       </div>
       <section class="journey-answer-update-note">
         <div>
@@ -7536,7 +7552,7 @@ function renderPropertyWorkspace() {
         <div>
           <p class="section-kicker">Property Workspace Created</p>
           <h2>${escapeHtml(brain.PropertyIdentity.address)}</h2>
-          <p>Created from simulated checks, landlord answers and the ${escapeHtml(journeyRoutes[state.routeId]?.label || "Prioritised")} route. Every action below updates this local demo property brain.</p>
+          <p>Created from simulated checks, landlord answers and the ${escapeHtml(journeyRoutes[state.routeId]?.label || "Prioritised")} route. Every action below updates this local demo Property Intelligence profile.</p>
         </div>
         <div class="journey-workspace-meta">
           <span>UPRN ${escapeHtml(brain.PropertyIdentity.uprn)}</span>
@@ -7666,7 +7682,7 @@ function journeyActionById(actionId) {
   return allJourneyActions().find((action) => action.id === actionId) || {
     id: actionId,
     title: "Journey OS action",
-    body: "Prototype action linked to the current property brain.",
+    body: "Prototype action linked to the current Property Intelligence profile.",
     risk: "medium",
     status: "Open"
   };
@@ -7905,8 +7921,8 @@ function renderJourneyActionModal() {
   const controls = document.querySelector("[data-journey-action-controls]");
   const action = journeyActionById(state.activeAction?.actionId || "journey-action");
   const labels = {
-    "service-detail": ["Service detail", journeyServiceById(state.activeServiceDetail).title, "This fake service detail is generated from the property brain, current risks and required evidence."],
-    "service-intake": ["Service intake", journeyServiceById(state.activeIntake?.serviceId).title, "CMP has prefilled the supplier-ready job from the property brain. No supplier is contacted."],
+    "service-detail": ["Service detail", journeyServiceById(state.activeServiceDetail).title, "This fake service detail is generated from the Property Intelligence profile, current risks and required evidence."],
+    "service-intake": ["Service intake", journeyServiceById(state.activeIntake?.serviceId).title, "CMP has prefilled the supplier-ready job from the Property Intelligence profile. No supplier is contacted."],
     "service-confirmation": ["Service confirmation", state.activeConfirmation?.title || "Service journey updated", "This is a local/mock confirmation. No supplier was contacted and no payment was taken."],
     "fake-upload": ["Fake upload scanner", "Simulate evidence upload", "Choose a document type and let CMP simulate scanning, matching and evidence scoring."],
     "ask-cmp": ["Ask CMP", "Property-specific simulated response", "Demo mode: Ask CMP responses are simulated from local property data."],
@@ -8092,7 +8108,7 @@ function bindJourneyOs() {
       } else if (target === "unknowns") {
         if (journeyState().carriedAnswers?.occupancy && journeyState().unknownIndex === 0) {
           journeyState().unknownIndex = 1;
-          showToast("CMP carried the No EPC context into the property brain.");
+          showToast("CMP carried the No EPC context into the Property Intelligence profile.");
         }
         setJourneyStage("unknowns", "unknowns");
       } else if (target === "actionPlan") {
@@ -8140,7 +8156,7 @@ function bindJourneyOs() {
         body: "No EPC context answer was carried into the unknowns wizard.",
         type: "Landlord answer"
       });
-      showToast("CMP carried this answer into the property brain.");
+      showToast("CMP carried this answer into the Property Intelligence profile.");
       renderJourneyOsState();
       return;
     }
@@ -8354,7 +8370,7 @@ function bindJourneyOs() {
       state.currentStage = "action";
       addTimelineEvent({
         title: "Professional escalation placeholder added",
-        body: "CMP would package the property brain, evidence gaps and timeline for human review. No real escalation was sent.",
+        body: "CMP would package the Property Intelligence profile, evidence gaps and timeline for human review. No real escalation was sent.",
         type: "Escalation"
       });
       state.branchEffects.unshift("Professional escalation placeholder added");
@@ -8843,7 +8859,7 @@ function renderComplianceMatrixRows(properties) {
 function journeyScoreCards() {
   const scores = journeyState().propertyBrain.Scores;
   return [
-    { label: "Legal compliance", value: scores.legalComplianceScore, help: "Journey OS legal blocker score for the active property brain." },
+    { label: "Legal compliance", value: scores.legalComplianceScore, help: "Journey OS legal blocker score for the active Property Intelligence profile." },
     { label: "Evidence strength", value: scores.evidenceStrengthScore, help: "Strength of simulated uploaded and missing evidence." },
     { label: "Future readiness", value: scores.futureReadinessScore, help: "EPC, monitoring and future-risk readiness." }
   ];
@@ -8877,10 +8893,10 @@ function renderJourneyComplianceBridge() {
   document.querySelector(".compliance-readiness-card")?.removeAttribute("hidden");
 
   if (complianceKicker) complianceKicker.textContent = "PROPERTY BRAIN COMPLIANCE";
-  if (complianceBody) complianceBody.textContent = "Compliance Centre is reading the same Journey OS property brain, action plan and service status.";
-  document.querySelector("[data-compliance-count-badge]").textContent = "1 active property brain";
+  if (complianceBody) complianceBody.textContent = "Compliance Centre is reading the same Journey OS Property Intelligence profile, action plan and service status.";
+  document.querySelector("[data-compliance-count-badge]").textContent = "1 active Property Intelligence profile";
   document.querySelector("[data-compliance-property-count]").textContent = "1";
-  document.querySelector("[data-compliance-property-count-detail]").textContent = "property brain";
+  document.querySelector("[data-compliance-property-count-detail]").textContent = "Property Intelligence profile";
   document.querySelector("[data-compliance-confirmed-count]").textContent = String(Math.max(1, Object.keys(state.answers || {}).length));
   document.querySelector("[data-compliance-review-count]").textContent = String(missing.length + condition.length + future.length);
   document.querySelector("[data-compliance-open-count]").textContent = String(urgent.length || actions.length);
@@ -8895,7 +8911,7 @@ function renderJourneyComplianceBridge() {
   renderScoreCards(document.querySelector("[data-compliance-score-grid]"), journeyScoreCards(), { compact: true });
 
   if (matrixHeading) {
-    matrixHeading.querySelector(".section-kicker").textContent = "Active property brain";
+    matrixHeading.querySelector(".section-kicker").textContent = "Active Property Intelligence profile";
     matrixTitle.textContent = "Compliance from Journey OS";
     matrixHeading.querySelector("p:not(.section-kicker)").textContent = "Generated from simulated records, landlord answers, evidence and service routes.";
   }
@@ -8916,7 +8932,7 @@ function renderJourneyComplianceBridge() {
   }
   if (gapsHeading) {
     gapsHeading.querySelector(".section-kicker").textContent = "Journey OS gaps";
-    gapsTitle.textContent = "What the property brain still needs";
+    gapsTitle.textContent = "What the Property Intelligence profile still needs";
     gapsHeading.querySelector("p:not(.section-kicker)").textContent = "Click an item to return to the action plan, evidence vault or services.";
   }
   const gapList = document.querySelector("[data-compliance-gap-list]");
@@ -8942,7 +8958,7 @@ function renderJourneyComplianceBridge() {
   if (forecastHeading) {
     forecastHeading.querySelector(".section-kicker").textContent = "Monitoring";
     forecastTitle.textContent = "Journey OS monitoring forecast";
-    forecastHeading.querySelector("p:not(.section-kicker)").textContent = "Expiry, evidence and future-risk watch items from the active property brain.";
+    forecastHeading.querySelector("p:not(.section-kicker)").textContent = "Expiry, evidence and future-risk watch items from the active Property Intelligence profile.";
   }
   const forecastGrid = document.querySelector("[data-compliance-forecast-grid]");
   if (forecastGrid) {
@@ -11183,7 +11199,7 @@ function portfolioSweepPropertySubtitle(property) {
   const subtitles = {
     "the-butts": "Upload or arrange EICR",
     "willow-brook": "Book or upload Gas Safety renewal evidence",
-    "maple-court": "Fully compliant",
+    "maple-court": "Evidence-ready",
     "canal-view": "Confirm licensing route",
     "station-road": "Run A-Z onboarding check"
   };
@@ -11345,7 +11361,7 @@ function renderPortfolioAzSweep(properties) {
         </div>
         <div class="portfolio-sweep-summary" aria-label="Portfolio Sweep summary">
           <span>${properties.length} properties selected</span>
-          <span>${fullyCompliantProperties().length} fully compliant</span>
+          <span>${fullyCompliantProperties().length} evidence-ready</span>
           <span>${selected.length} need review</span>
           <span>${portfolioUrgentActionCount()} top actions</span>
           <span>${portfolioEvidenceGapCount()} evidence gaps</span>
@@ -11442,7 +11458,7 @@ function renderPortfolioAzSweep(properties) {
               <article class="${pulse?.compliance ? "is-pulsing" : ""}">
                 <span>Portfolio compliance score</span>
                 <strong>${portfolioComplianceScore()}%</strong>
-                <p>${fullyCompliantProperties().length} property fully compliant. ${selected.length} properties need review for ${escapeHtml(azScenarioLabels[labsState.azScenario]).toLowerCase()}.${pulse?.compliance ? ` +${pulse.compliance} readiness recorded.` : ""}</p>
+                <p>${fullyCompliantProperties().length} property evidence-ready. ${selected.length} properties need review for ${escapeHtml(azScenarioLabels[labsState.azScenario]).toLowerCase()}.${pulse?.compliance ? ` +${pulse.compliance} readiness recorded.` : ""}</p>
               </article>
               <article class="${pulse?.evidence ? "is-pulsing" : ""}">
                 <span>Portfolio evidence score</span>
@@ -11784,7 +11800,7 @@ function getEvidenceRows() {
         property: property.label || `${property.address} · ${property.postcode}`,
         source: property.evidenceScore === 100 ? "Complete evidence pack" : "Mixed evidence",
         sourceClass: property.evidenceScore === 100 ? "status-good-text" : "status-watch-text",
-        status: property.complianceScore === 100 ? "Fully compliant" : property.state,
+        status: property.complianceScore === 100 ? "Evidence-ready" : property.state,
         statusClass: property.complianceScore === 100 ? "status-good-text" : property.complianceScore < 60 ? "status-review-text" : "status-watch-text",
         keyDate: property.complianceScore === 100 ? "No action due" : property.priority,
         filters: property.evidenceScore === 100 ? ["verified", "uploaded"] : ["missing", "review"],
@@ -11859,9 +11875,9 @@ function journeyEvidenceRowsForVault() {
     document: action.body,
     propertyId: "the-butts",
     property: address,
-    source: "Journey OS property brain",
+    source: "Journey OS Property Intelligence profile",
     sourceClass: "status-review-text",
-    status: action.status === "Deferred" ? "Deferred, not solved" : "Missing",
+    status: action.status === "Deferred" ? "Deferred - still open" : "Missing",
     statusClass: "status-review-text",
     keyDate: "Needs upload or confirmation",
     filters: ["missing", "review"],
@@ -11887,7 +11903,7 @@ function renderJourneyEvidenceVaultBridge() {
   document.querySelectorAll("[data-evidence-copy-inbox]").forEach((button) => button.setAttribute("hidden", ""));
   const evidenceAsk = document.querySelector("[data-evidence-ask]");
   if (evidenceAsk) evidenceAsk.textContent = "Ask CMP what to upload next";
-  document.querySelector("[data-evidence-count-badge]").textContent = "1 active property brain";
+  document.querySelector("[data-evidence-count-badge]").textContent = "1 active Property Intelligence profile";
   document.querySelector("[data-evidence-verified-count]").textContent = String(uploadedCount);
   document.querySelector("[data-evidence-review-count]").textContent = String(rows.length - uploadedCount);
   document.querySelector("[data-evidence-review-detail]").textContent = "Journey OS evidence state";
@@ -11897,14 +11913,14 @@ function renderJourneyEvidenceVaultBridge() {
   document.querySelector("[data-evidence-health-strength]").textContent = `${state.propertyBrain.Scores.evidenceStrengthScore}% evidence strength`;
   document.querySelector("[data-evidence-health-verified]").textContent = uploadedCount ? `${uploadedCount} accepted fake scan${uploadedCount === 1 ? "" : "s"}` : "No accepted fake scans yet";
   document.querySelector("[data-evidence-health-missing]").textContent = missingCount ? `${missingCount} missing evidence item${missingCount === 1 ? "" : "s"}` : "No missing evidence in current route";
-  document.querySelector("[data-evidence-health-focus]").textContent = "Evidence Vault is reading the Journey OS property brain for 57 The Butts.";
+  document.querySelector("[data-evidence-health-focus]").textContent = "Evidence Vault is reading the Journey OS Property Intelligence profile for 57 The Butts.";
   document.querySelector(".evidence-inbox-panel")?.setAttribute("hidden", "");
   document.querySelector(".evidence-toolbar")?.removeAttribute("hidden");
   document.querySelector(".evidence-lower-grid")?.setAttribute("hidden", "");
   document.querySelector("[data-evidence-missing-section]")?.removeAttribute("hidden");
   if (evidenceMissingHeading) {
     evidenceMissingHeading.querySelector(".section-kicker").textContent = "Journey OS gaps";
-    evidenceMissingTitle.textContent = "What the property brain still needs";
+    evidenceMissingTitle.textContent = "What the Property Intelligence profile still needs";
     evidenceMissingHeading.querySelector("p:not(.section-kicker)").textContent = "Missing documents, weak evidence and fake scan results linked to the active property.";
   }
   const healthCard = document.querySelector(".property-evidence-health-card");
@@ -12129,7 +12145,7 @@ function renderPortfolioEvidenceState() {
   document.querySelector("[data-evidence-missing-detail]").textContent = isFivePropertyMode() ? "across five properties" : isTwoPropertyMode() ? "property-specific gaps" : labsState.eicrAdded ? "inspection record" : "EICR and inspection";
   document.querySelector("[data-evidence-inbox-count]").textContent = "1";
   document.querySelector("[data-evidence-health-strength]").textContent = isFivePropertyMode() ? `${portfolioEvidenceScore()}% evidence score` : isTwoPropertyMode() ? "2 properties tracked" : labsState.eicrAdded ? "58% evidenced" : "42% evidenced";
-  document.querySelector("[data-evidence-health-verified]").textContent = isFivePropertyMode() ? `${fullyCompliantProperties().length} fully compliant property` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified records" : "5 verified records") : labsState.eicrAdded ? "3 verified records" : "2 verified records";
+  document.querySelector("[data-evidence-health-verified]").textContent = isFivePropertyMode() ? `${fullyCompliantProperties().length} evidence-ready property` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified records" : "5 verified records") : labsState.eicrAdded ? "3 verified records" : "2 verified records";
   document.querySelector("[data-evidence-health-missing]").textContent = isFivePropertyMode() ? `${portfolioEvidenceGapCount()} evidence gaps visible` : isTwoPropertyMode() ? (labsState.eicrAdded ? "3 evidence gaps visible" : "4 evidence gaps visible") : labsState.eicrAdded ? "Inspection evidence still missing" : "EICR evidence still missing";
   document.querySelector("[data-evidence-health-focus]").textContent = isFivePropertyMode()
     ? "Next gap: 3 Station Road onboarding evidence"
@@ -12531,7 +12547,7 @@ function completedTaskItems() {
       ? [{
           id: "eicr-resolved",
           title: "EICR evidence added",
-          status: "Resolved",
+          status: "Evidence accepted",
           source: "Documents · Smart Upload",
           body: "Electrical Safety evidence was verified and linked to 57 The Butts.",
           property: "57 The Butts · CV1 3BJ",
@@ -12542,16 +12558,16 @@ function completedTaskItems() {
           board: "resolved",
           filters: ["completed", "high", "evidence"],
           detail: "CMP moved this task here because Electrical Safety evidence was verified through Smart Upload.",
-          search: "eicr complete resolved smart upload evidence 57 butts"
+          search: "eicr complete evidence accepted smart upload evidence 57 butts"
         }]
       : []),
     ...(labsState.inspectionStatusRecorded
       ? [{
           id: "inspection-recorded",
           title: "Inspection status recorded",
-          status: "Dismissed",
+          status: "Deferred - still open",
           source: "Tasks · Demo action",
-          body: "Marked as not completed during the walkthrough.",
+          body: "Marked as not completed during the walkthrough. CMP keeps the inspection evidence gap visible.",
           property: "57 The Butts · CV1 3BJ",
           propertyId: "the-butts",
           category: "Inspection",
@@ -12559,8 +12575,8 @@ function completedTaskItems() {
           suggestedAction: "Return when inspection evidence is available",
           board: "resolved",
           filters: ["completed", "inspection"],
-          detail: "CMP moved this task here because inspection status was recorded for this session.",
-          search: "inspection complete dismissed not completed 57 butts"
+          detail: "CMP moved this task here because inspection status was recorded for this session, but this does not close the evidence gap.",
+          search: "inspection deferred still open not completed 57 butts"
         }]
       : []),
     ...(labsState.alarmAnswer
@@ -12642,7 +12658,7 @@ function renderTaskBoard(tasks) {
   const columns = [
     { id: "todo", title: "To do" },
     { id: "progress", title: "In progress" },
-    { id: "resolved", title: "Resolved" }
+    { id: "resolved", title: "Closed or deferred" }
   ];
 
   return columns.map((column) => {
@@ -12944,16 +12960,16 @@ function getActivityEvents() {
       title: "Electrical Safety gap identified",
       property,
       body: labsState.eicrAdded
-        ? "This gap was resolved after EICR evidence was verified."
+        ? "This gap moved to evidence accepted after EICR evidence was verified."
         : "CMP could not find a current EICR in the property file. Electrical Safety became the clearest evidence priority.",
       source: "Compliance Centre",
-      status: labsState.eicrAdded ? "Resolved" : "Needs checking",
+      status: labsState.eicrAdded ? "Evidence accepted" : "Needs checking",
       statusClass: labsState.eicrAdded ? "status-good-text" : "status-review-text",
       resolved: labsState.eicrAdded,
       open: !labsState.eicrAdded,
-      search: `eicr electrical safety compliance gap ${labsState.eicrAdded ? "resolved historical" : "missing needs checking"} 57 butts`,
+      search: `eicr electrical safety compliance gap ${labsState.eicrAdded ? "evidence accepted historical" : "missing needs checking"} 57 butts`,
       why: labsState.eicrAdded
-        ? "This is retained as history. The gap was resolved when EICR evidence was verified."
+        ? "This is retained as history. The gap moved to evidence accepted when EICR evidence was verified."
         : "CMP recorded this because no current EICR was found in the property file.",
       nextAction: labsState.eicrAdded ? "No EICR action is needed now." : "Upload EICR or ask CMP for help.",
       route: labsState.eicrAdded ? "evidence" : "documents",
@@ -13183,11 +13199,11 @@ function getActivityEvents() {
         category: "A-Z Checker",
         title: "Portfolio sweep prepared",
         property: "Five-property portfolio",
-        body: "CMP compared five properties, separated shared answers from property-specific unknowns and found one fully compliant property.",
+        body: "CMP compared five properties, separated shared answers from property-specific unknowns and found one evidence-ready property.",
         source: "Compliance Centre",
         status: "Ready to review",
         statusClass: "status-watch-text",
-        search: "portfolio sweep a-z checker five properties fully compliant scores",
+        search: "portfolio sweep a-z checker five properties evidence-ready scores",
         why: "CMP recorded this so the demo can show portfolio-wide compliance logic without repeated questions.",
         nextAction: "Open the A-Z Checker and review the property matrix.",
         route: "compliance",
@@ -13201,13 +13217,13 @@ function getActivityEvents() {
         group: "Today",
         filter: "evidence",
         category: "Evidence",
-        title: "24 Maple Court marked fully compliant",
+        title: "24 Maple Court marked evidence-ready",
         property: "24 Maple Court · B15 2QT",
         body: "All core checks and evidence are present in the five-property demo state.",
         source: "Evidence Vault",
-        status: "Fully compliant",
+        status: "Evidence-ready",
         statusClass: "status-good-text",
-        search: "24 maple court fully compliant evidence score compliance score 100",
+        search: "24 maple court evidence-ready evidence score compliance score 100",
         why: "CMP recorded this to demonstrate the positive end-state alongside riskier properties.",
         nextAction: "Keep renewal reminders active.",
         route: "evidence",
@@ -13339,7 +13355,7 @@ function renderPortfolioActivityState() {
   const visitItems = isFivePropertyMode()
     ? [
         "Portfolio Sweep prepared for five properties",
-        "24 Maple Court marked fully compliant",
+        "24 Maple Court marked evidence-ready",
         "3 Station Road onboarding gaps identified",
         ...(supportCreated ? ["Support request was created"] : [])
       ]
@@ -13792,7 +13808,7 @@ function askChatStatusChips() {
   }
 
   if (isFivePropertyMode()) {
-    return ["5 properties compared", "1 fully compliant", "2 urgent actions", "Portfolio Sweep ready"];
+    return ["5 properties compared", "1 evidence-ready", "2 urgent actions", "Portfolio Sweep ready"];
   }
 
   if (isTwoPropertyMode()) {
@@ -13930,7 +13946,7 @@ function askContextHighlight() {
   if (isFivePropertyMode()) {
     return {
       title: "Portfolio Sweep is ready",
-      body: `CMP has compared five properties: ${fullyCompliantProperties().length} fully compliant, ${portfolioUrgentActionCount()} urgent actions and ${portfolioEvidenceGapCount()} evidence gaps.`
+      body: `CMP has compared five properties: ${fullyCompliantProperties().length} evidence-ready, ${portfolioUrgentActionCount()} urgent actions and ${portfolioEvidenceGapCount()} evidence gaps.`
     };
   }
 
@@ -13993,7 +14009,7 @@ function setUtilityAskPrompt(prompt) {
   const response = getGlobalAskAssistantResponse(labsState.utilityAskPrompt);
   const askResponse = document.querySelector("[data-utility-ask-response]");
   if (askResponse) {
-    askResponse.textContent = response;
+    askResponse.textContent = formatControlledAssistantResponse(response);
   }
   setAssistantResponse(response);
   renderPortfolioUtilityState();
@@ -14007,7 +14023,7 @@ function renderPortfolioUtilityState() {
     : visibleAskPrompts[0];
   const askResponse = document.querySelector("[data-utility-ask-response]");
   if (askResponse) {
-    askResponse.textContent = getGlobalAskAssistantResponse(activePrompt);
+    askResponse.textContent = formatControlledAssistantResponse(getGlobalAskAssistantResponse(activePrompt));
   }
 
   const promptGrid = document.querySelector("[data-utility-ask-prompts]");
@@ -14044,7 +14060,7 @@ function renderPortfolioUtilityState() {
     chatUser.textContent = activePrompt;
   }
   if (chatResponse) {
-    chatResponse.textContent = getGlobalAskAssistantResponse(activePrompt);
+    chatResponse.textContent = formatControlledAssistantResponse(getGlobalAskAssistantResponse(activePrompt));
   }
   if (statusChips) {
     statusChips.innerHTML = askChatStatusChips().map((chip) => `<span><i></i>${escapeHtml(chip)}</span>`).join("");
@@ -14069,11 +14085,11 @@ function renderPortfolioUtilityState() {
       : isNewPropertyMode()
       ? "Ask CMP about 57 The Butts"
       : isFivePropertyMode()
-        ? "Portfolio brain for 5 properties"
-        : isTwoPropertyMode() ? "Portfolio brain for 2 properties" : "Portfolio brain for 57 The Butts";
+        ? "Portfolio intelligence for 5 properties"
+        : isTwoPropertyMode() ? "Portfolio intelligence for 2 properties" : "Portfolio intelligence for 57 The Butts";
   }
   if (chatState) {
-    chatState.textContent = isEmptyPortfolioMode() ? "Setup guidance" : isNewPropertyMode() ? "New profile" : "Context live";
+    chatState.textContent = isEmptyPortfolioMode() ? "Setup guidance" : isNewPropertyMode() ? "New profile" : "Demo data only";
   }
   if (utilityAskInput) {
     utilityAskInput.placeholder = isEmptyPortfolioMode()
@@ -14235,7 +14251,7 @@ function renderGlobalServiceState() {
   const serviceFocusTiles = isFivePropertyMode()
     ? getPortfolioProperties().map((item, index) => `
       <article class="service-focus-tile${selectedId === item.id ? " is-selected" : ""}">
-        <span class="source-badge">${item.complianceScore === 100 ? "Fully compliant" : index === 0 ? "Workspace" : item.state}</span>
+        <span class="source-badge">${item.complianceScore === 100 ? "Evidence-ready" : index === 0 ? "Workspace" : item.state}</span>
         <h3>${escapeHtml(item.address)}</h3>
         <p>${escapeHtml(item.focus)}</p>
         <strong>${item.complianceScore}% compliance · ${item.evidenceScore}% evidence</strong>
@@ -15520,7 +15536,7 @@ function bindAzChecker() {
 
     if (event.target.closest("[data-az-copy-first]")) {
       setCheckerActive();
-      showToast("Copied the fully compliant pattern as a comparison reference.");
+      showToast("Copied the evidence-ready pattern as a comparison reference.");
       return;
     }
 
@@ -15999,7 +16015,7 @@ function renderActivitySummaryModalState() {
   if (isEmptyPortfolioMode()) {
     evidenceList.innerHTML = "<li>No evidence updates yet</li>";
     document.querySelector("[data-activity-summary-open-list]").innerHTML = "<li>Add a property to create actions</li>";
-    document.querySelector("[data-activity-summary-resolved]").innerHTML = "<li>No resolved items yet</li>";
+    document.querySelector("[data-activity-summary-resolved]").innerHTML = "<li>No closed or deferred items yet</li>";
     document.querySelector("[data-activity-summary-next]").textContent = "Add your first property, then run the A-Z Compliance Checker.";
     return;
   }
@@ -16027,7 +16043,7 @@ function renderActivitySummaryModalState() {
 
   if (isFivePropertyMode()) {
     evidenceList.innerHTML = `
-      <li>24 Maple Court · fully compliant evidence pack</li>
+      <li>24 Maple Court · evidence-ready evidence pack</li>
       <li>18 Willow Brook Drive · Gas Safety renewal flagged</li>
       <li>3 Station Road · onboarding evidence missing</li>
     `;
@@ -16037,7 +16053,7 @@ function renderActivitySummaryModalState() {
       <li>9 Canal View · licensing answer needed</li>
     `;
     document.querySelector("[data-activity-summary-resolved]").innerHTML = `
-      <li>24 Maple Court · fully compliant</li>
+      <li>24 Maple Court · evidence-ready</li>
       <li>18 Willow Brook Drive · EICR verified</li>
     `;
     document.querySelector("[data-activity-summary-next]").textContent = "Run Portfolio Sweep, resolve Station Road onboarding gaps, then confirm Canal View licensing.";
@@ -16057,7 +16073,7 @@ function renderActivitySummaryModalState() {
     `;
     document.querySelector("[data-activity-summary-resolved]").innerHTML = labsState.eicrAdded
       ? `
-        <li>57 The Butts · Electrical Safety gap resolved</li>
+        <li>57 The Butts · Electrical Safety evidence accepted</li>
         <li>18 Willow Brook Drive · EICR verified</li>
       `
       : `
@@ -16091,7 +16107,7 @@ function renderActivitySummaryModalState() {
 
   document.querySelector("[data-activity-summary-resolved]").innerHTML = labsState.eicrAdded
     ? `
-      <li>Electrical Safety gap resolved</li>
+      <li>Electrical Safety evidence accepted</li>
       <li>Gas Safety certificate verified</li>
     `
     : `
@@ -17623,11 +17639,11 @@ function getTimelineEvents() {
       category: "Compliance check",
       title: "Electrical Safety gap identified",
       body: "CMP could not find a current EICR in the property file. Electrical Safety became the clearest next evidence priority.",
-      badge: labsState.eicrAdded ? "Resolved" : "Needs checking",
+      badge: labsState.eicrAdded ? "Evidence accepted" : "Needs checking",
       badgeClass: labsState.eicrAdded ? "status-good-text" : "status-review-text",
       resolved: labsState.eicrAdded,
       open: !labsState.eicrAdded,
-      resolvedNote: labsState.eicrAdded ? "Resolved after EICR evidence was verified" : "",
+      resolvedNote: labsState.eicrAdded ? "Evidence accepted after EICR verification" : "",
       actions: labsState.eicrAdded
         ? []
         : [
@@ -17639,7 +17655,7 @@ function getTimelineEvents() {
         rows: [
           ["Source", "Property file review"],
           ["Document type", "EICR"],
-          ["Status", labsState.eicrAdded ? "Resolved from uploaded document" : "No matching evidence stored"],
+          ["Status", labsState.eicrAdded ? "Evidence accepted from uploaded document" : "No matching evidence stored"],
           ["Property match", "57 The Butts"]
         ],
         note: "Prototype evidence record for layout testing."
