@@ -146,17 +146,154 @@ function createInitialPropertySetup() {
   };
 }
 
+function requestedNewPropertyEpcVariant() {
+  const value = new URLSearchParams(window.location.search).get("epc");
+  return ["valid", "expired", "expiring", "missing"].includes(value) ? value : "";
+}
+
+function queryParams() {
+  return new URLSearchParams(window.location.search);
+}
+
+function isNickDemoMode() {
+  const params = queryParams();
+  return params.get("demo") === "nick" || params.get("journeyDemo") === "nick";
+}
+
+function isAdvancedDemoMode() {
+  const params = queryParams();
+  return params.get("advanced") === "1" || params.get("debug") === "1";
+}
+
+function shouldHidePrototypeMachinery() {
+  return isNickDemoMode() && !isAdvancedDemoMode();
+}
+
+function clearNickDemoStoredState() {
+  if (!isNickDemoMode()) {
+    return;
+  }
+
+  const storageKeys = [
+    "cmp_compliance_workspaces::guest",
+    "cmp_onboarding_complete",
+    "cmp_public_flash",
+    "cmp_public_postcode_hint"
+  ];
+  const storagePrefixes = [
+    "cmp_journey_context::",
+    "cmp_public_service_draft::"
+  ];
+
+  [window.localStorage, window.sessionStorage].forEach((storage) => {
+    try {
+      storageKeys.forEach((key) => storage.removeItem(key));
+      Object.keys(storage)
+        .filter((key) => storagePrefixes.some((prefix) => key.startsWith(prefix)))
+        .forEach((key) => storage.removeItem(key));
+    } catch {
+      // Storage can be unavailable in private browsing or embedded previews.
+    }
+  });
+}
+
+function newPropertyEpcVariantCopy(variant = requestedNewPropertyEpcVariant()) {
+  const variants = {
+    valid: {
+      epcFound: true,
+      epcStatus: "validDemoMatch",
+      epcRating: "C",
+      epcPotentialRating: "B",
+      epcExpiryDate: "February 2034",
+      epcMatchConfidence: "Likely EPC record",
+      label: "Likely EPC record",
+      cardTitle: "Likely EPC record found",
+      status: "Prepared for review",
+      summary: "Demo match: EPC rating C appears current. Review before relying on it.",
+      source: "Demo EPC match prepared for review"
+    },
+    expired: {
+      epcFound: true,
+      epcStatus: "expiredDemoMatch",
+      epcRating: "D",
+      epcPotentialRating: "C",
+      epcExpiryDate: "March 2024",
+      epcMatchConfidence: "Likely expired EPC record",
+      label: "Expired demo match",
+      cardTitle: "Likely EPC record found, but it may be expired",
+      status: "May need checking",
+      summary: "Demo match: EPC record appears expired. CMP would keep this open until it is checked, uploaded or booked.",
+      source: "Prototype EPC expiry signal"
+    },
+    expiring: {
+      epcFound: true,
+      epcStatus: "expiringDemoMatch",
+      epcRating: "C",
+      epcPotentialRating: "B",
+      epcExpiryDate: "December 2026",
+      epcMatchConfidence: "Likely EPC record, expiry watch",
+      label: "Expiring demo match",
+      cardTitle: "Likely EPC record found, with expiry watch",
+      status: "Expiry watch",
+      summary: "Demo match: EPC appears valid but should stay on monitoring because the renewal window is approaching.",
+      source: "Prototype EPC monitoring signal"
+    },
+    missing: {
+      epcFound: false,
+      epcStatus: "missingDemoMatch",
+      epcRating: "Unknown",
+      epcPotentialRating: "Unknown",
+      epcExpiryDate: "No EPC date found",
+      epcMatchConfidence: "No clear EPC record found",
+      label: "No EPC demo match",
+      cardTitle: "No clear EPC record found",
+      status: "Needs checking",
+      summary: "Demo match: CMP could not find a clear EPC signal. Book or upload evidence before relying on the property file.",
+      source: "Prototype missing-record signal"
+    }
+  };
+  return variants[variant] || variants.valid;
+}
+
+function applyNewPropertyEpcVariant(setup = newPropertySetup()) {
+  const variant = requestedNewPropertyEpcVariant();
+  if (!variant || setup.epcVariantApplied === variant) return setup;
+  const epc = newPropertyEpcVariantCopy(variant);
+  setup.epcVariantApplied = variant;
+  setup.foundData = {
+    ...setup.foundData,
+    epcFound: epc.epcFound,
+    epcStatus: epc.epcStatus,
+    epcRating: epc.epcRating,
+    epcPotentialRating: epc.epcPotentialRating,
+    epcExpiryDate: epc.epcExpiryDate,
+    epcMatchConfidence: epc.epcMatchConfidence,
+    epcVariantLabel: epc.label,
+    epcCardTitle: epc.cardTitle,
+    epcVariantStatus: epc.status,
+    epcVariantSummary: epc.summary,
+    epcVariantSource: epc.source
+  };
+  setup.evidence.epc = {
+    ...setup.evidence.epc,
+    status: variant === "missing" ? "missing" : "preparedForReview",
+    source: epc.source,
+    label: epc.cardTitle
+  };
+  return setup;
+}
+
 const journeyStages = [
   { id: "start", label: "Start" },
-  { id: "addProperty", label: "Add Property" },
-  { id: "autoChecks", label: "Auto Checks" },
-  { id: "confirmProperty", label: "Confirm", fullLabel: "Confirm Property" },
-  { id: "unknowns", label: "Unknowns", fullLabel: "Answer Unknowns" },
-  { id: "brain", label: "Profile", fullLabel: "Property Intelligence" },
-  { id: "actionPlan", label: "Plan", fullLabel: "Action Plan" },
+  { id: "addProperty", label: "Add property" },
+  { id: "autoChecks", label: "Smart Search" },
+  { id: "confirmProperty", label: "Review data", fullLabel: "Review found data" },
+  { id: "unknowns", label: "Unknowns", fullLabel: "Confirm unknowns" },
+  { id: "brain", label: "Workspace", fullLabel: "Evidence-led workspace" },
+  { id: "actionPlan", label: "Action Plan", fullLabel: "Action Plan" },
   { id: "action", label: "Actions", fullLabel: "Upload / Book / Ask / Defer" },
-  { id: "vault", label: "Vault", fullLabel: "Evidence Vault" },
-  { id: "monitor", label: "Monitor", fullLabel: "Monitor Forever" }
+  { id: "vault", label: "Evidence", fullLabel: "Evidence Vault" },
+  { id: "monitor", label: "Monitoring", fullLabel: "Monitoring" }
 ];
 
 const journeyAutoCheckSteps = [
@@ -276,6 +413,22 @@ const journeyDemoScenarios = {
     propertyTypeConfidence: "High",
     licensingRisk: "No obvious licensing signal",
     urgentMees: true
+  },
+  "epc-expired-mees-risk": {
+    label: "EPC expired / MEES risk",
+    branch: "clean",
+    epcRating: "E",
+    epcScore: 48,
+    epcPotentialRating: "C",
+    epcPotentialScore: 72,
+    epcFound: true,
+    epcExpired: true,
+    epcExpiry: "Expired 04 May 2024",
+    epcRecordStatus: "Likely EPC record found, but it may be expired and needs checking",
+    propertyType: "Terraced house",
+    propertyTypeConfidence: "High",
+    licensingRisk: "No obvious licensing signal",
+    futureRisk: "EPC / MEES review needed"
   },
   "occupied-normal-single-household": {
     label: "Occupied normal single household",
@@ -1074,6 +1227,31 @@ const guidedDemoStories = {
         callout: "CMP separates urgent blockers, missing evidence, condition risk, future risk and service opportunities."
       },
       {
+        name: "Book/request quote",
+        stage: "action",
+        screen: "workspace",
+        workspaceTab: "services",
+        servicePlan: "legal",
+        note: "Show that Book a Service is contextual to a gap, not a random marketplace.",
+        callout: "The booking/request step is simulated. The point is that CMP turns a specific gap into a practical service action."
+      },
+      {
+        name: "Evidence Vault updates",
+        stage: "vault",
+        screen: "workspace",
+        workspaceTab: "evidence",
+        note: "Show that evidence status and missing proof stay attached to the property.",
+        callout: "Evidence Vault is the source of truth. Dashboard cards should only summarise what the vault knows."
+      },
+      {
+        name: "Ask CMP explains the position",
+        stage: "action",
+        screen: "workspace",
+        workspaceTab: "ask",
+        note: "Show Ask CMP as property-specific guidance, not generic AI.",
+        callout: "Ask CMP should explain what the evidence means, what is still unknown and what to do next. It is guidance, not legal advice."
+      },
+      {
         name: "Workspace and monitoring",
         stage: "monitor",
         screen: "workspace",
@@ -1095,12 +1273,35 @@ const guidedDemoStories = {
       { name: "Auto checks find gap", stage: "autoChecks", screen: "autoChecks", autoComplete: true, note: "Show that missing data is handled calmly.", callout: "A failed lookup is not a dead end. CMP makes the gap visible and keeps going." },
       { name: "No EPC branch", stage: "confirmProperty", screen: "match", note: "Choose the property context.", callout: "CMP asks the minimum context needed to decide whether EPC is urgent, pre-let or uploadable." },
       { name: "EPC action added", stage: "confirmProperty", screen: "review", noEpcChoice: "advertised", note: "The missing record becomes a blocker/action.", callout: "Because the property is being advertised, CMP keeps EPC visible as a pre-let blocker." },
+      { name: "Confirm unknowns", stage: "unknowns", screen: "unknowns", noEpcChoice: "advertised", answers: { occupancy: "advertised", propertyType: "house", occupants: "unknown", gas: "unknown", eicr: "unknown", alarms: "unknown", deposit: "none", tenancyDocs: "unknown", condition: "none", intent: "minimum" }, note: "Confirm only what the landlord can know.", callout: "CMP does not invent an EPC rating. The EPC stays unknown until a current certificate is booked or uploaded." },
       { name: "Action plan", stage: "actionPlan", screen: "actionPlan", noEpcChoice: "advertised", note: "Point to Book EPC and Upload EPC routes.", callout: "The action plan now has a practical route: book an EPC, upload evidence, or continue with a warning." },
-      { name: "Workspace evidence watch", stage: "vault", screen: "workspace", workspaceTab: "evidence", noEpcChoice: "advertised", note: "End with the evidence gap still visible.", callout: "No EPC remains monitored in the property workspace until evidence is found, uploaded or booked." }
+      { name: "Book EPC assessment", stage: "action", screen: "workspace", workspaceTab: "services", noEpcChoice: "advertised", servicePlan: "urgent", note: "Recommended service should be EPC Assessment, not an improvement plan.", callout: "This is a missing-evidence route. CMP recommends an EPC assessment or upload, not confident improvement advice." },
+      { name: "Workspace evidence watch", stage: "vault", screen: "workspace", workspaceTab: "evidence", noEpcChoice: "advertised", note: "End with the evidence gap still visible.", callout: "No EPC remains monitored in the property workspace until evidence is found, uploaded or booked." },
+      { name: "Ask CMP explains the missing record", stage: "action", screen: "workspace", workspaceTab: "ask", noEpcChoice: "advertised", note: "Ask CMP should explain the missing EPC without pretending it has live certainty.", callout: "The answer should say this is a simulated missing-record check and that a current EPC may need booking or uploading." },
+      { name: "Monitoring", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", noEpcChoice: "advertised", note: "Finish with EPC follow-up visible.", callout: "The EPC gap stays on the monitoring timeline until it is resolved." }
+    ]
+  },
+  "epc-expired-mees-risk": {
+    title: "EPC expired / MEES risk",
+    scenarioId: "epc-expired-mees-risk",
+    proof: "CMP can explain energy evidence risk without pretending to give legal advice.",
+    time: "3 minutes",
+    motif: "energy",
+    moments: [
+      { name: "Story intro", stage: "start", screen: "start", note: "Frame this as evidence review, not legal determination.", callout: "This scenario shows how CMP handles an EPC that may be expired or may create future risk. It uses guidance language: may, check, needs confirmation." },
+      { name: "Start scenario", stage: "addProperty", screen: "add", note: "Use the same address-first start.", callout: "The product spine stays the same even when the risk changes." },
+      { name: "Smart Search finds energy risk", stage: "autoChecks", screen: "autoChecks", autoComplete: true, note: "Show that CMP found a likely EPC record, but not a clean green status.", callout: "CMP should not say the property is compliant. It should say the EPC may be expired and needs checking." },
+      { name: "Address/property match", stage: "confirmProperty", screen: "match", note: "Keep property identity separate from EPC confidence.", callout: "The address can match while the EPC evidence still needs review." },
+      { name: "Review found data", stage: "confirmProperty", screen: "review", note: "Point to the expired/MEES wording.", callout: "Current/future risk is visible, but the copy avoids legal certainty." },
+      { name: "Confirm unknowns", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "house", occupants: "oneTwo", gas: "yes", eicr: "noProof", alarms: "tested", deposit: "protected", tenancyDocs: "noProof", condition: "none", intent: "future" }, note: "Landlord answers decide how urgent the energy route is.", callout: "Occupancy and intent change whether the next step is minimum action, risk reduction or future-proofing." },
+      { name: "Action Plan", stage: "actionPlan", screen: "actionPlan", route: "futureProof", note: "Show EPC action tied to evidence.", callout: "The recommended step should be EPC assessment/review and then improvement planning only after the current position is known." },
+      { name: "Evidence/service action", stage: "action", screen: "workspace", workspaceTab: "services", servicePlan: "future", note: "Show an EPC-related service route.", callout: "The booking/quote is simulated and should say no supplier has been contacted." },
+      { name: "Ask CMP explanation", stage: "action", screen: "workspace", workspaceTab: "ask", note: "Ask CMP should explain current and future EPC risk carefully.", callout: "This is guidance, not legal advice. It should say the record may need checking before decisions are made." },
+      { name: "Monitoring", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", note: "Finish with energy watch.", callout: "CMP should keep EPC/MEES review in monitoring rather than treating it as solved." }
     ]
   },
   "hmo-licensing-risk": {
-    title: "HMO/licensing risk",
+    title: "HMO or licensing risk",
     scenarioId: "hmo-high-occupancy-risk",
     proof: "User answers modify the journey intelligently.",
     time: "3 minutes",
@@ -1108,15 +1309,19 @@ const guidedDemoStories = {
     moments: [
       { name: "Story intro", stage: "start", screen: "start", note: "Explain that records alone cannot know household structure.", callout: "This story shows a specialist side route appearing from landlord answers." },
       { name: "HMO scenario", stage: "addProperty", screen: "add", note: "Same address-first journey.", callout: "CMP keeps the same main journey but changes the action plan as risk is discovered." },
+      { name: "Smart Search found data", stage: "autoChecks", screen: "autoChecks", autoComplete: true, note: "Show the found data before asking HMO questions.", callout: "CMP can know the address and likely property clues, but it cannot determine household structure from records alone." },
+      { name: "Review found data", stage: "confirmProperty", screen: "review", note: "Separate found records from licensing unknowns.", callout: "Licensing is treated as possible and needs confirmation, not as a legal determination." },
       { name: "Property type answer", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "room" }, unknownIndex: 2, note: "Choose the shared-house answer.", callout: "This answer adds a possible HMO route without sending the user into a separate dead-end workflow." },
       { name: "Occupants answer", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus" }, unknownIndex: 3, note: "Choose 5+ occupants.", callout: "Occupancy and household answers change licensing, fire safety and room-measurement risk." },
       { name: "Licensing route added", stage: "actionPlan", screen: "actionPlan", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "risk" }, note: "The action plan should now prioritise licensing/HMO services.", callout: "CMP ties the licensing route back into the same action plan instead of creating a separate checklist." },
       { name: "Service basket", stage: "action", screen: "workspace", workspaceTab: "services", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "risk" }, servicePlan: "legal", note: "Show licensing, fire and safety services.", callout: "Recommendations are tied to property risks, not random upsells." },
+      { name: "Evidence route", stage: "vault", screen: "workspace", workspaceTab: "evidence", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "risk" }, note: "Show licensing/fire evidence still pending.", callout: "Room-size, fire-risk and licence evidence remain visible until checked." },
+      { name: "Ask CMP explanation", stage: "action", screen: "workspace", workspaceTab: "ask", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "risk" }, note: "Ask CMP should use cautious language.", callout: "The answer should say possible HMO/licensing risk may need checking and confirmation." },
       { name: "Monitoring", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", answers: { occupancy: "occupied", propertyType: "room", occupants: "fivePlus", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "risk" }, note: "Show that licensing watch remains live.", callout: "The workspace keeps HMO/licensing watch visible over time." }
     ]
   },
   "damp-mould-enforcement": {
-    title: "Damp, mould and enforcement risk",
+    title: "Damp, mould or enforcement",
     scenarioId: "damp-mould-complaint",
     proof: "CMP handles real property risk, not just certificates.",
     time: "3 minutes",
@@ -1124,6 +1329,8 @@ const guidedDemoStories = {
     moments: [
       { name: "Story intro", stage: "start", screen: "start", note: "Explain that compliance is also condition and communication.", callout: "This story shows CMP handling risk that lives outside certificates." },
       { name: "Condition scenario", stage: "addProperty", screen: "add", note: "Use damp/mould scenario.", callout: "A tenant complaint changes the route because condition evidence matters." },
+      { name: "Smart Search found data", stage: "autoChecks", screen: "autoChecks", autoComplete: true, note: "Show that Smart Search creates the property context first.", callout: "CMP starts from property identity, then adds condition evidence and communication when the landlord provides it." },
+      { name: "Review found data", stage: "confirmProperty", screen: "review", note: "Show records first, then the condition unknown.", callout: "The condition issue is not assumed from the address. It is added through landlord/tenant context." },
       { name: "Condition answer", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", condition: "dampMould" }, unknownIndex: 9, note: "Select damp/mould as the known issue.", callout: "This answer adds a condition risk route and repair evidence path." },
       { name: "Action plan", stage: "actionPlan", screen: "actionPlan", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "noProof", alarms: "noProof", deposit: "noProof", tenancyDocs: "noProof", condition: "dampMould", intent: "risk" }, note: "Point to damp survey and repair evidence.", callout: "CMP connects condition risk to services, evidence and tenant communication." },
       { name: "Tenant message", stage: "action", screen: "workspace", workspaceTab: "ask", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "noProof", alarms: "noProof", deposit: "noProof", tenancyDocs: "noProof", condition: "dampMould", intent: "risk" }, tenantMessage: "damp-photos", note: "Show practical tenant communication.", callout: "The tenant message is a practical draft and can be logged to the timeline as communication evidence." },
@@ -1140,14 +1347,88 @@ const guidedDemoStories = {
     moments: [
       { name: "Story intro", stage: "start", screen: "start", note: "Frame the commercial service vision.", callout: "This story shows how CMP can move from diagnosis to done-for-me service orchestration." },
       { name: "Done-for-me scenario", stage: "addProperty", screen: "add", note: "Start with the same simple property check.", callout: "The journey does not change for the landlord. CMP changes the route behind the scenes." },
+      { name: "Smart Search found data", stage: "autoChecks", screen: "autoChecks", autoComplete: true, note: "Show the property context before the commercial plan.", callout: "The managed route is built from the same evidence and unknowns, not from a generic services marketplace." },
+      { name: "Review found data", stage: "confirmProperty", screen: "review", note: "Show what CMP knows before asking intent.", callout: "CMP should only offer done-for-me after it has a property-specific picture." },
       { name: "Landlord intent", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, note: "Choose the done-for-me intent.", callout: "The landlord does not need to know what to book. CMP translates risk into a service plan." },
       { name: "Action plan", stage: "actionPlan", screen: "actionPlan", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", note: "Show the same Property Compliance Profile in concierge mode.", callout: "The action plan becomes a commercial path: urgent first, evidence next, monitoring always on." },
       { name: "Service basket reveal", stage: "action", screen: "workspace", workspaceTab: "services", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "concierge", note: "Show the service basket as a plan, not a directory.", callout: "Service bundles are generated from risks: legal essentials, risk protection, future-proofing and monitoring." },
       { name: "Quote or book", stage: "action", screen: "workspace", workspaceTab: "services", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "quotes", note: "Show quote-first commercial option.", callout: "The landlord can request quotes first, book urgent only, or hand the whole plan to CMP." },
+      { name: "Evidence handoff", stage: "vault", screen: "workspace", workspaceTab: "evidence", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "quotes", note: "Show evidence expected from the managed plan.", callout: "Quote requests do not solve compliance. The evidence stays pending until a service completes or evidence is uploaded." },
+      { name: "Ask CMP explanation", stage: "action", screen: "workspace", workspaceTab: "ask", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "quotes", note: "Ask CMP should explain the managed route.", callout: "The answer should make commercial value clear without implying a real supplier has been contacted." },
       { name: "Monitoring and workspace", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "unknown", alarms: "unknown", deposit: "unknown", tenancyDocs: "unknown", condition: "unknown", intent: "doneForMe" }, route: "doneForMe", servicePlan: "concierge", note: "End on recurring value.", callout: "The subscription value is ongoing: renewals, law watch, evidence watch and portfolio priority." }
+    ]
+  },
+  "portfolio-landlord-preview": {
+    title: "Portfolio landlord preview",
+    scenarioId: "portfolio-landlord-preview",
+    proof: "CMP can scale after the one-property journey is understood.",
+    time: "2 minutes",
+    motif: "scale",
+    moments: [
+      { name: "Story intro", stage: "start", screen: "start", note: "Frame this as scale-up mode, not the default landlord journey.", callout: "Only show this after Nick understands the one-property spine. Portfolio is a second act." },
+      { name: "Start with one property", stage: "addProperty", screen: "add", note: "Keep the same property-first start.", callout: "Portfolio landlords still start by trusting one property workspace." },
+      { name: "Smart Search found data", stage: "autoChecks", screen: "autoChecks", autoComplete: true, note: "Show that each property gets the same intelligence profile.", callout: "CMP repeats the same scan across properties instead of exposing a raw spreadsheet first." },
+      { name: "Review found data", stage: "confirmProperty", screen: "review", note: "Show the one-property evidence model before scale-up.", callout: "Portfolio tools should summarize property intelligence, not replace it." },
+      { name: "Confirm unknowns", stage: "unknowns", screen: "unknowns", answers: { occupancy: "occupied", propertyType: "flat", occupants: "oneTwo", gas: "yes", eicr: "noProof", alarms: "tested", deposit: "noProof", tenancyDocs: "noProof", condition: "none", intent: "risk" }, route: "riskProtected", note: "Confirm unknowns in the same way.", callout: "Unknowns remain property-specific even when David previews scale-up." },
+      { name: "Action Plan", stage: "actionPlan", screen: "actionPlan", route: "riskProtected", note: "Show the single-property action plan first.", callout: "The action plan proves CMP has substance before showing portfolio comparison." },
+      { name: "Evidence/service action", stage: "action", screen: "workspace", workspaceTab: "services", route: "riskProtected", servicePlan: "risk", note: "Show one service action before scale.", callout: "A portfolio view should not feel like a random marketplace. It inherits the gap and action logic." },
+      { name: "Ask CMP explanation", stage: "action", screen: "workspace", workspaceTab: "ask", route: "riskProtected", note: "Ask CMP explains scale-up mode.", callout: "The explanation should say portfolio is for comparing risk after property one is understood." },
+      { name: "Monitoring", stage: "monitor", screen: "workspace", workspaceTab: "monitoring", route: "riskProtected", note: "End with recurring monitoring value.", callout: "Portfolio mode becomes credible when each property already has monitoring and evidence state." }
     ]
   }
 };
+
+const nickScenarioExplorerCards = [
+  {
+    id: "clean-property-check",
+    title: "Clean property",
+    tests: "A straightforward landlord journey where records match cleanly.",
+    finds: "Address, UPRN, likely EPC, local authority and a clear property profile.",
+    action: "Confirm the remaining unknowns, then move into evidence and monitoring."
+  },
+  {
+    id: "no-epc-found",
+    title: "No EPC found",
+    tests: "What happens when a public record is missing.",
+    finds: "No clear EPC signal and a property file that keeps the gap visible.",
+    action: "Book or upload an EPC before relying on the property file."
+  },
+  {
+    id: "epc-expired-mees-risk",
+    title: "EPC expired / MEES risk",
+    tests: "How CMP turns EPC risk into a practical next step.",
+    finds: "A likely EPC record that may be expired, weak or needs checking before decisions are made.",
+    action: "Create an EPC assessment/review action and keep future MEES monitoring visible."
+  },
+  {
+    id: "hmo-licensing-risk",
+    title: "HMO or licensing risk",
+    tests: "How landlord answers change the route.",
+    finds: "Occupancy/licensing signals that need property-specific confirmation.",
+    action: "Create licensing, fire-safety or room-measurement actions."
+  },
+  {
+    id: "damp-mould-enforcement",
+    title: "Damp, mould or enforcement",
+    tests: "Condition risk beyond certificates.",
+    finds: "Repair, communication and evidence gaps that need an audit trail.",
+    action: "Create survey, tenant-message, evidence and follow-up tasks."
+  },
+  {
+    id: "done-for-me-plan",
+    title: "Done-for-me compliance plan",
+    tests: "The commercial service path after diagnosis.",
+    finds: "A property-specific set of service recommendations.",
+    action: "Request quotes or build a managed compliance plan."
+  },
+  {
+    id: "portfolio-landlord-preview",
+    title: "Portfolio landlord preview",
+    tests: "How the same model could scale after property one.",
+    finds: "Cross-property risk, evidence strength and prioritised actions.",
+    action: "Move to portfolio mode only after the core story is understood."
+  }
+];
 
 const journeyScanOutcomes = {
   valid: {
@@ -1274,7 +1555,7 @@ function createJourneyPropertyBrain(scenarioId = "clean-property-match") {
       epcScore: scenario.epcScore ?? 72,
       epcPotentialRating: scenario.epcPotentialRating ?? "B",
       epcPotentialScore: scenario.epcPotentialScore ?? 84,
-      epcExpiry: epcFound ? "14 March 2031" : "Unknown",
+      epcExpiry: epcFound ? (scenario.epcExpiry || "14 March 2031") : "Unknown",
       epcLodgementDate: epcFound ? "15 March 2021" : "Unknown",
       epcRecommendations: epcFound ? ["Improve loft insulation", "Add heating controls / TRVs", "Review low-energy lighting"] : ["Book EPC assessment"],
       mainHeating: scenario.mainHeating || "Gas boiler",
@@ -1300,7 +1581,7 @@ function createJourneyPropertyBrain(scenarioId = "clean-property-match") {
       landlordIntent: scenario.landlordIntent || "Prioritised"
     },
     ComplianceEvidence: {
-      epc: createJourneyEvidenceItem(epcFound ? "found" : "missing", epcFound ? "Official record signal" : "No evidence", epcFound ? "14 March 2031" : "Unknown", "Simulated EPC lookup", epcFound ? "High" : "Low", epcFound ? "Review record" : "Book or upload EPC"),
+      epc: createJourneyEvidenceItem(epcFound ? (scenario.epcExpired ? "expired" : "found") : "missing", epcFound ? "Official record signal" : "No evidence", epcFound ? (scenario.epcExpiry || "14 March 2031") : "Unknown", "Simulated EPC lookup", epcFound ? "High" : "Low", scenario.epcExpired ? "Book EPC assessment or review MEES position" : epcFound ? "Review record" : "Book or upload EPC"),
       gasSafety: createJourneyEvidenceItem(gasUnknown ? "unknown" : "missing", "No uploaded evidence", "Unknown", "Landlord answer needed", gasUnknown ? "Low" : "Medium", "Confirm gas and upload/book Gas Safety"),
       eicr: createJourneyEvidenceItem(eicrMissing ? "missing" : "found", eicrMissing ? "No uploaded evidence" : "Uploaded evidence", eicrMissing ? "Unknown" : "11 May 2031", eicrMissing ? "Landlord upload needed" : "Demo upload", eicrMissing ? "Low" : "High", eicrMissing ? "Book or upload EICR" : "Monitor renewal"),
       smokeCo: createJourneyEvidenceItem("unknown", "Landlord answer needed", "Unknown", "Landlord answer needed", "Low", "Confirm alarm status"),
@@ -1452,6 +1733,7 @@ function newPropertySetup() {
   if (!labsState.propertySetup) {
     labsState.propertySetup = createInitialPropertySetup();
   }
+  applyNewPropertyEpcVariant(labsState.propertySetup);
   return labsState.propertySetup;
 }
 
@@ -3365,6 +3647,7 @@ function renderAllState() {
 function resetDemoState() {
   clearScanTimers();
   clearJourneyTimers();
+  clearNickDemoStoredState();
   labsState.eicrAdded = false;
   labsState.strength = 42;
   labsState.timelineFilter = "all";
@@ -3407,6 +3690,14 @@ function resetDemoState() {
   labsState.smartSearchAnswerPanel = "";
   labsState.smartSearchWorkspaceOpen = false;
   labsState.journeyState = createInitialJourneyState();
+  labsState.guidedDemo = {
+    enabled: false,
+    activeStoryId: "",
+    activeMomentIndex: 0,
+    mode: "landing",
+    lastNormalScenarioId: "clean-property-match",
+    hasSeenLanding: false
+  };
   labsState.propertyDetails = createInitialPropertyDetails();
   labsState.optionalDetails = createInitialOptionalDetails();
   labsState.propertyMemory = createInitialPropertyMemory();
@@ -4236,6 +4527,45 @@ function setGlobalNavActive(label) {
   });
 }
 
+function setNavItemLabel(navName, label) {
+  const item = document.querySelector(`[data-global-nav="${navName}"]`);
+  if (!item) return;
+  const textNode = Array.from(item.childNodes).reverse().find((node) => node.nodeType === Node.TEXT_NODE && node.textContent.trim());
+  if (textNode) {
+    textNode.textContent = ` ${label}`;
+  } else {
+    item.append(` ${label}`);
+  }
+}
+
+function syncDemoChrome() {
+  const nickMode = isNickDemoMode();
+  const advancedMode = isAdvancedDemoMode();
+  const simpleProductNav = (nickMode && !advancedMode) || (!isTwoPropertyMode() && !isFivePropertyMode());
+  document.body.classList.toggle("nick-demo-mode", nickMode);
+  document.body.classList.toggle("advanced-demo-mode", advancedMode);
+  document.body.classList.toggle("hide-prototype-machinery", shouldHidePrototypeMachinery());
+  document.body.classList.toggle("simple-product-nav", simpleProductNav);
+
+  setNavItemLabel("Home", "Home");
+  setNavItemLabel("Properties", simpleProductNav ? "Property" : "Properties");
+  setNavItemLabel("Compliance centre", simpleProductNav ? "Complete property check" : "Compliance centre");
+  setNavItemLabel("Journey OS", simpleProductNav ? "Add / check property" : "Add / check property");
+  setNavItemLabel("Evidence Vault", simpleProductNav ? "Evidence" : "Evidence Vault");
+  setNavItemLabel("Tasks", simpleProductNav ? "Action Plan" : "Tasks");
+  setNavItemLabel("Activity", simpleProductNav ? "Monitoring" : "Activity");
+  setNavItemLabel("Book a service", simpleProductNav ? "Services" : "Book a service");
+
+  const portfolioHeading = document.querySelector("#navPortfolio");
+  if (portfolioHeading) {
+    portfolioHeading.textContent = simpleProductNav ? "Property" : "Portfolio";
+  }
+  const toolsHeading = document.querySelector("#navPortfolioTools");
+  if (toolsHeading) {
+    toolsHeading.textContent = simpleProductNav ? "Property tools" : "Portfolio tools";
+  }
+}
+
 function hidePortfolioPages() {
   portfolioPageSelectors.forEach((selector) => {
     document.querySelector(selector)?.setAttribute("hidden", "");
@@ -4269,6 +4599,7 @@ function activatePortfolioPage({ selector, view, navLabel, bodyClass, response, 
   hidePortfolioPages();
   page.hidden = false;
   hidePropertyPanelsAndTabs();
+  syncDemoChrome();
   setGlobalNavActive(navLabel);
   renderAllState();
   renderAssistantPrompts();
@@ -4417,18 +4748,18 @@ function renderPortfolioHomeState() {
     document.querySelector("[data-home-verified-count]").textContent = "0";
     document.querySelector("[data-home-review-count]").textContent = "0";
     document.querySelector("[data-home-review-detail]").textContent = "nothing to review";
-    document.querySelector("[data-home-summary-title]").textContent = "Start from scratch";
-    document.querySelector("[data-home-summary-body]").textContent = "Add your first property, run the A-Z Checker, upload existing certificates, or ask CMP what to do first.";
+    document.querySelector("[data-home-summary-title]").textContent = "Add your first property";
+    document.querySelector("[data-home-summary-body]").textContent = "CMP starts with a property address. It checks what it can automatically, then asks you to confirm the unknowns.";
     document.querySelector("[data-home-priority-area]").textContent = "Onboarding";
     document.querySelector("[data-home-priority-status]").textContent = "No properties yet";
     document.querySelector("[data-home-priority-body]").textContent = "CMP needs at least one property before it can personalise compliance checks, evidence scores or service recommendations.";
     document.querySelector("[data-home-upload-priority]").textContent = "Add your first property";
     document.querySelector("[data-home-arrange-priority]").textContent = "Ask CMP what to prepare";
     if (autopilotTitle) {
-      autopilotTitle.textContent = "Build your CMP workspace from scratch";
+      autopilotTitle.textContent = "Start by adding a property";
     }
     if (autopilotBody) {
-      autopilotBody.textContent = "No properties are connected yet. CMP can still guide setup, explain what evidence to gather and prepare the first A-Z check.";
+      autopilotBody.textContent = "No properties are connected yet. Add a property first so CMP can create the workspace, prepare demo matches and show the confirmations it still needs from you.";
     }
     if (rankList) {
       rankList.hidden = false;
@@ -4440,8 +4771,8 @@ function renderPortfolioHomeState() {
         </article>
         <article class="priority-rank-item">
           <span>Step 2</span>
-          <strong>Run the A-Z Compliance Checker</strong>
-          <p>Use the checker to discover which answers and evidence are needed.</p>
+          <strong>Review what CMP found</strong>
+          <p>CMP prepares address, EPC and local signals first. The checker becomes useful after that property exists.</p>
         </article>
       `;
     }
@@ -4474,7 +4805,7 @@ function renderPortfolioHomeState() {
           <p>Add your first property to unlock compliance scoring, evidence tracking, tasks and service recommendations.</p>
           <div class="button-row">
             <button class="primary-button" type="button" data-home-add-property>Add your first property</button>
-            <button class="secondary-button" type="button" data-az-mode="single">Preview A-Z Checker</button>
+            <button class="secondary-button is-locked-preview" type="button" disabled aria-disabled="true">A-Z preview unlocks after property</button>
           </div>
         </article>
       `;
@@ -4483,7 +4814,7 @@ function renderPortfolioHomeState() {
     if (upcomingGrid) {
       upcomingGrid.innerHTML = [
         ["Add first property", "Create the first CMP property file."],
-        ["Run A-Z Compliance Checker", "Answer setup questions before evidence is available."],
+        ["Review what CMP found", "After Smart Search, confirm the demo matches and answer the unknowns."],
         ["Upload existing certificates", "Keep EPC, Gas Safety, EICR and tenancy documents ready."],
         ["Ask CMP what to do first", "Use the assistant for setup guidance."]
       ].map(([title, body]) => `
@@ -5106,17 +5437,31 @@ function serviceMatchesFilter(service, filterId = journeyState().serviceFilter |
 
 function startJourneyFromNewPropertyState({ scroll = true } = {}) {
   clearJourneyTimers();
-  labsState.journeyState = createInitialJourneyState("clean-property-match");
-  const state = journeyState();
-  state.currentStage = "addProperty";
-  state.screen = "add";
-  addTimelineEvent({
-    title: "New property smart check started",
-    body: "The old new-property entry now opens the Journey OS add/check property flow.",
-    type: "Setup"
+  labsState.portfolioMode = "new";
+  labsState.selectedServicePropertyId = "the-butts";
+  labsState.azMode = "single";
+  labsState.azPropertyId = "the-butts";
+  labsState.currentView = "home";
+  addNewPropertySetupActivity({
+    id: "new-property-workspace-created",
+    filter: "details",
+    category: "Property setup",
+    title: "Property workspace created",
+    body: "Address matched. EPC/property record prepared for review. CMP is ready to ask for the unknowns.",
+    source: "Smart Search demo match",
+    status: "Prepared for review",
+    statusClass: "status-review-text",
+    search: "property workspace created address matched epc prepared review unknowns",
+    why: "CMP recorded this because the public Add Property flow handed off into the new property workspace.",
+    nextAction: "Review Smart Search and confirm the unknowns.",
+    route: "home",
+    actions: [
+      makeActivityAction("Review Smart Search", "reviewFindings", true),
+      makeActivityAction("Ask CMP", "askCmp")
+    ]
   });
-  showJourneyOs({ scroll });
-  showToast("Smart property check ready.");
+  showPortfolioHome({ scroll });
+  showToast("Property workspace created. Review Smart Search next.");
 }
 
 function addTimelineEvent(event) {
@@ -5249,10 +5594,17 @@ function addGuidedConditionEvidence() {
 }
 
 function enterGuidedDemo(storyId = "") {
+  clearNickDemoStoredState();
   const demo = guidedDemoState();
   demo.enabled = true;
   demo.lastNormalScenarioId = journeyState().scenarioId;
   demo.hasSeenLanding = true;
+  if (shouldHidePrototypeMachinery()) {
+    labsState.portfolioMode = "empty";
+    labsState.selectedServicePropertyId = "the-butts";
+    labsState.azMode = "single";
+    labsState.azPropertyId = "the-butts";
+  }
   syncGuidedDemoClass();
 
   if (storyId && guidedDemoStories[storyId]) {
@@ -5314,8 +5666,8 @@ function advanceGuidedMoment(direction = 1) {
 function openGuidedWorkspacePreview() {
   const state = journeyState();
   state.screen = "workspace";
-  state.currentStage = "monitor";
-  state.workspaceTab = state.workspaceTab || "overview";
+  state.currentStage = "action";
+  state.workspaceTab = "overview";
   addTimelineEvent({
     title: "Guided workspace opened",
     body: "Presenter opened the workspace to show the Property Intelligence profile destination.",
@@ -5424,9 +5776,15 @@ function buildJourneyActionPlan(state = journeyState()) {
   const improvementOpportunities = [];
   const recommendedServices = [];
 
-  if (!auto.epcFound || scenario.urgentMees) {
-    urgentLegalBlockers.push(journeyAction("epc-urgent", scenario.urgentMees ? "Urgent MEES risk" : "EPC record missing", scenario.urgentMees ? "EPC F/G means improvement or exemption review is recommended before relying on the property for letting." : "No clear EPC record was found. Book or upload an EPC before marketing or continuing to rely on the file.", "Urgent Legal Blockers", ["prioritised", "legalMinimum", "riskProtected", "doneForMe"], "high"));
-    recommendedServices.push(journeyAction("book-epc", "Book EPC assessment", "Arrange an EPC assessment or upload an existing certificate.", "Recommended Services", ["prioritised", "legalMinimum", "futureProof", "doneForMe"], "high"));
+  if (!auto.epcFound || scenario.urgentMees || scenario.epcExpired) {
+    const title = scenario.urgentMees ? "Urgent MEES risk" : scenario.epcExpired ? "EPC may be expired" : "EPC record missing";
+    const body = scenario.urgentMees
+      ? "EPC F/G may create an urgent letting risk. CMP recommends improvement or exemption review before relying on the property."
+      : scenario.epcExpired
+        ? "CMP found a likely EPC record, but it appears expired or needs checking. Treat it as an evidence gap until a current certificate is confirmed."
+        : "No clear EPC record was found. Book or upload an EPC before marketing or continuing to rely on the file.";
+    urgentLegalBlockers.push(journeyAction("epc-urgent", title, body, "Urgent Legal Blockers", ["prioritised", "legalMinimum", "riskProtected", "doneForMe"], "high"));
+    recommendedServices.push(journeyAction("book-epc", "Book EPC assessment", "Arrange an EPC assessment or upload an existing current certificate.", "Recommended Services", ["prioritised", "legalMinimum", "futureProof", "doneForMe"], "high"));
   }
 
   if (evidence.gasSafety.status !== "found" && answers.gas !== "no") {
@@ -5506,9 +5864,11 @@ function buildJourneyActionPlan(state = journeyState()) {
   futureRisks.push(journeyAction("decent-homes", "Decent Homes readiness", "Keep condition evidence ready for future PRS standards and monitoring.", "Future Risks", ["prioritised", "futureProof", "doneForMe"], "medium"));
   futureRisks.push(journeyAction("prs-database", "Future PRS database / monitoring readiness", "Keep property identity and evidence clean for future registration-style requirements.", "Future Risks", ["futureProof", "doneForMe"], "low"));
 
-  auto.epcRecommendations.forEach((recommendation, index) => {
-    improvementOpportunities.push(journeyAction(`improvement-${index}`, recommendation, index === 0 ? "Low-cost/high-impact improvement to move the property toward a stronger EPC profile." : "Optional improvement for future readiness.", "Opportunities & Improvements", ["futureProof", "doneForMe"], "low"));
-  });
+  if (auto.epcFound) {
+    auto.epcRecommendations.forEach((recommendation, index) => {
+      improvementOpportunities.push(journeyAction(`improvement-${index}`, recommendation, index === 0 ? "Low-cost/high-impact improvement to move the property toward a stronger EPC profile." : "Optional improvement for future readiness.", "Opportunities & Improvements", ["futureProof", "doneForMe"], "low"));
+    });
+  }
   improvementOpportunities.push(journeyAction("annual-monitoring", "Annual compliance monitoring", "Set monitoring so certificates, evidence gaps and future risks do not disappear.", "Opportunities & Improvements", ["prioritised", "futureProof", "doneForMe"], "low"));
 
   const grouped = {
@@ -6388,7 +6748,7 @@ function editUnknownAnswer(questionId) {
 
 function renderGuidedStoryCards() {
   return Object.entries(guidedDemoStories).map(([id, story]) => `
-    <article class="journey-guided-story-card">
+    <article class="journey-guided-story-card" data-guided-scenario-card>
       <div class="journey-story-motif is-${escapeHtml(story.motif)}" aria-hidden="true">
         <span></span>
         <span></span>
@@ -6403,39 +6763,61 @@ function renderGuidedStoryCards() {
   `).join("");
 }
 
+function renderNickScenarioCards() {
+  return nickScenarioExplorerCards.map((card) => `
+    <article class="journey-guided-story-card nick-scenario-card" data-guided-scenario-card>
+      <p class="section-kicker">Simulated scenario</p>
+      <h3>${escapeHtml(card.title)}</h3>
+      <dl>
+        <div><dt>Tests</dt><dd>${escapeHtml(card.tests)}</dd></div>
+        <div><dt>CMP will simulate</dt><dd>${escapeHtml(card.finds)}</dd></div>
+        <div><dt>Action created</dt><dd>${escapeHtml(card.action)}</dd></div>
+      </dl>
+      <small>Prototype-only: uses simulated demo data. No live lookup, supplier booking, payment, document storage or legal advice.</small>
+      <button class="secondary-button" type="button" data-guided-story="${escapeHtml(card.id)}">Try this scenario</button>
+    </article>
+  `).join("");
+}
+
 function renderGuidedDemoLanding() {
   return `
     <section class="journey-guided-landing" aria-labelledby="guidedDemoTitle">
       <div class="journey-guided-hero">
         <div>
-          <p class="section-kicker">Presenter demo</p>
-          <h1 id="guidedDemoTitle">CMP Journey OS guided demo</h1>
-          <p>Five short stories showing how CMP turns messy landlord compliance into a clear property action plan.</p>
-          <span class="prototype-badge">Guided demo mode: simulated data, real product journey.</span>
+          <p class="section-kicker">Nick demo mode</p>
+          <h1 id="guidedDemoTitle">Test the landlord journey, not the prototype machinery</h1>
+          <p>This is a simulated CMP prototype using demo data. The purpose is to test the landlord journey: CMP starts with a property, finds what it can automatically, asks the landlord to confirm the unknowns, then turns the result into evidence, actions, services and monitoring.</p>
+          <span class="prototype-badge">Prototype mode · simulated data</span>
+          <p class="nick-demo-disclaimer">Smart Search, Ask CMP, scoring, bookings and evidence updates are simulated for this demo. No live API lookup, supplier booking, payment, document storage or legal advice is happening.</p>
           <div class="button-row">
             <button class="primary-button" type="button" data-guided-story="clean-property-check">Run the 2-minute demo</button>
-            <button class="secondary-button" type="button" data-guided-scroll-stories>Choose a story</button>
+            <button class="secondary-button" type="button" data-guided-scroll-stories>Explore scenarios after the main demo</button>
             <button class="text-button" type="button" data-guided-exit>Exit guided demo</button>
           </div>
         </div>
         <aside class="journey-guided-vision-card">
-          <strong>What Nick should see</strong>
-          <p>CMP checks records, asks only what records cannot know, builds a Property Intelligence profile, then turns risk into services and monitoring.</p>
+          <strong>The story Nick should understand</strong>
+          <p>Add property → Smart Search → Confirm unknowns → Evidence Vault → Action Plan → Ask CMP → Monitoring.</p>
           <div class="journey-guided-orbit" aria-hidden="true">
-            <span>Records</span>
-            <span>Answers</span>
+            <span>Property</span>
+            <span>Search</span>
             <span>Evidence</span>
-            <span>Services</span>
+            <span>Monitor</span>
             <i></i>
           </div>
         </aside>
       </div>
       <section class="journey-guided-story-grid" id="guidedStoryGrid">
-        ${renderGuidedStoryCards()}
+        <div class="journey-guided-scenario-intro">
+          <p class="section-kicker">After the main demo</p>
+          <h2>Try another scenario</h2>
+          <p>Use these only after the basic journey lands. Each scenario uses simulated data to test whether CMP creates the right evidence gap, action and monitoring path.</p>
+        </div>
+        ${renderNickScenarioCards()}
       </section>
       <section class="journey-guided-simulation-note">
         <strong>What is simulated</strong>
-        <p>API checks, EPC lookup, licensing signals, document scanning, Ask CMP responses, supplier booking and monitoring are all local prototype state. No live lookup is performed.</p>
+        <p>Smart Search, public-record checks, EPC lookup, licensing signals, document scanning, Ask CMP responses, scoring, supplier booking and monitoring are all local prototype state.</p>
       </section>
     </section>
   `;
@@ -6456,15 +6838,18 @@ function renderGuidedPresenterPanel() {
         <span>Guided demo</span>
         <strong>${escapeHtml(story.title)}</strong>
         <small>${escapeHtml(moment.name)} · ${demo.activeMomentIndex + 1} of ${story.moments.length}</small>
+        <div class="journey-current-scenario">Current scenario: <b>${escapeHtml(story.title)}</b></div>
         <div class="journey-guided-progress"><i style="width: ${progress}%"></i></div>
         <p>${escapeHtml(moment.note)}</p>
       </div>
       <div class="journey-guided-presenter-actions">
         <button class="secondary-button" type="button" data-guided-back ${demo.activeMomentIndex === 0 ? "disabled" : ""}>Back</button>
         <button class="primary-button" type="button" data-guided-next>${isLast ? "Finish story" : "Next moment"}</button>
-        <button class="text-button" type="button" data-guided-restart>Restart story</button>
+        <button class="text-button" type="button" data-guided-restart>Restart demo</button>
+        <button class="text-button" type="button" data-guided-main-demo>Return to main demo</button>
+        <button class="text-button" type="button" data-guided-explore>Explore another scenario</button>
         <button class="text-button" type="button" data-guided-open-workspace>Open workspace</button>
-        <button class="text-button" type="button" data-guided-reset>Reset demo</button>
+        <button class="text-button" type="button" data-guided-reset>Reset scenario</button>
         <button class="text-button" type="button" data-guided-exit>Exit guided demo</button>
       </div>
       <small class="journey-guided-presenter-note">Presenter mode keeps the walkthrough focused. Exit to return to normal testing controls.</small>
@@ -6519,7 +6904,14 @@ function guidedNextStepsForStory(storyId = guidedDemoState().activeStoryId) {
       ["Upload existing EPC", "data-journey-open-upload"],
       ["Continue with warning", "data-journey-go=\"actionPlan\""],
       ["Set EPC reminder", "data-journey-monitor=\"epc-expiry-monitor\""],
-      ["Ask CMP why EPC matters", "data-journey-ask-prompt=\"How do I improve the EPC?\""]
+      ["Ask CMP why EPC matters", "data-journey-ask-prompt=\"Why is the EPC missing still a blocker?\""]
+    ],
+    "epc-expired-mees-risk": [
+      ["Book EPC assessment", "data-journey-service=\"epc-assessment\" data-service-action=\"booked\""],
+      ["Request EPC/MEES quote", "data-journey-service=\"epc-improvement-plan\" data-service-action=\"quote_requested\""],
+      ["Upload current EPC", "data-journey-open-upload"],
+      ["Ask CMP about EPC risk", "data-journey-ask-prompt=\"How do I improve the EPC?\""],
+      ["Set EPC monitoring", "data-journey-monitor=\"epc-c-readiness\""]
     ],
     "hmo-licensing-risk": [
       ["Book licensing check", "data-journey-service=\"licensing-check\" data-service-action=\"booked\""],
@@ -6541,6 +6933,13 @@ function guidedNextStepsForStory(storyId = guidedDemoState().activeStoryId) {
       ["Request quotes first", "data-journey-service-plan=\"quotes\""],
       ["Build future-proof plan", "data-journey-service-plan=\"future\""],
       ["Done-for-me concierge", "data-journey-service-plan=\"concierge\""]
+    ],
+    "portfolio-landlord-preview": [
+      ["Show risk-protected services", "data-journey-service-plan=\"risk\""],
+      ["Request quote bundle", "data-journey-service-plan=\"quotes\""],
+      ["View evidence model", "data-journey-workspace-tab-link=\"evidence\""],
+      ["Ask CMP about scale-up", "data-journey-ask-prompt=\"What changed in this Property Intelligence profile?\""],
+      ["Set annual monitoring", "data-journey-monitor=\"annual-review\""]
     ]
   };
   return maps[storyId] || maps["clean-property-check"];
@@ -6550,10 +6949,6 @@ function renderGuidedNextStepsPanel() {
   const demo = guidedDemoState();
   const story = currentGuidedStory();
   if (!demo.enabled || !story || journeyState().screen !== "workspace") {
-    return "";
-  }
-  const isFinalMoment = demo.activeMomentIndex >= story.moments.length - 1;
-  if (!isFinalMoment) {
     return "";
   }
   return `
@@ -6576,9 +6971,9 @@ function renderJourneySpine() {
   const state = journeyState();
   const currentIndex = journeyStages.findIndex((stage) => stage.id === state.currentStage);
   return `
-    <section class="journey-spine-card" aria-label="Journey OS progress">
+    <section class="journey-spine-card" aria-label="Guided demo progress">
       <div class="journey-spine-copy">
-        <p>CMP finds what it can, asks what it must, explains what matters, and helps you fix it.</p>
+        <p>Add property -> Smart Search -> Confirm unknowns -> Evidence Vault -> Action Plan -> Ask CMP -> Monitoring.</p>
       </div>
       <ol class="journey-spine">
         ${journeyStages.map((stage, index) => `
@@ -6618,10 +7013,11 @@ function renderJourneyShell(screenHtml) {
     ${renderGuidedPresenterPanel()}
     <header class="journey-os-header">
       <div>
-        <p class="section-kicker">CMP Journey OS</p>
-        <h1 id="journeyOsTitle">Build a Property Intelligence profile</h1>
-        <p>Start with an address. CMP simulates checks, asks landlord-only unknowns, then creates the property workspace and action plan.</p>
-        <span class="prototype-badge">Prototype mode: simulated API checks, document intelligence and service routes. No live lookup performed.</span>
+        <p class="section-kicker">CMP guided journey</p>
+        <h1 id="journeyOsTitle">Build an evidence-led property workspace</h1>
+        <p>Start with an address. CMP checks demo records, asks landlord-only unknowns, then creates the property workspace, action plan and monitoring trail.</p>
+        <span class="prototype-badge">Prototype mode · simulated data</span>
+        <small class="nick-demo-disclaimer">Smart Search, Ask CMP, scoring, bookings and evidence updates are simulated for this demo. No live API lookup, supplier booking, payment, document storage or legal advice is happening.</small>
       </div>
       <div class="journey-os-header-actions">
         ${guided.enabled ? `
@@ -6629,14 +7025,14 @@ function renderJourneyShell(screenHtml) {
             <span>Guided demo mode</span>
             <strong>Simulated data, real product journey</strong>
             <div class="button-row">
-              <button class="secondary-button" type="button" data-guided-reset>Reset demo</button>
+              <button class="secondary-button" type="button" data-guided-reset>Reset scenario</button>
               <button class="text-button" type="button" data-guided-exit>Exit</button>
             </div>
           </section>
         ` : `
           ${renderJourneyScenarioSwitcher()}
-          <button class="primary-button" type="button" data-guided-enter>Guided demo</button>
-          <button class="secondary-button" type="button" data-journey-reset>Reset Journey OS</button>
+          <button class="primary-button" type="button" data-guided-enter>Run guided demo</button>
+          <button class="secondary-button" type="button" data-journey-reset>Reset demo</button>
         `}
       </div>
     </header>
@@ -8079,6 +8475,23 @@ function bindJourneyOs() {
     if (event.target.closest("[data-guided-restart]")) {
       event.preventDefault();
       resetGuidedDemo(guidedDemoState().activeStoryId);
+      return;
+    }
+
+    if (event.target.closest("[data-guided-main-demo]")) {
+      event.preventDefault();
+      closeTimelineModals();
+      startGuidedStory("clean-property-check");
+      return;
+    }
+
+    if (event.target.closest("[data-guided-explore]")) {
+      event.preventDefault();
+      closeTimelineModals();
+      enterGuidedDemo();
+      window.setTimeout(() => {
+        document.querySelector("#guidedStoryGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }, 80);
       return;
     }
 
@@ -10448,7 +10861,19 @@ function renderSmartSearchResults() {
     confirmations.tenancyDepositConfirmed ? "" : "Tenancy/deposit documents if relevant",
     confirmations.inspectionReviewed ? "" : "Inspection evidence"
   ].filter(Boolean);
-  const epcStatus = saved ? "Accepted as starting signal" : "Ready to review";
+  const epcVariant = newPropertyEpcVariantCopy();
+  const epcSourceBadge = foundData.epcVariantLabel || epcVariant.label;
+  const epcCardTitle = foundData.epcCardTitle || epcVariant.cardTitle;
+  const epcStatus = saved ? "Accepted as starting signal" : (foundData.epcVariantStatus || epcVariant.status);
+  const epcStatusClass = foundData.epcStatus === "missingDemoMatch"
+    ? "status-watch-text"
+    : foundData.epcStatus === "expiredDemoMatch" || foundData.epcStatus === "expiringDemoMatch"
+      ? "status-watch-text"
+      : saved
+        ? "status-watch-text"
+        : "status-review-text";
+  const epcSummary = foundData.epcVariantSummary || epcVariant.summary;
+  const epcSource = foundData.epcVariantSource || epcVariant.source;
   const gasStatus = gasUploaded ? "Uploaded for review" : "No document uploaded";
   const eicrStatus = eicrUploaded ? "Uploaded for review" : "No document uploaded";
   const topTask = newPropertyTaskItems(setup)[0]?.title || "Continue setup";
@@ -10468,19 +10893,23 @@ function renderSmartSearchResults() {
     <header class="smart-search-hero is-signal-led">
       <div class="smart-hero-copy">
         <p class="section-kicker">Smart Search Results</p>
-        <h2 id="smartSearchResultsTitle">Here&rsquo;s what CMP found about your property</h2>
-        <p>CMP matched your address, found a likely EPC record, prepared local authority context and extracted useful setup details.</p>
+        <h2 id="smartSearchResultsTitle">Property workspace created</h2>
+        <p>Address matched. CMP prepared a likely property record, EPC signal and local authority context for review. Next: check what CMP found and confirm the unknowns.</p>
         <span class="smart-hero-badge">57 The Butts &middot; Coventry, CV1 3BJ</span>
+        <div class="smart-hero-actions">
+          <button class="primary-button" type="button" data-smart-primary-review>Review Smart Search</button>
+          <button class="secondary-button" type="button" data-smart-answer-remaining>Confirm unknowns</button>
+        </div>
       </div>
       <aside class="smart-signal-summary" aria-label="Smart search signal summary">
         <span>Smart search found</span>
-        <strong>6 useful property signals</strong>
+        <strong>${foundData.epcFound === false ? "5 useful property signals" : "6 useful property signals"}</strong>
         <ul>
           <li><span>Found automatically</span><strong>Address matched</strong></li>
           <li><span>Prepared for review</span><strong>UPRN prepared</strong></li>
           <li><span>Found automatically</span><strong>Coventry City Council found</strong></li>
-          <li><span>Likely match</span><strong>EPC rating C found</strong></li>
-          <li><span>Likely match</span><strong>EPC valid until February 2034</strong></li>
+          <li><span>${escapeHtml(epcSourceBadge)}</span><strong>${foundData.epcFound === false ? "EPC needs checking" : `EPC rating ${escapeHtml(foundData.epcRating || "C")} prepared`}</strong></li>
+          <li><span>${escapeHtml(epcStatus)}</span><strong>${escapeHtml(foundData.epcExpiryDate || "February 2034")}</strong></li>
           <li><span>Needs landlord input</span><strong>Flat/apartment assumption prepared</strong></li>
         </ul>
       </aside>
@@ -10575,10 +11004,10 @@ function renderSmartSearchResults() {
             </article>
             <article class="smart-found-card is-epc">
               <div class="smart-card-top">
-                <span class="source-badge">EPC match found</span>
-                <span class="doc-status ${saved ? "status-watch-text" : "status-review-text"}">${escapeHtml(epcStatus)}</span>
+                <span class="source-badge">${escapeHtml(epcSourceBadge)}</span>
+                <span class="doc-status ${epcStatusClass}">${escapeHtml(epcStatus)}</span>
               </div>
-              <h4>Likely EPC record found</h4>
+              <h4>${escapeHtml(epcCardTitle)}</h4>
               <div class="smart-epc-rating-row" aria-label="EPC rating summary">
                 <div><span>Current rating</span><strong>${escapeHtml(foundData.epcRating || "C")}</strong></div>
                 <div><span>Potential rating</span><strong>${escapeHtml(foundData.epcPotentialRating || "B")}</strong></div>
@@ -10589,9 +11018,9 @@ function renderSmartSearchResults() {
                 <div><dt>Property type</dt><dd>${escapeHtml(foundData.epcPropertyType || "Flat / apartment")}</dd></div>
                 <div><dt>Match confidence</dt><dd>${escapeHtml(foundData.epcMatchConfidence || "Likely match")}</dd></div>
               </dl>
-              <p>This helps CMP pre-fill the property profile and decide which checks still need evidence.</p>
-              <p>Source: EPC-style record prepared as a starting signal</p>
-              <small>Review before relying on this. This is a starting signal, not legal verification.</small>
+              <p>${escapeHtml(epcSummary)}</p>
+              <p>Source: ${escapeHtml(epcSource)}</p>
+              <small>Guidance only. Review before relying on this; it is a starting signal, not legal verification.</small>
             </article>
             <article class="smart-found-card">
               <div class="smart-card-top">
@@ -14934,6 +15363,12 @@ function bindPortfolioHome() {
       return;
     }
 
+    if (event.target.closest("[data-smart-primary-review]")) {
+      scrollToPanel("[data-smart-save-panel]");
+      showToast("Review the prepared demo match, then save it as the starting property profile.");
+      return;
+    }
+
     if (event.target.closest("[data-smart-edit-details]")) {
       showToast("Editing found details is coming next in the prototype.");
       return;
@@ -18316,7 +18751,7 @@ bindInbox();
 bindSmartUpload();
 bindServices();
 bindPropertyDetails();
-if (new URLSearchParams(window.location.search).get("journeyDemo") === "nick") {
+if (isNickDemoMode()) {
   enterGuidedDemo();
 } else if (initialDemoState === "new-property") {
   startJourneyFromNewPropertyState({ scroll: false });

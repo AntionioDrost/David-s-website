@@ -1,6 +1,6 @@
-ai-key.local.js
+.git/
 .DS_Store
-.netlify/
+node_modules/
 audit/
 audits/
 screenshots/

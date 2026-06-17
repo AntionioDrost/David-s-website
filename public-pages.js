@@ -654,7 +654,7 @@
             .join("")}
         </nav>
         <div class="nav-actions">
-          ${homeVariant ? "" : `<a class="nav-link-secondary" href="dashboard.html#guided-check">A-Z checker</a>`}
+          ${homeVariant ? "" : `<a class="nav-link-secondary" href="az-checker-v2.html">A-Z checker</a>`}
           <a class="nav-cta" href="${navigationPrimaryHref()}"><i data-lucide="layout-dashboard"></i>${DEMO_MODE ? "My Properties" : "Log in"}</a>
         </div>
       </header>
@@ -1937,7 +1937,7 @@
       isTenanted: property.tenancy?.currentlyTenanted === true ? "yes" : property.tenancy?.currentlyTenanted === false ? "no" : currentJourney().isTenanted,
       answeredQuestions: currentJourney().answeredQuestions || {}
     });
-    window.location.href = "dashboard.html";
+    window.location.href = "dashboard-labs.html?state=new-property";
   }
 
   async function renderAddPropertyPage() {
@@ -2001,10 +2001,10 @@
                 <span class="section-kicker">Step 3</span>
                 <h3>Import property details</h3>
               </div>
-              <p class="question-panel-copy">Once you confirm the address, CMP will build an EPC preview, create the property entry, and prepare My Properties.</p>
+              <p class="question-panel-copy">Once you confirm the address, CMP will prepare the EPC/property record, create the workspace, and show what needs review next.</p>
               <div class="helper-card compact">
                 <h3>${escapeHtml(state.addProperty.stage || "Choose the address, then CMP will do the rest.")}</h3>
-                <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will import the EPC preview, create the property record, and send you to My Properties.")}</p>
+                <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare the EPC/property record, create the workspace, and send you to review what CMP found.")}</p>
               </div>
             </section>
           </div>
@@ -2034,8 +2034,8 @@
         state.addProperty.message = "Importing property details...";
         renderAddPropertyPage();
         await wait(450);
-        state.addProperty.stage = "Building your dashboard...";
-        state.addProperty.message = "Building your dashboard...";
+        state.addProperty.stage = "Creating property workspace...";
+        state.addProperty.message = "Address matched. EPC/property record prepared for review. Creating your CMP workspace...";
         renderAddPropertyPage();
         await wait(550);
 
@@ -2049,8 +2049,8 @@
         window.CMPJourney?.update?.({
           selectedPropertyId: target.id
         });
-        flash(existing ? "This property already existed. CMP kept the existing record and sent you to My Properties." : "Property added. EPC information found.", "success");
-        window.location.href = "my-properties.html";
+        flash(existing ? "Workspace reopened. Review what CMP found and confirm the unknowns." : "Property workspace created. Address matched, EPC/property record prepared for review, and next questions are ready.", "success");
+        window.location.href = "dashboard-labs.html?state=new-property";
       });
     });
 
