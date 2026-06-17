@@ -5525,6 +5525,7 @@ function guidedDemoState() {
       mode: "landing",
       lastNormalScenarioId: journeyState().scenarioId,
       hasSeenLanding: false,
+      scenarioExplorerFocus: false,
       hintsHidden: false
     };
   }
@@ -5591,6 +5592,14 @@ function currentGuidedAction() {
   }
 
   if (demo.mode === "landing" && !demo.activeStoryId) {
+    if (demo.scenarioExplorerFocus) {
+      return {
+        target: "first-scenario",
+        title: "Try another landlord situation",
+        body: "Use the recommended scenario card to stress-test the same CMP journey.",
+        why: "Scenario Explorer changes the situation without disturbing the Add Property to Monitoring spine."
+      };
+    }
     return {
       target: "run-demo",
       title: "Start with the highlighted path",
@@ -5728,6 +5737,71 @@ function currentGuidedAction() {
   }
 
   return null;
+}
+
+function currentDemoGuide(action = currentGuidedAction()) {
+  const demo = guidedDemoState();
+  if (!demo.enabled || !action) {
+    return null;
+  }
+
+  if (demo.mode === "landing" && demo.scenarioExplorerFocus) {
+    return {
+      pose: "point",
+      copy: "Try this scenario next.",
+      direction: "right"
+    };
+  }
+
+  const state = journeyState();
+  const question = state.screen === "unknowns" ? journeyUnknownQuestions[state.unknownIndex] : null;
+  const guides = {
+    "run-demo": { pose: "welcome", copy: "Start the guided path.", direction: "right" },
+    "start-check": { pose: "welcome", copy: "Start here - CMP begins with the property.", direction: "right" },
+    "run-auto-checks": { pose: "point", copy: "Run the checks next.", direction: "right" },
+    "auto-review": { pose: "thinking", copy: "CMP found this automatically.", direction: "right" },
+    "confirm-match": { pose: "thinking", copy: "CMP found this automatically.", direction: "right" },
+    "review-found-data": { pose: "thinking", copy: "CMP separates found data from what only the landlord can confirm.", direction: "right" },
+    "build-brain": { pose: "thinking", copy: "Now CMP builds the evidence profile.", direction: "right" },
+    "open-action-plan": { pose: "point", copy: "Now check the Action Plan.", direction: "right" },
+    "action-plan-primary": { pose: "point", copy: "This is where CMP turns gaps into next steps.", direction: "right" },
+    "workspace-action": { pose: "point", copy: "This creates the next practical step.", direction: "right" },
+    "evidence-gap": { pose: "thinking", copy: "The Evidence Vault becomes the source of truth.", direction: "left" },
+    "ask-prompt": { pose: "thinking", copy: "Ask CMP uses the same evidence.", direction: "left" },
+    "monitoring-item": { pose: "success", copy: "This is the ongoing value after setup.", direction: "left" },
+    "first-scenario": { pose: "point", copy: "Try this scenario next.", direction: "right" },
+    "presenter-skip": { pose: "thinking", copy: "Use this only if you need to skip.", direction: "left" }
+  };
+
+  if (action.target === "recommended-answer") {
+    return {
+      pose: question?.id === "eicr" ? "thinking" : "point",
+      copy: question?.id === "eicr"
+        ? "Add proof later - no real upload happens in this demo."
+        : "Pick this to follow the clean demo path.",
+      direction: "right"
+    };
+  }
+
+  return guides[action.target] || { pose: "thinking", copy: action.body || "Follow the highlighted step.", direction: "right" };
+}
+
+function renderDemoGuideCharacter(action = currentGuidedAction()) {
+  const guide = currentDemoGuide(action);
+  if (!guide) {
+    return "";
+  }
+  const pose = ["welcome", "point", "thinking", "success"].includes(guide.pose) ? guide.pose : "thinking";
+  const direction = guide.direction === "left" ? "left" : "right";
+  return `
+    <aside class="cmp-demo-guide cmp-demo-guide--${escapeHtml(pose)} cmp-demo-guide--${escapeHtml(direction)}" data-demo-guide-character aria-label="CMP Demo Guide">
+      <img src="assets/generated/demo-guidance/macaw-guide-${escapeHtml(pose)}.svg" alt="" aria-hidden="true">
+      <div class="cmp-demo-guide-bubble">
+        <span>CMP Demo Guide</span>
+        <p>${escapeHtml(guide.copy)}</p>
+      </div>
+    </aside>
+  `;
 }
 
 function guidedTargetAttrs(target) {
@@ -5980,6 +6054,7 @@ function enterGuidedDemo(storyId = "") {
   demo.enabled = true;
   demo.lastNormalScenarioId = journeyState().scenarioId;
   demo.hasSeenLanding = true;
+  demo.scenarioExplorerFocus = false;
   if (shouldHidePrototypeMachinery()) {
     labsState.portfolioMode = "empty";
     labsState.selectedServicePropertyId = "the-butts";
@@ -6006,6 +6081,7 @@ function exitGuidedDemo() {
   demo.activeStoryId = "";
   demo.activeMomentIndex = 0;
   demo.mode = "landing";
+  demo.scenarioExplorerFocus = false;
   syncGuidedDemoClass();
   showJourneyOs({ scroll: false });
   renderJourneyOsState();
@@ -6029,6 +6105,7 @@ function startGuidedStory(storyId) {
   demo.activeStoryId = storyId in guidedDemoStories ? storyId : "clean-property-check";
   demo.activeMomentIndex = 0;
   demo.mode = "story";
+  demo.scenarioExplorerFocus = false;
   syncGuidedDemoClass();
   applyGuidedMoment(demo.activeStoryId, 0);
 }
@@ -7160,26 +7237,30 @@ function renderGuidedStoryCards() {
 }
 
 function renderNickScenarioCards() {
-  return nickScenarioExplorerCards.map((card, index) => `
-    <article class="journey-guided-story-card nick-scenario-card ${card.badge ? "is-recommended" : ""}" data-guided-scenario-card>
-      <div class="nick-scenario-card-top">
-        <p class="section-kicker">Scenario</p>
-        ${card.badge ? `<span>${escapeHtml(card.badge)}</span>` : ""}
-      </div>
-      <h3>${escapeHtml(card.title)}</h3>
-      <p>${escapeHtml(card.purpose)}</p>
-      <div class="nick-scenario-chip-grid" aria-label="${escapeHtml(card.title)} scenario summary">
-        <span><b>Finds</b>${escapeHtml(card.finds)}</span>
-        <span><b>Gap created</b>${escapeHtml(card.gap)}</span>
-        <span><b>Action created</b>${escapeHtml(card.action)}</span>
-        <span><b>Click first</b>${escapeHtml(card.firstClick)}</span>
-      </div>
-      <button class="secondary-button" type="button" data-guided-story="${escapeHtml(card.id)}" ${index === 0 ? "data-guided-target=\"first-scenario\"" : ""}>Try this scenario</button>
-    </article>
-  `).join("");
+  return nickScenarioExplorerCards.map((card, index) => {
+    const targetAttrs = index === 0 ? guidedTargetAttrs("first-scenario") : "";
+    return `
+      <article class="journey-guided-story-card nick-scenario-card ${card.badge ? "is-recommended" : ""}" data-guided-scenario-card>
+        <div class="nick-scenario-card-top">
+          <p class="section-kicker">Scenario</p>
+          ${card.badge ? `<span>${escapeHtml(card.badge)}</span>` : ""}
+        </div>
+        <h3>${escapeHtml(card.title)}</h3>
+        <p>${escapeHtml(card.purpose)}</p>
+        <div class="nick-scenario-chip-grid" aria-label="${escapeHtml(card.title)} scenario summary">
+          <span><b>Finds</b>${escapeHtml(card.finds)}</span>
+          <span><b>Gap created</b>${escapeHtml(card.gap)}</span>
+          <span><b>Action created</b>${escapeHtml(card.action)}</span>
+          <span><b>Click first</b>${escapeHtml(card.firstClick)}</span>
+        </div>
+        <button class="secondary-button" type="button" data-guided-story="${escapeHtml(card.id)}"${targetAttrs}>Try this scenario</button>
+      </article>
+    `;
+  }).join("");
 }
 
-function renderDemoCoachMark({ title = "Try this next", body = "", target = "", why = "" } = {}) {
+function renderDemoCoachMark(action = {}) {
+  const { title = "Try this next", body = "", target = "", why = "" } = action || {};
   const demo = guidedDemoState();
   if (!demo.enabled) {
     return "";
@@ -7187,20 +7268,23 @@ function renderDemoCoachMark({ title = "Try this next", body = "", target = "", 
   if (demo.hintsHidden) {
     return `
       <button class="journey-guidance-restore" type="button" data-guidance-show>
-        Show hints
+        Show guide
       </button>
     `;
   }
   return `
-    <aside class="journey-demo-coachmark" data-demo-coachmark data-target="${escapeHtml(target)}">
-      <span>Nick demo path</span>
-      <strong id="guidedCoachmarkTitle">${escapeHtml(title)}</strong>
-      <p>${escapeHtml(body)}</p>
-      ${why ? `<small><b>Why this matters:</b> ${escapeHtml(why)}</small>` : ""}
-      <div class="journey-coachmark-actions">
-        <button class="text-button" type="button" data-guidance-hide>Hide hints</button>
-      </div>
-    </aside>
+    <div class="journey-demo-guidance-row" data-demo-guidance-row data-target="${escapeHtml(target)}">
+      ${renderDemoGuideCharacter(action)}
+      <aside class="journey-demo-coachmark" data-demo-coachmark data-target="${escapeHtml(target)}">
+        <span>Nick demo path</span>
+        <strong id="guidedCoachmarkTitle">${escapeHtml(title)}</strong>
+        <p>${escapeHtml(body)}</p>
+        ${why ? `<small><b>Why this matters:</b> ${escapeHtml(why)}</small>` : ""}
+        <div class="journey-coachmark-actions">
+          <button class="text-button" type="button" data-guidance-hide>Hide guide</button>
+        </div>
+      </aside>
+    </div>
   `;
 }
 
@@ -7220,7 +7304,7 @@ function renderGuidedDemoLanding() {
           <span class="prototype-badge">Prototype mode · simulated data</span>
           <p class="nick-demo-disclaimer">Smart Search, Ask CMP, scoring, requests and evidence updates are simulated for this demo. When proof is needed, CMP uses Add proof later or Evidence gap wording. No live API lookup, supplier booking, payment, document storage or legal advice is happening.</p>
           <div class="button-row">
-            <button class="primary-button" type="button" data-guided-story="clean-property-check" data-guided-target="run-demo">Run the 2-minute demo</button>
+            <button class="primary-button" type="button" data-guided-story="clean-property-check"${guidedTargetAttrs("run-demo")}>Run the 2-minute demo</button>
             <button class="secondary-button" type="button" data-guided-scroll-stories>Explore scenarios after the main demo</button>
             <button class="text-button" type="button" data-guided-exit>Exit guided demo</button>
           </div>
@@ -9038,6 +9122,8 @@ function bindJourneyOs() {
 
     if (event.target.closest("[data-guided-scroll-stories]")) {
       event.preventDefault();
+      guidedDemoState().scenarioExplorerFocus = true;
+      renderJourneyOsState();
       document.querySelector("#guidedStoryGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
       return;
     }
@@ -9078,6 +9164,8 @@ function bindJourneyOs() {
       event.preventDefault();
       closeTimelineModals();
       enterGuidedDemo();
+      guidedDemoState().scenarioExplorerFocus = true;
+      renderJourneyOsState();
       window.setTimeout(() => {
         document.querySelector("#guidedStoryGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
       }, 80);

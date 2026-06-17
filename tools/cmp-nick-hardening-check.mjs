@@ -132,11 +132,45 @@ async function testNickRoutes(page, baseUrl) {
 async function testCoachMarks(page, baseUrl) {
   await openNick(page, baseUrl);
   assert(await page.locator("[data-demo-coachmark]").first().isVisible(), "Nick demo should show a next-action coach mark.");
+  assert(await page.locator("[data-demo-guide-character]").first().isVisible(), "Nick demo should show the CMP Demo Guide.");
   assert(await page.locator("[data-guided-target='run-demo']").isVisible(), "Run demo CTA should be highlighted as the first recommended action.");
-  await page.getByRole("button", { name: /Hide hints/i }).click();
+  await page.getByRole("button", { name: /Hide guide/i }).click();
   assert(!(await page.locator("[data-demo-coachmark]").first().isVisible().catch(() => false)), "Hints should hide without blocking core buttons.");
-  await page.getByRole("button", { name: /Show hints/i }).click();
+  assert(!(await page.locator("[data-demo-guide-character]").first().isVisible().catch(() => false)), "Hide hints should hide the CMP Demo Guide.");
+  await page.getByRole("button", { name: /Show guide/i }).click();
   assert(await page.locator("[data-demo-coachmark]").first().isVisible(), "Hints should be restorable.");
+  assert(await page.locator("[data-demo-guide-character]").first().isVisible(), "Show hints should restore the CMP Demo Guide.");
+}
+
+async function testNormalModeHasNoMacawGuide(page, baseUrl) {
+  await page.goto(`${baseUrl}/dashboard-labs.html`, { waitUntil: "domcontentloaded" });
+  await page.waitForLoadState("networkidle").catch(() => {});
+  assert(await page.locator("[data-demo-guide-character]").count() === 0, "CMP Demo Guide should not appear in normal dashboard mode.");
+}
+
+async function testMacawGuideCopyAndPlacement(page, baseUrl) {
+  await openNick(page, baseUrl);
+  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.waitForTimeout(100);
+  const guide = page.locator("[data-demo-guide-character]").first();
+  assert(await guide.isVisible(), "CMP Demo Guide should appear on the guided start screen.");
+  const guideText = (await guide.innerText()).replace(/\s+/g, " ").trim();
+  assert(/CMP Demo Guide/i.test(guideText), "Guide should identify itself as CMP Demo Guide.");
+  assert(/Start here/i.test(guideText), "Start screen guide copy should be short and action-led.");
+  const startTarget = page.locator("[data-guided-target='start-check']").first();
+  assert(await startTarget.isVisible(), "Guide should support the existing Check My Property target.");
+  const guideBox = await guide.boundingBox();
+  const targetBox = await startTarget.boundingBox();
+  assert(Boolean(guideBox && targetBox), "Guide and target should both have bounding boxes.");
+  const overlapX = Math.max(0, Math.min(guideBox.x + guideBox.width, targetBox.x + targetBox.width) - Math.max(guideBox.x, targetBox.x));
+  const overlapY = Math.max(0, Math.min(guideBox.y + guideBox.height, targetBox.y + targetBox.height) - Math.max(guideBox.y, targetBox.y));
+  assert(overlapX * overlapY < targetBox.width * targetBox.height * 0.25, "Guide should not cover the highlighted CTA.");
+
+  await startTarget.click();
+  await page.waitForTimeout(100);
+  const addressGuideText = (await page.locator("[data-demo-guide-character]").first().innerText()).replace(/\s+/g, " ").trim();
+  assert(/Run the checks next/i.test(addressGuideText), "Address step guide copy should point to the simulated checks.");
+  assert(await page.locator("[data-guided-target='run-auto-checks']").isVisible(), "Address step should still highlight Run simulated auto checks.");
 }
 
 async function highlightedTargetText(page) {
@@ -188,10 +222,14 @@ async function testMobileGuidedTarget(page, baseUrl) {
   await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
   const target = page.locator("[data-guided-target='start-check']").first();
   assert(await target.isVisible(), "Mobile should show the Check My Property highlighted target.");
+  assert(await page.locator("[data-demo-guide-character]").first().isVisible(), "Mobile should show compact guide support in demo mode.");
   const box = await target.boundingBox();
   assert(Boolean(box), "Mobile highlighted target should have a bounding box.");
   assert(box.width >= 44 && box.height >= 36, "Mobile highlighted target should be tappable.");
   assert(box.x >= 0 && box.x + box.width <= 390, "Mobile highlighted target should not create horizontal overflow.");
+  const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
+  const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
+  assert(scrollWidth <= viewportWidth + 1, "Mobile guide should not create horizontal overflow.");
   await target.click();
   assert(await page.locator("[data-guided-target='run-auto-checks']").isVisible(), "Mobile tap on Check My Property should advance to address target.");
   await page.setViewportSize({ width: 1440, height: 950 });
@@ -246,8 +284,12 @@ async function testScenarioCards(page, baseUrl) {
   const firstText = await cards.first().innerText();
   assert(/Finds|Gap created|Action created/i.test(firstText), "Scenario cards should use compact visual chips.");
   assert(firstText.length < 650, "Scenario cards should be scannable rather than long-form notes.");
+  await page.getByRole("button", { name: /Explore scenarios after the main demo/i }).click();
+  await page.waitForTimeout(100);
   const firstTargetText = await page.locator("[data-guided-target='first-scenario']").innerText();
   assert(/Try this scenario/i.test(firstTargetText), "Scenario Explorer should highlight the first Try this scenario CTA.");
+  const guideText = (await page.locator("[data-demo-guide-character]").first().innerText()).replace(/\s+/g, " ").trim();
+  assert(/Try this scenario next/i.test(guideText), "Scenario Explorer should show concise guide copy.");
 }
 
 async function run() {
@@ -256,16 +298,28 @@ async function run() {
   const browser = await chromium.launch({ headless: true });
   const context = await browser.newContext({ viewport: { width: 1440, height: 950 } });
   const page = await context.newPage();
+  const consoleErrors = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") {
+      consoleErrors.push(message.text());
+    }
+  });
+  page.on("pageerror", (error) => {
+    consoleErrors.push(error.message);
+  });
 
   try {
     await testNickRoutes(page, baseUrl);
     await testCoachMarks(page, baseUrl);
+    await testNormalModeHasNoMacawGuide(page, baseUrl);
+    await testMacawGuideCopyAndPlacement(page, baseUrl);
     await testGuidedProductTargets(page, baseUrl);
     await testUnknownQuestionHighlight(page, baseUrl);
     await testVacantLogic(page, baseUrl);
     await testEvidenceWording(page, baseUrl);
     await testScenarioCards(page, baseUrl);
     await testMobileGuidedTarget(page, baseUrl);
+    assert(consoleErrors.length === 0, `Console errors should not be emitted during Nick demo checks: ${consoleErrors.join(" | ")}`);
     console.log(JSON.stringify({ status: "passed", baseUrl }, null, 2));
   } finally {
     await browser.close();
