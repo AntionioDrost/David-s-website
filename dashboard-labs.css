@@ -6241,6 +6241,290 @@ body.hide-prototype-machinery .journey-guided-presenter-actions [data-guided-ope
   line-height: 1.4;
 }
 
+.nick-scenario-card {
+  gap: 14px;
+  overflow: hidden;
+}
+
+.nick-scenario-card.is-recommended {
+  border-color: rgba(19, 111, 88, 0.28);
+  background:
+    radial-gradient(circle at 85% 8%, rgba(167, 228, 189, 0.24), transparent 34%),
+    rgba(255, 255, 255, 0.92);
+}
+
+.nick-scenario-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.nick-scenario-card-top span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 0 9px;
+  border: 1px solid rgba(31, 96, 72, 0.16);
+  border-radius: 999px;
+  background: rgba(235, 249, 240, 0.9);
+  color: var(--labs-green-dark);
+  font-size: 0.7rem;
+  font-weight: 840;
+}
+
+.nick-scenario-card > p:not(.section-kicker) {
+  margin: 0;
+  color: var(--labs-muted);
+  line-height: 1.45;
+}
+
+.nick-scenario-chip-grid {
+  display: grid;
+  gap: 8px;
+}
+
+.nick-scenario-chip-grid span {
+  display: grid;
+  gap: 3px;
+  padding: 10px 11px;
+  border: 1px solid rgba(17, 39, 34, 0.09);
+  border-radius: 12px;
+  background: rgba(247, 250, 246, 0.86);
+  color: var(--labs-ink);
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.nick-scenario-chip-grid b {
+  color: var(--labs-soft);
+  font-size: 0.66rem;
+  font-weight: 880;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.journey-demo-coachmark {
+  position: relative;
+  z-index: 9;
+  display: grid;
+  gap: 8px;
+  max-width: 520px;
+  margin: 0 0 14px;
+  padding: 14px 16px 14px 18px;
+  border: 1px solid rgba(31, 96, 72, 0.18);
+  border-radius: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(240, 250, 244, 0.96)),
+    #fff;
+  box-shadow: 0 20px 50px rgba(17, 39, 34, 0.11);
+}
+
+.journey-demo-coachmark::before {
+  content: "";
+  position: absolute;
+  top: 18px;
+  left: -8px;
+  width: 14px;
+  height: 14px;
+  border-left: 1px solid rgba(31, 96, 72, 0.18);
+  border-bottom: 1px solid rgba(31, 96, 72, 0.18);
+  background: rgba(255, 255, 255, 0.98);
+  transform: rotate(45deg);
+}
+
+.journey-demo-coachmark span {
+  color: var(--labs-green-dark);
+  font-size: 0.7rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.journey-demo-coachmark strong {
+  color: var(--labs-ink);
+  font-size: 1rem;
+}
+
+.journey-demo-coachmark p,
+.journey-demo-coachmark small {
+  margin: 0;
+  color: var(--labs-muted);
+  line-height: 1.45;
+}
+
+.journey-demo-coachmark small b {
+  color: var(--labs-ink);
+}
+
+.journey-coachmark-actions {
+  display: flex;
+  justify-content: flex-start;
+}
+
+.journey-guidance-restore {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 0 12px;
+  min-height: 34px;
+  padding: 0 12px;
+  border: 1px solid rgba(31, 96, 72, 0.2);
+  border-radius: 999px;
+  color: var(--labs-green-dark);
+  background: rgba(255, 255, 255, 0.92);
+  font-size: 0.82rem;
+  font-weight: 820;
+  box-shadow: 0 12px 30px rgba(17, 39, 34, 0.08);
+}
+
+[data-guided-target] {
+  position: relative;
+  isolation: isolate;
+  scroll-margin-top: 110px;
+}
+
+[data-guided-target]::after {
+  content: "";
+  position: absolute;
+  inset: -6px;
+  z-index: -1;
+  border: 2px solid rgba(22, 127, 96, 0.42);
+  border-radius: inherit;
+  box-shadow: 0 0 0 0 rgba(22, 127, 96, 0.22);
+  animation: guidedPulse 1800ms ease-in-out infinite;
+  pointer-events: none;
+}
+
+body.guided-hints-hidden [data-guided-target]::after {
+  display: none;
+}
+
+@keyframes guidedPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(22, 127, 96, 0.18);
+    opacity: 0.7;
+  }
+  70% {
+    box-shadow: 0 0 0 12px rgba(22, 127, 96, 0);
+    opacity: 1;
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(22, 127, 96, 0);
+    opacity: 0.72;
+  }
+}
+
+.journey-answer-chip.is-muted {
+  background: rgba(245, 247, 244, 0.86);
+  border-color: rgba(17, 39, 34, 0.08);
+  color: var(--labs-muted);
+}
+
+.journey-answer-chip.is-muted strong {
+  color: var(--labs-muted);
+}
+
+.journey-missing-guard {
+  border-color: rgba(19, 111, 88, 0.22);
+  background:
+    radial-gradient(circle at 92% 12%, rgba(167, 228, 189, 0.2), transparent 34%),
+    rgba(255, 255, 255, 0.94);
+}
+
+.journey-checklist-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.journey-checklist-grid article {
+  display: grid;
+  gap: 5px;
+  min-height: 82px;
+  padding: 12px;
+  border: 1px solid rgba(17, 39, 34, 0.08);
+  border-radius: 14px;
+  background: rgba(250, 248, 243, 0.78);
+}
+
+.journey-checklist-grid article.is-complete {
+  border-color: rgba(22, 127, 96, 0.18);
+  background: rgba(239, 250, 244, 0.92);
+}
+
+.journey-checklist-grid span {
+  color: var(--labs-soft);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.journey-checklist-grid article.is-complete span {
+  color: var(--labs-green-dark);
+}
+
+.journey-checklist-grid strong {
+  color: var(--labs-ink);
+  line-height: 1.25;
+}
+
+@media (max-width: 820px) {
+  .journey-demo-coachmark {
+    max-width: none;
+    margin: 0 0 12px;
+    padding: 13px 14px;
+    border-radius: 16px;
+  }
+
+  .journey-demo-coachmark::before {
+    top: auto;
+    left: 24px;
+    bottom: -8px;
+    transform: rotate(-45deg);
+  }
+
+  .journey-coachmark-actions {
+    justify-content: flex-start;
+  }
+
+  .journey-checklist-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .nick-scenario-chip-grid span {
+    padding: 9px 10px;
+  }
+
+  [data-guided-target]::after {
+    inset: -4px;
+    border-width: 2px;
+  }
+}
+
+@media (max-width: 520px) {
+  .journey-demo-coachmark strong {
+    font-size: 0.95rem;
+  }
+
+  .journey-demo-coachmark p,
+  .journey-demo-coachmark small {
+    font-size: 0.84rem;
+  }
+
+  .journey-checklist-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-guided-target]::after {
+    animation: none;
+  }
+}
+
 body.menu-open,
 body.assistant-open {
   overflow: hidden;

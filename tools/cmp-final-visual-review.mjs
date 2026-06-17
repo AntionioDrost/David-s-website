@@ -7,7 +7,8 @@ import os from "node:os";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const ROOT_DIR = path.resolve(__dirname, "..");
-const AUDIT_DIR = path.join(ROOT_DIR, "audit", "2026-06-16-cmp-final-demo");
+const AUDIT_SLUG = process.env.CMP_AUDIT_SLUG || "2026-06-17-cmp-overnight-final";
+const AUDIT_DIR = path.join(ROOT_DIR, "audit", AUDIT_SLUG);
 const SCREENSHOT_DIR = path.join(AUDIT_DIR, "screenshots");
 const SHEET_DIR = path.join(AUDIT_DIR, "contact-sheets");
 const PDF_PATH = path.join(AUDIT_DIR, "CMP_FINAL_VISUAL_REVIEW.pdf");
@@ -250,7 +251,7 @@ function buildReadyMarkdown(pdfSizeMb) {
   const issueLines = issues.map((issue, index) => `${index + 1}. ${issue.severity}: ${issue.title} (${issue.where})`).join("\n");
   return `# Ready For Nick
 
-Generated: 2026-06-16
+Generated: 2026-06-17
 
 ## Verdict
 
@@ -303,9 +304,9 @@ Additional human judgement:
 
 ## Final Visual Pack
 
-- PDF: \`audit/2026-06-16-cmp-final-demo/CMP_FINAL_VISUAL_REVIEW.pdf\` (${pdfSizeMb.toFixed(2)} MB)
-- Contact sheets: \`audit/2026-06-16-cmp-final-demo/contact-sheets/\`
-- Final issues JSON: \`audit/2026-06-16-cmp-final-demo/final-issues.json\`
+- PDF: \`audit/${AUDIT_SLUG}/CMP_FINAL_VISUAL_REVIEW.pdf\` (${pdfSizeMb.toFixed(2)} MB)
+- Contact sheets: \`audit/${AUDIT_SLUG}/contact-sheets/\`
+- Final issues JSON: \`audit/${AUDIT_SLUG}/final-issues.json\`
 
 ## Caveat Script
 
@@ -317,7 +318,7 @@ async function writeReadyFiles() {
   const pdfStat = await stat(PDF_PATH);
   const pdfSizeMb = pdfStat.size / 1024 / 1024;
   const verdict = {
-    generated: "2026-06-16",
+    generated: "2026-06-17",
     verdict: "Ready with caveats",
     confidence: 8,
     nickLink: "dashboard-labs.html?demo=nick",
@@ -326,11 +327,11 @@ async function writeReadyFiles() {
     prototypeCaveatsVisibleEnough: true,
     feelsLikeOneProduct: true,
     pdf: {
-      path: "audit/2026-06-16-cmp-final-demo/CMP_FINAL_VISUAL_REVIEW.pdf",
+      path: `audit/${AUDIT_SLUG}/CMP_FINAL_VISUAL_REVIEW.pdf`,
       sizeMb: Number(pdfSizeMb.toFixed(2)),
       under15Mb: pdfSizeMb < 15
     },
-    contactSheets: sheets.map((sheet) => `audit/2026-06-16-cmp-final-demo/contact-sheets/${sheet.file}`),
+    contactSheets: sheets.map((sheet) => `audit/${AUDIT_SLUG}/contact-sheets/${sheet.file}`),
     remainingIssues: issues,
     scenarios
   };
@@ -357,6 +358,6 @@ console.log(JSON.stringify({
   confidence: verdict.confidence,
   pdf: verdict.pdf,
   contactSheets: verdict.contactSheets.length,
-  finalIssues: "audit/2026-06-16-cmp-final-demo/final-issues.json",
-  readyReport: "audit/2026-06-16-cmp-final-demo/READY_FOR_NICK.md"
+  finalIssues: `audit/${AUDIT_SLUG}/final-issues.json`,
+  readyReport: `audit/${AUDIT_SLUG}/READY_FOR_NICK.md`
 }, null, 2));

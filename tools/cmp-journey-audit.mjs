@@ -657,7 +657,7 @@ async function advanceGuidedStoryToWorkspace(page, maxSteps = 18) {
 async function completeScenarioAction(page, scenario) {
   let clicked = await clickSelector(page, scenario.actionSelector, { wait: 700, timeout: 1800 });
   let actionBodyText = (await getPageFacts(page)).bodyText;
-  if (!clicked && /Service confirmation|Service intake|Quote request prepared|Booking prepared|Tenant message|fake basket/i.test(actionBodyText)) {
+  if (!clicked && /Service confirmation|Service intake|Quote request prepared|Request prepared|concierge plan prepared|demo concierge route|Tenant message|demo basket/i.test(actionBodyText)) {
     clicked = true;
   }
   if (!clicked && scenario.actionText) {
