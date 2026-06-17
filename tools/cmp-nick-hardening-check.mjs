@@ -179,6 +179,65 @@ async function highlightedTargetText(page) {
   return (await target.innerText()).replace(/\s+/g, " ").trim();
 }
 
+async function journeyTestState(page) {
+  return page.evaluate(() => {
+    const state = window.__cmpDemoTest?.state?.();
+    if (!state) return null;
+    return {
+      screen: state.screen,
+      currentStage: state.currentStage,
+      unknownIndex: state.unknownIndex,
+      answers: { ...(state.answers || {}) },
+      routeId: state.routeId,
+      workspaceTab: state.workspaceTab,
+      pendingJumpTarget: state.pendingJumpTarget || "",
+      modalMode: state.modalMode || "",
+      activeConfirmation: state.activeConfirmation ? {
+        title: state.activeConfirmation.title,
+        nextStep: state.activeConfirmation.nextStep,
+        status: state.activeConfirmation.status
+      } : null,
+      serviceBasketLength: (state.serviceBasket || []).length,
+      evidenceVaultLength: (state.evidenceVault || []).length,
+      askHistoryLength: (state.askHistory || []).length
+    };
+  });
+}
+
+async function reachCleanUnknowns(page, baseUrl) {
+  await openNick(page, baseUrl);
+  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /^Check My Property$/i }).click();
+  await page.getByRole("button", { name: /Run simulated auto checks/i }).click();
+  await page.getByRole("button", { name: /Yes, this is my property/i }).click({ timeout: 6000 });
+  await page.getByRole("button", { name: /Answer landlord-only unknowns/i }).click();
+  await page.locator("[data-guided-target='recommended-answer']").first().waitFor({ timeout: 5000 });
+}
+
+async function clickRecommendedUnknownAnswer(page) {
+  const target = page.locator("[data-guided-target='recommended-answer']").first();
+  assert(await target.isVisible(), "Recommended unknown answer should be highlighted.");
+  const targetText = (await target.innerText()).replace(/\s+/g, " ").trim();
+  await target.click();
+  if (/known problems|none|damp|mould|not sure/i.test(targetText)) {
+    const submit = page.locator("[data-journey-condition-submit]").first();
+    if (await submit.isVisible().catch(() => false)) {
+      await submit.click();
+    }
+  }
+  await page.waitForTimeout(120);
+  return targetText;
+}
+
+async function reachActionPlanWithGuidedAnswers(page, baseUrl) {
+  await reachCleanUnknowns(page, baseUrl);
+  await page.locator("[data-guided-use-demo-answers]").click();
+  await page.locator("[data-guided-target='build-brain']").click();
+  await page.locator("[data-guided-target='open-action-plan']").waitFor({ timeout: 5000 });
+  await page.locator("[data-guided-target='open-action-plan']").click();
+  await page.locator("[data-guided-target='action-plan-primary']").waitFor({ timeout: 5000 });
+}
+
 async function testGuidedProductTargets(page, baseUrl) {
   await openNick(page, baseUrl);
   await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
@@ -188,6 +247,7 @@ async function testGuidedProductTargets(page, baseUrl) {
   assert(/Check My Property/i.test(targetText), "First story moment should highlight Check My Property.");
   assert(!/Next moment/i.test(targetText), "First story moment must not highlight Next moment.");
   assert(await page.locator("[data-guided-next]").isVisible(), "Presenter skip control should still exist.");
+  assert(/Skip ahead/i.test(await page.locator("[data-guided-next]").innerText()), "Presenter skip should use a natural secondary label.");
   assert(await page.locator("[data-guided-next][data-guided-target]").count() === 0, "Presenter skip should not be the primary highlighted target when a product action exists.");
 
   await page.getByRole("button", { name: /^Check My Property$/i }).click();
@@ -203,17 +263,117 @@ async function testGuidedProductTargets(page, baseUrl) {
 }
 
 async function testUnknownQuestionHighlight(page, baseUrl) {
-  await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
-  await page.getByRole("button", { name: /^Check My Property$/i }).click();
-  await page.getByRole("button", { name: /Run simulated auto checks/i }).click();
-  await page.getByRole("button", { name: /Yes, this is my property/i }).click({ timeout: 6000 });
-  await page.getByRole("button", { name: /Answer landlord-only unknowns/i }).click();
+  await reachCleanUnknowns(page, baseUrl);
   const answerTarget = page.locator("[data-guided-target='recommended-answer']").first();
   assert(await answerTarget.isVisible(), "Unknown question should highlight a recommended answer card.");
   const answerText = (await answerTarget.innerText()).replace(/\s+/g, " ").trim();
   assert(/Yes, currently occupied|No, currently vacant|I want|Damp\/mould|1-2 people/i.test(answerText), "Highlighted unknown target should be an answer card, not presenter controls.");
   assert(await page.locator("[data-guided-next][data-guided-target]").count() === 0, "Unknown question should not highlight presenter controls.");
+}
+
+async function testGuidedUnknownsDoNotSkipWorkspace(page, baseUrl) {
+  await reachCleanUnknowns(page, baseUrl);
+  let state = await journeyTestState(page);
+  assert(state?.screen === "unknowns" && state.unknownIndex === 0, "Clean demo should enter the first unknown question.");
+
+  const firstAnswer = await clickRecommendedUnknownAnswer(page);
+  assert(/Yes, currently occupied/i.test(firstAnswer), "Clean demo should recommend the occupied answer first.");
+  state = await journeyTestState(page);
+  assert(state.screen === "unknowns", `First guided answer should keep the demo in unknowns, not jump to ${state.screen}.`);
+  assert(state.unknownIndex === 1, `First guided answer should advance to question 2, not index ${state.unknownIndex}.`);
+  assert(state.answers.occupancy === "occupied", "First guided answer should be saved progressively.");
+  assert(!state.answers.propertyType, "Future unknown answers must not be prefilled before the user reaches them.");
+  let chips = await page.locator(".journey-answer-chip").count();
+  assert(chips === 1, `Answers so far should reveal only the first answer, not ${chips} pills.`);
+
+  let guard = 0;
+  while ((await page.locator("[data-guided-target='recommended-answer']").count()) && guard < 12) {
+    await clickRecommendedUnknownAnswer(page);
+    guard += 1;
+    state = await journeyTestState(page);
+    assert(["unknowns"].includes(state.screen), `Guided unknown answer ${guard + 1} should not jump to ${state.screen}.`);
+    if (state.unknownIndex >= 10) break;
+  }
+
+  state = await journeyTestState(page);
+  assert(state.screen === "unknowns" && state.unknownIndex >= 10, "Clean demo should step through every required unknown before building the profile.");
+  assert(await page.locator("[data-guided-target='build-brain']").isVisible(), "After all unknowns, Build Property Intelligence should be the highlighted next action.");
+  chips = await page.locator(".journey-answer-chip").count();
+  assert(chips >= 9, "Answers so far should be built from actual answers across the full unknown sequence.");
+}
+
+async function testStrictGuidedAnswerSoftLockAndShortcut(page, baseUrl) {
+  await reachCleanUnknowns(page, baseUrl);
+  const nonRecommended = page.locator("[data-journey-answer='occupancy'][data-answer-id='vacant']").first();
+  assert(await nonRecommended.isVisible(), "A non-recommended occupancy answer should still be visible.");
+  await nonRecommended.click();
+  await page.waitForTimeout(100);
+  let state = await journeyTestState(page);
+  assert(!state.answers.occupancy, "Strict guided mode should not accept a non-recommended answer by default.");
+  assert(/To keep this scenario on track, follow the highlighted answer/i.test(await text(page)), "Soft-lock message should explain how to stay on the scenario path.");
+  assert(await page.locator("[data-guided-unlock]").isVisible(), "Strict guided mode should offer an unlock/free-explore escape.");
+
+  await page.locator("[data-guided-unlock]").click();
+  await nonRecommended.click();
+  await page.waitForTimeout(100);
+  state = await journeyTestState(page);
+  assert(state.answers.occupancy === "vacant", "Unlock all choices should allow non-recommended answers without exiting demo mode.");
+
+  await reachCleanUnknowns(page, baseUrl);
+  const shortcut = page.locator("[data-guided-use-demo-answers]").first();
+  assert(await shortcut.isVisible(), "Guided demo should offer an intentional shortcut for demo answers.");
+  await shortcut.click();
+  await page.waitForTimeout(150);
+  state = await journeyTestState(page);
+  assert(state.screen === "unknowns", "Use guided demo answers should finish unknowns without jumping straight to workspace.");
+  assert(state.unknownIndex >= 10, "Use guided demo answers should mark required clean-demo unknowns complete.");
+  assert(await page.locator("[data-guided-target='build-brain']").isVisible(), "Use guided demo answers should land on Build Property Intelligence.");
+}
+
+async function testGuidedSectionMoments(page, baseUrl) {
+  await reachActionPlanWithGuidedAnswers(page, baseUrl);
+  let body = await text(page);
+  assert(/Action Plan turns gaps into next steps/i.test(body), "Action Plan should have a section-level explainer before the recommended CTA.");
+  assert(/specific gaps|not as a marketplace/i.test(body), "Action Plan explainer should frame services as gap-driven.");
+
+  await page.locator("[data-guided-target='action-plan-primary']").click();
+  await page.locator("[data-guided-target='service-confirm-evidence']").waitFor({ timeout: 5000 });
+  body = await text(page);
+  assert(/No supplier is contacted|No supplier was contacted/i.test(body), "Service confirmation should make the no-supplier caveat readable.");
+  assert(/no payment/i.test(body), "Service confirmation should make the no-payment caveat readable.");
+  assert(/View Evidence Vault/i.test(await page.locator("[data-guided-target='service-confirm-evidence']").innerText()), "Service confirmation should clearly point to Evidence Vault.");
+  const confirmationStyles = await page.locator(".journey-confirmation-banner").evaluate((element) => {
+    const style = getComputedStyle(element);
+    return { color: style.color, backgroundColor: style.backgroundColor };
+  });
+  assert(!/rgb\(255,\s*255,\s*255\)/i.test(confirmationStyles.color), "Service confirmation body should not use white text on a light banner.");
+
+  await page.locator("[data-guided-target='service-confirm-evidence']").click();
+  await page.locator("[data-guided-section-target='evidence']").waitFor({ timeout: 5000 });
+  body = await text(page);
+  assert(/Evidence Vault is the source of truth/i.test(body), "Evidence Vault should have a guided section moment.");
+
+  await page.getByRole("button", { name: /^Ask CMP$/i }).click();
+  await page.locator("[data-guided-section-target='ask']").waitFor({ timeout: 5000 });
+  body = await text(page);
+  assert(/Ask CMP uses the same evidence/i.test(body), "Ask CMP should have a guided section moment.");
+  assert(await page.locator("[data-guided-target='ask-prompt']").isVisible(), "Ask CMP should highlight one useful prompt.");
+
+  await page.getByRole("button", { name: /^Monitoring$/i }).click();
+  await page.locator("[data-guided-section-target='monitoring']").waitFor({ timeout: 5000 });
+  body = await text(page);
+  assert(/Monitoring is the ongoing value/i.test(body), "Monitoring should have a guided section moment.");
+  assert(await page.locator("[data-guided-target='monitoring-item']").isVisible(), "Monitoring should highlight the follow-up action.");
+}
+
+async function testDesktopArrowLayer(page, baseUrl) {
+  await openNick(page, baseUrl);
+  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  const arrow = page.locator("[data-demo-target-arrow]").first();
+  assert(await arrow.count() > 0, "Guided coach mark should render the measured arrow layer.");
+  await page.waitForTimeout(120);
+  const visibleState = await arrow.getAttribute("data-arrow-visible");
+  assert(["true", "false"].includes(visibleState || ""), "Measured arrow should explicitly report whether a reliable target was found.");
 }
 
 async function testMobileGuidedTarget(page, baseUrl) {
@@ -230,6 +390,8 @@ async function testMobileGuidedTarget(page, baseUrl) {
   const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   assert(scrollWidth <= viewportWidth + 1, "Mobile guide should not create horizontal overflow.");
+  const arrowVisible = await page.locator("[data-demo-target-arrow]").first().getAttribute("data-arrow-visible").catch(() => "false");
+  assert(arrowVisible !== "true", "Mobile should hide the arrow if target placement is too tight to be reliable.");
   await target.click();
   assert(await page.locator("[data-guided-target='run-auto-checks']").isVisible(), "Mobile tap on Check My Property should advance to address target.");
   await page.setViewportSize({ width: 1440, height: 950 });
@@ -315,6 +477,10 @@ async function run() {
     await testMacawGuideCopyAndPlacement(page, baseUrl);
     await testGuidedProductTargets(page, baseUrl);
     await testUnknownQuestionHighlight(page, baseUrl);
+    await testGuidedUnknownsDoNotSkipWorkspace(page, baseUrl);
+    await testStrictGuidedAnswerSoftLockAndShortcut(page, baseUrl);
+    await testGuidedSectionMoments(page, baseUrl);
+    await testDesktopArrowLayer(page, baseUrl);
     await testVacantLogic(page, baseUrl);
     await testEvidenceWording(page, baseUrl);
     await testScenarioCards(page, baseUrl);

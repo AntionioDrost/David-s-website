@@ -1,16 +1,16 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 150" fill="none">
   <defs>
     <linearGradient id="body" x1="55" y1="26" x2="108" y2="126" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#2f97ca"/>
-      <stop offset="1" stop-color="#125b8d"/>
+      <stop stop-color="#168ed2"/>
+      <stop offset="1" stop-color="#064f8f"/>
     </linearGradient>
     <linearGradient id="chest" x1="78" y1="61" x2="92" y2="123" gradientUnits="userSpaceOnUse">
       <stop stop-color="#f6d56f"/>
       <stop offset="1" stop-color="#e69033"/>
     </linearGradient>
     <linearGradient id="wing" x1="32" y1="42" x2="82" y2="119" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#45b1dc"/>
-      <stop offset="1" stop-color="#105887"/>
+      <stop stop-color="#1faee5"/>
+      <stop offset="1" stop-color="#064d88"/>
     </linearGradient>
   </defs>
   <ellipse cx="82" cy="132" rx="43" ry="8" fill="#123142" opacity=".12"/>
@@ -24,8 +24,9 @@
   <path d="M75 63c11-10 29-8 38 2 2 22-6 49-25 57-14-6-21-31-13-59Z" fill="url(#chest)"/>
   <path d="M69 31c15-12 39-8 52 8-11-1-22 1-32 6-11 5-22 2-30-3 2-4 5-8 10-11Z" fill="#38a3d4"/>
   <path d="M99 43c13-1 24 5 30 16-8 3-19 1-28-4-7-3-13-4-20-2 3-6 9-9 18-10Z" fill="#fff7e3"/>
-  <path d="M120 55c13 3 22 9 25 17-9 5-22 3-31-4 4-3 6-8 6-13Z" fill="#27313b"/>
-  <path d="M120 61c8 1 15 5 19 9-6 2-15 1-23-3 2-2 3-4 4-6Z" fill="#f2c15a"/>
+  <path d="M113 49c5 8 5 17 0 25" stroke="#103d5f" stroke-width="2" stroke-linecap="round" opacity=".22"/>
+  <path d="M119 54c16 1 29 9 34 21-10 7-25 5-37-5 5-4 7-10 3-16Z" fill="#1f2933"/>
+  <path d="M120 63c9 1 17 5 22 10-7 3-16 2-25-3 2-2 3-5 3-7Z" fill="#edae39"/>
   <path d="M100 49c3 3 7 3 10 0" stroke="#17242b" stroke-width="3" stroke-linecap="round"/>
   <path d="M87 45c-8 5-15 6-24 3" stroke="#103d5f" stroke-width="3" stroke-linecap="round" opacity=".42"/>
   <path d="M31 75c13 2 27 1 41-4" stroke="#91d6ed" stroke-width="4" stroke-linecap="round" opacity=".52"/>

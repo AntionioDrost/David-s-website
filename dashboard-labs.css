@@ -6414,17 +6414,25 @@ body.hide-prototype-machinery .journey-guided-presenter-actions [data-guided-ope
   box-shadow: 0 20px 50px rgba(17, 39, 34, 0.11);
 }
 
-.journey-demo-coachmark::after {
-  content: "";
-  position: absolute;
-  right: 18px;
-  bottom: -22px;
-  width: 76px;
+.journey-demo-target-arrow {
+  position: fixed;
+  left: var(--arrow-left, -999px);
+  top: var(--arrow-top, -999px);
+  z-index: 11;
+  display: block;
+  width: 78px;
   height: 50px;
   background: url("assets/generated/demo-guidance/click-arrow.svg") center / contain no-repeat;
   filter: drop-shadow(0 10px 18px rgba(139, 95, 24, 0.14));
+  opacity: 0;
   pointer-events: none;
-  transform: rotate(5deg);
+  transform: translate(-12px, -18px) rotate(var(--arrow-rotate, 0deg));
+  transform-origin: 18px 28px;
+  transition: opacity 140ms ease;
+}
+
+.journey-demo-target-arrow[data-arrow-visible="true"] {
+  opacity: 1;
 }
 
 @keyframes cmpGuideIn {
@@ -6488,6 +6496,112 @@ body.hide-prototype-machinery .journey-guided-presenter-actions [data-guided-ope
 .journey-coachmark-actions {
   display: flex;
   justify-content: flex-start;
+}
+
+.journey-guided-unknown-controls,
+.journey-guided-section-explainer {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  align-items: center;
+  border: 1px solid rgba(31, 96, 72, 0.14);
+  border-radius: 16px;
+  padding: 13px 15px;
+  background: linear-gradient(135deg, rgba(247, 252, 249, 0.96), rgba(255, 255, 255, 0.96));
+  box-shadow: 0 14px 34px rgba(17, 39, 34, 0.07);
+}
+
+.journey-guided-unknown-controls {
+  margin: 12px 0 14px;
+}
+
+.journey-guided-unknown-controls > div,
+.journey-guided-section-explainer {
+  min-width: 0;
+}
+
+.journey-guided-unknown-controls strong,
+.journey-guided-section-explainer strong {
+  color: var(--labs-ink);
+  font-weight: 880;
+}
+
+.journey-guided-unknown-controls p,
+.journey-guided-section-explainer p,
+.journey-guided-muted-note {
+  margin: 3px 0 0;
+  color: var(--labs-muted);
+  line-height: 1.45;
+}
+
+.journey-guided-unknown-controls small {
+  display: block;
+  margin-top: 8px;
+  color: #8a4f09;
+  font-weight: 760;
+}
+
+.journey-guided-unknown-controls > div:last-child {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.journey-guided-section-explainer {
+  display: grid;
+  align-items: start;
+  margin: 4px 0 14px;
+}
+
+.journey-guided-section-explainer span {
+  color: var(--labs-green-dark);
+  font-size: 0.68rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.journey-choice.is-guided-soft-locked,
+.journey-plan-controls .is-guided-soft-locked {
+  opacity: 0.46;
+  filter: grayscale(0.12);
+}
+
+.journey-choice.is-guided-soft-locked:hover,
+.journey-plan-controls .is-guided-soft-locked:hover {
+  transform: none;
+}
+
+.journey-choice.is-guided-recommended,
+.journey-plan-controls .is-guided-recommended {
+  border-color: rgba(22, 127, 96, 0.42);
+  box-shadow: 0 12px 30px rgba(17, 54, 42, 0.12);
+}
+
+.journey-answer-chip {
+  animation: guidedAnswerReveal 180ms ease-out both;
+}
+
+@keyframes guidedAnswerReveal {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+body.journey-guided-active:not(.guided-free-explore) .journey-service-filters {
+  display: none;
+}
+
+body.guided-free-explore .journey-choice.is-guided-soft-locked,
+body.guided-free-explore .journey-plan-controls .is-guided-soft-locked {
+  opacity: 1;
+  filter: none;
 }
 
 .journey-guidance-restore {
@@ -6662,6 +6776,15 @@ body.guided-hints-hidden [data-guided-target]::after {
     border-radius: 16px;
   }
 
+  .journey-guided-unknown-controls {
+    display: grid;
+    align-items: start;
+  }
+
+  .journey-guided-unknown-controls > div:last-child {
+    justify-content: flex-start;
+  }
+
   .journey-demo-coachmark::before {
     top: auto;
     left: 24px;
@@ -6669,11 +6792,8 @@ body.guided-hints-hidden [data-guided-target]::after {
     transform: rotate(-45deg);
   }
 
-  .journey-demo-coachmark::after {
-    right: 16px;
-    bottom: -18px;
-    width: 58px;
-    height: 38px;
+  .journey-demo-target-arrow {
+    display: none;
   }
 
   .journey-coachmark-actions {
@@ -6722,11 +6842,15 @@ body.guided-hints-hidden [data-guided-target]::after {
     animation: none;
   }
 
+  .journey-answer-chip {
+    animation: none;
+  }
+
   [data-guided-target]::after {
     animation: none;
   }
 
-  .journey-demo-coachmark::after {
+  .journey-demo-target-arrow {
     transform: none;
   }
 }
@@ -17390,6 +17514,26 @@ select:focus-visible,
 .journey-service-detail-hero h3,
 .journey-confirmation-banner h3 {
   color: #fff;
+}
+
+.journey-confirmation-modal .journey-confirmation-banner,
+.journey-confirmation-modal .journey-property-brain-updated {
+  border-color: rgba(31, 137, 94, 0.16);
+  background:
+    radial-gradient(circle at top right, rgba(35, 126, 88, 0.1), transparent 36%),
+    linear-gradient(135deg, rgba(247, 252, 249, 0.98), rgba(255, 255, 255, 0.98));
+  color: var(--labs-ink);
+  box-shadow: 0 18px 42px rgba(17, 54, 42, 0.08);
+}
+
+.journey-confirmation-modal .journey-confirmation-banner h3,
+.journey-confirmation-modal .journey-property-brain-updated strong {
+  color: var(--labs-ink);
+}
+
+.journey-confirmation-modal .journey-confirmation-banner p,
+.journey-confirmation-modal .journey-property-brain-updated p {
+  color: var(--labs-muted);
 }
 
 .journey-guided-orbit i {

@@ -5526,7 +5526,9 @@ function guidedDemoState() {
       lastNormalScenarioId: journeyState().scenarioId,
       hasSeenLanding: false,
       scenarioExplorerFocus: false,
-      hintsHidden: false
+      hintsHidden: false,
+      strictMode: true,
+      freeExplore: false
     };
   }
   return labsState.guidedDemo;
@@ -5543,7 +5545,37 @@ function currentGuidedMoment() {
   return story?.moments?.[demo.activeMomentIndex] || null;
 }
 
+function guidedAnswerProfileForStory(storyId = guidedDemoState().activeStoryId) {
+  const story = guidedDemoStories[storyId] || guidedDemoStories["clean-property-check"];
+  const merged = {};
+  (story?.moments || []).forEach((moment) => {
+    if (moment.answers) {
+      Object.assign(merged, moment.answers);
+    }
+  });
+  return {
+    occupancy: "occupied",
+    propertyType: "flat",
+    occupants: "oneTwo",
+    gas: "yes",
+    eicr: "noProof",
+    alarms: "tested",
+    deposit: "noProof",
+    tenancyDocs: "noProof",
+    condition: "none",
+    intent: "risk",
+    ...merged
+  };
+}
+
 function guidedRecommendedAnswerForQuestion(questionId) {
+  const profileAnswer = guidedAnswerProfileForStory()[questionId];
+  if (Array.isArray(profileAnswer)) {
+    return profileAnswer[0] || "";
+  }
+  if (profileAnswer) {
+    return profileAnswer;
+  }
   const moment = currentGuidedMoment();
   const answer = moment?.answers?.[questionId];
   if (Array.isArray(answer)) {
@@ -5613,6 +5645,15 @@ function currentGuidedAction() {
   const state = journeyState();
   if (!moment || !story) {
     return null;
+  }
+
+  if (state.modalMode === "service-confirmation") {
+    return {
+      target: "service-confirm-evidence",
+      title: "View the Evidence Vault next",
+      body: "No supplier is contacted and no payment is taken. This is a simulated request from a specific gap.",
+      why: "The commercial follow-through only matters because evidence and monitoring stay connected to the property."
+    };
   }
 
   if (state.screen === "start") {
@@ -5693,8 +5734,8 @@ function currentGuidedAction() {
     return {
       target: "action-plan-primary",
       title: "Click the recommended action",
-      body: "This is where CMP turns evidence gaps into next steps.",
-      why: moment.note || "The plan should feel practical, not like a flat checklist."
+      body: "First read the section, then click the recommended action.",
+      why: moment.note || "CMP turns gaps into prioritised actions. Services appear because of a gap, not as a marketplace."
     };
   }
 
@@ -5765,6 +5806,7 @@ function currentDemoGuide(action = currentGuidedAction()) {
     "build-brain": { pose: "thinking", copy: "Now CMP builds the evidence profile.", direction: "right" },
     "open-action-plan": { pose: "point", copy: "Now check the Action Plan.", direction: "right" },
     "action-plan-primary": { pose: "point", copy: "This is where CMP turns gaps into next steps.", direction: "right" },
+    "service-confirm-evidence": { pose: "success", copy: "Now check the Evidence Vault.", direction: "right" },
     "workspace-action": { pose: "point", copy: "This creates the next practical step.", direction: "right" },
     "evidence-gap": { pose: "thinking", copy: "The Evidence Vault becomes the source of truth.", direction: "left" },
     "ask-prompt": { pose: "thinking", copy: "Ask CMP uses the same evidence.", direction: "left" },
@@ -5821,7 +5863,66 @@ function isCurrentGuidedTarget(target) {
   return Boolean(target && action?.target === target && action.autoAdvance !== false);
 }
 
-function advanceGuidedProductTarget(target, { applyMoment = true, render = false, verifyCurrent = true } = {}) {
+function isStrictGuidedMode() {
+  const demo = guidedDemoState();
+  return Boolean(demo.enabled && demo.strictMode !== false && !demo.freeExplore);
+}
+
+function isGuidedAnswerSoftLocked(questionId, answerId) {
+  if (!isStrictGuidedMode()) {
+    return false;
+  }
+  const recommended = guidedRecommendedAnswerForQuestion(questionId);
+  return Boolean(recommended && answerId !== recommended);
+}
+
+function showGuidedSoftLockMessage() {
+  const state = journeyState();
+  state.guidedSoftLockMessage = "To keep this scenario on track, follow the highlighted answer. You can explore freely after the demo.";
+  showToast(state.guidedSoftLockMessage);
+  renderJourneyOsState();
+}
+
+function unlockGuidedChoices() {
+  const demo = guidedDemoState();
+  demo.strictMode = false;
+  demo.freeExplore = true;
+  journeyState().guidedSoftLockMessage = "";
+  syncGuidedDemoClass();
+  renderJourneyOsState();
+  showToast("All answers are unlocked for free explore.");
+}
+
+function guidedMomentIndexForLiveState() {
+  const story = currentGuidedStory();
+  if (!story) {
+    return -1;
+  }
+  const state = journeyState();
+  const exactIndex = story.moments.findIndex((moment) => {
+    if (moment.screen !== state.screen) {
+      return false;
+    }
+    if (state.screen === "workspace") {
+      return !moment.workspaceTab || moment.workspaceTab === state.workspaceTab;
+    }
+    return true;
+  });
+  if (exactIndex >= 0) {
+    return exactIndex;
+  }
+  return story.moments.findIndex((moment) => moment.screen === state.screen);
+}
+
+function syncGuidedMomentToLiveState() {
+  const demo = guidedDemoState();
+  const index = guidedMomentIndexForLiveState();
+  if (index >= 0) {
+    demo.activeMomentIndex = index;
+  }
+}
+
+function advanceGuidedProductTarget(target, { applyMoment = false, render = false, verifyCurrent = true } = {}) {
   const action = currentGuidedAction();
   if (!target || (verifyCurrent && (!action || action.target !== target || action.autoAdvance === false))) {
     return false;
@@ -5839,6 +5940,7 @@ function advanceGuidedProductTarget(target, { applyMoment = true, render = false
     applyGuidedMoment(demo.activeStoryId, nextIndex);
   } else {
     demo.activeMomentIndex = nextIndex;
+    syncGuidedMomentToLiveState();
     if (render) {
       renderJourneyOsState();
     }
@@ -5864,6 +5966,7 @@ function syncGuidedDemoClass() {
   const demo = guidedDemoState();
   document.body.classList.toggle("journey-guided-active", Boolean(demo.enabled));
   document.body.classList.toggle("guided-hints-hidden", Boolean(demo.hintsHidden));
+  document.body.classList.toggle("guided-free-explore", Boolean(demo.freeExplore));
 }
 
 function resetJourneyStateForGuidedStory(storyId) {
@@ -5989,6 +6092,26 @@ function applyGuidedAnswerSet(answers = {}, unknownIndex = null) {
   state.serviceRecommendations = buildServiceRecommendations(state);
 }
 
+function completeGuidedUnknownsWithDemoAnswers() {
+  const state = journeyState();
+  const profile = guidedAnswerProfileForStory();
+  const missing = {};
+  journeyUnknownQuestions.forEach((question) => {
+    if (!state.answers?.[question.id] && !isSkippedJourneyQuestion(question.id, state) && profile[question.id]) {
+      missing[question.id] = profile[question.id];
+    }
+  });
+  applyGuidedAnswerSet(missing, journeyUnknownQuestions.length);
+  state.screen = "unknowns";
+  state.currentStage = "unknowns";
+  state.guidedSoftLockMessage = "";
+  state.actionPlan = buildJourneyActionPlan(state);
+  state.serviceRecommendations = buildServiceRecommendations(state);
+  syncGuidedMomentToLiveState();
+  renderJourneyOsState();
+  showToast("Guided demo answers completed. Build the Property Intelligence profile next.");
+}
+
 function guidedUnknownIndexForMoment(moment) {
   if (Number.isInteger(moment?.unknownIndex)) {
     return moment.unknownIndex;
@@ -6055,6 +6178,8 @@ function enterGuidedDemo(storyId = "") {
   demo.lastNormalScenarioId = journeyState().scenarioId;
   demo.hasSeenLanding = true;
   demo.scenarioExplorerFocus = false;
+  demo.strictMode = true;
+  demo.freeExplore = false;
   if (shouldHidePrototypeMachinery()) {
     labsState.portfolioMode = "empty";
     labsState.selectedServicePropertyId = "the-butts";
@@ -6082,6 +6207,8 @@ function exitGuidedDemo() {
   demo.activeMomentIndex = 0;
   demo.mode = "landing";
   demo.scenarioExplorerFocus = false;
+  demo.strictMode = true;
+  demo.freeExplore = false;
   syncGuidedDemoClass();
   showJourneyOs({ scroll: false });
   renderJourneyOsState();
@@ -6106,6 +6233,8 @@ function startGuidedStory(storyId) {
   demo.activeMomentIndex = 0;
   demo.mode = "story";
   demo.scenarioExplorerFocus = false;
+  demo.strictMode = true;
+  demo.freeExplore = false;
   syncGuidedDemoClass();
   applyGuidedMoment(demo.activeStoryId, 0);
 }
@@ -7284,6 +7413,7 @@ function renderDemoCoachMark(action = {}) {
           <button class="text-button" type="button" data-guidance-hide>Hide guide</button>
         </div>
       </aside>
+      <span class="journey-demo-target-arrow" data-demo-target-arrow aria-hidden="true"></span>
     </div>
   `;
 }
@@ -7342,6 +7472,32 @@ function currentStoryCoachMark() {
   if (!action) {
     return "";
   }
+  const localTargets = new Set([
+    "start-check",
+    "run-auto-checks",
+    "auto-review",
+    "confirm-match",
+    "review-found-data",
+    "recommended-answer",
+    "build-brain",
+    "open-action-plan",
+    "action-plan-primary",
+    "service-confirm-evidence",
+    "evidence-gap",
+    "ask-prompt",
+    "monitoring-item"
+  ]);
+  if (localTargets.has(action.target)) {
+    return "";
+  }
+  return renderDemoCoachMark(action);
+}
+
+function renderGuidedCoachMarkFor(target) {
+  const action = currentGuidedAction();
+  if (!action || action.target !== target) {
+    return "";
+  }
   return renderDemoCoachMark(action);
 }
 
@@ -7368,7 +7524,7 @@ function renderGuidedPresenterPanel() {
       </div>
       <div class="journey-guided-presenter-actions">
         <button class="secondary-button" type="button" data-guided-back ${demo.activeMomentIndex === 0 ? "disabled" : ""}>Back</button>
-        <button class="secondary-button journey-presenter-skip" type="button" data-guided-next${skipTarget}>${isLast ? "Finish story" : "Presenter skip"}</button>
+        <button class="secondary-button journey-presenter-skip" type="button" data-guided-next${skipTarget}>${isLast ? "Finish story" : "Skip ahead"}</button>
         <button class="text-button" type="button" data-guided-restart>Restart demo</button>
         <button class="text-button" type="button" data-guided-main-demo>Return to main demo</button>
         <button class="text-button" type="button" data-guided-explore>Explore another scenario</button>
@@ -7411,6 +7567,50 @@ function renderGuidedBrainVisual() {
       <div class="journey-brain-node is-services">Service routes</div>
       <div class="journey-brain-node is-monitoring">Monitoring</div>
     </section>
+  `;
+}
+
+function renderGuidedSectionExplainer(sectionKey) {
+  if (!guidedDemoState().enabled) {
+    return "";
+  }
+  const sections = {
+    actionPlan: {
+      kicker: "Guided section",
+      title: "Action Plan turns gaps into next steps",
+      body: "CMP prioritises actions from this property profile. Not every landlord needs the same action, and service routes appear because of specific gaps."
+    },
+    services: {
+      kicker: "Guided section",
+      title: "Service requests stay simulated",
+      body: "No supplier is contacted and no payment is taken. CMP is showing how a request would be prepared from a property-specific evidence gap."
+    },
+    evidence: {
+      kicker: "Guided section",
+      title: "Evidence Vault is the source of truth",
+      body: "Evidence and missing proof stay attached to this property so the rest of CMP can explain, action and monitor the same facts."
+    },
+    ask: {
+      kicker: "Guided section",
+      title: "Ask CMP uses the same evidence",
+      body: "The response is simulated guidance from this property context. It is not legal advice and it is not a generic chatbot answer."
+    },
+    monitoring: {
+      kicker: "Guided section",
+      title: "Monitoring is the ongoing value",
+      body: "CMP keeps watching renewals, missing proof and follow-ups after the setup journey is complete."
+    }
+  };
+  const section = sections[sectionKey];
+  if (!section) {
+    return "";
+  }
+  return `
+    <aside class="journey-guided-section-explainer" data-guided-section-target="${escapeHtml(sectionKey)}">
+      <span>${escapeHtml(section.kicker)}</span>
+      <strong>${escapeHtml(section.title)}</strong>
+      <p>${escapeHtml(section.body)}</p>
+    </aside>
   `;
 }
 
@@ -7547,11 +7747,21 @@ function showJourneyJumpGuard(target) {
 }
 
 function continueGuidedMissingSteps() {
+  const demo = guidedDemoState();
   const state = journeyState();
+  demo.enabled = true;
+  demo.strictMode = true;
+  demo.freeExplore = false;
+  demo.mode = "story";
   state.pendingJumpTarget = "";
   state.jumpAheadConfirmed = false;
   state.unknownIndex = nextApplicableUnknownIndex(Math.min(state.unknownIndex, journeyUnknownQuestions.length), state);
-  setJourneyStage("unknowns", "unknowns");
+  state.guidedSoftLockMessage = "";
+  syncGuidedDemoClass();
+  state.currentStage = "unknowns";
+  state.screen = "unknowns";
+  syncGuidedMomentToLiveState();
+  renderJourneyOsState();
 }
 
 function jumpAheadAnyway() {
@@ -7673,6 +7883,7 @@ function renderJourneyStart() {
         <p class="section-kicker">Start</p>
         <h2>Build a Property Intelligence profile before choosing what to fix</h2>
         <p>Start with an address. CMP will simulate official checks, ask only for the things public records cannot know, and return every route to a property workspace.</p>
+        ${renderGuidedCoachMarkFor("start-check")}
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-go="add"${guidedTargetAttrs("start-check")}>Check My Property</button>
           <button class="secondary-button" type="button" data-journey-go="workspace">Open workspace preview</button>
@@ -7695,6 +7906,7 @@ function renderJourneyAddProperty() {
         <h2>Enter the address CMP should check</h2>
         <p>For demo purposes, type anything or use the prefilled address. No live lookup is performed.</p>
       </div>
+      ${renderGuidedCoachMarkFor("run-auto-checks")}
       <form class="journey-address-form" data-journey-address-form>
         <label>
           <span>Postcode</span>
@@ -7731,6 +7943,7 @@ function renderJourneyAutoChecks() {
         `).join("")}
       </div>
       ${state.autoCheckStep >= journeyAutoCheckSteps.length ? `
+        ${renderGuidedCoachMarkFor("auto-review")}
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-auto-review${guidedTargetAttrs("auto-review")}>Review found data</button>
         </div>
@@ -7821,6 +8034,7 @@ function renderJourneyMatch() {
           <div><dt>Property type</dt><dd>${escapeHtml(brain.PropertyIdentity.propertyType)}</dd></div>
           <div><dt>Confidence</dt><dd>${escapeHtml(brain.PropertyIdentity.identityConfidence)}</dd></div>
         </dl>
+        ${renderGuidedCoachMarkFor("confirm-match")}
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-select-match="clean"${guidedTargetAttrs("confirm-match")}>Yes, this is my property</button>
           <button class="secondary-button" type="button" data-journey-go="add">Edit / wrong property</button>
@@ -7867,6 +8081,7 @@ function renderJourneyReview() {
         <h3>EPC recommendations</h3>
         <div>${auto.epcRecommendations.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
       </section>
+      ${renderGuidedCoachMarkFor("review-found-data")}
       <div class="button-row">
         <button class="primary-button" type="button" data-journey-go="unknowns"${guidedTargetAttrs("review-found-data")}>Answer landlord-only unknowns</button>
         <button class="secondary-button" type="button" data-journey-go="add">Edit / this is not my property</button>
@@ -7923,6 +8138,27 @@ function renderJourneyAnswerReview() {
   `;
 }
 
+function renderGuidedUnknownControls() {
+  const demo = guidedDemoState();
+  if (!demo.enabled) {
+    return "";
+  }
+  const state = journeyState();
+  return `
+    <section class="journey-guided-unknown-controls ${demo.freeExplore ? "is-free-explore" : ""}" aria-label="Guided unknown answer controls">
+      <div>
+        <strong>${demo.freeExplore ? "Free explore is on" : "Follow the highlighted answer first"}</strong>
+        <p>${demo.freeExplore ? "All choices are unlocked. The demo guide remains available." : "This keeps the clean scenario coherent. You can unlock the choices after seeing the guided path."}</p>
+        ${state.guidedSoftLockMessage ? `<small data-guided-soft-lock-message>${escapeHtml(state.guidedSoftLockMessage)}</small>` : ""}
+      </div>
+      <div>
+        <button class="secondary-button" type="button" data-guided-use-demo-answers>Use guided demo answers</button>
+        ${demo.freeExplore ? "" : `<button class="text-button" type="button" data-guided-unlock>Unlock all choices</button>`}
+      </div>
+    </section>
+  `;
+}
+
 function renderUnknownsWizard() {
   const state = journeyState();
   state.unknownIndex = nextApplicableUnknownIndex(state.unknownIndex, state);
@@ -7936,6 +8172,7 @@ function renderUnknownsWizard() {
           <h2>Unknowns handled</h2>
           <p>CMP has enough simulated context to build the Property Intelligence profile and action plan.</p>
         </div>
+        ${renderGuidedCoachMarkFor("build-brain")}
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-build-brain${guidedTargetAttrs("build-brain")}>Build Property Intelligence</button>
           <button class="secondary-button" type="button" data-journey-go="workspace">Open workspace preview</button>
@@ -7962,6 +8199,7 @@ function renderUnknownsWizard() {
           <button class="primary-button" type="button" data-journey-continue-carried${guidedTargetAttrs("recommended-answer")}>Continue with carried answer</button>
           <button class="secondary-button" type="button" data-journey-edit-answer="occupancy">Change this answer</button>
         </div>
+        ${renderGuidedUnknownControls()}
         ${renderJourneyAnswerReview()}
       </section>
     `);
@@ -7978,13 +8216,19 @@ function renderUnknownsWizard() {
           <h2>${escapeHtml(display.title)}</h2>
           <p>Only you can confirm this. ${escapeHtml(display.why)} Choose all that apply; CMP can add more than one side route and still return to the same workspace.</p>
         </div>
+        ${renderGuidedCoachMarkFor("recommended-answer")}
+        ${renderGuidedUnknownControls()}
         <div class="journey-choice-grid journey-choice-grid--multi">
-        ${question.options.map((option) => `
-            <button class="journey-choice ${selected.has(option.id) ? "is-selected" : ""}" type="button" data-journey-condition-toggle="${escapeHtml(option.id)}"${option.id === guidedRecommendedAnswerForQuestion(question.id) ? guidedTargetAttrs("recommended-answer") : ""}>
+        ${question.options.map((option) => {
+          const softLocked = isGuidedAnswerSoftLocked(question.id, option.id);
+          const recommended = option.id === guidedRecommendedAnswerForQuestion(question.id);
+          return `
+            <button class="journey-choice ${selected.has(option.id) ? "is-selected" : ""} ${recommended ? "is-guided-recommended" : ""} ${softLocked ? "is-guided-soft-locked" : ""}" type="button" data-journey-condition-toggle="${escapeHtml(option.id)}"${softLocked ? " data-guided-soft-locked" : ""}${recommended ? guidedTargetAttrs("recommended-answer") : ""}>
               <strong>${escapeHtml(option.label)}</strong>
               <small>${escapeHtml(option.effect)}</small>
             </button>
-          `).join("")}
+          `;
+        }).join("")}
         </div>
         <div class="button-row">
           <button class="secondary-button" type="button" data-journey-unknown-back ${state.unknownIndex === 0 ? "disabled" : ""}>Back</button>
@@ -8004,13 +8248,19 @@ function renderUnknownsWizard() {
         <h2>${escapeHtml(display.title)}</h2>
         <p>Only you can confirm this. ${escapeHtml(display.why)} This answer may add a side route, but every route returns to the workspace.</p>
       </div>
+      ${renderGuidedCoachMarkFor("recommended-answer")}
+      ${renderGuidedUnknownControls()}
       <div class="journey-choice-grid">
-        ${question.options.map((option) => `
-          <button class="journey-choice ${state.answers?.[question.id] === option.id ? "is-selected" : ""}" type="button" data-journey-answer="${escapeHtml(question.id)}" data-answer-id="${escapeHtml(option.id)}"${option.id === guidedRecommendedAnswerForQuestion(question.id) ? guidedTargetAttrs("recommended-answer") : ""}>
+        ${question.options.map((option) => {
+          const softLocked = isGuidedAnswerSoftLocked(question.id, option.id);
+          const recommended = option.id === guidedRecommendedAnswerForQuestion(question.id);
+          return `
+          <button class="journey-choice ${state.answers?.[question.id] === option.id ? "is-selected" : ""} ${recommended ? "is-guided-recommended" : ""} ${softLocked ? "is-guided-soft-locked" : ""}" type="button" data-journey-answer="${escapeHtml(question.id)}" data-answer-id="${escapeHtml(option.id)}"${softLocked ? " data-guided-soft-locked" : ""}${recommended ? guidedTargetAttrs("recommended-answer") : ""}>
             <strong>${escapeHtml(option.label)}</strong>
             <small>${escapeHtml(option.subtext || option.effect)}</small>
           </button>
-        `).join("")}
+        `;
+        }).join("")}
       </div>
       <div class="button-row">
         <button class="secondary-button" type="button" data-journey-unknown-back ${state.unknownIndex === 0 ? "disabled" : ""}>Back</button>
@@ -8053,6 +8303,7 @@ function renderJourneyBrain() {
         `).join("")}
       </div>
       ${state.brainStep >= journeyBrainSteps.length ? `
+        ${renderGuidedCoachMarkFor("open-action-plan")}
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-go="actionPlan"${guidedTargetAttrs("open-action-plan")}>Open Action Plan</button>
         </div>
@@ -8186,15 +8437,25 @@ function renderJourneyActionGroups(limitForWorkspace = false) {
 
 function renderJourneyPlanButtons() {
   const guidedPlan = guidedRecommendedPlanForStory();
+  const guidedStrict = isStrictGuidedMode();
+  const buttonClass = (plan, fallback) => {
+    const classes = [fallback];
+    if (guidedPlan === plan) {
+      classes.push("is-guided-recommended");
+    } else if (guidedStrict) {
+      classes.push("is-guided-soft-locked");
+    }
+    return classes.join(" ");
+  };
   return `
     <section class="journey-plan-controls" aria-label="Journey OS service plan controls">
       <p>Every plan button updates the demo basket, timeline and property compliance profile. No supplier is contacted.</p>
-      <button class="primary-button" type="button" data-journey-service-plan="urgent"${guidedPlan === "urgent" ? guidedTargetAttrs("action-plan-primary") : ""}>Prepare urgent actions</button>
-      <button class="secondary-button" type="button" data-journey-service-plan="legal"${guidedPlan === "legal" ? guidedTargetAttrs("action-plan-primary") : ""}>Prepare legal essentials</button>
-      <button class="secondary-button" type="button" data-journey-service-plan="risk"${guidedPlan === "risk" ? guidedTargetAttrs("action-plan-primary") : ""}>Build risk-protected plan</button>
-      <button class="secondary-button" type="button" data-journey-service-plan="future"${guidedPlan === "future" ? guidedTargetAttrs("action-plan-primary") : ""}>Build future-proof plan</button>
-      <button class="text-button" type="button" data-journey-service-plan="quotes"${guidedPlan === "quotes" ? guidedTargetAttrs("action-plan-primary") : ""}>Request quotes first</button>
-      <button class="text-button" type="button" data-journey-service-plan="concierge"${guidedPlan === "concierge" ? guidedTargetAttrs("action-plan-primary") : ""}>Done-for-me concierge</button>
+      <button class="${buttonClass("urgent", "primary-button")}" type="button" data-journey-service-plan="urgent"${guidedPlan === "urgent" ? guidedTargetAttrs("action-plan-primary") : ""}>Prepare urgent actions</button>
+      <button class="${buttonClass("legal", "secondary-button")}" type="button" data-journey-service-plan="legal"${guidedPlan === "legal" ? guidedTargetAttrs("action-plan-primary") : ""}>Prepare legal essentials</button>
+      <button class="${buttonClass("risk", "secondary-button")}" type="button" data-journey-service-plan="risk"${guidedPlan === "risk" ? guidedTargetAttrs("action-plan-primary") : ""}>Build risk-protected plan</button>
+      <button class="${buttonClass("future", "secondary-button")}" type="button" data-journey-service-plan="future"${guidedPlan === "future" ? guidedTargetAttrs("action-plan-primary") : ""}>Build future-proof plan</button>
+      <button class="${buttonClass("quotes", "text-button")}" type="button" data-journey-service-plan="quotes"${guidedPlan === "quotes" ? guidedTargetAttrs("action-plan-primary") : ""}>Request quotes first</button>
+      <button class="${buttonClass("concierge", "text-button")}" type="button" data-journey-service-plan="concierge"${guidedPlan === "concierge" ? guidedTargetAttrs("action-plan-primary") : ""}>Done-for-me concierge</button>
     </section>
   `;
 }
@@ -8319,8 +8580,11 @@ function renderJourneyServicesExperience() {
   const services = buildServiceRecommendations(state).filter((service) => serviceMatchesFilter(service, state.serviceFilter));
   const categories = ["Urgent", "Recommended", "Future-proof", "Void / Re-let"];
   const basket = state.serviceBasket;
+  const guidedStrict = isStrictGuidedMode();
+  const showPlanControls = !(guidedStrict && state.screen === "actionPlan");
   return `
     <section class="journey-services-shell">
+      ${renderGuidedSectionExplainer("services")}
       <div class="journey-services-summary">
         <article>
           <span>Basket</span>
@@ -8338,7 +8602,8 @@ function renderJourneyServicesExperience() {
           <small>quote requests</small>
         </article>
       </div>
-      ${renderJourneyPlanButtons()}
+      ${showPlanControls ? renderJourneyPlanButtons() : ""}
+      ${guidedStrict ? `<p class="journey-guided-muted-note">More service routes are available after the guided path.</p>` : ""}
       <nav class="journey-service-filters" aria-label="Filter recommended services">
         ${journeyServiceFilters.map((filter) => `
           <button class="${state.serviceFilter === filter.id ? "is-active" : ""}" type="button" data-journey-service-filter="${escapeHtml(filter.id)}">${escapeHtml(filter.label)}</button>
@@ -8370,6 +8635,8 @@ function renderEvidenceVaultExperience() {
   const state = journeyState();
   return `
     <section class="journey-evidence-shell">
+      ${renderGuidedSectionExplainer("evidence")}
+      ${renderGuidedCoachMarkFor("evidence-gap")}
       <article class="journey-upload-panel">
         <div>
           <p class="section-kicker">Evidence Vault</p>
@@ -8408,6 +8675,8 @@ function renderAskCmpExperience() {
   const guidedPrompt = guidedAskPromptForStory();
   return `
     <section class="journey-ask-shell">
+      ${renderGuidedSectionExplainer("ask")}
+      ${renderGuidedCoachMarkFor("ask-prompt")}
       <article class="journey-ask-note">
         <p class="section-kicker">Ask CMP</p>
         <h3>Property-specific simulated assistant</h3>
@@ -8445,6 +8714,8 @@ function renderMonitoringExperience() {
   const state = journeyState();
   return `
     <section class="journey-monitoring-shell">
+      ${renderGuidedSectionExplainer("monitoring")}
+      ${renderGuidedCoachMarkFor("monitoring-item")}
       <div class="journey-monitor-grid">
         ${state.monitoringItems.map((item, index) => `
           <article class="journey-monitor-card">
@@ -8513,6 +8784,8 @@ function renderJourneyActionPlan() {
         </div>
         <button class="secondary-button" type="button" data-journey-edit-answer="occupancy">Edit answers</button>
       </section>
+      ${renderGuidedSectionExplainer("actionPlan")}
+      ${renderGuidedCoachMarkFor("action-plan-primary")}
       ${renderJourneyScores()}
       ${renderJourneyPlanSummary()}
       ${renderRouteSelector()}
@@ -8605,6 +8878,56 @@ function renderPropertyWorkspace() {
   `);
 }
 
+function positionGuidedArrow() {
+  const arrow = document.querySelector("[data-demo-target-arrow]");
+  if (!arrow) {
+    return;
+  }
+  arrow.dataset.arrowVisible = "false";
+  const demo = guidedDemoState();
+  const action = currentGuidedAction();
+  if (!demo.enabled || demo.hintsHidden || !action?.target) {
+    return;
+  }
+  const row = arrow.closest("[data-demo-guidance-row]");
+  const target = Array.from(document.querySelectorAll("[data-guided-target]"))
+    .find((element) => element.dataset.guidedTarget === action.target);
+  if (!row || !target) {
+    return;
+  }
+  const rowBox = row.getBoundingClientRect();
+  const targetBox = target.getBoundingClientRect();
+  const viewportWidth = document.documentElement.clientWidth;
+  const viewportHeight = document.documentElement.clientHeight;
+  if (
+    rowBox.width <= 0
+    || targetBox.width <= 0
+    || targetBox.height <= 0
+    || targetBox.bottom < 0
+    || targetBox.top > viewportHeight
+    || targetBox.right < 0
+    || targetBox.left > viewportWidth
+    || viewportWidth < 760
+  ) {
+    return;
+  }
+  const startX = rowBox.left + rowBox.width - 54;
+  const startY = rowBox.top + rowBox.height - 8;
+  const targetX = targetBox.left + targetBox.width / 2;
+  const targetY = targetBox.top + targetBox.height / 2;
+  const dx = targetX - startX;
+  const dy = targetY - startY;
+  const distance = Math.hypot(dx, dy);
+  if (distance < 56 || distance > 620) {
+    return;
+  }
+  const angle = Math.atan2(dy, dx) * (180 / Math.PI);
+  arrow.style.setProperty("--arrow-left", `${Math.round(startX)}px`);
+  arrow.style.setProperty("--arrow-top", `${Math.round(startY)}px`);
+  arrow.style.setProperty("--arrow-rotate", `${Math.round(angle)}deg`);
+  arrow.dataset.arrowVisible = "true";
+}
+
 function renderJourneyOsState() {
   const page = document.querySelector("[data-journey-os]");
   if (!page) {
@@ -8616,6 +8939,7 @@ function renderJourneyOsState() {
   if (guided.enabled && guided.mode === "landing" && !guided.activeStoryId) {
     page.innerHTML = renderGuidedDemoLanding();
     hydrateIcons();
+    window.requestAnimationFrame(positionGuidedArrow);
     return;
   }
 
@@ -8634,6 +8958,7 @@ function renderJourneyOsState() {
   };
   page.innerHTML = (screens[state.screen] || renderJourneyStart)();
   hydrateIcons();
+  window.requestAnimationFrame(positionGuidedArrow);
 }
 
 function showJourneyOs({ scroll = false } = {}) {
@@ -8845,8 +9170,11 @@ function renderServiceConfirmationModal() {
   const state = journeyState();
   const confirmation = state.activeConfirmation || serviceConfirmationFor("added", ensureServiceBasketItem("annual-monitoring", "added"));
   const messageTemplate = tenantMessageForService(confirmation.serviceIds?.[0] || "");
+  const guided = guidedDemoState().enabled;
   return `
     <section class="journey-confirmation-modal">
+      ${renderGuidedSectionExplainer("services")}
+      ${renderGuidedCoachMarkFor("service-confirm-evidence")}
       <div class="journey-confirmation-banner">
         <span class="journey-status-chip is-${escapeHtml(confirmation.status.replace(/_/g, "-"))}">${escapeHtml(serviceLifecycleLabel(confirmation.status))}</span>
         <h3>${escapeHtml(confirmation.title)}</h3>
@@ -8860,12 +9188,12 @@ function renderServiceConfirmationModal() {
       </div>
       <article class="journey-property-brain-updated">
         <strong>Property compliance profile updated</strong>
-        <p>${escapeHtml(confirmation.nextStep)} CMP updated timeline, service state, evidence where relevant and monitoring reminders locally.</p>
+        <p>${escapeHtml(confirmation.nextStep)} No supplier was contacted and no payment was taken. CMP updated timeline, service state, evidence where relevant and monitoring reminders locally.</p>
       </article>
       <div class="journey-action-buttons">
-        <button class="primary-button" type="button" data-journey-confirm-workspace>View workspace</button>
+        <button class="${guided ? "secondary-button" : "primary-button"}" type="button" data-journey-confirm-workspace>Return to workspace</button>
         <button class="secondary-button" type="button" data-journey-confirm-services>View service basket</button>
-        <button class="secondary-button" type="button" data-journey-confirm-evidence>View generated evidence</button>
+        <button class="${guided ? "primary-button" : "secondary-button"}" type="button" data-journey-confirm-evidence${guidedTargetAttrs("service-confirm-evidence")}>View Evidence Vault</button>
         <button class="text-button" type="button" data-journey-message="${escapeHtml(messageTemplate)}">Generate tenant message</button>
         <button class="text-button" type="button" data-journey-monitor="annual-review">Set reminder</button>
       </div>
@@ -9000,6 +9328,7 @@ function renderJourneyActionModal() {
         ? `<button class="secondary-button" type="button" data-journey-action-close>Close</button>`
       : `<button class="secondary-button" type="button" data-journey-action-close>Close</button>`;
   }
+  window.requestAnimationFrame(positionGuidedArrow);
 }
 
 function openActionModal(actionType, actionId) {
@@ -9097,6 +9426,18 @@ function bindJourneyOs() {
       guidedDemoState().hintsHidden = false;
       syncGuidedDemoClass();
       renderJourneyOsState();
+      return;
+    }
+
+    if (event.target.closest("[data-guided-unlock]")) {
+      event.preventDefault();
+      unlockGuidedChoices();
+      return;
+    }
+
+    if (event.target.closest("[data-guided-use-demo-answers]")) {
+      event.preventDefault();
+      completeGuidedUnknownsWithDemoAnswers();
       return;
     }
 
@@ -9254,6 +9595,11 @@ function bindJourneyOs() {
 
     const answerButton = event.target.closest("[data-journey-answer]");
     if (answerButton) {
+      if (answerButton.matches("[data-guided-soft-locked]")) {
+        event.preventDefault();
+        showGuidedSoftLockMessage();
+        return;
+      }
       const guidedTarget = clickedGuidedTarget(event);
       const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       answerUnknown(answerButton.dataset.journeyAnswer, answerButton.dataset.answerId);
@@ -9265,6 +9611,11 @@ function bindJourneyOs() {
 
     const conditionToggle = event.target.closest("[data-journey-condition-toggle]");
     if (conditionToggle) {
+      if (conditionToggle.matches("[data-guided-soft-locked]")) {
+        event.preventDefault();
+        showGuidedSoftLockMessage();
+        return;
+      }
       const guidedTarget = clickedGuidedTarget(event);
       const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       toggleConditionSelection(conditionToggle.dataset.journeyConditionToggle);
@@ -9459,6 +9810,7 @@ function bindJourneyOs() {
 
     if (event.target.closest("[data-journey-confirm-workspace]")) {
       const state = journeyState();
+      state.modalMode = "";
       state.screen = "workspace";
       state.currentStage = "monitor";
       state.workspaceTab = "overview";
@@ -9469,6 +9821,7 @@ function bindJourneyOs() {
 
     if (event.target.closest("[data-journey-confirm-services]")) {
       const state = journeyState();
+      state.modalMode = "";
       state.screen = "workspace";
       state.currentStage = "action";
       state.workspaceTab = "services";
@@ -9478,12 +9831,20 @@ function bindJourneyOs() {
     }
 
     if (event.target.closest("[data-journey-confirm-evidence]")) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       const state = journeyState();
+      state.modalMode = "";
       state.screen = "workspace";
       state.currentStage = "vault";
       state.workspaceTab = "evidence";
       closeTimelineModals();
       showJourneyOs({ scroll: false });
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { render: true, verifyCurrent: false });
+      } else {
+        renderJourneyOsState();
+      }
       return;
     }
 
