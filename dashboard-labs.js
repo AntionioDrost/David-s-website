@@ -1386,6 +1386,7 @@ const nickScenarioExplorerCards = [
     finds: "Address + EPC + basics",
     gap: "Confirm unknowns",
     action: "Monitor",
+    firstClick: "Check My Property",
     badge: "Best first"
   },
   {
@@ -1395,6 +1396,7 @@ const nickScenarioExplorerCards = [
     finds: "No EPC signal",
     gap: "EPC proof needed",
     action: "Prepare assessment",
+    firstClick: "Run checks",
     badge: "Evidence gap"
   },
   {
@@ -1403,7 +1405,8 @@ const nickScenarioExplorerCards = [
     purpose: "Energy evidence risk.",
     finds: "Weak EPC record",
     gap: "Review before relying",
-    action: "EPC route"
+    action: "EPC route",
+    firstClick: "Review found data"
   },
   {
     id: "hmo-licensing-risk",
@@ -1411,7 +1414,8 @@ const nickScenarioExplorerCards = [
     purpose: "Occupancy changes route.",
     finds: "Shared-house signals",
     gap: "Licensing check",
-    action: "Fire/licence review"
+    action: "Fire/licence review",
+    firstClick: "Answer occupancy"
   },
   {
     id: "damp-mould-enforcement",
@@ -1420,7 +1424,8 @@ const nickScenarioExplorerCards = [
     finds: "Repair context",
     gap: "Evidence trail",
     action: "Survey/message",
-    badge: "Best risk"
+    firstClick: "Pick damp/mould",
+    badge: "Best evidence/risk"
   },
   {
     id: "done-for-me-plan",
@@ -1429,7 +1434,8 @@ const nickScenarioExplorerCards = [
     finds: "Service bundle",
     gap: "Proof still pending",
     action: "Request quotes",
-    badge: "Best commercial"
+    firstClick: "Choose done-for-me",
+    badge: "Best commercial value"
   },
   {
     id: "portfolio-landlord-preview",
@@ -1437,7 +1443,9 @@ const nickScenarioExplorerCards = [
     purpose: "Scale-up model.",
     finds: "Cross-property risk",
     gap: "Priorities by property",
-    action: "Portfolio watch"
+    action: "Portfolio watch",
+    firstClick: "Show risk plan",
+    badge: "Advanced: portfolio preview"
   }
 ];
 
@@ -5534,6 +5542,250 @@ function currentGuidedMoment() {
   return story?.moments?.[demo.activeMomentIndex] || null;
 }
 
+function guidedRecommendedAnswerForQuestion(questionId) {
+  const moment = currentGuidedMoment();
+  const answer = moment?.answers?.[questionId];
+  if (Array.isArray(answer)) {
+    return answer[0] || "";
+  }
+  return answer || "";
+}
+
+function guidedRecommendedPlanForStory(storyId = guidedDemoState().activeStoryId) {
+  const moment = currentGuidedMoment();
+  if (moment?.servicePlan) {
+    return moment.servicePlan;
+  }
+  if (moment?.route === "doneForMe" || storyId === "done-for-me-plan") {
+    return "quotes";
+  }
+  if (["no-epc-found", "hmo-licensing-risk"].includes(storyId)) {
+    return "legal";
+  }
+  if (storyId === "epc-expired-mees-risk") {
+    return "future";
+  }
+  if (["damp-mould-enforcement", "portfolio-landlord-preview"].includes(storyId)) {
+    return "risk";
+  }
+  return "legal";
+}
+
+function guidedAskPromptForStory(storyId = guidedDemoState().activeStoryId) {
+  const prompts = {
+    "clean-property-check": "What should I do first?",
+    "no-epc-found": "What evidence is still missing?",
+    "epc-expired-mees-risk": "How do I improve the EPC?",
+    "hmo-licensing-risk": "What risks could get expensive?",
+    "damp-mould-enforcement": "What should I say to the tenant?",
+    "done-for-me-plan": "What should I do after requesting quotes?",
+    "portfolio-landlord-preview": "What changed in this Property Intelligence profile?"
+  };
+  return prompts[storyId] || "What should I do first?";
+}
+
+function currentGuidedAction() {
+  const demo = guidedDemoState();
+  if (!demo.enabled) {
+    return null;
+  }
+
+  if (demo.mode === "landing" && !demo.activeStoryId) {
+    return {
+      target: "run-demo",
+      title: "Start with the highlighted path",
+      body: "Follow the guided story first. You can stress-test other landlord situations afterwards.",
+      why: "This click shows the full Add Property to Monitoring spine without presenter controls."
+    };
+  }
+
+  const moment = currentGuidedMoment();
+  const story = currentGuidedStory();
+  const state = journeyState();
+  if (!moment || !story) {
+    return null;
+  }
+
+  if (state.screen === "start") {
+    return {
+      target: "start-check",
+      title: "Click Check My Property",
+      body: "Start with the property. CMP begins with an address, not a long form.",
+      why: moment.note || story.proof
+    };
+  }
+
+  if (state.screen === "add") {
+    return {
+      target: "run-auto-checks",
+      title: "Run the simulated checks",
+      body: "Run the demo checks. In the real product this would connect address, EPC and property data.",
+      why: moment.note || "Smart Search checks what CMP can find before asking the landlord anything."
+    };
+  }
+
+  if (state.screen === "autoChecks" && state.autoCheckStep >= journeyAutoCheckSteps.length) {
+    return {
+      target: "auto-review",
+      title: "Review what CMP found",
+      body: "Smart Search has finished. Continue into the real review step rather than skipping the story.",
+      why: "Reviewing found data keeps the demo in the product journey."
+    };
+  }
+
+  if (state.screen === "match") {
+    return {
+      target: "confirm-match",
+      title: "Confirm the property context",
+      body: "Review what CMP found before answering anything yourself.",
+      why: "CMP separates found data from landlord-only unknowns."
+    };
+  }
+
+  if (state.screen === "review") {
+    return {
+      target: "review-found-data",
+      title: "Move into landlord-only unknowns",
+      body: "CMP separates found data from landlord-only unknowns.",
+      why: moment.note || "This keeps the product from feeling like a giant intake form."
+    };
+  }
+
+  if (state.screen === "unknowns") {
+    const question = journeyUnknownQuestions[state.unknownIndex];
+    if (!question) {
+      return {
+        target: "build-brain",
+        title: "Build the Property Intelligence profile",
+        body: "The unknowns are handled. Create the profile so CMP can turn gaps into next steps.",
+        why: "This is the bridge from answers into evidence, actions and monitoring."
+      };
+    }
+    return {
+      target: "recommended-answer",
+      title: "Choose the highlighted answer",
+      body: "Choose this answer to follow the current scenario path. You can still pick another answer.",
+      why: question.id === "occupants" && isAdvertisedOrPreLet(state)
+        ? "This is expected letting setup, not a contradictory live-occupancy claim."
+        : moment.note || question.why
+    };
+  }
+
+  if (state.screen === "brain" && state.brainStep >= journeyBrainSteps.length) {
+    return {
+      target: "open-action-plan",
+      title: "Open the action plan",
+      body: "CMP has combined the records, answers and evidence gaps. Open the plan to see the recommended next step.",
+      why: "This is where the demo changes from intake into practical action."
+    };
+  }
+
+  if (state.screen === "actionPlan") {
+    return {
+      target: "action-plan-primary",
+      title: "Click the recommended action",
+      body: "This is where CMP turns evidence gaps into next steps.",
+      why: moment.note || "The plan should feel practical, not like a flat checklist."
+    };
+  }
+
+  if (state.screen === "workspace" && state.workspaceTab === "evidence") {
+    return {
+      target: "evidence-gap",
+      title: "Review the evidence gap",
+      body: "The Evidence Vault becomes the source of truth.",
+      why: moment.note || "Evidence stays attached to the property until proof is accepted or the gap is resolved.",
+      autoAdvance: false
+    };
+  }
+
+  if (state.screen === "workspace" && state.workspaceTab === "ask") {
+    return {
+      target: "ask-prompt",
+      title: "Ask CMP with this prompt",
+      body: "Ask CMP explains the property using the same evidence and answers.",
+      why: moment.note || "This keeps the assistant property-specific rather than generic.",
+      autoAdvance: false
+    };
+  }
+
+  if (state.screen === "workspace" && state.workspaceTab === "monitoring") {
+    return {
+      target: "monitoring-item",
+      title: "Set the follow-up",
+      body: "This is the ongoing subscription value - CMP watches the property over time.",
+      why: moment.note || "Monitoring keeps renewal dates, evidence watch and annual review visible."
+    };
+  }
+
+  if (state.screen === "workspace") {
+    return {
+      target: "workspace-action",
+      title: "Click the highlighted follow-through",
+      body: "No supplier is contacted in this prototype - this shows the future service path.",
+      why: moment.note || `${story.title} should end in a practical gap, action and monitoring path.`
+    };
+  }
+
+  return null;
+}
+
+function guidedTargetAttrs(target) {
+  const action = currentGuidedAction();
+  if (!action || action.target !== target) {
+    return "";
+  }
+  return ` data-guided-target="${escapeHtml(target)}" aria-describedby="guidedCoachmarkTitle"`;
+}
+
+function clickedGuidedTarget(event) {
+  return event.target.closest("[data-guided-target]")?.dataset.guidedTarget || "";
+}
+
+function isCurrentGuidedTarget(target) {
+  const action = currentGuidedAction();
+  return Boolean(target && action?.target === target && action.autoAdvance !== false);
+}
+
+function advanceGuidedProductTarget(target, { applyMoment = true, render = false, verifyCurrent = true } = {}) {
+  const action = currentGuidedAction();
+  if (!target || (verifyCurrent && (!action || action.target !== target || action.autoAdvance === false))) {
+    return false;
+  }
+  const story = currentGuidedStory();
+  const demo = guidedDemoState();
+  if (!story) {
+    return false;
+  }
+  const nextIndex = Math.min(story.moments.length - 1, demo.activeMomentIndex + 1);
+  if (nextIndex === demo.activeMomentIndex) {
+    return false;
+  }
+  if (applyMoment) {
+    applyGuidedMoment(demo.activeStoryId, nextIndex);
+  } else {
+    demo.activeMomentIndex = nextIndex;
+    if (render) {
+      renderJourneyOsState();
+    }
+  }
+  return true;
+}
+
+function advanceGuidedMomentToNextScreen(screen) {
+  const demo = guidedDemoState();
+  const story = currentGuidedStory();
+  if (!demo.enabled || !story) {
+    return false;
+  }
+  const nextIndex = story.moments.findIndex((moment, index) => index > demo.activeMomentIndex && moment.screen === screen);
+  if (nextIndex < 0) {
+    return false;
+  }
+  demo.activeMomentIndex = nextIndex;
+  return true;
+}
+
 function syncGuidedDemoClass() {
   const demo = guidedDemoState();
   document.body.classList.toggle("journey-guided-active", Boolean(demo.enabled));
@@ -5661,6 +5913,23 @@ function applyGuidedAnswerSet(answers = {}, unknownIndex = null) {
   state.unknownIndex = nextApplicableUnknownIndex(unknownIndex ?? (orderedAnswers.length ? journeyUnknownQuestions.length : state.unknownIndex), state);
   state.actionPlan = buildJourneyActionPlan(state);
   state.serviceRecommendations = buildServiceRecommendations(state);
+}
+
+function guidedUnknownIndexForMoment(moment) {
+  if (Number.isInteger(moment?.unknownIndex)) {
+    return moment.unknownIndex;
+  }
+  if (!moment?.answers || moment.screen !== "unknowns") {
+    return null;
+  }
+  const name = String(moment.name || "").toLowerCase();
+  const preferredQuestionId = name.includes("intent") ? "intent"
+    : name.includes("condition") || name.includes("damp") ? "condition"
+    : name.includes("occupant") ? "occupants"
+    : name.includes("property type") || name.includes("shared-house") ? "propertyType"
+    : "occupancy";
+  const preferredIndex = journeyUnknownQuestions.findIndex((question) => question.id === preferredQuestionId);
+  return preferredIndex >= 0 ? preferredIndex : 0;
 }
 
 function addGuidedTenantMessage(templateId = "damp-photos") {
@@ -5812,7 +6081,7 @@ function applyGuidedMoment(storyId, momentIndex) {
     handleNoEpcChoice(moment.noEpcChoice);
   }
   if (moment.answers) {
-    applyGuidedAnswerSet(moment.answers, moment.unknownIndex);
+    applyGuidedAnswerSet(moment.answers, guidedUnknownIndexForMoment(moment));
   }
   if (moment.route) {
     state.routeId = moment.route;
@@ -6903,6 +7172,7 @@ function renderNickScenarioCards() {
         <span><b>Finds</b>${escapeHtml(card.finds)}</span>
         <span><b>Gap created</b>${escapeHtml(card.gap)}</span>
         <span><b>Action created</b>${escapeHtml(card.action)}</span>
+        <span><b>Click first</b>${escapeHtml(card.firstClick)}</span>
       </div>
       <button class="secondary-button" type="button" data-guided-story="${escapeHtml(card.id)}" ${index === 0 ? "data-guided-target=\"first-scenario\"" : ""}>Try this scenario</button>
     </article>
@@ -6924,7 +7194,7 @@ function renderDemoCoachMark({ title = "Try this next", body = "", target = "", 
   return `
     <aside class="journey-demo-coachmark" data-demo-coachmark data-target="${escapeHtml(target)}">
       <span>Nick demo path</span>
-      <strong>${escapeHtml(title)}</strong>
+      <strong id="guidedCoachmarkTitle">${escapeHtml(title)}</strong>
       <p>${escapeHtml(body)}</p>
       ${why ? `<small><b>Why this matters:</b> ${escapeHtml(why)}</small>` : ""}
       <div class="journey-coachmark-actions">
@@ -6935,12 +7205,7 @@ function renderDemoCoachMark({ title = "Try this next", body = "", target = "", 
 }
 
 function landingCoachMark() {
-  return renderDemoCoachMark({
-    target: "run-demo",
-    title: "Start with the highlighted path",
-    body: "Follow the guided story first. You can explore scenarios freely afterwards.",
-    why: "This click shows the full Add Property to Monitoring spine without needing David to explain every control."
-  });
+  return renderDemoCoachMark(currentGuidedAction());
 }
 
 function renderGuidedDemoLanding() {
@@ -6975,8 +7240,8 @@ function renderGuidedDemoLanding() {
       <section class="journey-guided-story-grid" id="guidedStoryGrid">
         <div class="journey-guided-scenario-intro">
           <p class="section-kicker">After the main demo</p>
-          <h2>Try another scenario</h2>
-          <p>Use these only after the basic journey lands. Each scenario uses simulated data to test whether CMP creates the right evidence gap, action and monitoring path.</p>
+          <h2>Stress-test CMP with different landlord situations</h2>
+          <p>Use these after the basic journey lands. Each card shows what CMP simulates, the gap it creates, the action it should produce and what Nick should click first.</p>
         </div>
         ${renderNickScenarioCards()}
       </section>
@@ -6989,26 +7254,11 @@ function renderGuidedDemoLanding() {
 }
 
 function currentStoryCoachMark() {
-  const moment = currentGuidedMoment();
-  const story = currentGuidedStory();
-  const state = journeyState();
-  if (!moment || !story) {
+  const action = currentGuidedAction();
+  if (!action) {
     return "";
   }
-  if (state.screen === "workspace") {
-    return renderDemoCoachMark({
-      target: "workspace-action",
-      title: "Click the highlighted follow-through",
-      body: "Use one safe action, then open Evidence, Ask CMP or Monitoring to see the same context carry through.",
-      why: `${story.title} should end in a practical gap, action and monitoring path.`
-    });
-  }
-  return renderDemoCoachMark({
-    target: "next-moment",
-    title: "Next recommended click",
-    body: `Click Next moment to move through ${moment.name}.`,
-    why: moment.note || story.proof
-  });
+  return renderDemoCoachMark(action);
 }
 
 function renderGuidedPresenterPanel() {
@@ -7020,6 +7270,8 @@ function renderGuidedPresenterPanel() {
   }
   const progress = story.moments.length ? Math.round(((demo.activeMomentIndex + 1) / story.moments.length) * 100) : 0;
   const isLast = demo.activeMomentIndex >= story.moments.length - 1;
+  const action = currentGuidedAction();
+  const skipTarget = action ? "" : guidedTargetAttrs("presenter-skip");
   return `
     <section class="journey-guided-presenter" aria-label="Guided demo presenter controls">
       <div class="journey-guided-presenter-main">
@@ -7032,7 +7284,7 @@ function renderGuidedPresenterPanel() {
       </div>
       <div class="journey-guided-presenter-actions">
         <button class="secondary-button" type="button" data-guided-back ${demo.activeMomentIndex === 0 ? "disabled" : ""}>Back</button>
-        <button class="primary-button" type="button" data-guided-next data-guided-target="next-moment">${isLast ? "Finish story" : "Next moment"}</button>
+        <button class="secondary-button journey-presenter-skip" type="button" data-guided-next${skipTarget}>${isLast ? "Finish story" : "Presenter skip"}</button>
         <button class="text-button" type="button" data-guided-restart>Restart demo</button>
         <button class="text-button" type="button" data-guided-main-demo>Return to main demo</button>
         <button class="text-button" type="button" data-guided-explore>Explore another scenario</button>
@@ -7040,7 +7292,7 @@ function renderGuidedPresenterPanel() {
         <button class="text-button" type="button" data-guided-reset>Reset scenario</button>
         <button class="text-button" type="button" data-guided-exit>Exit guided demo</button>
       </div>
-      <small class="journey-guided-presenter-note">Presenter mode keeps the walkthrough focused. Exit to return to normal testing controls.</small>
+      <small class="journey-guided-presenter-note">Follow the highlighted product action to run the demo naturally. Presenter controls can skip ahead if needed.</small>
     </section>
   `;
 }
@@ -7081,11 +7333,11 @@ function renderGuidedBrainVisual() {
 function guidedNextStepsForStory(storyId = guidedDemoState().activeStoryId) {
   const maps = {
     "clean-property-check": [
-      ["View action plan", "data-journey-go=\"actionPlan\""],
-      ["Add missing proof later", "data-journey-open-upload"],
       ["Prepare legal essentials", "data-journey-service-plan=\"legal\""],
+      ["Add missing proof later", "data-journey-open-upload"],
       ["Ask CMP what to do first", "data-journey-ask-prompt=\"What should I do first?\""],
-      ["Set monitoring", "data-journey-monitor=\"annual-review\""]
+      ["Set monitoring", "data-journey-monitor=\"annual-review\""],
+      ["View action plan", "data-journey-go=\"actionPlan\""]
     ],
     "no-epc-found": [
       ["Prepare EPC assessment request", "data-journey-service=\"epc-assessment\" data-service-action=\"booked\""],
@@ -7116,11 +7368,11 @@ function guidedNextStepsForStory(storyId = guidedDemoState().activeStoryId) {
       ["Set follow-up reminder", "data-journey-monitor=\"inspection-due\""]
     ],
     "done-for-me-plan": [
-      ["Prepare urgent-only request", "data-journey-service-plan=\"urgent\""],
-      ["Prepare legal essentials", "data-journey-service-plan=\"legal\""],
       ["Request quotes first", "data-journey-service-plan=\"quotes\""],
+      ["Done-for-me concierge", "data-journey-service-plan=\"concierge\""],
+      ["Prepare legal essentials", "data-journey-service-plan=\"legal\""],
+      ["Prepare urgent-only request", "data-journey-service-plan=\"urgent\""],
       ["Build future-proof plan", "data-journey-service-plan=\"future\""],
-      ["Done-for-me concierge", "data-journey-service-plan=\"concierge\""]
     ],
     "portfolio-landlord-preview": [
       ["Show risk-protected services", "data-journey-service-plan=\"risk\""],
@@ -7148,7 +7400,7 @@ function renderGuidedNextStepsPanel() {
       </div>
       <div class="journey-guided-next-grid">
         ${guidedNextStepsForStory(demo.activeStoryId).map(([label, attrs], index) => `
-          <button class="secondary-button" type="button" ${attrs} ${index === 0 ? "data-guided-target=\"workspace-action\"" : ""}>${escapeHtml(label)}</button>
+          <button class="secondary-button" type="button" ${attrs}${index === 0 ? guidedTargetAttrs("workspace-action") : ""}>${escapeHtml(label)}</button>
         `).join("")}
       </div>
     </section>
@@ -7338,7 +7590,7 @@ function renderJourneyStart() {
         <h2>Build a Property Intelligence profile before choosing what to fix</h2>
         <p>Start with an address. CMP will simulate official checks, ask only for the things public records cannot know, and return every route to a property workspace.</p>
         <div class="button-row">
-          <button class="primary-button" type="button" data-journey-go="add">Check My Property</button>
+          <button class="primary-button" type="button" data-journey-go="add"${guidedTargetAttrs("start-check")}>Check My Property</button>
           <button class="secondary-button" type="button" data-journey-go="workspace">Open workspace preview</button>
         </div>
       </div>
@@ -7369,7 +7621,7 @@ function renderJourneyAddProperty() {
           <input type="text" name="address" value="${escapeHtml(state.addressInput)}" placeholder="Flat 42, 57 The Butts...">
         </label>
         <div class="button-row">
-          <button class="primary-button" type="submit">Run simulated auto checks</button>
+          <button class="primary-button" type="submit"${guidedTargetAttrs("run-auto-checks")}>Run simulated auto checks</button>
           <button class="secondary-button" type="button" data-journey-use-demo-address>Use demo address</button>
         </div>
       </form>
@@ -7394,6 +7646,11 @@ function renderJourneyAutoChecks() {
           </article>
         `).join("")}
       </div>
+      ${state.autoCheckStep >= journeyAutoCheckSteps.length ? `
+        <div class="button-row">
+          <button class="primary-button" type="button" data-journey-auto-review${guidedTargetAttrs("auto-review")}>Review found data</button>
+        </div>
+      ` : ""}
     </section>
   `);
 }
@@ -7429,7 +7686,7 @@ function renderJourneyMatch() {
                 <div><dt>Type</dt><dd>${escapeHtml(record.type)}</dd></div>
                 <div><dt>Confidence</dt><dd>${escapeHtml(record.confidence)}</dd></div>
               </dl>
-              <button class="primary-button" type="button" data-journey-select-match="${escapeHtml(record.id)}">Select this property</button>
+              <button class="primary-button" type="button" data-journey-select-match="${escapeHtml(record.id)}"${record.id === "match-1" ? guidedTargetAttrs("confirm-match") : ""}>Select this property</button>
             </article>
           `).join("")}
         </div>
@@ -7456,7 +7713,10 @@ function renderJourneyMatch() {
             ["vacant", "Vacant / preparing to rent"],
             ["upload", "I have an EPC - add proof later"],
             ["manual", "Continue manually"]
-          ].map(([id, label]) => `<button class="journey-choice" type="button" data-journey-no-epc="${id}">${label}</button>`).join("")}
+          ].map(([id, label]) => {
+            const preferred = guidedDemoState().activeStoryId === "no-epc-found" ? "advertised" : "rented";
+            return `<button class="journey-choice" type="button" data-journey-no-epc="${id}"${id === preferred ? guidedTargetAttrs("confirm-match") : ""}>${label}</button>`;
+          }).join("")}
         </div>
       </section>
     `);
@@ -7478,7 +7738,7 @@ function renderJourneyMatch() {
           <div><dt>Confidence</dt><dd>${escapeHtml(brain.PropertyIdentity.identityConfidence)}</dd></div>
         </dl>
         <div class="button-row">
-          <button class="primary-button" type="button" data-journey-select-match="clean">Yes, this is my property</button>
+          <button class="primary-button" type="button" data-journey-select-match="clean"${guidedTargetAttrs("confirm-match")}>Yes, this is my property</button>
           <button class="secondary-button" type="button" data-journey-go="add">Edit / wrong property</button>
         </div>
       </article>
@@ -7524,7 +7784,7 @@ function renderJourneyReview() {
         <div>${auto.epcRecommendations.map((item) => `<span>${escapeHtml(item)}</span>`).join("")}</div>
       </section>
       <div class="button-row">
-        <button class="primary-button" type="button" data-journey-go="unknowns">Answer landlord-only unknowns</button>
+        <button class="primary-button" type="button" data-journey-go="unknowns"${guidedTargetAttrs("review-found-data")}>Answer landlord-only unknowns</button>
         <button class="secondary-button" type="button" data-journey-go="add">Edit / this is not my property</button>
         <button class="secondary-button" type="button" data-journey-action="upload" data-action-id="epc-upload">Add proof later</button>
         <button class="text-button" type="button" data-journey-action="book" data-action-id="book-epc">Prepare EPC request</button>
@@ -7593,7 +7853,7 @@ function renderUnknownsWizard() {
           <p>CMP has enough simulated context to build the Property Intelligence profile and action plan.</p>
         </div>
         <div class="button-row">
-          <button class="primary-button" type="button" data-journey-build-brain>Build Property Intelligence</button>
+          <button class="primary-button" type="button" data-journey-build-brain${guidedTargetAttrs("build-brain")}>Build Property Intelligence</button>
           <button class="secondary-button" type="button" data-journey-go="workspace">Open workspace preview</button>
         </div>
         ${renderJourneyAnswerReview()}
@@ -7615,7 +7875,7 @@ function renderUnknownsWizard() {
           <p>CMP carried this into the Property Intelligence profile and will continue with landlord-only unknowns.</p>
         </article>
         <div class="button-row">
-          <button class="primary-button" type="button" data-journey-continue-carried>Continue with carried answer</button>
+          <button class="primary-button" type="button" data-journey-continue-carried${guidedTargetAttrs("recommended-answer")}>Continue with carried answer</button>
           <button class="secondary-button" type="button" data-journey-edit-answer="occupancy">Change this answer</button>
         </div>
         ${renderJourneyAnswerReview()}
@@ -7635,8 +7895,8 @@ function renderUnknownsWizard() {
           <p>Only you can confirm this. ${escapeHtml(display.why)} Choose all that apply; CMP can add more than one side route and still return to the same workspace.</p>
         </div>
         <div class="journey-choice-grid journey-choice-grid--multi">
-          ${question.options.map((option) => `
-            <button class="journey-choice ${selected.has(option.id) ? "is-selected" : ""}" type="button" data-journey-condition-toggle="${escapeHtml(option.id)}">
+        ${question.options.map((option) => `
+            <button class="journey-choice ${selected.has(option.id) ? "is-selected" : ""}" type="button" data-journey-condition-toggle="${escapeHtml(option.id)}"${option.id === guidedRecommendedAnswerForQuestion(question.id) ? guidedTargetAttrs("recommended-answer") : ""}>
               <strong>${escapeHtml(option.label)}</strong>
               <small>${escapeHtml(option.effect)}</small>
             </button>
@@ -7662,7 +7922,7 @@ function renderUnknownsWizard() {
       </div>
       <div class="journey-choice-grid">
         ${question.options.map((option) => `
-          <button class="journey-choice ${state.answers?.[question.id] === option.id ? "is-selected" : ""}" type="button" data-journey-answer="${escapeHtml(question.id)}" data-answer-id="${escapeHtml(option.id)}">
+          <button class="journey-choice ${state.answers?.[question.id] === option.id ? "is-selected" : ""}" type="button" data-journey-answer="${escapeHtml(question.id)}" data-answer-id="${escapeHtml(option.id)}"${option.id === guidedRecommendedAnswerForQuestion(question.id) ? guidedTargetAttrs("recommended-answer") : ""}>
             <strong>${escapeHtml(option.label)}</strong>
             <small>${escapeHtml(option.subtext || option.effect)}</small>
           </button>
@@ -7708,6 +7968,11 @@ function renderJourneyBrain() {
           </article>
         `).join("")}
       </div>
+      ${state.brainStep >= journeyBrainSteps.length ? `
+        <div class="button-row">
+          <button class="primary-button" type="button" data-journey-go="actionPlan"${guidedTargetAttrs("open-action-plan")}>Open Action Plan</button>
+        </div>
+      ` : ""}
     </section>
   `);
 }
@@ -7836,15 +8101,16 @@ function renderJourneyActionGroups(limitForWorkspace = false) {
 }
 
 function renderJourneyPlanButtons() {
+  const guidedPlan = guidedRecommendedPlanForStory();
   return `
     <section class="journey-plan-controls" aria-label="Journey OS service plan controls">
       <p>Every plan button updates the demo basket, timeline and property compliance profile. No supplier is contacted.</p>
-      <button class="primary-button" type="button" data-journey-service-plan="urgent">Prepare urgent actions</button>
-      <button class="secondary-button" type="button" data-journey-service-plan="legal">Prepare legal essentials</button>
-      <button class="secondary-button" type="button" data-journey-service-plan="risk">Build risk-protected plan</button>
-      <button class="secondary-button" type="button" data-journey-service-plan="future">Build future-proof plan</button>
-      <button class="text-button" type="button" data-journey-service-plan="quotes">Request quotes first</button>
-      <button class="text-button" type="button" data-journey-service-plan="concierge">Done-for-me concierge</button>
+      <button class="primary-button" type="button" data-journey-service-plan="urgent"${guidedPlan === "urgent" ? guidedTargetAttrs("action-plan-primary") : ""}>Prepare urgent actions</button>
+      <button class="secondary-button" type="button" data-journey-service-plan="legal"${guidedPlan === "legal" ? guidedTargetAttrs("action-plan-primary") : ""}>Prepare legal essentials</button>
+      <button class="secondary-button" type="button" data-journey-service-plan="risk"${guidedPlan === "risk" ? guidedTargetAttrs("action-plan-primary") : ""}>Build risk-protected plan</button>
+      <button class="secondary-button" type="button" data-journey-service-plan="future"${guidedPlan === "future" ? guidedTargetAttrs("action-plan-primary") : ""}>Build future-proof plan</button>
+      <button class="text-button" type="button" data-journey-service-plan="quotes"${guidedPlan === "quotes" ? guidedTargetAttrs("action-plan-primary") : ""}>Request quotes first</button>
+      <button class="text-button" type="button" data-journey-service-plan="concierge"${guidedPlan === "concierge" ? guidedTargetAttrs("action-plan-primary") : ""}>Done-for-me concierge</button>
     </section>
   `;
 }
@@ -8029,8 +8295,8 @@ function renderEvidenceVaultExperience() {
         <button class="primary-button" type="button" data-journey-open-upload>No live upload - preview only</button>
       </article>
       <div class="journey-evidence-grid">
-        ${state.evidenceVault.length ? state.evidenceVault.map((item) => `
-          <article class="journey-evidence-card">
+        ${state.evidenceVault.length ? state.evidenceVault.map((item, index) => `
+          <article class="journey-evidence-card"${index === 0 ? `${guidedTargetAttrs("evidence-gap")} tabindex="0"` : ""}>
             <span class="journey-status-chip is-${escapeHtml((item.reviewStatus || item.uploadStatus || "unknown").replace(/_/g, "-"))}">${escapeHtml(item.reviewStatus || item.uploadStatus)}</span>
             <h3>${escapeHtml(item.title)}</h3>
             <p>${escapeHtml(item.fakeScanResult)} · ${escapeHtml(item.linkedComplianceArea)}</p>
@@ -8042,7 +8308,7 @@ function renderEvidenceVaultExperience() {
             </dl>
           </article>
         `).join("") : `
-          <article class="journey-evidence-card">
+          <article class="journey-evidence-card"${`${guidedTargetAttrs("evidence-gap")} tabindex="0"`}>
             <h3>No document has been uploaded</h3>
             <p>This demo stores no files. Add proof later, request evidence, or book an assessment to keep the evidence gap visible.</p>
           </article>
@@ -8055,6 +8321,7 @@ function renderEvidenceVaultExperience() {
 function renderAskCmpExperience() {
   const state = journeyState();
   const latest = state.askHistory[0];
+  const guidedPrompt = guidedAskPromptForStory();
   return `
     <section class="journey-ask-shell">
       <article class="journey-ask-note">
@@ -8063,7 +8330,7 @@ function renderAskCmpExperience() {
         <p>Demo mode: Ask CMP responses are simulated from local property data.</p>
       </article>
       <div class="journey-ask-chips">
-        ${journeyAskPrompts.map((prompt) => `<button type="button" data-journey-ask-prompt="${escapeHtml(prompt)}">${escapeHtml(prompt)}</button>`).join("")}
+        ${journeyAskPrompts.map((prompt) => `<button type="button" data-journey-ask-prompt="${escapeHtml(prompt)}"${prompt === guidedPrompt ? guidedTargetAttrs("ask-prompt") : ""}>${escapeHtml(prompt)}</button>`).join("")}
       </div>
       <article class="journey-ask-response">
         <span>${latest ? escapeHtml(latest.prompt) : "Suggested question"}</span>
@@ -8095,7 +8362,7 @@ function renderMonitoringExperience() {
   return `
     <section class="journey-monitoring-shell">
       <div class="journey-monitor-grid">
-        ${state.monitoringItems.map((item) => `
+        ${state.monitoringItems.map((item, index) => `
           <article class="journey-monitor-card">
             <span class="source-badge">${escapeHtml(item.type)}</span>
             <h3>${escapeHtml(item.title)}</h3>
@@ -8106,7 +8373,7 @@ function renderMonitoringExperience() {
               <div><dt>Status</dt><dd>${escapeHtml(item.status || "watching")}</dd></div>
             </dl>
             <div class="journey-action-buttons">
-              <button class="secondary-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="watching">Set reminder</button>
+              <button class="secondary-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="watching"${index === 0 ? guidedTargetAttrs("monitoring-item") : ""}>Set reminder</button>
               <button class="text-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="watched">Mark watched</button>
               <button class="text-button" type="button" data-journey-monitor="annual-review" data-monitor-status="watching">Add annual review</button>
               <button class="text-button" type="button" data-journey-monitor="${escapeHtml(item.id)}" data-monitor-status="deferred">Defer</button>
@@ -8321,6 +8588,7 @@ function runMockAutoChecks() {
           type: "Auto checks"
         });
         const finishTimer = window.setTimeout(() => {
+          advanceGuidedMomentToNextScreen("match");
           setJourneyStage("confirmProperty", "match");
         }, 360);
         state.autoTimers.push(finishTimer);
@@ -8355,6 +8623,7 @@ function runPropertyBrainBuild() {
           type: "Action plan"
         });
         const finishTimer = window.setTimeout(() => {
+          advanceGuidedMomentToNextScreen("actionPlan");
           setJourneyStage("actionPlan", "actionPlan");
         }, 420);
         state.brainTimers.push(finishTimer);
@@ -8835,6 +9104,8 @@ function bindJourneyOs() {
 
     const goButton = event.target.closest("[data-journey-go]");
     if (goButton) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       const target = goButton.dataset.journeyGo;
       if (shouldGuardJourneyJump(target)) {
         showJourneyJumpGuard(target);
@@ -8854,30 +9125,64 @@ function bindJourneyOs() {
         addTimelineEvent({ title: "Property Workspace opened", body: "Journey branch returned to the workspace.", type: "Workspace" });
         setJourneyStage("monitor", "workspace");
       }
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
+      return;
+    }
+
+    const autoReviewButton = event.target.closest("[data-journey-auto-review]");
+    if (autoReviewButton) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
+      setJourneyStage("confirmProperty", "match");
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
     const matchButton = event.target.closest("[data-journey-select-match]");
     if (matchButton) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       selectPropertyMatch(matchButton.dataset.journeySelectMatch);
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
     const noEpcButton = event.target.closest("[data-journey-no-epc]");
     if (noEpcButton) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       handleNoEpcChoice(noEpcButton.dataset.journeyNoEpc);
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
     const answerButton = event.target.closest("[data-journey-answer]");
     if (answerButton) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       answerUnknown(answerButton.dataset.journeyAnswer, answerButton.dataset.answerId);
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
     const conditionToggle = event.target.closest("[data-journey-condition-toggle]");
     if (conditionToggle) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       toggleConditionSelection(conditionToggle.dataset.journeyConditionToggle);
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
@@ -8887,6 +9192,8 @@ function bindJourneyOs() {
     }
 
     if (event.target.closest("[data-journey-continue-carried]")) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       journeyState().unknownIndex = 1;
       addTimelineEvent({
         title: "Carried answer used",
@@ -8895,6 +9202,9 @@ function bindJourneyOs() {
       });
       showToast("CMP carried this answer into the Property Intelligence profile.");
       renderJourneyOsState();
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
@@ -8911,7 +9221,12 @@ function bindJourneyOs() {
     }
 
     if (event.target.closest("[data-journey-build-brain]")) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       runPropertyBrainBuild();
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { applyMoment: false, render: true, verifyCurrent: false });
+      }
       return;
     }
 
@@ -8936,7 +9251,12 @@ function bindJourneyOs() {
 
     const servicePlan = event.target.closest("[data-journey-service-plan]");
     if (servicePlan) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       applyServicePlan(servicePlan.dataset.journeyServicePlan);
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
@@ -9028,8 +9348,13 @@ function bindJourneyOs() {
 
     const askPrompt = event.target.closest("[data-journey-ask-prompt]");
     if (askPrompt) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       generateAskCmpResponse(askPrompt.dataset.journeyAskPrompt);
       renderJourneyOsState();
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
@@ -9119,7 +9444,12 @@ function bindJourneyOs() {
 
     const monitorButton = event.target.closest("[data-journey-monitor]");
     if (monitorButton) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
       upsertMonitoringItem(monitorButton.dataset.journeyMonitor, monitorButton.dataset.monitorStatus || "watching");
+      if (shouldAdvanceGuided) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
       return;
     }
 
@@ -9159,12 +9489,17 @@ function bindJourneyOs() {
       return;
     }
     event.preventDefault();
+    const guidedTarget = event.submitter?.dataset?.guidedTarget || "";
+    const shouldAdvanceGuided = isCurrentGuidedTarget(guidedTarget);
     const state = journeyState();
     state.postcodeInput = form.elements.postcode.value.trim() || "CV1 3BJ";
     state.addressInput = form.elements.address.value.trim() || "Flat 42, 57 The Butts, Coventry, CV1 3BJ";
     state.propertyBrain.PropertyIdentity.address = state.addressInput;
     state.propertyBrain.PropertyIdentity.postcode = state.postcodeInput;
     runMockAutoChecks();
+    if (shouldAdvanceGuided) {
+      advanceGuidedProductTarget(guidedTarget, { applyMoment: false, render: true, verifyCurrent: false });
+    }
   });
 
   document.addEventListener("change", (event) => {

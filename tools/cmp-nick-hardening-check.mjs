@@ -139,6 +139,64 @@ async function testCoachMarks(page, baseUrl) {
   assert(await page.locator("[data-demo-coachmark]").first().isVisible(), "Hints should be restorable.");
 }
 
+async function highlightedTargetText(page) {
+  const target = page.locator("[data-guided-target]").filter({ hasNot: page.locator("[disabled]") }).first();
+  assert(await target.isVisible(), "A guided product target should be visible.");
+  return (await target.innerText()).replace(/\s+/g, " ").trim();
+}
+
+async function testGuidedProductTargets(page, baseUrl) {
+  await openNick(page, baseUrl);
+  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.waitForTimeout(100);
+
+  let targetText = await highlightedTargetText(page);
+  assert(/Check My Property/i.test(targetText), "First story moment should highlight Check My Property.");
+  assert(!/Next moment/i.test(targetText), "First story moment must not highlight Next moment.");
+  assert(await page.locator("[data-guided-next]").isVisible(), "Presenter skip control should still exist.");
+  assert(await page.locator("[data-guided-next][data-guided-target]").count() === 0, "Presenter skip should not be the primary highlighted target when a product action exists.");
+
+  await page.getByRole("button", { name: /^Check My Property$/i }).click();
+  await page.waitForTimeout(100);
+  targetText = await highlightedTargetText(page);
+  assert(/Run simulated auto checks/i.test(targetText), "Address moment should highlight Run simulated auto checks.");
+  assert(!/Next moment/i.test(targetText), "Address moment must not highlight Next moment.");
+
+  await page.getByRole("button", { name: /Run simulated auto checks/i }).click();
+  await page.getByText(/This looks like your property|We couldn't find a clear EPC record|CMP found several possible records/i).waitFor({ timeout: 5000 });
+  targetText = await highlightedTargetText(page);
+  assert(/Yes, this is my property|Currently rented|Select this property|Review found data/i.test(targetText), "After auto checks, the story should progress to the real review/confirm action.");
+}
+
+async function testUnknownQuestionHighlight(page, baseUrl) {
+  await openNick(page, baseUrl);
+  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /^Check My Property$/i }).click();
+  await page.getByRole("button", { name: /Run simulated auto checks/i }).click();
+  await page.getByRole("button", { name: /Yes, this is my property/i }).click({ timeout: 6000 });
+  await page.getByRole("button", { name: /Answer landlord-only unknowns/i }).click();
+  const answerTarget = page.locator("[data-guided-target='recommended-answer']").first();
+  assert(await answerTarget.isVisible(), "Unknown question should highlight a recommended answer card.");
+  const answerText = (await answerTarget.innerText()).replace(/\s+/g, " ").trim();
+  assert(/Yes, currently occupied|No, currently vacant|I want|Damp\/mould|1-2 people/i.test(answerText), "Highlighted unknown target should be an answer card, not presenter controls.");
+  assert(await page.locator("[data-guided-next][data-guided-target]").count() === 0, "Unknown question should not highlight presenter controls.");
+}
+
+async function testMobileGuidedTarget(page, baseUrl) {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await openNick(page, baseUrl);
+  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  const target = page.locator("[data-guided-target='start-check']").first();
+  assert(await target.isVisible(), "Mobile should show the Check My Property highlighted target.");
+  const box = await target.boundingBox();
+  assert(Boolean(box), "Mobile highlighted target should have a bounding box.");
+  assert(box.width >= 44 && box.height >= 36, "Mobile highlighted target should be tappable.");
+  assert(box.x >= 0 && box.x + box.width <= 390, "Mobile highlighted target should not create horizontal overflow.");
+  await target.click();
+  assert(await page.locator("[data-guided-target='run-auto-checks']").isVisible(), "Mobile tap on Check My Property should advance to address target.");
+  await page.setViewportSize({ width: 1440, height: 950 });
+}
+
 async function testVacantLogic(page, baseUrl) {
   await openNick(page, baseUrl);
   await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
@@ -188,6 +246,8 @@ async function testScenarioCards(page, baseUrl) {
   const firstText = await cards.first().innerText();
   assert(/Finds|Gap created|Action created/i.test(firstText), "Scenario cards should use compact visual chips.");
   assert(firstText.length < 650, "Scenario cards should be scannable rather than long-form notes.");
+  const firstTargetText = await page.locator("[data-guided-target='first-scenario']").innerText();
+  assert(/Try this scenario/i.test(firstTargetText), "Scenario Explorer should highlight the first Try this scenario CTA.");
 }
 
 async function run() {
@@ -200,9 +260,12 @@ async function run() {
   try {
     await testNickRoutes(page, baseUrl);
     await testCoachMarks(page, baseUrl);
+    await testGuidedProductTargets(page, baseUrl);
+    await testUnknownQuestionHighlight(page, baseUrl);
     await testVacantLogic(page, baseUrl);
     await testEvidenceWording(page, baseUrl);
     await testScenarioCards(page, baseUrl);
+    await testMobileGuidedTarget(page, baseUrl);
     console.log(JSON.stringify({ status: "passed", baseUrl }, null, 2));
   } finally {
     await browser.close();
