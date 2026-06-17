@@ -127,10 +127,17 @@ async function highlightedTargetText(page) {
   return (await target.innerText()).replace(/\s+/g, " ").trim();
 }
 
+async function isAboveFold(locator, viewportHeight = 950) {
+  const box = await locator.boundingBox();
+  return Boolean(box && box.y >= 0 && box.y + Math.min(box.height, 80) <= viewportHeight);
+}
+
 async function startMainDemo(page, baseUrl) {
   await openNick(page, baseUrl);
-  assert(await page.getByRole("button", { name: /Run the 2-minute demo/i }).isVisible(), "dashboard-labs.html?demo=nick should load the guided demo.");
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  const startCta = page.getByRole("button", { name: /Start guided property check/i });
+  assert(await startCta.isVisible(), "Nick demo intro should show Start guided property check.");
+  assert(await isAboveFold(startCta), "Nick demo intro CTA should be visible above the fold.");
+  await startCta.click();
 }
 
 async function reachUnknowns(page, baseUrl) {
@@ -240,6 +247,8 @@ async function runGuideAndArrowChecks(page, baseUrl) {
   assert(await guide.locator(".cmp-demo-guide-icon").count() > 0, "Macaw should appear as a compact demo guide icon.");
   const iconBox = await guide.locator(".cmp-demo-guide-icon").first().boundingBox();
   assert(Boolean(iconBox && iconBox.width <= 64 && iconBox.height <= 64), "Compact guide icon should stay small.");
+  assert(await page.locator(".cmp-demo-guide-bubble").count() === 0, "Demo Theatre should use one coach surface, not a separate macaw speech bubble.");
+  assert(await page.locator(".journey-demo-coachmark [data-demo-guide-character]").count() > 0, "Macaw badge should be integrated inside the local coach card.");
 
   await page.goto(`${baseUrl}/dashboard-labs.html`, { waitUntil: "domcontentloaded" });
   await page.waitForLoadState("networkidle").catch(() => {});
@@ -250,13 +259,61 @@ async function runGuideAndArrowChecks(page, baseUrl) {
   assert(arrowVisible !== "true", "Arrow should hide when no reliable target geometry is available.");
 }
 
+async function runDemoTheatreChecks(page, baseUrl) {
+  await openNick(page, baseUrl);
+  assert(/Start with one property/i.test(await bodyText(page)), "Intro should lead with the Demo Theatre property-first headline.");
+  assert(/Simulated demo data · no live lookup · no supplier contacted · not legal advice/i.test(await bodyText(page)), "Prototype caveat should be compact on the intro.");
+  assert(await page.locator("[data-demo-theatre-spine]").isVisible(), "Intro should show the visual product spine.");
+  assert(await page.locator("[data-demo-simulation-lab]").isVisible(), "Scenario Explorer should be presented as a Simulation Lab.");
+
+  await startMainDemo(page, baseUrl);
+  await page.locator("[data-demo-rail-state='locked']").waitFor({ timeout: 5000 });
+  assert(/Ask CMP unlocks after the property profile is built/i.test(await bodyText(page)), "Right rail should be quiet before Ask CMP matters.");
+
+  const targetBox = await page.locator("[data-guided-target]").first().boundingBox();
+  const dockBox = await page.locator(".journey-guided-presenter").first().boundingBox();
+  assert(Boolean(targetBox && dockBox), "Progress dock and first target should be measurable.");
+  const overlaps = !(dockBox.x + dockBox.width < targetBox.x || targetBox.x + targetBox.width < dockBox.x || dockBox.y + dockBox.height < targetBox.y || targetBox.y + targetBox.height < dockBox.y);
+  assert(!overlaps, "Progress dock should not overlap the highlighted product target.");
+
+  await page.getByRole("button", { name: /^Check My Property$/i }).click();
+  await page.getByRole("button", { name: /Run simulated auto checks/i }).click();
+  await page.getByRole("button", { name: /Yes, this is my property/i }).click();
+  await page.getByRole("button", { name: /Answer landlord-only unknowns/i }).click();
+  await page.locator("[data-guided-use-demo-answers]").click();
+  await page.locator("[data-guided-target='build-brain']").waitFor({ timeout: 5000 });
+  assert(/Build Property Intelligence/i.test(await bodyText(page)), "Use guided demo answers should land on the build step, not deep dashboard state.");
+  await page.locator("[data-guided-target='build-brain']").click();
+  await page.locator("[data-demo-intelligence-diagram]").waitFor({ timeout: 5000 });
+  assert(/Found records/i.test(await bodyText(page)) && /Property Compliance Profile/i.test(await bodyText(page)), "Build Property Intelligence should show the input-to-profile diagram.");
+
+  await page.locator("[data-guided-target='open-action-plan']").waitFor({ timeout: 5000 });
+  await page.locator("[data-guided-target='open-action-plan']").click();
+  await page.locator("[data-demo-next-best-action]").waitFor({ timeout: 5000 });
+  assert(await page.locator("[data-demo-next-best-action] [data-guided-target='action-plan-primary']").isVisible(), "Action Plan should use a guided Next Best Action layout with one primary CTA.");
+
+  await page.locator("[data-guided-target='action-plan-primary']").click();
+  await page.locator("[data-guided-target='service-confirm-evidence']").waitFor({ timeout: 5000 });
+  await page.locator("[data-guided-target='service-confirm-evidence']").click();
+  await page.locator("[data-demo-evidence-trail]").waitFor({ timeout: 5000 });
+  assert(/Proof needed/i.test(await bodyText(page)) && /Monitoring active/i.test(await bodyText(page)), "Evidence Vault should show a demo evidence trail.");
+
+  await page.locator("[data-journey-workspace-tab-link='ask']").first().click();
+  await page.locator("[data-demo-rail-state='active']").waitFor({ timeout: 5000 });
+  assert(await page.locator(".assistant-rail [data-guided-target='ask-prompt']").isVisible(), "Ask CMP step should expand the rail and spotlight one prompt there.");
+}
+
 async function runMobileCheck(page, baseUrl) {
   await page.setViewportSize({ width: 390, height: 844 });
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  const startCta = page.getByRole("button", { name: /Start guided property check/i });
+  assert(await isAboveFold(startCta, 844), "Mobile intro should show the primary CTA quickly.");
+  await startCta.click();
   const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   assert(scrollWidth <= viewportWidth + 1, "390px mobile should not have horizontal overflow.");
+  const fabVisible = await page.locator(".assistant-fab").evaluate((element) => getComputedStyle(element).display !== "none").catch(() => false);
+  assert(!fabVisible, "Strict guided mobile should hide the assistant FAB when it competes.");
   const arrowVisible = await page.locator("[data-demo-target-arrow]").first().getAttribute("data-arrow-visible").catch(() => "false");
   assert(arrowVisible !== "true", "390px mobile should hide arrows unless geometry is tight and reliable.");
 
@@ -284,6 +341,8 @@ async function run() {
   page.on("pageerror", (error) => consoleErrors.push(error.message));
 
   try {
+    await runDemoTheatreChecks(page, baseUrl);
+    await page.setViewportSize({ width: 1440, height: 950 });
     await runUnknownChecks(page, baseUrl);
     await page.setViewportSize({ width: 1440, height: 950 });
     await runSectionChecks(page, baseUrl);

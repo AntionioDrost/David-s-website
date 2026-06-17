@@ -26,6 +26,387 @@
   --rail-width: 300px;
 }
 
+/* Demo Theatre layer: scoped to Nick guided demo only. */
+body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter {
+  position: static;
+  z-index: 8;
+  grid-template-columns: minmax(0, 1fr) auto;
+  border-radius: 18px;
+  padding: 9px 10px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(247, 243, 236, 0.94));
+  color: var(--civic-ink);
+  box-shadow: 0 10px 28px rgba(16, 32, 51, 0.08);
+}
+
+body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter-main > span,
+body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter-main small,
+body.journey-guided-active:not(.guided-free-explore) .journey-current-scenario {
+  color: var(--civic-slate);
+}
+
+body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter-main strong {
+  color: var(--civic-ink);
+}
+
+body.journey-guided-active:not(.guided-free-explore) .journey-current-scenario {
+  border-color: rgba(29, 79, 145, 0.13);
+  background: #edf4fb;
+}
+
+body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter .secondary-button,
+body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter .text-button {
+  color: var(--civic-navy);
+  border-color: rgba(23, 50, 77, 0.16);
+  background: rgba(255, 255, 255, 0.9);
+}
+
+body.journey-guided-active:not(.guided-free-explore) .journey-demo-guidance-row {
+  grid-template-columns: minmax(0, 520px);
+  max-width: 540px;
+}
+
+body.journey-guided-active:not(.guided-free-explore) .journey-demo-coachmark {
+  gap: 9px;
+  border-color: rgba(29, 79, 145, 0.16);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.99), rgba(241, 247, 251, 0.96));
+  box-shadow: 0 18px 46px rgba(16, 32, 51, 0.12);
+}
+
+body.journey-guided-active:not(.guided-free-explore) .journey-demo-coachmark::before {
+  display: none;
+}
+
+.journey-coachmark-header {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+}
+
+.journey-coachmark-header .cmp-demo-guide {
+  display: inline-grid;
+  width: 38px;
+  height: 38px;
+  place-items: center;
+  border: 1px solid rgba(29, 79, 145, 0.16);
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 10px 22px rgba(16, 32, 51, 0.12);
+}
+
+.journey-coachmark-header .cmp-demo-guide img {
+  width: 32px;
+  filter: drop-shadow(0 5px 8px rgba(16, 42, 52, 0.12));
+}
+
+.journey-coachmark-header > span {
+  color: var(--civic-blue);
+  font-size: 0.68rem;
+  font-weight: 920;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.journey-guided-spine-visual {
+  display: grid;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.journey-guided-spine-visual span {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  padding: 8px 12px 8px 10px;
+  background: rgba(255, 255, 255, 0.1);
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.82rem;
+  font-weight: 840;
+}
+
+.journey-guided-spine-visual span::before {
+  content: counter(spine-step);
+  counter-increment: spine-step;
+  display: inline-grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f8d779, #f0a83a);
+  color: #17324d;
+  font-size: 0.72rem;
+  font-weight: 920;
+}
+
+.journey-guided-spine-visual {
+  counter-reset: spine-step;
+}
+
+.journey-guided-simulation-lab {
+  align-items: stretch;
+}
+
+.journey-guided-scenario-intro {
+  grid-column: 1 / -1;
+  border: 1px solid rgba(29, 79, 145, 0.12);
+  border-radius: 20px;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(237, 244, 251, 0.88));
+}
+
+.nick-scenario-card.is-featured {
+  border-color: rgba(29, 79, 145, 0.22);
+  background:
+    radial-gradient(circle at 90% 0%, rgba(14, 116, 144, 0.1), transparent 28%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(237, 244, 251, 0.94));
+  box-shadow: 0 24px 56px rgba(16, 32, 51, 0.12);
+}
+
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="locked"] {
+  align-self: start;
+  min-height: 0;
+  border-style: solid;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.96), rgba(247, 243, 236, 0.92));
+}
+
+.demo-theatre-rail-note {
+  display: grid;
+  gap: 6px;
+  border: 1px solid rgba(29, 79, 145, 0.14);
+  border-radius: 16px;
+  padding: 12px;
+  background: #edf4fb;
+  color: var(--civic-ink);
+}
+
+.demo-theatre-rail-note strong {
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+.demo-theatre-rail-note p {
+  margin: 0;
+  color: var(--civic-slate);
+  font-size: 0.82rem;
+  line-height: 1.38;
+}
+
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="locked"] .assistant-input,
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="locked"] .prompt-stack,
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="locked"] .assistant-response,
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="locked"] .recent-activity {
+  display: none;
+}
+
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="active"] {
+  border-color: rgba(14, 116, 144, 0.24);
+  background:
+    radial-gradient(circle at top right, rgba(14, 116, 144, 0.13), transparent 26%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(232, 246, 250, 0.94));
+}
+
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="active"] .prompt-stack {
+  display: grid;
+}
+
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="active"] .prompt-stack button:not([data-guided-target]) {
+  opacity: 0.45;
+}
+
+body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="active"] [data-guided-target="ask-prompt"] {
+  border-color: rgba(14, 116, 144, 0.42);
+  background: #e6f6f9;
+  color: var(--civic-ink);
+  box-shadow: 0 14px 28px rgba(14, 116, 144, 0.16);
+}
+
+.journey-brain-visual--theatre {
+  min-height: 300px;
+  border-color: rgba(29, 79, 145, 0.16);
+  background:
+    radial-gradient(circle at 50% 50%, rgba(14, 116, 144, 0.16), transparent 24%),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(237, 244, 251, 0.94));
+}
+
+.journey-brain-visual--theatre .journey-brain-node.is-core {
+  min-width: 190px;
+  background: linear-gradient(135deg, var(--civic-navy), var(--civic-blue));
+}
+
+.journey-brain-visual--theatre .journey-brain-node.is-records { left: 6%; top: 13%; }
+.journey-brain-visual--theatre .journey-brain-node.is-answers { left: 6%; top: 42%; bottom: auto; }
+.journey-brain-visual--theatre .journey-brain-node.is-evidence { left: 6%; top: 71%; transform: none; }
+.journey-brain-visual--theatre .journey-brain-node.is-services { right: 6%; top: 10%; }
+.journey-brain-visual--theatre .journey-brain-node.is-actions { right: 6%; top: 34%; }
+.journey-brain-visual--theatre .journey-brain-node.is-ask { right: 6%; top: 58%; }
+.journey-brain-visual--theatre .journey-brain-node.is-monitoring { right: 6%; top: 82%; bottom: auto; }
+
+.journey-plan-summary--guided {
+  grid-template-columns: minmax(0, 0.95fr) minmax(320px, 1.05fr);
+  border-color: rgba(29, 79, 145, 0.18);
+  background:
+    radial-gradient(circle at 100% 0%, rgba(240, 168, 58, 0.14), transparent 30%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(237, 244, 251, 0.92));
+}
+
+.journey-next-best-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.journey-next-best-details article {
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(29, 79, 145, 0.12);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.journey-next-best-details span {
+  color: var(--civic-blue);
+  font-size: 0.68rem;
+  font-weight: 920;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.journey-next-best-details strong {
+  color: var(--civic-ink);
+  font-size: 0.9rem;
+  line-height: 1.3;
+}
+
+.journey-evidence-trail {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1fr);
+  gap: 18px;
+  margin: 0 0 16px;
+  border: 1px solid rgba(29, 79, 145, 0.16);
+  border-radius: 22px;
+  padding: 18px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(237, 244, 251, 0.9));
+  box-shadow: 0 18px 42px rgba(16, 32, 51, 0.08);
+}
+
+.journey-evidence-trail h3,
+.journey-evidence-trail p {
+  margin: 0;
+}
+
+.journey-evidence-trail h3 {
+  color: var(--civic-ink);
+}
+
+.journey-evidence-trail p {
+  margin-top: 6px;
+  color: var(--civic-slate);
+  line-height: 1.45;
+}
+
+.journey-evidence-trail ol {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.journey-evidence-trail li {
+  position: relative;
+  display: grid;
+  gap: 5px;
+  border: 1px solid rgba(29, 79, 145, 0.12);
+  border-radius: 16px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.82);
+}
+
+.journey-evidence-trail li::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #f8d779, #f0a83a);
+}
+
+.journey-evidence-trail span {
+  color: var(--civic-blue);
+  font-size: 0.68rem;
+  font-weight: 920;
+  text-transform: uppercase;
+}
+
+.journey-evidence-trail strong {
+  color: var(--civic-ink);
+  font-size: 0.88rem;
+  line-height: 1.3;
+}
+
+@media (max-width: 900px) {
+  .journey-guided-hero,
+  .journey-plan-summary--guided,
+  .journey-evidence-trail {
+    grid-template-columns: 1fr;
+  }
+
+  .journey-next-best-details,
+  .journey-evidence-trail ol {
+    grid-template-columns: 1fr;
+  }
+
+  body.journey-guided-active:not(.guided-free-explore) .assistant-fab {
+    display: none !important;
+  }
+
+  body.journey-guided-active:not(.guided-free-explore) .assistant-rail[data-demo-rail-state="locked"] {
+    display: none;
+  }
+}
+
+@media (max-width: 640px) {
+  body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter {
+    padding: 10px;
+  }
+
+  body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter-actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body.journey-guided-active:not(.guided-free-explore) .journey-guided-presenter-actions button {
+    width: 100%;
+  }
+
+  .journey-guided-hero h1 {
+    font-size: clamp(2rem, 12vw, 3rem);
+  }
+
+  .journey-brain-visual--theatre {
+    min-height: 520px;
+  }
+
+  .journey-brain-visual--theatre .journey-brain-node.is-core { top: 42%; }
+  .journey-brain-visual--theatre .journey-brain-node.is-records { top: 5%; }
+  .journey-brain-visual--theatre .journey-brain-node.is-answers { top: 17%; }
+  .journey-brain-visual--theatre .journey-brain-node.is-evidence { top: 29%; }
+  .journey-brain-visual--theatre .journey-brain-node.is-services { top: 57%; }
+  .journey-brain-visual--theatre .journey-brain-node.is-actions { top: 68%; }
+  .journey-brain-visual--theatre .journey-brain-node.is-ask { top: 79%; }
+  .journey-brain-visual--theatre .journey-brain-node.is-monitoring { top: 90%; }
+}
+
 * {
   box-sizing: border-box;
 }

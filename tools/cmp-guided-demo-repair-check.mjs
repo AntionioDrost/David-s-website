@@ -125,7 +125,7 @@ async function screenshot(page, name) {
 
 async function runMainCleanDemo(page, baseUrl) {
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /Start guided property check/i }).click();
   await page.getByRole("button", { name: /^Check My Property$/i }).click();
   await page.getByRole("button", { name: /Run simulated auto checks/i }).click();
   await page.getByRole("button", { name: /Yes, this is my property/i }).click({ timeout: 6000 });
@@ -159,7 +159,7 @@ async function runMainCleanDemo(page, baseUrl) {
 
 async function runScenarioSmoke(page, baseUrl, title) {
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Explore scenarios after the main demo/i }).click();
+  await page.getByRole("button", { name: /Explore scenarios later/i }).click();
   const card = page.locator("[data-guided-scenario-card]").filter({ hasText: title }).first();
   assert(await card.isVisible(), `${title} scenario card should be visible.`);
   await card.getByRole("button", { name: /Try this scenario/i }).click();
@@ -170,7 +170,7 @@ async function runScenarioSmoke(page, baseUrl, title) {
 async function runMobileCheck(page, baseUrl) {
   await page.setViewportSize({ width: 390, height: 844 });
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /Start guided property check/i }).click();
   const viewportWidth = await page.evaluate(() => document.documentElement.clientWidth);
   const scrollWidth = await page.evaluate(() => document.documentElement.scrollWidth);
   assert(scrollWidth <= viewportWidth + 1, "390px mobile should not create horizontal overflow.");

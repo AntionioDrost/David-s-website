@@ -124,9 +124,9 @@ async function openNick(page, baseUrl, query = "demo=nick") {
 
 async function testNickRoutes(page, baseUrl) {
   await openNick(page, baseUrl, "demo=nick");
-  assert(await page.getByRole("button", { name: /Run the 2-minute demo/i }).isVisible(), "demo=nick should show guided demo CTA.");
+  assert(await page.getByRole("button", { name: /Start guided property check/i }).isVisible(), "demo=nick should show guided demo CTA.");
   await openNick(page, baseUrl, "journeyDemo=nick");
-  assert(await page.getByRole("button", { name: /Run the 2-minute demo/i }).isVisible(), "journeyDemo=nick alias should show guided demo CTA.");
+  assert(await page.getByRole("button", { name: /Start guided property check/i }).isVisible(), "journeyDemo=nick alias should show guided demo CTA.");
 }
 
 async function testCoachMarks(page, baseUrl) {
@@ -150,13 +150,13 @@ async function testNormalModeHasNoMacawGuide(page, baseUrl) {
 
 async function testMacawGuideCopyAndPlacement(page, baseUrl) {
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /Start guided property check/i }).click();
   await page.waitForTimeout(100);
   const guide = page.locator("[data-demo-guide-character]").first();
   assert(await guide.isVisible(), "CMP Demo Guide should appear on the guided start screen.");
-  const guideText = (await guide.innerText()).replace(/\s+/g, " ").trim();
-  assert(/CMP Demo Guide/i.test(guideText), "Guide should identify itself as CMP Demo Guide.");
-  assert(/Start here/i.test(guideText), "Start screen guide copy should be short and action-led.");
+  const coachText = (await page.locator("[data-demo-coachmark]").first().innerText()).replace(/\s+/g, " ").trim();
+  assert(/Nick demo path/i.test(coachText), "Coach card should identify the guided demo path.");
+  assert(/Start with property/i.test(coachText), "Start screen coach copy should be short and action-led.");
   const startTarget = page.locator("[data-guided-target='start-check']").first();
   assert(await startTarget.isVisible(), "Guide should support the existing Check My Property target.");
   const guideBox = await guide.boundingBox();
@@ -168,8 +168,8 @@ async function testMacawGuideCopyAndPlacement(page, baseUrl) {
 
   await startTarget.click();
   await page.waitForTimeout(100);
-  const addressGuideText = (await page.locator("[data-demo-guide-character]").first().innerText()).replace(/\s+/g, " ").trim();
-  assert(/Run the checks next/i.test(addressGuideText), "Address step guide copy should point to the simulated checks.");
+  const addressCoachText = (await page.locator("[data-demo-coachmark]").first().innerText()).replace(/\s+/g, " ").trim();
+  assert(/Run Smart Search/i.test(addressCoachText), "Address step coach copy should point to the simulated checks.");
   assert(await page.locator("[data-guided-target='run-auto-checks']").isVisible(), "Address step should still highlight Run simulated auto checks.");
 }
 
@@ -206,7 +206,7 @@ async function journeyTestState(page) {
 
 async function reachCleanUnknowns(page, baseUrl) {
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /Start guided property check/i }).click();
   await page.getByRole("button", { name: /^Check My Property$/i }).click();
   await page.getByRole("button", { name: /Run simulated auto checks/i }).click();
   await page.getByRole("button", { name: /Yes, this is my property/i }).click({ timeout: 6000 });
@@ -240,7 +240,7 @@ async function reachActionPlanWithGuidedAnswers(page, baseUrl) {
 
 async function testGuidedProductTargets(page, baseUrl) {
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /Start guided property check/i }).click();
   await page.waitForTimeout(100);
 
   let targetText = await highlightedTargetText(page);
@@ -368,7 +368,7 @@ async function testGuidedSectionMoments(page, baseUrl) {
 
 async function testDesktopArrowLayer(page, baseUrl) {
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /Start guided property check/i }).click();
   const arrow = page.locator("[data-demo-target-arrow]").first();
   assert(await arrow.count() > 0, "Guided coach mark should render the measured arrow layer.");
   await page.waitForTimeout(120);
@@ -379,7 +379,7 @@ async function testDesktopArrowLayer(page, baseUrl) {
 async function testMobileGuidedTarget(page, baseUrl) {
   await page.setViewportSize({ width: 390, height: 844 });
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /Start guided property check/i }).click();
   const target = page.locator("[data-guided-target='start-check']").first();
   assert(await target.isVisible(), "Mobile should show the Check My Property highlighted target.");
   assert(await page.locator("[data-demo-guide-character]").first().isVisible(), "Mobile should show compact guide support in demo mode.");
@@ -399,7 +399,7 @@ async function testMobileGuidedTarget(page, baseUrl) {
 
 async function testVacantLogic(page, baseUrl) {
   await openNick(page, baseUrl);
-  await page.getByRole("button", { name: /Run the 2-minute demo/i }).click();
+  await page.getByRole("button", { name: /Start guided property check/i }).click();
   await page.waitForTimeout(250);
   await page.evaluate(() => {
     window.__cmpDemoTest?.setAnswers?.({
@@ -436,7 +436,7 @@ async function testEvidenceWording(page, baseUrl) {
   const body = await text(page);
   assert(!/Yes,\s*upload it/i.test(body), "Nick demo must not offer 'Yes, upload it'.");
   assert(!/Upload existing EPC|Upload EICR|Upload missing evidence/i.test(body), "Nick demo primary wording should avoid real upload implications.");
-  assert(/Add proof later|Mark as held|Request evidence|Book assessment|Evidence needed|No live document upload/i.test(body), "Nick demo should use prototype-safe evidence wording.");
+  assert(/Add proof later|Mark as held|Request evidence|Book assessment|Evidence needed|No live document upload|no live lookup/i.test(body), "Nick demo should use prototype-safe evidence wording.");
 }
 
 async function testScenarioCards(page, baseUrl) {
@@ -446,12 +446,12 @@ async function testScenarioCards(page, baseUrl) {
   const firstText = await cards.first().innerText();
   assert(/Finds|Gap created|Action created/i.test(firstText), "Scenario cards should use compact visual chips.");
   assert(firstText.length < 650, "Scenario cards should be scannable rather than long-form notes.");
-  await page.getByRole("button", { name: /Explore scenarios after the main demo/i }).click();
+  await page.getByRole("button", { name: /Explore scenarios later/i }).click();
   await page.waitForTimeout(100);
   const firstTargetText = await page.locator("[data-guided-target='first-scenario']").innerText();
   assert(/Try this scenario/i.test(firstTargetText), "Scenario Explorer should highlight the first Try this scenario CTA.");
-  const guideText = (await page.locator("[data-demo-guide-character]").first().innerText()).replace(/\s+/g, " ").trim();
-  assert(/Try this scenario next/i.test(guideText), "Scenario Explorer should show concise guide copy.");
+  const coachText = (await page.locator("[data-demo-coachmark]").first().innerText()).replace(/\s+/g, " ").trim();
+  assert(/Try another case|Try another landlord situation|Try this scenario next/i.test(coachText), "Scenario Explorer should show concise guide copy.");
 }
 
 async function run() {
