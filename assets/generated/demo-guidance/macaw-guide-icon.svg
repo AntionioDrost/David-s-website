@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="CMP Demo Guide macaw icon">
+  <defs>
+    <linearGradient id="wing" x1="15" y1="16" x2="47" y2="55" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#1D79B8"/>
+      <stop offset=".62" stop-color="#155FA2"/>
+      <stop offset="1" stop-color="#0D3F74"/>
+    </linearGradient>
+    <linearGradient id="chest" x1="28" y1="26" x2="39" y2="55" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFE08A"/>
+      <stop offset=".72" stop-color="#F5B23D"/>
+      <stop offset="1" stop-color="#E18422"/>
+    </linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="150%">
+      <feDropShadow dx="0" dy="4" stdDeviation="3" flood-color="#0E2830" flood-opacity=".18"/>
+    </filter>
+  </defs>
+  <g filter="url(#shadow)">
+    <path d="M14 39c1-12 9-22 21-24 9-1 15 3 18 10 3 8 0 17-7 23-7 6-18 7-25 2-5-3-8-7-7-11Z" fill="url(#wing)"/>
+    <path d="M25 27c6-4 15-2 19 4 3 6 1 15-5 21-6 2-12 1-16-3-2-8-1-16 2-22Z" fill="url(#chest)"/>
+    <path d="M20 19c4-8 16-11 25-7 8 4 11 12 8 20-5-1-9-3-13-7-5 2-12 0-20-6Z" fill="#1D79B8"/>
+    <path d="M34 10c7 0 13 4 16 9-5 2-11 2-17 0-4-1-7-4-8-7 3-1 6-2 9-2Z" fill="#46A6D8"/>
+    <path d="M45 19c5 0 9 3 11 7-3 1-6 1-10 0-3-1-5-3-6-6 1-1 3-1 5-1Z" fill="#F7C64B"/>
+    <path d="M49 24c6 1 10 4 11 8-5 2-10 2-15-1 1-3 2-5 4-7Z" fill="#162532"/>
+    <path d="M48 29c4 0 7 1 10 3-4 4-9 5-14 3 1-3 2-5 4-6Z" fill="#F9F3DD"/>
+    <path d="M43 18c2 0 4 2 4 4s-2 4-4 4-4-2-4-4 2-4 4-4Z" fill="#F9F3DD"/>
+    <path d="M44 20c1 0 2 1 2 2s-1 2-2 2-2-1-2-2 1-2 2-2Z" fill="#10212C"/>
+    <path d="M21 33c-5 4-9 10-11 17 7-2 13-6 17-12l-6-5Z" fill="#1D79B8"/>
+    <path d="M23 43c-6 1-11 4-15 9 6 1 13 0 18-4l-3-5Z" fill="#F5B23D"/>
+    <path d="M35 54c4 1 8 0 12-3" fill="none" stroke="#0F526F" stroke-width="3" stroke-linecap="round"/>
+  </g>
+</svg>

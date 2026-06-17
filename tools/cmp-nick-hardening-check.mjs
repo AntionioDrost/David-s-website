@@ -333,8 +333,8 @@ async function testStrictGuidedAnswerSoftLockAndShortcut(page, baseUrl) {
 async function testGuidedSectionMoments(page, baseUrl) {
   await reachActionPlanWithGuidedAnswers(page, baseUrl);
   let body = await text(page);
-  assert(/Action Plan turns gaps into next steps/i.test(body), "Action Plan should have a section-level explainer before the recommended CTA.");
-  assert(/specific gaps|not as a marketplace/i.test(body), "Action Plan explainer should frame services as gap-driven.");
+  assert(/CMP turns evidence gaps into prioritised next steps|Action Plan turns gaps into next steps/i.test(body), "Action Plan should have a section-level explainer before the recommended CTA.");
+  assert(/specific evidence or compliance gap|specific gaps|not as a marketplace/i.test(body), "Action Plan explainer should frame services as gap-driven.");
 
   await page.locator("[data-guided-target='action-plan-primary']").click();
   await page.locator("[data-guided-target='service-confirm-evidence']").waitFor({ timeout: 5000 });
