@@ -284,16 +284,14 @@ function applyNewPropertyEpcVariant(setup = newPropertySetup()) {
 }
 
 const journeyStages = [
-  { id: "start", label: "Start" },
-  { id: "addProperty", label: "Add property" },
-  { id: "autoChecks", label: "Smart Search" },
-  { id: "confirmProperty", label: "Review data", fullLabel: "Review found data" },
-  { id: "unknowns", label: "Unknowns", fullLabel: "Confirm unknowns" },
-  { id: "brain", label: "Workspace", fullLabel: "Evidence-led workspace" },
+  { id: "addProperty", label: "Add Property" },
+  { id: "autoChecks", label: "Auto Checks" },
+  { id: "confirmProperty", label: "Review Found Data" },
+  { id: "unknowns", label: "Answer Unknowns" },
+  { id: "brain", label: "Compliance Analysis" },
   { id: "actionPlan", label: "Action Plan", fullLabel: "Action Plan" },
-  { id: "action", label: "Actions", fullLabel: "Proof / Request / Ask / Defer" },
-  { id: "vault", label: "Evidence", fullLabel: "Evidence Vault" },
-  { id: "monitor", label: "Monitoring", fullLabel: "Monitoring" }
+  { id: "action", label: "Take Action" },
+  { id: "monitor", label: "Monitor & Update" }
 ];
 
 const journeyAutoCheckSteps = [
@@ -1277,136 +1275,72 @@ const guidedTourSteps = [
   },
   {
     id: "workspace-created",
-    section: "Workspace Created",
+    section: "Compliance Analysis",
     stage: "unknowns",
     screen: "unknowns",
     target: "build-brain",
-    title: "Build the profile",
-    body: "CMP combines records, answers and gaps into one property workspace.",
+    title: "Run Compliance Analysis",
+    body: "CMP combines found records, landlord answers and evidence gaps before showing the action plan.",
     primaryAction: "Build Property Intelligence",
-    nextStep: "workspace-overview",
-    note: "The unknowns now become a property profile.",
-    callout: "This is the bridge from answers into evidence, actions and monitoring.",
-    guideCopy: "Build the property profile."
+    nextStep: "compliance-analysis",
+    note: "Unknowns now become a property-specific compliance analysis.",
+    callout: "This is the bridge from answers into scores, blockers, evidence gaps and monitoring.",
+    guideCopy: "Run the analysis."
   },
   {
-    id: "workspace-overview",
-    section: "Property Workspace",
+    id: "compliance-analysis",
+    section: "Compliance Analysis",
     stage: "brain",
     screen: "brain",
-    target: "open-workspace",
-    title: "Enter Property Workspace",
-    body: "The profile is built. Open the workspace to learn the tabs in order.",
-    primaryAction: "Open Property Workspace",
-    nextStep: "overview-tour",
-    note: "The workspace is the hub for the rest of CMP.",
-    callout: "The user should see one property profile before deeper dashboards or scenarios.",
-    guideCopy: "Open the workspace."
+    target: "open-action-plan",
+    title: "Compliance Analysis",
+    body: "CMP shows the property profile, scores, risk level, blockers, missing evidence and future risks.",
+    primaryAction: "Open Action Plan",
+    nextStep: "action-plan",
+    note: "The user should understand the analysis before seeing services or scenarios.",
+    callout: "This follows the master journey: records and answers create analysis before action.",
+    guideCopy: "Open the action plan."
   },
   {
-    id: "overview-tour",
-    section: "Overview",
-    stage: "brain",
-    screen: "workspace",
-    workspaceTab: "overview",
-    target: "workspace-tab-compliance",
-    title: "Overview",
-    body: "This is the property profile. CMP brings the main scores, facts and next step into one place.",
-    primaryAction: "Open Compliance",
-    nextStep: "compliance-tour",
-    note: "Start the workspace with the profile.",
-    callout: "This tab should orient the user before deeper sections.",
-    guideCopy: "Start with the profile."
+    id: "action-plan",
+    section: "Action Plan",
+    stage: "actionPlan",
+    screen: "actionPlan",
+    target: "action-plan-primary",
+    title: "Action Plan",
+    body: "CMP groups urgent blockers, expiring items, missing evidence, future risks and opportunities, then recommends one next action.",
+    primaryAction: "Prepare service request",
+    nextStep: "take-action",
+    note: "The action plan follows the buckets in the master journey.",
+    callout: "The user should see why the recommended action exists before services appear.",
+    guideCopy: "Use the recommended action."
   },
   {
-    id: "compliance-tour",
-    section: "Compliance",
-    stage: "brain",
-    screen: "workspace",
-    workspaceTab: "compliance",
-    target: "workspace-tab-evidence",
-    title: "Compliance",
-    body: "This shows what looks covered, what needs checking and what needs evidence.",
-    primaryAction: "Open Evidence",
-    nextStep: "evidence-vault",
-    note: "Compliance translates the profile into covered and missing areas.",
-    callout: "Use this tab to explain the checking layer before evidence.",
-    guideCopy: "Covered, check, evidence."
-  },
-  {
-    id: "evidence-vault",
-    section: "Evidence",
-    stage: "brain",
-    screen: "workspace",
-    workspaceTab: "evidence",
-    target: "workspace-tab-services",
-    title: "Evidence",
-    body: "This is the source of truth for certificates, proof and missing documents.",
-    primaryAction: "Open Services",
-    nextStep: "services-tour",
-    note: "Evidence and missing proof stay attached to the property.",
-    callout: "The Evidence Vault should be the source of truth for every later section.",
-    guideCopy: "Evidence is the source of truth."
-  },
-  {
-    id: "services-tour",
-    section: "Services",
-    stage: "brain",
-    screen: "workspace",
-    workspaceTab: "services",
-    target: "workspace-tab-timeline",
-    title: "Services",
-    body: "Services appear because of a property gap, not as a random marketplace.",
-    primaryAction: "Open Timeline",
-    nextStep: "timeline-tour",
-    note: "Services should be explained as gap-driven.",
-    callout: "This keeps the commercial path tied to the property profile.",
-    guideCopy: "Services come from gaps."
-  },
-  {
-    id: "timeline-tour",
-    section: "Timeline",
-    stage: "brain",
-    screen: "workspace",
-    workspaceTab: "timeline",
-    target: "workspace-tab-ask",
-    title: "Timeline",
-    body: "This records what happened, what was requested and what needs follow-up.",
-    primaryAction: "Open Ask CMP",
-    nextStep: "ask-cmp",
-    note: "The timeline keeps the journey explainable.",
-    callout: "Requests and evidence should become history, not loose cards.",
-    guideCopy: "Timeline keeps the record."
-  },
-  {
-    id: "ask-cmp",
-    section: "Ask CMP",
-    stage: "brain",
-    screen: "workspace",
-    workspaceTab: "ask",
-    target: "ask-prompt",
-    title: "Ask with context",
-    body: "Ask CMP explains the property using the same evidence and answers. It is guidance, not legal advice.",
-    primaryAction: "What evidence am I missing?",
+    id: "take-action",
+    section: "Take Action",
+    stage: "action",
+    screen: "takeAction",
+    target: "take-action-primary",
+    title: "Take Action",
+    body: "CMP can help with proof, service requests, quotes, Ask CMP, reminders, communications and professional support. The demo follows one clear action.",
+    primaryAction: "Prepare service request",
     nextStep: "monitoring",
-    note: "Ask CMP is context-based guidance.",
-    callout: "Ask CMP should explain the property using the same evidence and answers.",
-    guideCopy: "Ask CMP uses the same evidence.",
-    autoAdvance: false
+    note: "Take Action should feel structured, not like a marketplace dump.",
+    callout: "Supporting systems appear because the action plan produced a real property gap.",
+    guideCopy: "Prepare one action."
   },
   {
     id: "monitoring",
-    section: "Monitoring",
-    stage: "brain",
-    screen: "workspace",
-    workspaceTab: "monitoring",
+    section: "Monitor & Update",
+    stage: "monitor",
+    screen: "monitoring",
     target: "monitoring-item",
-    title: "Monitoring",
-    body: "This is the recurring value: renewals, missing proof and future follow-ups stay visible.",
-    primaryAction: "Set reminder",
+    title: "Monitor & Update",
+    body: "CMP keeps this property watched: expiries, law changes, evidence gaps, property changes and supplier follow-up stay visible.",
+    primaryAction: "Finish main journey",
     nextStep: "scenario-handoff",
     note: "End on the recurring value.",
-    callout: "The long-term value is monitoring: expiry dates, evidence watch and annual review.",
+    callout: "The long-term value is monitoring: expiry dates, law change watch, evidence watch and follow-up.",
     guideCopy: "This is the ongoing value."
   },
   {
@@ -1443,9 +1377,9 @@ function guidedTourStepToMoment(step) {
 
 const guidedDemoStories = {
   "clean-property-check": {
-    title: "Guided first property setup",
+    title: "Guided landlord compliance journey",
     scenarioId: "clean-property-match",
-    proof: "CMP teaches one landlord how to add a property, confirm unknowns and understand the workspace.",
+    proof: "CMP teaches one landlord how to add a property, run checks, answer unknowns, analyse compliance, act and monitor.",
     time: "2 minutes",
     motif: "match",
     moments: guidedTourSteps.map(guidedTourStepToMoment)
@@ -5765,7 +5699,7 @@ function guidedTourStepIndexForLiveState() {
     return -1;
   }
   if (state.modalMode === "service-confirmation") {
-    return guidedTourSteps.findIndex((step) => step.id === "services-tour");
+    return guidedTourSteps.findIndex((step) => step.id === "take-action");
   }
   if (demo.mode === "landing" && demo.scenarioExplorerFocus) {
     return guidedTourSteps.findIndex((step) => step.id === "scenario-handoff");
@@ -5782,8 +5716,10 @@ function guidedTourStepIndexForLiveState() {
     if (Object.keys(state.answers || {}).length > 0) return guidedTourSteps.findIndex((step) => step.id === "answers-so-far");
     return guidedTourSteps.findIndex((step) => step.id === "confirm-unknowns-intro");
   }
-  if (state.screen === "brain") return guidedTourSteps.findIndex((step) => step.id === "workspace-overview");
-  if (state.screen === "actionPlan") return guidedTourSteps.findIndex((step) => step.id === "compliance-tour");
+  if (state.screen === "brain") return guidedTourSteps.findIndex((step) => step.id === "compliance-analysis");
+  if (state.screen === "actionPlan") return guidedTourSteps.findIndex((step) => step.id === "action-plan");
+  if (state.screen === "takeAction") return guidedTourSteps.findIndex((step) => step.id === "take-action");
+  if (state.screen === "monitoring") return guidedTourSteps.findIndex((step) => step.id === "monitoring");
   if (state.screen === "workspace" && state.workspaceTab === "overview") return guidedTourSteps.findIndex((step) => step.id === "overview-tour");
   if (state.screen === "workspace" && state.workspaceTab === "compliance") return guidedTourSteps.findIndex((step) => step.id === "compliance-tour");
   if (state.screen === "workspace" && state.workspaceTab === "evidence") return guidedTourSteps.findIndex((step) => step.id === "evidence-vault");
@@ -5996,10 +5932,10 @@ function currentGuidedAction() {
 
   if (state.screen === "brain" && state.brainStep >= journeyBrainSteps.length) {
     return {
-      target: "open-workspace",
-      title: "Open the property workspace",
-      body: "CMP has combined records, answers and gaps. Open the workspace to understand the tabs in order.",
-      why: "This is where setup becomes a property profile."
+      target: "open-action-plan",
+      title: "Open the action plan",
+      body: "CMP has combined records, answers and gaps into a compliance analysis. Open the action plan next.",
+      why: "This is where analysis becomes practical landlord action."
     };
   }
 
@@ -6085,12 +6021,14 @@ function currentDemoGuide(action = currentGuidedAction()) {
     "review-found-data": { pose: "thinking", copy: "CMP separates found data from what only the landlord can confirm.", direction: "right" },
     "build-brain": { pose: "thinking", copy: "Now CMP builds the property profile.", direction: "right" },
     "open-workspace": { pose: "point", copy: "Open the workspace next.", direction: "right" },
+    "open-action-plan": { pose: "point", copy: "Now open the action plan.", direction: "right" },
     "workspace-tab-compliance": { pose: "point", copy: "Next: Compliance.", direction: "right" },
     "workspace-tab-evidence": { pose: "point", copy: "Next: Evidence.", direction: "right" },
     "workspace-tab-services": { pose: "point", copy: "Next: Services.", direction: "right" },
     "workspace-tab-timeline": { pose: "point", copy: "Next: Timeline.", direction: "right" },
     "workspace-tab-ask": { pose: "point", copy: "Next: Ask CMP.", direction: "right" },
     "action-plan-primary": { pose: "point", copy: "This is where CMP turns gaps into next steps.", direction: "right" },
+    "take-action-primary": { pose: "point", copy: "Prepare one action before moving to monitoring.", direction: "right" },
     "service-confirm-evidence": { pose: "success", copy: "Now check the Evidence Vault.", direction: "right" },
     "workspace-action": { pose: "point", copy: "This creates the next practical step.", direction: "right" },
     "evidence-gap": { pose: "thinking", copy: "The Evidence Vault becomes the source of truth.", direction: "left" },
@@ -6386,7 +6324,9 @@ function completeGuidedUnknownsWithDemoAnswers() {
   state.serviceRecommendations = buildServiceRecommendations(state);
   syncGuidedMomentToLiveState();
   renderJourneyOsState();
-  showToast("Guided demo answers completed. Build the Property Intelligence profile next.");
+  if (!isStrictGuidedMode()) {
+    showToast("Guided demo answers completed. Build the Property Intelligence profile next.");
+  }
 }
 
 function guidedUnknownIndexForMoment(moment) {
@@ -6456,9 +6396,9 @@ function prepareStateForGuidedTourStep(state, step) {
   const reviewIndex = guidedTourSteps.findIndex((item) => item.id === "review-found-data");
   const unknownIndex = guidedTourSteps.findIndex((item) => item.id === "confirm-unknowns-intro");
   const buildIndex = guidedTourSteps.findIndex((item) => item.id === "workspace-created");
-  const workspaceIndex = guidedTourSteps.findIndex((item) => item.id === "workspace-overview");
-  const evidenceIndex = guidedTourSteps.findIndex((item) => item.id === "evidence-vault");
-  const askIndex = guidedTourSteps.findIndex((item) => item.id === "ask-cmp");
+  const analysisIndex = guidedTourSteps.findIndex((item) => item.id === "compliance-analysis");
+  const actionPlanIndex = guidedTourSteps.findIndex((item) => item.id === "action-plan");
+  const takeActionIndex = guidedTourSteps.findIndex((item) => item.id === "take-action");
   const monitoringIndex = guidedTourSteps.findIndex((item) => item.id === "monitoring");
 
   if (stepIndex >= reviewIndex) {
@@ -6481,19 +6421,21 @@ function prepareStateForGuidedTourStep(state, step) {
     state.serviceRecommendations = buildServiceRecommendations(state);
   }
 
-  if (stepIndex >= workspaceIndex) {
+  if (stepIndex >= analysisIndex) {
     state.brainStep = journeyBrainSteps.length;
     state.actionPlan = buildJourneyActionPlan(state);
     state.serviceRecommendations = buildServiceRecommendations(state);
   }
 
-  if (stepIndex >= evidenceIndex) {
+  if (stepIndex >= actionPlanIndex) {
     state.actionPlan = buildJourneyActionPlan(state);
     state.serviceRecommendations = buildServiceRecommendations(state);
   }
 
-  if (stepIndex >= askIndex && !state.askHistory.length) {
-    generateAskCmpResponse(guidedAskPromptForStory("clean-property-check"));
+  if (stepIndex >= takeActionIndex && !state.serviceBasket.length) {
+    const action = recommendedMainJourneyAction();
+    const service = journeyServiceForAction(action.id);
+    ensureServiceBasketItem(service.id, "added");
   }
 
   if (stepIndex >= monitoringIndex && !state.monitoringItems.some((item) => item.id === "annual-review")) {
@@ -7441,6 +7383,38 @@ function upsertMonitoringItem(itemId, status = "watching") {
   showJourneyOs({ scroll: false });
 }
 
+function completeGuidedMainActionPath() {
+  const state = journeyState();
+  const action = recommendedMainJourneyAction();
+  const service = journeyServiceForAction(action.id);
+  ensureServiceBasketItem(service.id, "booked");
+  upsertJourneyEvidenceFromService(service.id, "booked");
+  addTimelineEvent({
+    title: "Guided service request prepared",
+    body: `${service.title} was prepared from the recommended action: ${action.title}. No supplier was contacted.`,
+    type: "Take action"
+  });
+  state.branchEffects.unshift("One recommended action prepared from the compliance plan");
+  state.actionPlan = buildJourneyActionPlan(state);
+  state.serviceRecommendations = buildServiceRecommendations(state);
+  state.currentStage = "monitor";
+  state.screen = "monitoring";
+  closeTimelineModals();
+  syncGuidedMomentToLiveState();
+  showJourneyOs({ scroll: false });
+}
+
+function finishGuidedMainJourney() {
+  const demo = guidedDemoState();
+  demo.activeStoryId = "";
+  demo.activeMomentIndex = 0;
+  demo.mode = "landing";
+  demo.scenarioExplorerFocus = true;
+  syncGuidedDemoClass();
+  showJourneyOs({ scroll: true });
+  renderJourneyOsState();
+}
+
 function recalculateJourneyScores(state = journeyState(), grouped = state.actionPlan || {}) {
   const base = recalculateScores(state, grouped);
   const acceptedEvidence = state.evidenceVault.filter((item) => item.reviewStatus === "accepted").length;
@@ -7766,22 +7740,22 @@ function renderGuidedDemoLanding() {
       <div class="journey-guided-hero">
         <div>
           <p class="section-kicker">Nick demo mode</p>
-          <h1 id="guidedDemoTitle">Guided first property setup</h1>
-          <p>Start with one property, run Smart Search, confirm unknowns and learn the workspace tabs before trying other landlord situations.</p>
+          <h1 id="guidedDemoTitle">Guided landlord compliance journey</h1>
+          <p>Start with one property, run auto checks, review found data, answer unknowns, see CMP's compliance analysis, take one action and finish with monitoring.</p>
           <span class="prototype-badge">Prototype mode · simulated data</span>
           <div class="button-row">
-            <button class="primary-button" type="button" data-guided-story="clean-property-check"${guidedTargetAttrs("run-demo")}>Start first property walkthrough</button>
+            <button class="primary-button" type="button" data-guided-story="clean-property-check"${guidedTargetAttrs("run-demo")}>Start landlord compliance journey</button>
             <button class="secondary-button" type="button" data-guided-scroll-stories>Try another landlord situation</button>
             <button class="text-button" type="button" data-guided-exit>Exit guided demo</button>
           </div>
         </div>
         <aside class="journey-guided-vision-card">
           <strong>The story Nick should understand</strong>
-          <p>Add Property → Smart Search → Confirm Unknowns → Property Workspace → Overview → Compliance → Evidence → Services → Timeline → Ask CMP → Monitoring → Scenario Explorer.</p>
+          <p>Add Property → Auto Checks → Review Found Data → Answer Unknowns → Compliance Analysis → Action Plan → Take Action → Monitor & Update → Scenario Explorer.</p>
           <div class="journey-guided-orbit" aria-hidden="true">
             <span>Property</span>
-            <span>Search</span>
-            <span>Evidence</span>
+            <span>Checks</span>
+            <span>Action</span>
             <span>Monitor</span>
             <i></i>
           </div>
@@ -7791,7 +7765,7 @@ function renderGuidedDemoLanding() {
         <div class="journey-guided-scenario-intro">
           <p class="section-kicker">Scenario Explorer</p>
           <h2>Try another landlord situation</h2>
-          <p>Use these after the first property setup lands. Each card changes the landlord situation while preserving the same CMP spine.</p>
+          <p>Use these after the main compliance journey lands. Each card changes the landlord situation while preserving the same CMP spine.</p>
         </div>
         ${renderNickScenarioCards()}
       </section>` : ""}
@@ -7824,6 +7798,7 @@ function currentStoryCoachMark() {
     "workspace-tab-timeline",
     "workspace-tab-ask",
     "action-plan-primary",
+    "take-action-primary",
     "service-confirm-evidence",
     "evidence-gap",
     "ask-prompt",
@@ -8034,11 +8009,12 @@ function renderGuidedNextStepsPanel() {
 
 function renderJourneySpine() {
   const state = journeyState();
-  const currentIndex = journeyStages.findIndex((stage) => stage.id === state.currentStage);
+  const currentStageId = state.currentStage === "start" ? "addProperty" : state.currentStage === "vault" ? "monitor" : state.currentStage;
+  const currentIndex = journeyStages.findIndex((stage) => stage.id === currentStageId);
   return `
     <section class="journey-spine-card" aria-label="Guided demo progress">
       <div class="journey-spine-copy">
-        <p>Add Property -> Smart Search -> Confirm Unknowns -> Property Workspace -> Overview -> Compliance -> Evidence -> Services -> Timeline -> Ask CMP -> Monitoring -> Scenario Explorer.</p>
+        <p>Add Property -> Auto Checks -> Review Found Data -> Answer Unknowns -> Compliance Analysis -> Action Plan -> Take Action -> Monitor & Update. Scenario Explorer comes after this route lands.</p>
       </div>
       <ol class="journey-spine">
         ${journeyStages.map((stage, index) => `
@@ -8057,13 +8033,13 @@ function journeyCompletionChecklist(state = journeyState()) {
   const unknownsHandled = state.unknownIndex >= journeyUnknownQuestions.length;
   return [
     { id: "property", label: "Property selected", complete: Boolean(state.selectedMatchId || state.currentStage !== "start") },
-    { id: "smartSearch", label: "Smart Search reviewed", complete: state.autoCheckStep >= journeyAutoCheckSteps.length || ["review", "unknowns", "brain", "actionPlan", "workspace"].includes(state.screen) },
+    { id: "smartSearch", label: "Auto checks reviewed", complete: state.autoCheckStep >= journeyAutoCheckSteps.length || ["review", "unknowns", "brain", "actionPlan", "takeAction", "monitoring", "workspace"].includes(state.screen) },
     { id: "unknowns", label: "Unknowns answered or marked not sure", complete: unknownsHandled },
     { id: "evidence", label: "Evidence gaps identified", complete: Boolean(Object.values(state.actionPlan || {}).flat().length) },
-    { id: "actionPlan", label: "Action plan generated", complete: ["actionPlan", "workspace"].includes(state.screen) || ["actionPlan", "action", "vault", "monitor"].includes(state.currentStage) },
+    { id: "actionPlan", label: "Action plan generated", complete: ["actionPlan", "takeAction", "monitoring", "workspace"].includes(state.screen) || ["actionPlan", "action", "vault", "monitor"].includes(state.currentStage) },
     { id: "service", label: "One evidence/service action taken", complete: Boolean((state.serviceBasket || []).length || (state.evidenceVault || []).length) },
     { id: "ask", label: "Ask CMP opened", complete: state.workspaceTab === "ask" || Boolean((state.askHistory || []).length) },
-    { id: "monitor", label: "Monitoring viewed", complete: state.workspaceTab === "monitoring" || state.currentStage === "monitor" }
+    { id: "monitor", label: "Monitoring viewed", complete: state.workspaceTab === "monitoring" || state.screen === "monitoring" || state.currentStage === "monitor" }
   ];
 }
 
@@ -8170,8 +8146,8 @@ function renderJourneyShell(screenHtml) {
     <header class="journey-os-header">
       <div>
         <p class="section-kicker">CMP guided journey</p>
-        <h1 id="journeyOsTitle">Build an evidence-led property workspace</h1>
-        <p>Start with an address. CMP checks demo records, asks landlord-only unknowns, then creates the property workspace, action plan and monitoring trail.</p>
+        <h1 id="journeyOsTitle">Build a landlord compliance journey</h1>
+        <p>Start with an address. CMP checks demo records, asks landlord-only unknowns, analyses compliance, creates an action plan and keeps the property watched.</p>
         <span class="prototype-badge">Prototype mode · simulated data</span>
         <small class="nick-demo-disclaimer">Smart Search, Ask CMP, scoring, requests and evidence updates are simulated for this demo. When proof is needed, CMP uses Add proof later or Evidence gap wording. No live API lookup, supplier booking, payment, document storage or legal advice is happening.</small>
       </div>
@@ -8218,21 +8194,22 @@ function renderJourneyShell(screenHtml) {
 }
 
 function renderJourneyStart() {
+  const guidedStrict = isStrictGuidedMode();
   return renderJourneyShell(`
     <section class="journey-hero-panel">
       <div>
         <p class="section-kicker">Start</p>
         <h2>Build a Property Intelligence profile before choosing what to fix</h2>
-        <p>Start with an address. CMP will simulate official checks, ask only for the things public records cannot know, and return every route to a property workspace.</p>
+        <p>Start with an address. CMP will simulate official checks, ask only for the things public records cannot know, then move into compliance analysis, action and monitoring.</p>
         ${renderGuidedCoachMarkFor("start-check")}
         <div class="button-row">
           <button class="primary-button" type="button" data-journey-go="add"${guidedTargetAttrs("start-check")}>Check My Property</button>
-          <button class="secondary-button" type="button" data-journey-go="workspace">Open workspace preview</button>
+          ${guidedStrict ? "" : `<button class="secondary-button" type="button" data-journey-go="workspace">Open workspace preview</button>`}
         </div>
       </div>
       <aside class="journey-principle-card">
         <strong>No dead ends</strong>
-        <p>Every branch returns to the Property Workspace with an updated action plan, evidence status, services, timeline and monitoring preview.</p>
+        <p>Every branch returns to the same compliance journey: analysis, action plan, one follow-through path and monitoring.</p>
       </aside>
     </section>
   `);
@@ -8637,26 +8614,29 @@ function renderJourneyCarriedAnswerNote() {
 
 function renderJourneyBrain() {
   const state = journeyState();
+  const complete = state.brainStep >= journeyBrainSteps.length;
   return renderJourneyShell(`
     <section class="journey-step-panel">
-      <div class="journey-step-heading">
-        <p class="section-kicker">Property compliance profile</p>
-        <h2>CMP is building your property compliance profile</h2>
-        <p>Demo analysis is combining simulated records, landlord answers, evidence gaps and service routes.</p>
-      </div>
-      ${renderGuidedBrainVisual()}
-      <div class="journey-progress-grid">
-        ${journeyBrainSteps.map((step, index) => `
-          <article class="journey-progress-card ${index < state.brainStep ? "is-complete" : index === state.brainStep ? "is-active" : ""}">
-            <span>${index < state.brainStep ? "Done" : index === state.brainStep ? "Building" : "Waiting"}</span>
-            <strong>${escapeHtml(step)}</strong>
-          </article>
-        `).join("")}
-      </div>
-      ${state.brainStep >= journeyBrainSteps.length ? `
+      ${complete ? renderComplianceAnalysisReveal() : `
+        <div class="journey-step-heading">
+          <p class="section-kicker">Property compliance profile</p>
+          <h2>CMP is building your property compliance profile</h2>
+          <p>Demo analysis is combining simulated records, landlord answers, evidence gaps and service routes.</p>
+        </div>
+        ${renderGuidedBrainVisual()}
+        <div class="journey-progress-grid">
+          ${journeyBrainSteps.map((step, index) => `
+            <article class="journey-progress-card ${index < state.brainStep ? "is-complete" : index === state.brainStep ? "is-active" : ""}">
+              <span>${index < state.brainStep ? "Done" : index === state.brainStep ? "Building" : "Waiting"}</span>
+              <strong>${escapeHtml(step)}</strong>
+            </article>
+          `).join("")}
+        </div>
+      `}
+      ${complete ? `
         ${renderGuidedCoachMarkFor("open-action-plan")}
         <div class="button-row">
-          <button class="primary-button" type="button" data-journey-go="workspace"${guidedTargetAttrs("open-workspace")}>Open Property Workspace</button>
+          <button class="primary-button" type="button" data-journey-go="actionPlan"${guidedTargetAttrs("open-action-plan")}>Open Action Plan</button>
         </div>
       ` : ""}
     </section>
@@ -8698,12 +8678,135 @@ function renderJourneyScores() {
   `;
 }
 
+function recommendedMainJourneyAction() {
+  const plan = journeyState().actionPlan || {};
+  return [
+    ...(plan.urgentLegalBlockers || []),
+    ...(plan.missingEvidence || []),
+    ...(plan.expiringSoon || []),
+    ...(plan.futureRisks || []),
+    ...(plan.improvementOpportunities || [])
+  ].find((action) => action.status !== "Deferred") || allJourneyActions()[0] || {
+    id: "annual-monitoring",
+    title: "Annual compliance monitoring",
+    body: "Set monitoring so certificates, evidence gaps and future risks do not disappear.",
+    risk: "low",
+    status: "Open"
+  };
+}
+
+function renderCompactActionList(actions = [], emptyCopy = "No issue showing in this bucket.") {
+  if (!actions.length) {
+    return `<p>${escapeHtml(emptyCopy)}</p>`;
+  }
+  return `
+    <ul class="journey-compact-list">
+      ${actions.slice(0, 3).map((action) => `<li><strong>${escapeHtml(action.title)}</strong><span>${escapeHtml(action.body)}</span></li>`).join("")}
+    </ul>
+  `;
+}
+
+function renderComplianceAnalysisReveal() {
+  const state = journeyState();
+  const brain = state.propertyBrain;
+  const plan = state.actionPlan || {};
+  const urgent = plan.urgentLegalBlockers || [];
+  const missing = plan.missingEvidence || [];
+  const future = plan.futureRisks || [];
+  const opportunities = plan.improvementOpportunities || [];
+  const highRiskCount = [...urgent, ...(plan.conditionRisks || [])].filter((action) => action.risk === "high").length;
+  const riskLevel = highRiskCount ? "High" : missing.length || future.length ? "Medium" : "Low";
+  const foundRecords = [
+    brain.AutoCheckResults.epcFound ? `EPC ${brain.AutoCheckResults.epcRating}` : "No clear EPC record",
+    brain.PropertyIdentity.localAuthority,
+    brain.PropertyIdentity.identityConfidence
+  ];
+  const landlordAnswers = Object.keys(state.answers || {}).length;
+  return `
+    <section class="journey-analysis-reveal" aria-label="Compliance Analysis">
+      <div class="journey-step-heading">
+        <p class="section-kicker">Compliance Analysis</p>
+        <h2>CMP has built the compliance position</h2>
+        <p>Found records, landlord answers and evidence gaps now become scores, risk level and a focused action plan.</p>
+      </div>
+      <div class="journey-progress-grid">
+        <article class="journey-workspace-card">
+          <span>Input</span>
+          <h3>Found records</h3>
+          <p>${foundRecords.map(escapeHtml).join(" · ")}</p>
+        </article>
+        <article class="journey-workspace-card">
+          <span>Input</span>
+          <h3>Landlord answers</h3>
+          <p>${landlordAnswers} answers confirmed and attached to this property profile.</p>
+        </article>
+        <article class="journey-workspace-card">
+          <span>Input</span>
+          <h3>Evidence gaps</h3>
+          <p>${missing.length ? `${missing.length} proof gap${missing.length === 1 ? "" : "s"} still visible.` : "No missing evidence on this route."}</p>
+        </article>
+      </div>
+      ${renderJourneyScores()}
+      <div class="journey-progress-grid">
+        <article class="journey-workspace-card is-primary">
+          <span>CMP produces</span>
+          <h3>Risk level: ${escapeHtml(riskLevel)}</h3>
+          <p>Urgent blockers, missing evidence, future risks and opportunities are now ready for the action plan.</p>
+        </article>
+        <article class="journey-workspace-card">
+          <span>CMP produces</span>
+          <h3>Urgent blockers</h3>
+          ${renderCompactActionList(urgent, "No urgent blocker showing for this route.")}
+        </article>
+        <article class="journey-workspace-card">
+          <span>CMP produces</span>
+          <h3>Missing evidence</h3>
+          ${renderCompactActionList(missing)}
+        </article>
+        <article class="journey-workspace-card">
+          <span>CMP produces</span>
+          <h3>Future risks</h3>
+          ${renderCompactActionList(future)}
+        </article>
+        <article class="journey-workspace-card">
+          <span>CMP produces</span>
+          <h3>Opportunities</h3>
+          ${renderCompactActionList(opportunities, "No improvement opportunity showing yet.")}
+        </article>
+      </div>
+    </section>
+  `;
+}
+
+function renderMasterActionPlanBuckets() {
+  const plan = journeyState().actionPlan || {};
+  const buckets = [
+    ["Urgent actions / legal blockers", plan.urgentLegalBlockers || [], "No legal blocker showing for this route."],
+    ["Expiring soon", plan.expiringSoon || [], "No short-term expiry surfaced yet."],
+    ["Missing evidence", plan.missingEvidence || [], "No proof gap showing for this route."],
+    ["Future risks", plan.futureRisks || [], "No future risk surfaced yet."],
+    ["Opportunities and improvements", plan.improvementOpportunities || [], "No improvement opportunity surfaced yet."]
+  ];
+  return `
+    <section class="journey-master-buckets" aria-label="Action Plan buckets">
+      <div class="journey-progress-grid">
+        ${buckets.map(([label, actions, emptyCopy]) => `
+          <article class="journey-workspace-card">
+            <span>${actions.length} item${actions.length === 1 ? "" : "s"}</span>
+            <h3>${escapeHtml(label)}</h3>
+            ${renderCompactActionList(actions, emptyCopy)}
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `;
+}
+
 function renderJourneyPlanSummary() {
   const state = journeyState();
-  const actions = allJourneyActions();
-  const nextAction = actions.find((action) => action.status !== "Deferred") || actions[0];
+  const nextAction = recommendedMainJourneyAction();
   const routeLabel = journeyRoutes[state.routeId]?.label || "Prioritised";
-  const urgentCount = actions.filter((action) => action.risk === "high").length;
+  const urgentCount = allJourneyActions().filter((action) => action.risk === "high").length;
   const evidenceCount = (state.actionPlan.missingEvidence || []).length;
   const serviceCount = buildServiceRecommendations(state).length;
   return `
@@ -9161,34 +9264,127 @@ function renderPortfolioPreviewExperience() {
 
 function renderJourneyActionPlan() {
   const guidedStrict = isStrictGuidedMode();
+  const nextAction = recommendedMainJourneyAction();
+  const nextService = journeyServiceForAction(nextAction.id);
   return renderJourneyShell(`
     <section class="journey-step-panel">
       <div class="journey-step-heading">
-        <p class="section-kicker">Results / Action Plan</p>
+        <p class="section-kicker">Action Plan</p>
         <h2>Your simulated CMP action plan</h2>
-        <p>CMP now turns the property profile into a small number of prioritised next steps.</p>
+        <p>CMP now turns the compliance analysis into clear buckets and one recommended next action.</p>
       </div>
-      <section class="journey-answer-update-note">
-        <div>
-          <strong>Need to change an answer?</strong>
-          <span>CMP will update routes, scores and recommended services when landlord details change.</span>
-        </div>
-        <button class="secondary-button" type="button" data-journey-edit-answer="occupancy">Edit answers</button>
-      </section>
+      ${guidedStrict ? "" : `
+        <section class="journey-answer-update-note">
+          <div>
+            <strong>Need to change an answer?</strong>
+            <span>CMP will update routes, scores and recommended services when landlord details change.</span>
+          </div>
+          <button class="secondary-button" type="button" data-journey-edit-answer="occupancy">Edit answers</button>
+        </section>
+      `}
       ${renderGuidedSectionExplainer("actionPlan")}
       ${renderGuidedCoachMarkFor("action-plan-primary")}
-      ${renderJourneyScores()}
+      ${guidedStrict ? "" : renderJourneyScores()}
       ${renderJourneyPlanSummary()}
+      ${guidedStrict ? renderMasterActionPlanBuckets() : ""}
+      ${guidedStrict ? `
+        <section class="journey-plan-controls journey-plan-controls--guided" aria-label="Recommended guided action">
+          <p class="section-kicker">Recommended next action</p>
+          <h3>${escapeHtml(nextAction.title)}</h3>
+          <p>${escapeHtml(nextAction.body)}</p>
+          <small>Suggested support: ${escapeHtml(nextService.title)}</small>
+          <button class="primary-button is-guided-recommended" type="button" data-guided-take-action${guidedTargetAttrs("action-plan-primary")}>Prepare service request</button>
+          <button class="text-button" type="button" data-guided-unlock>Unlock full action plan</button>
+        </section>
+      ` : ""}
       ${guidedStrict ? `
         <p class="journey-guided-muted-note">More routes, filters and service cards are available after the guided path.</p>
       ` : renderRouteSelector()}
-      ${renderJourneyPlanButtons()}
+      ${guidedStrict ? "" : renderJourneyPlanButtons()}
       ${guidedStrict ? "" : `
         ${renderJourneyActionGroups()}
         ${renderJourneyServicesExperience()}
       `}
-      <div class="journey-sticky-next">
-        <button class="primary-button" type="button" data-journey-go="workspace">Open Property Workspace</button>
+      ${guidedStrict ? "" : `
+        <div class="journey-sticky-next">
+          <button class="primary-button" type="button" data-journey-go="workspace">Open Property Workspace</button>
+        </div>
+      `}
+    </section>
+  `);
+}
+
+function renderGuidedTakeAction() {
+  const action = recommendedMainJourneyAction();
+  const service = journeyServiceForAction(action.id);
+  const supportOptions = [
+    "Add proof later",
+    "Prepare service request",
+    "Get quotes",
+    "Ask CMP",
+    "Set reminders",
+    "Generate communications",
+    "Professional support"
+  ];
+  return renderJourneyShell(`
+    <section class="journey-step-panel">
+      ${renderGuidedCoachMarkFor("take-action-primary")}
+      <div class="journey-step-heading">
+        <p class="section-kicker">Take Action</p>
+        <h2>Turn the plan into one practical action</h2>
+        <p>CMP can support several follow-through routes, but the main demo follows one clear service request tied to the selected gap.</p>
+      </div>
+      <article class="journey-workspace-card is-primary">
+        <span>Selected action path</span>
+        <h3>${escapeHtml(action.title)}</h3>
+        <p>${escapeHtml(action.body)}</p>
+        <div class="journey-action-insight">
+          <strong>Prepare service request</strong>
+          <span>${escapeHtml(service.title)} is shown because it links to this property gap.</span>
+        </div>
+        <button class="primary-button" type="button" data-guided-complete-action${guidedTargetAttrs("take-action-primary")}>Prepare service request</button>
+      </article>
+      <div class="journey-progress-grid" aria-label="Supporting systems">
+        ${supportOptions.map((option) => `
+          <article class="journey-workspace-card">
+            <span>Supporting system</span>
+            <h3>${escapeHtml(option)}</h3>
+            <p>${option === "Ask CMP" ? "Guidance can explain the action using this property's facts and evidence." : "Available after the recommended action, without making every option compete at once."}</p>
+          </article>
+        `).join("")}
+      </div>
+    </section>
+  `);
+}
+
+function renderGuidedMonitoringStage() {
+  const monitoringCards = [
+    ["Expiry monitoring", "Certificates and renewal dates stay visible after setup."],
+    ["Law change monitoring", "Future landlord rule changes can be surfaced against this property."],
+    ["Evidence monitoring", "Missing proof remains tracked until added or resolved."],
+    ["Property change monitoring", "Changes to occupancy, condition or use can update the route."],
+    ["Supplier follow-up", "Prepared service requests stay connected to the property record."],
+    ["Portfolio monitoring later", "The same logic can roll up when more properties are added."]
+  ];
+  return renderJourneyShell(`
+    <section class="journey-step-panel">
+      ${renderGuidedCoachMarkFor("monitoring-item")}
+      <div class="journey-step-heading">
+        <p class="section-kicker">Monitor & Update</p>
+        <h2>CMP keeps this property watched.</h2>
+        <p>This is the recurring value: the profile does not end at one check or one service request.</p>
+      </div>
+      <div class="journey-progress-grid">
+        ${monitoringCards.map(([title, body], index) => `
+          <article class="journey-workspace-card ${index === 0 ? "is-primary" : ""}">
+            <span>${index === 0 ? "Final value moment" : "Monitoring"}</span>
+            <h3>${escapeHtml(title)}</h3>
+            <p>${escapeHtml(body)}</p>
+          </article>
+        `).join("")}
+      </div>
+      <div class="button-row">
+        <button class="primary-button" type="button" data-guided-finish-main${guidedTargetAttrs("monitoring-item")}>Finish main journey</button>
       </div>
     </section>
   `);
@@ -9326,6 +9522,8 @@ function renderJourneyOsState() {
     missingAnswers: renderJourneyMissingAnswersGuard,
     brain: renderJourneyBrain,
     actionPlan: renderJourneyActionPlan,
+    takeAction: renderGuidedTakeAction,
+    monitoring: renderGuidedMonitoringStage,
     workspace: renderPropertyWorkspace
   };
   page.innerHTML = (screens[state.screen] || renderJourneyStart)();
@@ -10068,6 +10266,29 @@ function bindJourneyOs() {
       if (shouldAdvanceGuided) {
         advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
       }
+      return;
+    }
+
+    if (event.target.closest("[data-guided-take-action]")) {
+      const guidedTarget = clickedGuidedTarget(event);
+      const state = journeyState();
+      state.currentStage = "action";
+      state.screen = "takeAction";
+      syncGuidedMomentToLiveState();
+      renderJourneyOsState();
+      if (isCurrentGuidedTarget(guidedTarget)) {
+        advanceGuidedProductTarget(guidedTarget, { verifyCurrent: false });
+      }
+      return;
+    }
+
+    if (event.target.closest("[data-guided-complete-action]")) {
+      completeGuidedMainActionPath();
+      return;
+    }
+
+    if (event.target.closest("[data-guided-finish-main]")) {
+      finishGuidedMainJourney();
       return;
     }
 

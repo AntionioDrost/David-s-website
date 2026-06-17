@@ -20,7 +20,7 @@ const MIME_TYPES = {
   ".jpeg": "image/jpeg"
 };
 
-const MAIN_DEMO_RE = /Start first property walkthrough/i;
+const MAIN_DEMO_RE = /Start landlord compliance journey/i;
 
 function assert(condition, message) {
   if (!condition) {
@@ -133,11 +133,12 @@ async function startFirstPropertyWalkthrough(page, baseUrl) {
 
 async function testNickRoutes(page, baseUrl) {
   await openNick(page, baseUrl, "demo=nick");
-  assert(await page.getByRole("button", { name: MAIN_DEMO_RE }).isVisible(), "demo=nick should show first property walkthrough CTA.");
-  assert(/first property setup walkthrough|guided first property setup/i.test(await text(page)), "Main demo should be framed as a first-property setup walkthrough.");
+  assert(await page.getByRole("button", { name: MAIN_DEMO_RE }).isVisible(), "demo=nick should show landlord compliance journey CTA.");
+  assert(/Guided landlord compliance journey|First property compliance journey/i.test(await text(page)), "Main demo should be framed as a landlord compliance journey.");
+  assert(/Add Property\s*→\s*Auto Checks\s*→\s*Review Found Data\s*→\s*Answer Unknowns\s*→\s*Compliance Analysis\s*→\s*Action Plan\s*→\s*Take Action\s*→\s*Monitor & Update/i.test(await text(page)), "Landing should show the 8-stage master journey.");
   assert(!/Clean property check/i.test(await text(page)), "Main demo should not be labelled Clean property check.");
   await openNick(page, baseUrl, "journeyDemo=nick");
-  assert(await page.getByRole("button", { name: MAIN_DEMO_RE }).isVisible(), "journeyDemo=nick alias should show first property walkthrough CTA.");
+  assert(await page.getByRole("button", { name: MAIN_DEMO_RE }).isVisible(), "journeyDemo=nick alias should show landlord compliance journey CTA.");
 }
 
 async function testCoachMarks(page, baseUrl) {
@@ -241,13 +242,23 @@ async function clickRecommendedUnknownAnswer(page) {
   return targetText;
 }
 
-async function reachGuidedWorkspaceOverview(page, baseUrl) {
+async function reachComplianceAnalysis(page, baseUrl) {
   await reachCleanUnknowns(page, baseUrl);
   await page.locator("[data-guided-use-demo-answers]").click();
   await page.locator("[data-guided-target='build-brain']").click();
-  await page.locator("[data-guided-target='open-workspace']").waitFor({ timeout: 5000 });
-  await page.locator("[data-guided-target='open-workspace']").click();
-  await page.locator("[data-guided-target='workspace-tab-compliance']").waitFor({ timeout: 5000 });
+  await page.locator("[data-guided-target='open-action-plan']").waitFor({ timeout: 5000 });
+}
+
+async function reachActionPlan(page, baseUrl) {
+  await reachComplianceAnalysis(page, baseUrl);
+  await page.locator("[data-guided-target='open-action-plan']").click();
+  await page.locator("[data-guided-target='action-plan-primary']").waitFor({ timeout: 5000 });
+}
+
+async function reachTakeAction(page, baseUrl) {
+  await reachActionPlan(page, baseUrl);
+  await page.locator("[data-guided-target='action-plan-primary']").click();
+  await page.locator("[data-guided-target='take-action-primary']").waitFor({ timeout: 5000 });
 }
 
 async function testGuidedProductTargets(page, baseUrl) {
@@ -358,34 +369,49 @@ async function testConditionNoneButtonCopy(page, baseUrl) {
   assert(!/Continue with selected issues/i.test(submitText), "None-selected condition submit should not imply issues were selected.");
 }
 
-async function testWorkspaceTabTour(page, baseUrl) {
-  await reachGuidedWorkspaceOverview(page, baseUrl);
+async function testMasterJourneyFlow(page, baseUrl) {
+  await reachComplianceAnalysis(page, baseUrl);
+  let body = await text(page);
+  assert(/Compliance Analysis/i.test(body), "Main journey should reveal Compliance Analysis after unknowns.");
+  assert(/Found records/i.test(body), "Compliance Analysis should show found records as an input.");
+  assert(/Landlord answers/i.test(body), "Compliance Analysis should show landlord answers as an input.");
+  assert(/Evidence gaps/i.test(body), "Compliance Analysis should show evidence gaps as an input.");
+  assert(/Legal Compliance Score|Evidence Strength Score|Condition Risk Score|Future Readiness Score|Service Readiness Score/i.test(body), "Compliance Analysis should show the score outputs.");
+  assert(/Risk level/i.test(body), "Compliance Analysis should show risk level.");
+  assert(/Urgent blockers|Missing evidence|Future risks|Opportunities/i.test(body), "Compliance Analysis should show the major outputs.");
+  assert(await page.locator("[data-demo-coachmark]").count() === 1, "Compliance Analysis should have exactly one guide tooltip.");
+  assert(await page.locator("[data-guided-target='open-action-plan']").isVisible(), "Compliance Analysis should target Open Action Plan.");
 
-  const expectedTour = [
-    ["Overview", "workspace-tab-compliance", /This is the property profile\. CMP brings the main scores, facts and next step into one place\./i],
-    ["Compliance", "workspace-tab-evidence", /This shows what looks covered, what needs checking and what needs evidence\./i],
-    ["Evidence", "workspace-tab-services", /This is the source of truth for certificates, proof and missing documents\./i],
-    ["Services", "workspace-tab-timeline", /Services appear because of a property gap, not as a random marketplace\./i],
-    ["Timeline", "workspace-tab-ask", /This records what happened, what was requested and what needs follow-up\./i],
-    ["Ask CMP", "ask-prompt", /Ask CMP explains the property using the same evidence and answers\. It is guidance, not legal advice\./i],
-    ["Monitoring", "monitoring-item", /This is the recurring value: renewals, missing proof and future follow-ups stay visible\./i]
-  ];
-
-  for (const [label, target, copy] of expectedTour) {
-    const body = await text(page);
-    assert(copy.test(body), `${label} guided copy should be present.`);
-    assert(await page.locator("[data-demo-coachmark]").count() === 1, `${label} should have exactly one guide tooltip.`);
-    assert(await page.locator(`[data-guided-target='${target}']`).first().isVisible(), `${label} should expose ${target} as the primary guided target.`);
-    if (target.startsWith("workspace-tab-")) {
-      await page.locator(`[data-guided-target='${target}']`).first().click();
-    } else if (target === "ask-prompt") {
-      await page.locator("[data-guided-target='ask-prompt']").first().click();
-      await page.getByRole("button", { name: /Open Monitoring/i }).click();
-    }
+  await page.locator("[data-guided-target='open-action-plan']").click();
+  await page.locator("[data-guided-target='action-plan-primary']").waitFor({ timeout: 5000 });
+  body = await text(page);
+  for (const bucket of ["Urgent actions / legal blockers", "Expiring soon", "Missing evidence", "Future risks", "Opportunities and improvements"]) {
+    assert(body.includes(bucket), `Action Plan should include ${bucket}.`);
   }
+  assert(/Recommended next action|Prepare service request/i.test(body), "Action Plan should present one recommended next action.");
+  assert(await page.locator("[data-demo-coachmark]").count() === 1, "Action Plan should have exactly one guide tooltip.");
 
-  await page.locator("[data-guided-target='monitoring-item']").first().click();
-  assert(/Try another landlord situation/i.test(await text(page)), "Scenario Explorer handoff should appear only after the workspace tab tour.");
+  await page.locator("[data-guided-target='action-plan-primary']").click();
+  await page.locator("[data-guided-target='take-action-primary']").waitFor({ timeout: 5000 });
+  body = await text(page);
+  for (const option of ["Add proof later", "Prepare service request", "Get quotes", "Ask CMP", "Set reminders", "Generate communications", "Professional support"]) {
+    assert(body.includes(option), `Take Action should mention ${option}.`);
+  }
+  assert(await page.locator("[data-demo-coachmark]").count() === 1, "Take Action should have exactly one guide tooltip.");
+
+  await page.locator("[data-guided-target='take-action-primary']").click();
+  await page.locator("[data-guided-target='monitoring-item']").waitFor({ timeout: 5000 });
+  body = await text(page);
+  assert(/CMP keeps this property watched/i.test(body), "Monitoring should be the final value moment.");
+  for (const monitor of ["Expiry monitoring", "Law change monitoring", "Evidence monitoring", "Property change monitoring", "Supplier follow-up", "Portfolio monitoring later"]) {
+    assert(body.includes(monitor), `Monitoring should include ${monitor}.`);
+  }
+  assert(await page.locator("[data-demo-coachmark]").count() === 1, "Monitoring should have exactly one guide tooltip.");
+
+  await page.locator("[data-guided-target='monitoring-item']").click();
+  body = await text(page);
+  assert(/Try another landlord situation/i.test(body), "Scenario Explorer handoff should appear only after the main journey.");
+  assert(/Done-for-me compliance plan/i.test(body), "Scenario Explorer should be available after Monitoring.");
 }
 
 async function testNoGuidedArrows(page, baseUrl) {
@@ -399,14 +425,13 @@ async function testAskRailQuietUntilAskStep(page, baseUrl) {
   await startFirstPropertyWalkthrough(page, baseUrl);
   const railDisplay = await page.locator("[data-assistant]").evaluate((element) => getComputedStyle(element).display);
   assert(railDisplay === "none", "Right Ask CMP rail should be hidden before the Ask CMP step in strict guided mode.");
-  await reachGuidedWorkspaceOverview(page, baseUrl);
-  await page.locator("[data-guided-target='workspace-tab-compliance']").click();
-  await page.locator("[data-guided-target='workspace-tab-evidence']").click();
-  await page.locator("[data-guided-target='workspace-tab-services']").click();
-  await page.locator("[data-guided-target='workspace-tab-timeline']").click();
-  await page.locator("[data-guided-target='workspace-tab-ask']").click();
-  const activeRailDisplay = await page.locator("[data-assistant]").evaluate((element) => getComputedStyle(element).display);
-  assert(activeRailDisplay !== "none", "Right Ask CMP rail may expand only during Ask CMP step.");
+  await reachActionPlan(page, baseUrl);
+  const actionPlanRailDisplay = await page.locator("[data-assistant]").evaluate((element) => getComputedStyle(element).display);
+  assert(actionPlanRailDisplay === "none", "Right Ask CMP rail should remain hidden during Compliance Analysis and Action Plan.");
+  await page.locator("[data-guided-target='action-plan-primary']").click();
+  await page.locator("[data-guided-target='take-action-primary']").waitFor({ timeout: 5000 });
+  const takeActionRailDisplay = await page.locator("[data-assistant]").evaluate((element) => getComputedStyle(element).display);
+  assert(takeActionRailDisplay === "none", "Right Ask CMP rail should stay quiet while Ask CMP is only a supporting option.");
 }
 
 async function testMobileGuidedTarget(page, baseUrl) {
@@ -489,12 +514,16 @@ async function testScenarioCards(page, baseUrl) {
 }
 
 async function testNoNarrowCards(page, baseUrl) {
-  await reachGuidedWorkspaceOverview(page, baseUrl);
+  await reachActionPlan(page, baseUrl);
   const selectors = [".journey-workspace-card", ".journey-action-card", ".journey-evidence-card", ".journey-service-card"];
   for (const selector of selectors) {
     const widths = await page.locator(selector).evaluateAll((nodes) => nodes.map((node) => Math.round(node.getBoundingClientRect().width)).filter(Boolean));
     widths.forEach((width) => assert(width >= 220, `${selector} should not render as an unreadable narrow column (${width}px).`));
   }
+  await page.locator("[data-guided-target='action-plan-primary']").click();
+  await page.locator("[data-guided-target='take-action-primary']").waitFor({ timeout: 5000 });
+  const takeActionWidths = await page.locator(".journey-workspace-card").evaluateAll((nodes) => nodes.map((node) => Math.round(node.getBoundingClientRect().width)).filter(Boolean));
+  takeActionWidths.forEach((width) => assert(width >= 220, `Take Action cards should not render as unreadable narrow columns (${width}px).`));
 }
 
 async function run() {
@@ -523,7 +552,7 @@ async function run() {
     await testGuidedUnknownsDoNotSkipWorkspace(page, baseUrl);
     await testStrictGuidedAnswerSoftLockAndShortcut(page, baseUrl);
     await testConditionNoneButtonCopy(page, baseUrl);
-    await testWorkspaceTabTour(page, baseUrl);
+    await testMasterJourneyFlow(page, baseUrl);
     await testNoGuidedArrows(page, baseUrl);
     await testAskRailQuietUntilAskStep(page, baseUrl);
     await testVacantLogic(page, baseUrl);
