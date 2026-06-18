@@ -2946,6 +2946,22 @@ function evidenceLifecycleApi() {
   return window.CMPEvidenceLifecycle || null;
 }
 
+function askContextApi() {
+  return window.CMPAskContext || null;
+}
+
+function askResponseApi() {
+  return window.CMPAskResponse || null;
+}
+
+function reportGeneratorApi() {
+  return window.CMPReportGenerator || null;
+}
+
+function propertyActionsApi() {
+  return window.CMPPropertyActions || null;
+}
+
 function deriveSelectedCanonicalPropertyState(record) {
   const derivation = derivationApi();
   if (!derivation?.derivePropertyComplianceState || !record?.id) {
@@ -3074,6 +3090,102 @@ function canonicalWorkspaceShell() {
 
 function canonicalDerivedState() {
   return labsState.selectedCanonicalProperty?.derivedState || null;
+}
+
+function canonicalAskCmpContext() {
+  if (!isCanonicalWorkspaceValid()) return null;
+  const askContext = askContextApi();
+  const record = labsState.selectedCanonicalProperty?.record;
+  const derivedState = canonicalDerivedState();
+  if (!askContext?.buildAskCmpContext || !record) return null;
+  const result = askContext.buildAskCmpContext(record, derivedState, {
+    currentPage: `${window.location.pathname}${window.location.search}`,
+    now: new Date().toISOString()
+  });
+  return result.ok ? result.value : null;
+}
+
+function canonicalAskPrompts() {
+  const context = canonicalAskCmpContext();
+  const askResponse = askResponseApi();
+  if (!context || !askResponse?.getSuggestedAskCmpPrompts) return [];
+  const result = askResponse.getSuggestedAskCmpPrompts(context);
+  return result.ok ? result.value : [];
+}
+
+function answerCanonicalAskPrompt(promptIdOrText) {
+  const context = canonicalAskCmpContext();
+  const askResponse = askResponseApi();
+  if (!context || !askResponse?.answerAskCmpPrompt) {
+    return "Based on current information, this selected property is not ready for Ask CMP yet. Guidance, not legal advice.";
+  }
+  const result = askResponse.answerAskCmpPrompt(context, promptIdOrText);
+  return result.ok
+    ? result.value.answerText
+    : "Based on current information, CMP could not answer that for the selected property. Guidance, not legal advice.";
+}
+
+function resolveCanonicalPropertyAction(actionRequest) {
+  const context = canonicalAskCmpContext();
+  const actions = propertyActionsApi();
+  if (!context || !actions?.resolvePropertyAwareAction) {
+    return { ok: false, errors: ["Property-aware actions are unavailable for this selected property."] };
+  }
+  const result = actions.resolvePropertyAwareAction(context, actionRequest, {
+    now: new Date().toISOString()
+  });
+  if (result.ok && result.value.changedCanonicalState && result.value.propertyRecord) {
+    const saved = saveSelectedCanonicalPropertyRecord(result.value.propertyRecord);
+    if (!saved.ok) return saved;
+  }
+  return result;
+}
+
+function generateCanonicalReportPreview(reportType = "property_summary") {
+  const result = resolveCanonicalPropertyAction({
+    type: "generate_report_preview",
+    reportType
+  });
+  if (!result.ok) return result;
+  labsState.selectedCanonicalProperty = {
+    ...(labsState.selectedCanonicalProperty || {}),
+    lastReportPreview: result.value.reportPreview
+  };
+  return result;
+}
+
+function canonicalReportPreviewMessage(reportPreview) {
+  if (!reportPreview) {
+    return "Report preview could not be prepared from the selected property. Guidance, not legal advice.";
+  }
+  const sectionSummary = (reportPreview.sections || [])
+    .slice(0, 3)
+    .map((section) => `${section.title}: ${(section.items || []).slice(0, 2).join("; ")}`)
+    .join("\n");
+  return `Report preview: ${reportPreview.title}\nBased on current information for ${canonicalWorkspaceShell()?.address || "this property"}.\n${sectionSummary}\n${reportPreview.caveat || "Guidance, not legal advice."}`;
+}
+
+function renderCanonicalAskReportPanel() {
+  if (!isCanonicalWorkspaceValid()) return "";
+  const prompts = canonicalAskPrompts().slice(0, 3);
+  const promptButtons = prompts.map((prompt) => `
+    <button class="text-button" type="button" data-canonical-ask-prompt="${escapeHtml(prompt.id)}">${escapeHtml(prompt.label)}</button>
+  `).join("");
+  return `
+    <article class="portfolio-upcoming-card">
+      <span class="source-badge">Ask CMP</span>
+      <h3>Property-aware guidance</h3>
+      <p>Based on current information from this Property Brain. Guidance, not legal advice.</p>
+      ${promptButtons || `<button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Explain next best action</button>`}
+    </article>
+    <article class="portfolio-upcoming-card">
+      <span class="source-badge">Report preview</span>
+      <h3>Generate from Property Brain</h3>
+      <p>Report preview uses the selected property, rules output, source labels and confidence status.</p>
+      <button class="text-button" type="button" data-canonical-report-preview="property_summary">Property Summary</button>
+      <button class="text-button" type="button" data-canonical-report-preview="evidence_gap_summary">Evidence Gap Summary</button>
+    </article>
+  `;
 }
 
 function canonicalStatusLabel(status) {
@@ -4557,7 +4669,7 @@ function renderSelectedCanonicalWorkspaceShell() {
           : `<button class="text-button" type="button" data-toast="This selected-property preview is derived from the canonical record.">${escapeHtml(item.label || "Review")}</button>`
         }
       </article>
-    `).join("");
+    `).join("") + renderCanonicalAskReportPanel();
   }
   hydrateIcons();
 }
@@ -5274,6 +5386,10 @@ function getJourneyBridgeAssistantResponse(prompt) {
 }
 
 function getAssistantResponse(prompt) {
+  if (isCanonicalWorkspaceValid()) {
+    return answerCanonicalAskPrompt(prompt);
+  }
+
   if (hasJourneyPropertyBrainActivity() && ["home", "journeyOs", "complianceCentre", "evidenceVault", "bookService", "askCmp"].includes(labsState.currentView)) {
     return getJourneyBridgeAssistantResponse(prompt);
   }
@@ -5354,7 +5470,16 @@ function renderAssistantPrompts() {
       : "Ask a question about this property...";
   }
 
-  if (isNewPropertyMode() && ["home", "properties", "complianceCentre", "evidenceVault", "tasks", "activity"].includes(labsState.currentView)) {
+  if (isCanonicalWorkspaceValid()) {
+    const property = canonicalWorkspaceShell();
+    prompts = canonicalAskPrompts().map((prompt) => prompt.label);
+    if (assistantSubtitle) {
+      assistantSubtitle.textContent = "Property-aware Ask CMP";
+    }
+    if (assistantInput) {
+      assistantInput.placeholder = `Ask CMP about ${property?.address || "this property"}...`;
+    }
+  } else if (isNewPropertyMode() && ["home", "properties", "complianceCentre", "evidenceVault", "tasks", "activity"].includes(labsState.currentView)) {
     prompts = newPropertyAskPrompts;
   } else if (labsState.currentView === "home") {
     prompts = isEmptyPortfolioMode() ? emptyGlobalAskPrompts : portfolioPrompts;
@@ -17931,6 +18056,23 @@ function bindPortfolioHome() {
 
     if (event.target.closest("[data-canonical-service-intent-request]")) {
       createCanonicalServiceIntentRequest();
+      return;
+    }
+
+    const canonicalAskButton = event.target.closest("[data-canonical-ask-prompt]");
+    if (canonicalAskButton) {
+      openAssistant(answerCanonicalAskPrompt(canonicalAskButton.dataset.canonicalAskPrompt), { flash: true });
+      return;
+    }
+
+    const canonicalReportButton = event.target.closest("[data-canonical-report-preview]");
+    if (canonicalReportButton) {
+      const result = generateCanonicalReportPreview(canonicalReportButton.dataset.canonicalReportPreview || "property_summary");
+      if (!result.ok) {
+        showToast(result.errors?.[0] || "Could not prepare report preview.");
+        return;
+      }
+      openAssistant(canonicalReportPreviewMessage(result.value.reportPreview), { flash: true });
       return;
     }
 
