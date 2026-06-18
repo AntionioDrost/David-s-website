@@ -438,15 +438,24 @@ test("product isolation", async (t) => {
     assert.ok(keys.includes("cmp_az_checker_v2"));
   });
 
-  await t.test("no product page imports the new store", () => {
+  await t.test("no product page imports storage or migration internals directly", () => {
     const productFiles = execFileSync("git", ["ls-files", "*.html", "*.css", "*.js"], { cwd: root, encoding: "utf8" })
       .split("\n")
       .filter(Boolean)
       .filter((file) => !file.startsWith("core/"));
+    const allowedCoreScripts = [
+      "core/cmp-public-property-bridge.js",
+      "core/cmp-priority-rules.js",
+      "core/cmp-score-derivation.js",
+      "core/cmp-monitoring-derivation.js",
+      "core/cmp-compliance-derivation.js",
+    ];
     for (const file of productFiles) {
-      const content = fs.readFileSync(path.join(root, file), "utf8")
-        .replaceAll("core/cmp-public-property-bridge.js", "");
-      assert.equal(/cmp-property-store|cmp-storage-drivers|cmp-domain-normalize|cmp-transitional-adapters|cmp-id|core\//.test(content), false, `${file} imports Stage 3 core`);
+      let content = fs.readFileSync(path.join(root, file), "utf8");
+      for (const allowed of allowedCoreScripts) {
+        content = content.replaceAll(allowed, "");
+      }
+      assert.equal(/cmp-property-store|cmp-storage-drivers|cmp-domain-normalize|cmp-transitional-adapters|cmp-id|core\//.test(content), false, `${file} imports restricted Stage 3 core`);
     }
   });
 

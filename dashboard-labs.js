@@ -2934,6 +2934,20 @@ function bridgeApi() {
   return window.CMPPublicPropertyBridge || null;
 }
 
+function derivationApi() {
+  return window.CMPComplianceDerivation || null;
+}
+
+function deriveSelectedCanonicalPropertyState(record) {
+  const derivation = derivationApi();
+  if (!derivation?.derivePropertyComplianceState || !record?.id) {
+    return { ok: false, errors: ["Derivation module unavailable for selected property."] };
+  }
+  return derivation.derivePropertyComplianceState(record, {
+    now: new Date().toISOString()
+  });
+}
+
 function hydrateSelectedCanonicalProperty() {
   if (!shouldUseCanonicalPropertyRoute()) {
     labsState.selectedCanonicalProperty = null;
@@ -2988,11 +3002,14 @@ function hydrateSelectedCanonicalProperty() {
     return;
   }
 
+  const derived = deriveSelectedCanonicalPropertyState(record);
   labsState.selectedCanonicalProperty = {
     status: "valid",
     propertyId,
     record,
-    shell: bridge.workspaceShellFromRecord(record)
+    shell: bridge.workspaceShellFromRecord(record),
+    derivedState: derived.ok ? derived.value : null,
+    derivationWarnings: derived.ok ? derived.warnings || [] : derived.errors || []
   };
   labsState.portfolioMode = "single";
   labsState.azPropertyId = propertyId;
@@ -3012,9 +3029,80 @@ function canonicalWorkspaceShell() {
   return labsState.selectedCanonicalProperty?.shell || null;
 }
 
+function canonicalDerivedState() {
+  return labsState.selectedCanonicalProperty?.derivedState || null;
+}
+
+function canonicalStatusLabel(status) {
+  const labels = {
+    looks_ok_based_on_current_information: "Looks okay based on current information",
+    setup_incomplete: "Setup incomplete",
+    needs_evidence: "Needs evidence",
+    action_needed: "Action needed"
+  };
+  return labels[status] || "Prepared for review";
+}
+
+function canonicalRiskLabel(riskLevel) {
+  const labels = {
+    low: "Low risk",
+    medium: "Medium risk",
+    high: "High priority",
+    urgent: "Urgent priority"
+  };
+  return labels[riskLevel] || "Prepared for review";
+}
+
+function canonicalOccupancyLabel(occupancyStatus) {
+  const labels = {
+    occupied: "Occupied",
+    vacant: "Vacant",
+    pre_let: "Pre-let readiness",
+    unknown: "Needs confirmation"
+  };
+  return labels[occupancyStatus] || "Needs confirmation";
+}
+
+function canonicalScoreValue(derivedState, key) {
+  const value = derivedState?.scores?.[key]?.value;
+  return Number.isFinite(value) ? value : 0;
+}
+
+function canonicalStage6ScoreCards(derivedState) {
+  if (!derivedState?.scores) {
+    return [
+      { label: "Legal Compliance", value: 0, help: "Compliance derivation is prepared for this property." },
+      { label: "Evidence Strength", value: 0, help: "Evidence gaps will appear as setup continues." }
+    ];
+  }
+  return [
+    derivedState.scores.legalCompliance,
+    derivedState.scores.evidenceStrength,
+    derivedState.scores.futureReadiness,
+    derivedState.scores.confidence
+  ].filter(Boolean).map((score) => ({
+    label: score.label,
+    value: score.value,
+    help: score.explanation
+  }));
+}
+
+function canonicalEvidenceLabels(derivedState) {
+  return (derivedState?.evidenceGaps || []).map((gap) => {
+    const label = String(gap.evidenceType || "evidence").replace(/_/g, " ");
+    return `${label}: ${gap.proofStatus || "unknown"}`;
+  });
+}
+
 function canonicalSelectedPortfolioProperty() {
   if (!isCanonicalWorkspaceValid()) return null;
   const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const nextBestAction = derivedState?.nextBestAction || null;
+  const evidenceGaps = derivedState?.evidenceGaps || [];
+  const acceptedEvidenceCount = (derivedState?.evidenceState || []).filter((item) => {
+    return ["accepted", "held"].includes(item.proofStatus) && item.capabilityStatus !== "live_unverified";
+  }).length;
   return {
     id: shell.propertyId,
     address: shell.address,
@@ -3022,22 +3110,22 @@ function canonicalSelectedPortfolioProperty() {
     location: shell.postcode || "Postcode to confirm",
     label: `${shell.address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
     inbox: "",
-    occupancy: "Needs confirmation",
+    occupancy: canonicalOccupancyLabel(derivedState?.context?.occupancyStatus),
     journey: "Property workspace",
-    strength: 0,
-    evidenceScore: 0,
-    complianceScore: 0,
-    focus: "Review found data",
-    focusArea: "Smart Checks",
-    state: shell.setupStatus,
-    statusDetail: shell.smartCheckSummary || "Review prepared",
-    priority: "Continue property setup",
-    priorityBody: shell.intro,
+    strength: canonicalScoreValue(derivedState, "confidence"),
+    evidenceScore: canonicalScoreValue(derivedState, "evidenceStrength"),
+    complianceScore: canonicalScoreValue(derivedState, "legalCompliance"),
+    focus: nextBestAction?.title || "Review found data",
+    focusArea: nextBestAction?.primaryCtaLabel || "Smart Checks",
+    state: canonicalStatusLabel(derivedState?.overallStatus),
+    statusDetail: nextBestAction?.reason || shell.smartCheckSummary || "Review prepared",
+    priority: nextBestAction?.title || "Continue property setup",
+    priorityBody: nextBestAction?.reason || shell.intro,
     serviceType: "review",
-    verifiedEvidence: 0,
-    reviewCount: (shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0),
-    missingEvidence: (shell.missingUnknownSummary || []).map((item) => item.label),
-    recommendedService: "Continue setup",
+    verifiedEvidence: acceptedEvidenceCount,
+    reviewCount: evidenceGaps.length || (shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0),
+    missingEvidence: canonicalEvidenceLabels(derivedState),
+    recommendedService: nextBestAction?.primaryCtaLabel || "Continue setup",
     currentRequest: null,
     workspaceAvailable: true,
     mostUrgent: true,
@@ -4131,18 +4219,22 @@ function renderSelectedCanonicalWorkspaceShell() {
   }
 
   document.body.classList.add("canonical-property-route");
+  const derivedState = canonicalDerivedState();
+  const nextBestAction = derivedState?.nextBestAction || null;
+  const evidenceGaps = derivedState?.evidenceGaps || [];
+  const monitoringItems = derivedState?.monitoringItems || [];
   document.title = `${shell.address} | CMP Labs`;
   setText(".breadcrumb", `Properties / ${shell.address}`);
   setText(".prototype-badge", "Property workspace · Simulated Smart Check");
   setText("#propertyTitle", shell.address);
   if (headerIntro) {
-    headerIntro.textContent = [shell.postcode, shell.setupStatus].filter(Boolean).join(" · ");
+    headerIntro.textContent = [shell.postcode, canonicalStatusLabel(derivedState?.overallStatus), canonicalRiskLabel(derivedState?.riskLevel)].filter(Boolean).join(" · ");
   }
   if (propertyMeta) {
     propertyMeta.innerHTML = `
       <span>${escapeHtml(shell.postcode || "Postcode to confirm")}</span>
-      <span>${escapeHtml(shell.setupStatus)}</span>
-      <span>${escapeHtml(shell.sourceCopy)}</span>
+      <span>${escapeHtml(canonicalStatusLabel(derivedState?.overallStatus))}</span>
+      <span>Confidence: ${escapeHtml(derivedState?.confidenceLevel || "unknown")}</span>
     `;
   }
   if (tabBar) {
@@ -4163,29 +4255,39 @@ function renderSelectedCanonicalWorkspaceShell() {
   setText("[data-portfolio-home] .section-kicker", "Property workspace");
   setText("#portfolioHomeTitle", `Workspace for ${shell.address}`);
   if (homeIntro) {
-    homeIntro.textContent = shell.intro;
+    homeIntro.textContent = nextBestAction?.reason || shell.intro;
   }
   if (homeBadge) {
-    homeBadge.textContent = `${shell.postcode || "Postcode to confirm"} · ${shell.sourceCopy}`;
+    homeBadge.textContent = `${shell.postcode || "Postcode to confirm"} · ${canonicalRiskLabel(derivedState?.riskLevel)}`;
   }
   setText("[data-home-property-count]", "1");
   setText("[data-home-property-count-detail]", "property tracked");
-  setText("[data-home-priority-count]", "1");
-  setText("[data-home-priority-detail]", "setup step");
-  setText("[data-home-verified-count]", "0");
-  setText("[data-home-review-count]", String((shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0)));
-  setText("[data-home-review-detail]", "items to review");
-  setText("[data-home-summary-title]", "Continue property setup");
-  setText("[data-home-summary-body]", shell.smartCheckSummary || "Review found data is prepared from the selected property file.");
-  setText("[data-home-priority-area]", "Smart Checks");
-  setText("[data-home-priority-status]", shell.setupStatus);
-  setText("[data-home-priority-body]", "Workspace connected to this property. Compliance analysis, evidence, actions and monitoring will continue from this record in the next stages.");
-  setText("[data-home-upload-priority]", "Continue setup");
-  setText("[data-home-arrange-priority]", "Review found data");
+  setText("[data-home-priority-count]", String(derivedState?.actionItems?.length || 0));
+  setText("[data-home-priority-detail]", nextBestAction ? "ranked by rules" : "setup step");
+  setText("[data-home-verified-count]", String((derivedState?.evidenceState || []).filter((item) => ["accepted", "held"].includes(item.proofStatus)).length));
+  setText("[data-home-review-count]", String(evidenceGaps.length || (shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0)));
+  setText("[data-home-review-detail]", evidenceGaps.length ? "evidence gaps" : "items to review");
+  setText("[data-home-summary-title]", nextBestAction?.title || "Continue property setup");
+  setText("[data-home-summary-body]", nextBestAction?.reason || shell.smartCheckSummary || "Review found data is prepared from the selected property file.");
+  setText("[data-home-priority-area]", nextBestAction?.primaryCtaLabel || "Smart Checks");
+  setText("[data-home-priority-status]", canonicalStatusLabel(derivedState?.overallStatus));
+  setText("[data-home-priority-body]", nextBestAction?.reason || "Workspace connected to this property. Detailed compliance sections remain transitional while CMP completes setup.");
+  setText("[data-home-upload-priority]", nextBestAction?.primaryCtaLabel || "Continue setup");
+  setText("[data-home-arrange-priority]", nextBestAction?.secondaryCtaLabel || "Review found data");
+  renderScoreCards(homeScoreGrid, canonicalStage6ScoreCards(derivedState), { compact: true });
   if (rankList) {
     rankList.hidden = false;
+    const actionItems = (derivedState?.actionItems || []).slice(0, 4);
     const foundItems = shell.foundDataSummary?.length ? shell.foundDataSummary : [];
-    rankList.innerHTML = foundItems.length
+    rankList.innerHTML = actionItems.length
+      ? actionItems.map((item, index) => `
+        <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
+          <span>${index === 0 ? "Next best action" : `Priority ${index + 1}`}</span>
+          <strong>${escapeHtml(item.title)}</strong>
+          <p>${escapeHtml(item.reason)} · ${escapeHtml(item.priorityExplanation || "Ranked by CMP rules.")}</p>
+        </article>
+      `).join("")
+      : foundItems.length
       ? foundItems.map((item, index) => `
         <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
           <span>${index === 0 ? "Found" : "Check"}</span>
@@ -4220,10 +4322,13 @@ function renderSelectedCanonicalWorkspaceShell() {
           </div>
         </div>
         <div class="portfolio-property-progress">
-          <span>Setup status</span>
-          <strong>${escapeHtml(shell.setupStatus)}</strong>
-          <div class="strength-meter"><span style="width: 20%"></span></div>
-          <small>${escapeHtml(shell.smartCheckSummary || "Smart Checks prepared for review")}</small>
+          <span>Legal Compliance</span>
+          <strong>${canonicalScoreValue(derivedState, "legalCompliance")}% ready</strong>
+          <div class="strength-meter score-compliance"><span style="width: ${canonicalScoreValue(derivedState, "legalCompliance")}%"></span></div>
+          <span>Evidence Strength</span>
+          <strong>${canonicalScoreValue(derivedState, "evidenceStrength")}% evidenced</strong>
+          <div class="strength-meter"><span style="width: ${canonicalScoreValue(derivedState, "evidenceStrength")}%"></span></div>
+          <small>${escapeHtml(nextBestAction?.reason || shell.smartCheckSummary || "Smart Checks prepared for review")}</small>
         </div>
         <div class="button-row">
           <button class="primary-button" type="button" data-home-open-property-id="${escapeHtml(shell.propertyId)}">Open workspace</button>
@@ -4234,27 +4339,36 @@ function renderSelectedCanonicalWorkspaceShell() {
   }
   if (upcomingGrid) {
     const upcomingItems = [
-      ...((shell.needsConfirmationSummary || []).slice(0, 2).map((item) => ({
+      ...evidenceGaps.slice(0, 2).map((gap) => ({
+        badge: "Evidence gap",
+        title: String(gap.evidenceType || "evidence").replace(/_/g, " "),
+        body: `${gap.reason || "Evidence is missing or needs review"} ${gap.recommendedNextStep || ""}`.trim(),
+        label: gap.recommendedNextStep || "Add proof later"
+      })),
+      ...monitoringItems.slice(0, 2).map((item) => ({
+        badge: "Monitoring",
+        title: item.title || item.monitoringType || "Monitoring item",
+        body: `${item.reason || ""} ${item.nextAction || ""}`.trim(),
+        label: item.nextAction || "Review"
+      })),
+      ...((shell.needsConfirmationSummary || []).slice(0, 1).map((item) => ({
         badge: "Needs confirmation",
         title: item.label,
-        body: `${item.value} · Confidence: ${item.confidence}`
-      }))),
-      ...((shell.missingUnknownSummary || []).slice(0, 2).map((item) => ({
-        badge: "Missing / unknown",
-        title: item.label,
-        body: item.reason || item.value
+        body: `${item.value} · Confidence: ${item.confidence}`,
+        label: "Answer unknowns"
       })))
     ].slice(0, 4);
     upcomingGrid.innerHTML = (upcomingItems.length ? upcomingItems : [{
       badge: "Next",
       title: "Continue setup",
-      body: "Answer unknowns before CMP derives compliance analysis, actions, evidence and monitoring from this record."
+      body: "Answer unknowns before CMP completes the deeper compliance sections.",
+      label: "Continue setup"
     }]).map((item) => `
       <article class="portfolio-upcoming-card">
         <span class="source-badge">${escapeHtml(item.badge)}</span>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.body)}</p>
-        <button class="text-button" type="button" data-toast="This setup step is handled in the next consolidation stage.">Continue setup</button>
+        <button class="text-button" type="button" data-toast="This selected-property preview is derived from the canonical record.">${escapeHtml(item.label || "Review")}</button>
       </article>
     `).join("");
   }
