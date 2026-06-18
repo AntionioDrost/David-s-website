@@ -1,0 +1,55 @@
+{
+  "id": "service_request_example_simulated",
+  "propertyId": "prop_example_evidence_gap",
+  "issueId": "issue_gap_eicr_evidence",
+  "actionId": "action_gap_add_eicr",
+  "serviceId": "eicr",
+  "source": "action_plan",
+  "requestMode": "simulated",
+  "requestStatus": "draft",
+  "propertyAccessDetails": {
+    "accessMode": "tenant_to_arrange"
+  },
+  "contactDetails": {
+    "name": "Fictional Example Landlord",
+    "email": "example-landlord@example.invalid"
+  },
+  "evidenceExpected": [
+    {
+      "evidenceType": "eicr_certificate",
+      "proofStatus": "missing"
+    }
+  ],
+  "supplierJobPackData": {
+    "statusCopy": "Request prepared",
+    "supplierContacted": false,
+    "paymentTaken": false,
+    "liveBooking": false
+  },
+  "timelineEffects": [
+    {
+      "eventType": "service_request_prepared",
+      "summary": "Simulated EICR request prepared. No supplier contacted."
+    }
+  ],
+  "monitoringEffects": [
+    {
+      "monitoringType": "eicr_evidence_gap",
+      "reason": "EICR proof is still missing until evidence is received."
+    }
+  ],
+  "verificationStatus": "unverified",
+  "capabilityStatus": "simulated",
+  "sourceReferences": [
+    {
+      "sourceType": "user_stated",
+      "sourceLabel": "Action Plan request",
+      "sourceIdentifier": null,
+      "checkedDate": "2026-06-18",
+      "confidence": "medium",
+      "capabilityStatus": "simulated"
+    }
+  ],
+  "createdAt": "2026-06-18T12:00:00.000Z",
+  "updatedAt": "2026-06-18T12:00:00.000Z"
+}

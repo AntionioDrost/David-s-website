@@ -98,9 +98,11 @@ const requiredEnumValues = [
 ];
 
 const allowedChangedPaths = [
+  /^core\//,
   /^docs\//,
   /^contracts\//,
   /^tools\/cmp-stage-2-contract-check\.mjs$/,
+  /^tools\/cmp-stage-3-property-store-check\.mjs$/,
 ];
 
 const failures = [];
@@ -241,10 +243,9 @@ try {
   }
   const statusPaths = execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" })
     .split("\n")
-    .map((line) => line.trim())
     .filter(Boolean)
     .map((line) => {
-      const pathPart = line.slice(3);
+      const pathPart = line.slice(3).trim();
       return pathPart.includes(" -> ") ? pathPart.split(" -> ").pop() : pathPart;
     });
 

@@ -1,0 +1,118 @@
+{
+  "id": "prop_example_evidence_gap",
+  "namespace": "guest:examples",
+  "identity": {
+    "displayAddress": "16 Birch Terrace, Norwich NR3 4EF",
+    "line1": "16 Birch Terrace",
+    "line2": null,
+    "town": "Norwich",
+    "county": null,
+    "postcode": "NR3 4EF",
+    "uprn": null,
+    "source": {
+      "sourceType": "user_stated",
+      "sourceLabel": "Fictional landlord entry",
+      "sourceIdentifier": null,
+      "checkedDate": "2026-06-18",
+      "confidence": "medium",
+      "capabilityStatus": "simulated",
+      "notes": "Fictional contract example."
+    },
+    "matchStatus": "manual",
+    "confidence": "medium",
+    "manualEdits": [],
+    "previousValues": [],
+    "history": []
+  },
+  "address": "16 Birch Terrace, Norwich NR3 4EF",
+  "uprn": null,
+  "creationSource": "add_property",
+  "currentSetupStage": "workspace",
+  "lifecycleStatus": "active",
+  "entryContext": {
+    "sourceRoute": "contracts/examples"
+  },
+  "smartCheckResults": [],
+  "landlordAnswers": [
+    {
+      "id": "answer_gap_eicr_held",
+      "propertyId": "prop_example_evidence_gap",
+      "questionId": "eicr_status",
+      "answer": "i_have_it_but_no_proof_available",
+      "context": "current",
+      "source": "user_stated",
+      "answeredAt": "2026-06-18T12:00:00.000Z",
+      "dependencyKeys": [],
+      "evidenceStatus": "missing",
+      "editedHistory": [],
+      "sourceReferences": []
+    }
+  ],
+  "issues": [
+    {
+      "id": "issue_gap_eicr_evidence",
+      "propertyId": "prop_example_evidence_gap",
+      "category": "eicr_evidence_gap",
+      "status": "awaiting_evidence",
+      "severity": "medium",
+      "legalUrgency": "soon",
+      "confidence": "medium",
+      "sourceReferences": [],
+      "triggerFacts": [],
+      "triggerAnswers": [
+        "answer_gap_eicr_held"
+      ],
+      "affectedStage": "evidence",
+      "resolvedAt": null,
+      "ruleVersion": "example-only",
+      "capabilityStatus": "simulated"
+    }
+  ],
+  "evidence": [
+    {
+      "id": "evidence_gap_eicr",
+      "propertyId": "prop_example_evidence_gap",
+      "linkedIssueId": "issue_gap_eicr_evidence",
+      "linkedActionId": null,
+      "linkedServiceRequestId": null,
+      "evidenceType": "eicr_certificate",
+      "proofStatus": "missing",
+      "verificationStatus": "unverified",
+      "source": "missing",
+      "capabilityStatus": "simulated",
+      "issuedDate": null,
+      "expiryDate": null,
+      "extractedFields": {},
+      "userConfirmationState": "needs_confirmation",
+      "sourceReferences": []
+    }
+  ],
+  "actions": [
+    {
+      "id": "action_gap_add_eicr",
+      "propertyId": "prop_example_evidence_gap",
+      "linkedIssueId": "issue_gap_eicr_evidence",
+      "priority": 20,
+      "actionType": "add_evidence",
+      "reason": "The landlord says they have an EICR but no proof is available.",
+      "sourceConfidenceSummary": "User-stated answer with missing proof.",
+      "nextStep": "Add proof later or request an EICR.",
+      "primaryCta": "Add proof later",
+      "secondaryCta": "Request service",
+      "serviceOptions": [
+        "eicr"
+      ],
+      "status": "recommended",
+      "createdAt": "2026-06-18T12:00:00.000Z",
+      "updatedAt": "2026-06-18T12:00:00.000Z"
+    }
+  ],
+  "serviceRequests": [],
+  "timeline": [],
+  "monitoring": [],
+  "reports": [],
+  "demoMetadata": null,
+  "schemaVersion": "1.0.0",
+  "createdAt": "2026-06-18T12:00:00.000Z",
+  "updatedAt": "2026-06-18T12:00:00.000Z"
+}

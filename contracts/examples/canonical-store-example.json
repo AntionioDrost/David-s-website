@@ -1,0 +1,77 @@
+{
+  "storeVersion": 1,
+  "namespaceId": "guest:examples",
+  "propertiesById": {
+    "prop_store_example": {
+      "id": "prop_store_example",
+      "namespace": "guest:examples",
+      "identity": {
+        "displayAddress": "44 Juniper Close, Cambridge CB1 6JK",
+        "line1": "44 Juniper Close",
+        "line2": null,
+        "town": "Cambridge",
+        "county": null,
+        "postcode": "CB1 6JK",
+        "uprn": null,
+        "source": {
+          "sourceType": "user_stated",
+          "sourceLabel": "Fictional landlord entry",
+          "sourceIdentifier": null,
+          "checkedDate": "2026-06-18",
+          "confidence": "medium",
+          "capabilityStatus": "simulated",
+          "notes": "Fictional store example."
+        },
+        "matchStatus": "manual",
+        "confidence": "medium",
+        "manualEdits": [],
+        "previousValues": [],
+        "history": []
+      },
+      "address": "44 Juniper Close, Cambridge CB1 6JK",
+      "uprn": null,
+      "creationSource": "add_property",
+      "currentSetupStage": "workspace",
+      "lifecycleStatus": "active",
+      "entryContext": {
+        "sourceRoute": "contracts/examples"
+      },
+      "smartCheckResults": [],
+      "landlordAnswers": [],
+      "issues": [],
+      "evidence": [],
+      "actions": [],
+      "serviceRequests": [],
+      "timeline": [],
+      "monitoring": [],
+      "reports": [],
+      "demoMetadata": null,
+      "schemaVersion": "1.0.0",
+      "createdAt": "2026-06-18T12:00:00.000Z",
+      "updatedAt": "2026-06-18T12:00:00.000Z"
+    }
+  },
+  "propertyOrder": [
+    "prop_store_example"
+  ],
+  "lastSelectedPropertyId": "prop_store_example",
+  "serviceIntentsById": {
+    "intent_store_example": {
+      "id": "intent_store_example",
+      "serviceId": "eicr",
+      "sourceRoute": "eicr.html",
+      "contact": {},
+      "addressInput": null,
+      "focusMode": "service_only",
+      "serviceAnswers": {},
+      "evidencePlaceholders": [],
+      "propertyId": null,
+      "status": "draft",
+      "createdAt": "2026-06-18T12:00:00.000Z",
+      "updatedAt": "2026-06-18T12:00:00.000Z"
+    }
+  },
+  "migrationIndex": {},
+  "createdAt": "2026-06-18T12:00:00.000Z",
+  "updatedAt": "2026-06-18T12:00:00.000Z"
+}

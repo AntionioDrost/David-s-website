@@ -1,0 +1,81 @@
+{
+  "id": "prop_example_vacant",
+  "namespace": "demo:vacant-example",
+  "identity": {
+    "displayAddress": "8 Alder Walk, Leeds LS2 3CD",
+    "line1": "8 Alder Walk",
+    "line2": null,
+    "town": "Leeds",
+    "county": null,
+    "postcode": "LS2 3CD",
+    "uprn": null,
+    "source": {
+      "sourceType": "user_stated",
+      "sourceLabel": "Fictional landlord entry",
+      "sourceIdentifier": null,
+      "checkedDate": "2026-06-18",
+      "confidence": "medium",
+      "capabilityStatus": "simulated",
+      "notes": "Fictional contract example."
+    },
+    "matchStatus": "manual",
+    "confidence": "medium",
+    "manualEdits": [],
+    "previousValues": [],
+    "history": []
+  },
+  "address": "8 Alder Walk, Leeds LS2 3CD",
+  "uprn": null,
+  "creationSource": "demo_scenario",
+  "currentSetupStage": "answer_unknowns",
+  "lifecycleStatus": "demo",
+  "entryContext": {
+    "sourceRoute": "contracts/examples",
+    "scenarioId": "example-vacant"
+  },
+  "smartCheckResults": [],
+  "landlordAnswers": [
+    {
+      "id": "answer_vacant_current",
+      "propertyId": "prop_example_vacant",
+      "questionId": "current_occupancy",
+      "answer": "vacant",
+      "context": "current",
+      "source": "user_stated",
+      "answeredAt": "2026-06-18T12:00:00.000Z",
+      "dependencyKeys": [],
+      "evidenceStatus": "unverified",
+      "editedHistory": [],
+      "sourceReferences": []
+    },
+    {
+      "id": "answer_vacant_future",
+      "propertyId": "prop_example_vacant",
+      "questionId": "intended_future_occupancy",
+      "answer": "single_household_tenancy",
+      "context": "future",
+      "source": "user_stated",
+      "answeredAt": "2026-06-18T12:01:00.000Z",
+      "dependencyKeys": [
+        "current_occupancy"
+      ],
+      "evidenceStatus": "unverified",
+      "editedHistory": [],
+      "sourceReferences": []
+    }
+  ],
+  "issues": [],
+  "evidence": [],
+  "actions": [],
+  "serviceRequests": [],
+  "timeline": [],
+  "monitoring": [],
+  "reports": [],
+  "demoMetadata": {
+    "scenarioId": "example-vacant",
+    "fictional": true
+  },
+  "schemaVersion": "1.0.0",
+  "createdAt": "2026-06-18T12:00:00.000Z",
+  "updatedAt": "2026-06-18T12:01:00.000Z"
+}

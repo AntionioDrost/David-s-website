@@ -1,0 +1,79 @@
+{
+  "id": "prop_example_no_epc",
+  "namespace": "demo:no-epc-example",
+  "identity": {
+    "displayAddress": "24 Rowan Yard, Exeter EX1 2AB",
+    "line1": "24 Rowan Yard",
+    "line2": null,
+    "town": "Exeter",
+    "county": null,
+    "postcode": "EX1 2AB",
+    "uprn": null,
+    "source": {
+      "sourceType": "missing",
+      "sourceLabel": "Manual fictional address",
+      "sourceIdentifier": null,
+      "checkedDate": "2026-06-18",
+      "confidence": "medium",
+      "capabilityStatus": "simulated",
+      "notes": "No EPC source is present in this example."
+    },
+    "matchStatus": "manual",
+    "confidence": "medium",
+    "manualEdits": [],
+    "previousValues": [],
+    "history": []
+  },
+  "address": "24 Rowan Yard, Exeter EX1 2AB",
+  "uprn": null,
+  "creationSource": "demo_scenario",
+  "currentSetupStage": "review_found_data",
+  "lifecycleStatus": "demo",
+  "entryContext": {
+    "sourceRoute": "contracts/examples",
+    "scenarioId": "example-no-epc"
+  },
+  "smartCheckResults": [
+    {
+      "id": "check_no_epc_missing",
+      "propertyId": "prop_example_no_epc",
+      "checkType": "epc",
+      "resultStatus": "missing",
+      "value": {
+        "epcFound": false
+      },
+      "sourceReferences": [
+        {
+          "sourceType": "missing",
+          "sourceLabel": "Simulated EPC search",
+          "sourceIdentifier": null,
+          "checkedDate": "2026-06-18",
+          "confidence": "medium",
+          "capabilityStatus": "simulated",
+          "notes": "No EPC rating, potential, expiry or EPC-derived heating has been inferred."
+        }
+      ],
+      "confidence": "medium",
+      "requiresConfirmation": true,
+      "missingReason": "No EPC found in simulated source data",
+      "unknownReason": null,
+      "checkedAt": "2026-06-18T12:00:00.000Z",
+      "capabilityStatus": "simulated"
+    }
+  ],
+  "landlordAnswers": [],
+  "issues": [],
+  "evidence": [],
+  "actions": [],
+  "serviceRequests": [],
+  "timeline": [],
+  "monitoring": [],
+  "reports": [],
+  "demoMetadata": {
+    "scenarioId": "example-no-epc",
+    "fictional": true
+  },
+  "schemaVersion": "1.0.0",
+  "createdAt": "2026-06-18T12:00:00.000Z",
+  "updatedAt": "2026-06-18T12:00:00.000Z"
+}

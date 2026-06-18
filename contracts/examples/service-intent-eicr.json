@@ -1,0 +1,38 @@
+{
+  "id": "intent_example_eicr",
+  "serviceId": "eicr",
+  "sourceRoute": "eicr.html",
+  "contact": {
+    "name": "Fictional Example Landlord",
+    "email": "example-landlord@example.invalid"
+  },
+  "addressInput": {
+    "displayAddress": "30 Copper Street, Derby DE1 5GH",
+    "postcode": "DE1 5GH"
+  },
+  "focusMode": "service_only",
+  "serviceAnswers": {
+    "urgency": "soon",
+    "propertyAccess": "tenant_to_arrange"
+  },
+  "evidencePlaceholders": [
+    {
+      "fileName": "previous-eicr-name-only.pdf",
+      "stored": false,
+      "proofStatus": "missing",
+      "capabilityStatus": "simulated"
+    }
+  ],
+  "propertyId": null,
+  "status": "draft",
+  "migration": {
+    "sourceSystem": "public_service_draft",
+    "sourceRecordId": "intent_example_eicr",
+    "importedAt": "2026-06-18T12:00:00.000Z",
+    "adapterVersion": "example",
+    "originalSchemaVersion": null,
+    "migrationKey": "public_service_draft::intent_example_eicr::example"
+  },
+  "createdAt": "2026-06-18T12:00:00.000Z",
+  "updatedAt": "2026-06-18T12:00:00.000Z"
+}

@@ -1,0 +1,109 @@
+{
+  "id": "prop_example_standard",
+  "namespace": "guest:examples",
+  "identity": {
+    "displayAddress": "12 Maple Quay, Bristol BS1 1AA",
+    "line1": "12 Maple Quay",
+    "line2": null,
+    "town": "Bristol",
+    "county": null,
+    "postcode": "BS1 1AA",
+    "uprn": "EXAMPLE-UPRN-1001",
+    "source": {
+      "sourceType": "official",
+      "sourceLabel": "Simulated address match",
+      "sourceIdentifier": "EXAMPLE-UPRN-1001",
+      "checkedDate": "2026-06-18",
+      "confidence": "high",
+      "capabilityStatus": "simulated",
+      "notes": "Fictional contract example."
+    },
+    "matchStatus": "matched",
+    "confidence": "high",
+    "manualEdits": [],
+    "previousValues": [],
+    "history": []
+  },
+  "address": "12 Maple Quay, Bristol BS1 1AA",
+  "uprn": "EXAMPLE-UPRN-1001",
+  "creationSource": "add_property",
+  "currentSetupStage": "workspace",
+  "lifecycleStatus": "active",
+  "entryContext": {
+    "sourceRoute": "contracts/examples"
+  },
+  "smartCheckResults": [
+    {
+      "id": "check_standard_epc",
+      "propertyId": "prop_example_standard",
+      "checkType": "epc",
+      "resultStatus": "found",
+      "value": {
+        "epcRating": "C",
+        "epcPotential": "B",
+        "epcExpiry": "2030-04-30"
+      },
+      "sourceReferences": [
+        {
+          "sourceType": "official",
+          "sourceLabel": "Simulated EPC register",
+          "sourceIdentifier": "SIM-EPC-1001",
+          "checkedDate": "2026-06-18",
+          "confidence": "high",
+          "capabilityStatus": "simulated",
+          "notes": "Simulated Smart Check."
+        }
+      ],
+      "confidence": "high",
+      "requiresConfirmation": false,
+      "missingReason": null,
+      "unknownReason": null,
+      "checkedAt": "2026-06-18T12:00:00.000Z",
+      "capabilityStatus": "simulated"
+    }
+  ],
+  "landlordAnswers": [
+    {
+      "id": "answer_standard_occupancy",
+      "propertyId": "prop_example_standard",
+      "questionId": "current_occupancy",
+      "answer": "occupied_single_household",
+      "context": "current",
+      "source": "user_stated",
+      "answeredAt": "2026-06-18T12:05:00.000Z",
+      "dependencyKeys": [],
+      "evidenceStatus": "unverified",
+      "editedHistory": [],
+      "sourceReferences": []
+    }
+  ],
+  "issues": [],
+  "evidence": [
+    {
+      "id": "evidence_standard_gas",
+      "propertyId": "prop_example_standard",
+      "linkedIssueId": null,
+      "linkedActionId": null,
+      "linkedServiceRequestId": null,
+      "evidenceType": "gas_safety_certificate",
+      "proofStatus": "accepted",
+      "verificationStatus": "accepted",
+      "source": "supplier_confirmed",
+      "capabilityStatus": "simulated",
+      "issuedDate": "2026-01-10",
+      "expiryDate": "2027-01-10",
+      "extractedFields": {},
+      "userConfirmationState": "confirmed",
+      "sourceReferences": []
+    }
+  ],
+  "actions": [],
+  "serviceRequests": [],
+  "timeline": [],
+  "monitoring": [],
+  "reports": [],
+  "demoMetadata": null,
+  "schemaVersion": "1.0.0",
+  "createdAt": "2026-06-18T12:00:00.000Z",
+  "updatedAt": "2026-06-18T12:05:00.000Z"
+}
