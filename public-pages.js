@@ -449,6 +449,8 @@
       message: "",
       stage: "",
       selectedId: "",
+      canonicalRecord: null,
+      canonicalReview: null,
       prefillHandled: false
     }
   };
@@ -536,6 +538,8 @@
   }
 
   function saveWorkspaceEntry(property, answers = {}) {
+    // Transitional Stage 4 compatibility: My Properties still reads this legacy public workspace store.
+    // Canonical Add Property writes to cmp_canonical_property_store_v1::guest:public first.
     const saved = readWorkspace();
     saved[property.id] = {
       checkerState: {
@@ -1779,7 +1783,7 @@
     ];
   }
 
-  function buildPropertyFromSelection(selection) {
+  function buildPropertyFromSelection(selection, canonicalRecord = null) {
     const journey = currentJourney();
     const sourceService = SERVICE_CONFIG[journey.entryService] || {
       entryService: "full_compliance",
@@ -1860,11 +1864,14 @@
         label: sourceService.title,
         createdAt: nowIso()
       },
+      canonicalPropertyId: canonicalRecord?.id || null,
       identity: {
         propertyId,
         uprn: selection.uprn || "",
         addressKey: normalizedAddressKey(selection.address, selection.postcode),
-        certificateRef: selection.epc?.certificate || ""
+        certificateRef: selection.epc?.certificate || "",
+        canonicalPropertyId: canonicalRecord?.id || null,
+        canonicalNamespace: canonicalRecord?.namespace || null
       }
     };
 
@@ -1999,14 +2006,16 @@
             <section class="question-panel">
               <div class="question-panel-heading">
                 <span class="section-kicker">Step 3</span>
-                <h3>Import property details</h3>
+                <h3>Run Smart Checks</h3>
               </div>
-              <p class="question-panel-copy">Once you confirm the address, CMP will prepare the EPC/property record, create the workspace, and show what needs review next.</p>
+              <p class="question-panel-copy">Once you confirm the address, CMP will create the canonical property record, run simulated Smart Checks, and show what needs review next.</p>
               <div class="helper-card compact">
                 <h3>${escapeHtml(state.addProperty.stage || "Choose the address, then CMP will do the rest.")}</h3>
-                <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare the EPC/property record, create the workspace, and send you to review what CMP found.")}</p>
+                <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare Smart Checks and show Review Found Data from the same PropertyRecord.")}</p>
               </div>
             </section>
+
+            ${renderCanonicalReview()}
           </div>
         </section>
       </main>
@@ -2034,12 +2043,32 @@
         state.addProperty.message = "Importing property details...";
         renderAddPropertyPage();
         await wait(450);
-        state.addProperty.stage = "Creating property workspace...";
-        state.addProperty.message = "Address matched. EPC/property record prepared for review. Creating your CMP workspace...";
+        state.addProperty.stage = "Preparing Review Found Data...";
+        state.addProperty.message = "Address matched. Creating the canonical PropertyRecord and storing simulated Smart Checks...";
         renderAddPropertyPage();
         await wait(550);
 
-        const property = buildPropertyFromSelection(match);
+        const bridge = window.CMPPublicPropertyBridge;
+        if (!bridge?.createOrUpdatePropertyFromSelection) {
+          state.addProperty.stage = "Smart Checks unavailable";
+          state.addProperty.message = "The canonical Add Property bridge did not load. Please refresh and try again.";
+          renderAddPropertyPage();
+          return;
+        }
+        const canonicalResult = bridge.createOrUpdatePropertyFromSelection(match, {
+          storage: localStorage,
+          journeyContext: currentJourney(),
+          serviceDraft: loadServiceDraft(currentJourney().entryService)
+        });
+        if (!canonicalResult.ok) {
+          state.addProperty.stage = "Property needs checking";
+          state.addProperty.message = canonicalResult.errors.join(" ");
+          renderAddPropertyPage();
+          return;
+        }
+        const canonicalRecord = canonicalResult.value.property;
+        const canonicalReview = bridge.prepareReviewFoundData(canonicalRecord);
+        const property = buildPropertyFromSelection(match, canonicalRecord);
         const existing = propertyEntries().find((item) => item.identity?.addressKey === property.identity.addressKey || item.identity?.uprn === property.identity.uprn);
         const target = existing || property;
         if (!existing) {
@@ -2049,8 +2078,14 @@
         window.CMPJourney?.update?.({
           selectedPropertyId: target.id
         });
-        flash(existing ? "Workspace reopened. Review what CMP found and confirm the unknowns." : "Property workspace created. Address matched, EPC/property record prepared for review, and next questions are ready.", "success");
-        window.location.href = "dashboard-labs.html";
+        state.addProperty.canonicalRecord = canonicalRecord;
+        state.addProperty.canonicalReview = canonicalReview;
+        state.addProperty.stage = "Review found data";
+        state.addProperty.message = existing
+          ? "Canonical Smart Checks updated. Review what CMP found before continuing."
+          : "Canonical PropertyRecord created. Smart Checks are ready for review before the next setup step.";
+        flash(existing ? "Canonical Smart Checks updated. Review found data is ready." : "Canonical property created. Review found data is ready.", "success");
+        renderAddPropertyPage();
       });
     });
 
@@ -2062,7 +2097,7 @@
 
   function renderAddPropertyStepper() {
     const selected = Boolean(state.addProperty.selectedId);
-    const imported = selected && state.addProperty.stage === "Building your dashboard...";
+    const reviewed = Boolean(state.addProperty.canonicalReview);
     const steps = [
       {
         title: "Enter postcode",
@@ -2075,9 +2110,14 @@
         state: selected ? "done" : state.addProperty.matches.length ? "current" : "upcoming"
       },
       {
-        title: "Preview import",
-        detail: "CMP checks EPC data and creates the property.",
-        state: imported ? "current" : selected ? "current" : "upcoming"
+        title: "Smart Checks",
+        detail: "CMP stores simulated checks on the PropertyRecord.",
+        state: reviewed ? "done" : selected ? "current" : "upcoming"
+      },
+      {
+        title: "Review found data",
+        detail: "Confirm sources, confidence and missing values.",
+        state: reviewed ? "current" : "upcoming"
       }
     ];
 
@@ -2126,6 +2166,73 @@
     `;
   }
 
+  function renderReviewItems(items) {
+    if (!items.length) {
+      return `
+        <div class="add-property-review-empty">
+          <strong>Nothing in this group yet</strong>
+          <p>CMP will add items here as more checks and answers are connected.</p>
+        </div>
+      `;
+    }
+    return `
+      <div class="add-property-review-list">
+        ${items.map((item) => `
+          <article class="add-property-review-item">
+            <div class="property-summary-meta">
+              <span class="status-pill ${escapeHtml(item.status === "missing" || item.status === "unknown" ? "warning" : "info")}">${escapeHtml(item.status === "missing" ? "Missing / unknown" : item.status === "unknown" ? "Missing / unknown" : "Prepared for review")}</span>
+              <span class="quiet-pill">Confidence: ${escapeHtml(item.confidence)}</span>
+            </div>
+            <strong>${escapeHtml(item.label)}</strong>
+            <p>${escapeHtml(item.value)}</p>
+            <div class="property-summary-meta">
+              <span>Source: ${escapeHtml(item.sourceLabel)}</span>
+              <span>${escapeHtml(item.capabilityStatus === "simulated" ? "Simulated Smart Check" : item.capabilityStatus)}</span>
+            </div>
+            ${item.reason ? `<small>${escapeHtml(item.reason)}</small>` : ""}
+          </article>
+        `).join("")}
+      </div>
+    `;
+  }
+
+  function renderCanonicalReview() {
+    const review = state.addProperty.canonicalReview;
+    if (!review) return "";
+    return `
+      <section class="question-panel" data-canonical-review data-property-id="${escapeHtml(review.propertyId)}">
+        <div class="question-panel-heading">
+          <span class="section-kicker">Step 4</span>
+          <h3>Review found data</h3>
+        </div>
+        <p class="question-panel-copy">CMP has prepared a canonical property record for ${escapeHtml(review.address)}. These are simulated Smart Checks, prepared for review, not a legal compliance decision.</p>
+
+        <div class="helper-card compact">
+          <h3>Found automatically</h3>
+          <p>Facts CMP could prepare from the address selection and simulated checks.</p>
+          ${renderReviewItems(review.foundAutomatically)}
+        </div>
+
+        <div class="helper-card compact">
+          <h3>Needs confirmation</h3>
+          <p>Facts the landlord still needs to confirm before CMP can build the Property Brain.</p>
+          ${renderReviewItems(review.needsConfirmation)}
+        </div>
+
+        <div class="helper-card compact">
+          <h3>Missing / unknown</h3>
+          <p>Missing or unknown values stay explicit. They become next setup steps, not false facts.</p>
+          ${renderReviewItems(review.missingUnknown)}
+        </div>
+
+        <div class="service-journey-actions">
+          <a class="button primary" data-canonical-handoff href="${escapeHtml(review.handoffHref)}">${escapeHtml(review.nextStepLabel)}</a>
+          <a class="button secondary" href="my-properties.html">Continue to My Properties</a>
+        </div>
+      </section>
+    `;
+  }
+
   function wait(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
   }
@@ -2142,6 +2249,9 @@
     state.addProperty.isSearching = true;
     state.addProperty.message = "Checking postcode...";
     state.addProperty.stage = "Looking for the right address";
+    state.addProperty.selectedId = "";
+    state.addProperty.canonicalRecord = null;
+    state.addProperty.canonicalReview = null;
     renderAddPropertyPage();
     let meta;
     try {

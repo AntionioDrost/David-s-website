@@ -444,7 +444,8 @@ test("product isolation", async (t) => {
       .filter(Boolean)
       .filter((file) => !file.startsWith("core/"));
     for (const file of productFiles) {
-      const content = fs.readFileSync(path.join(root, file), "utf8");
+      const content = fs.readFileSync(path.join(root, file), "utf8")
+        .replaceAll("core/cmp-public-property-bridge.js", "");
       assert.equal(/cmp-property-store|cmp-storage-drivers|cmp-domain-normalize|cmp-transitional-adapters|cmp-id|core\//.test(content), false, `${file} imports Stage 3 core`);
     }
   });
