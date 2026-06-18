@@ -2938,6 +2938,14 @@ function derivationApi() {
   return window.CMPComplianceDerivation || null;
 }
 
+function serviceLifecycleApi() {
+  return window.CMPServiceLifecycle || null;
+}
+
+function evidenceLifecycleApi() {
+  return window.CMPEvidenceLifecycle || null;
+}
+
 function deriveSelectedCanonicalPropertyState(record) {
   const derivation = derivationApi();
   if (!derivation?.derivePropertyComplianceState || !record?.id) {
@@ -2946,6 +2954,41 @@ function deriveSelectedCanonicalPropertyState(record) {
   return derivation.derivePropertyComplianceState(record, {
     now: new Date().toISOString()
   });
+}
+
+function refreshSelectedCanonicalPropertyState(record) {
+  const bridge = bridgeApi();
+  const derived = deriveSelectedCanonicalPropertyState(record);
+  labsState.selectedCanonicalProperty = {
+    ...(labsState.selectedCanonicalProperty || {}),
+    status: "valid",
+    propertyId: record.id,
+    record,
+    shell: bridge?.workspaceShellFromRecord?.(record) || labsState.selectedCanonicalProperty?.shell,
+    derivedState: derived.ok ? derived.value : null,
+    derivationWarnings: derived.ok ? derived.warnings || [] : derived.errors || []
+  };
+}
+
+function saveSelectedCanonicalPropertyRecord(record) {
+  const bridge = bridgeApi();
+  if (!bridge?.readCanonicalStore || !bridge?.writeCanonicalStore || !record?.id) {
+    return { ok: false, errors: ["Canonical bridge unavailable."] };
+  }
+  const loaded = bridge.readCanonicalStore(localStorage, bridge.PUBLIC_GUEST_NAMESPACE_ID);
+  if (!loaded.ok) return loaded;
+  const store = loaded.value;
+  if (!store.propertiesById?.[record.id]) {
+    return { ok: false, errors: [`Cannot update unknown canonical property ${record.id}.`] };
+  }
+  store.propertiesById[record.id] = JSON.parse(JSON.stringify(record));
+  if (!store.propertyOrder.includes(record.id)) {
+    store.propertyOrder.push(record.id);
+  }
+  const saved = bridge.writeCanonicalStore(localStorage, store);
+  if (!saved.ok) return saved;
+  refreshSelectedCanonicalPropertyState(saved.value.propertiesById[record.id]);
+  return { ok: true, value: saved.value.propertiesById[record.id], warnings: saved.warnings || [] };
 }
 
 function hydrateSelectedCanonicalProperty() {
@@ -3092,6 +3135,121 @@ function canonicalEvidenceLabels(derivedState) {
     const label = String(gap.evidenceType || "evidence").replace(/_/g, " ");
     return `${label}: ${gap.proofStatus || "unknown"}`;
   });
+}
+
+function canonicalServiceOptionsForAction(actionItem = canonicalDerivedState()?.nextBestAction) {
+  const serviceLifecycle = serviceLifecycleApi();
+  const record = labsState.selectedCanonicalProperty?.record;
+  const derivedState = canonicalDerivedState();
+  if (!serviceLifecycle?.resolveServiceOptionsForAction || !record || !actionItem) {
+    return { ok: true, value: [], warnings: ["No service option: selected property action is unavailable."] };
+  }
+  return serviceLifecycle.resolveServiceOptionsForAction(actionItem, record, derivedState);
+}
+
+function canonicalPrimaryServiceOption() {
+  const action = canonicalDerivedState()?.nextBestAction;
+  const resolved = canonicalServiceOptionsForAction(action);
+  return resolved.ok ? resolved.value?.[0] || null : null;
+}
+
+function selectedCanonicalServiceRequests() {
+  const record = labsState.selectedCanonicalProperty?.record;
+  return (record?.serviceRequests || []).filter((request) => request.propertyId === record.id);
+}
+
+function selectedCanonicalEvidenceForRequest(serviceRequestId) {
+  const record = labsState.selectedCanonicalProperty?.record;
+  return (record?.evidence || []).filter((item) => item.linkedServiceRequestId === serviceRequestId);
+}
+
+function createCanonicalServiceRequest() {
+  if (!isCanonicalWorkspaceValid()) {
+    showToast("Open a selected property before preparing a service request.");
+    return;
+  }
+  const serviceLifecycle = serviceLifecycleApi();
+  const record = labsState.selectedCanonicalProperty.record;
+  const derivedState = canonicalDerivedState();
+  const action = derivedState?.nextBestAction;
+  const option = canonicalPrimaryServiceOption();
+  if (!serviceLifecycle?.createServiceRequestFromAction || !action || !option) {
+    showToast("No mapped service option for this selected property action.");
+    return;
+  }
+  const created = serviceLifecycle.createServiceRequestFromAction(record, action, option);
+  if (!created.ok) {
+    showToast(created.errors?.[0] || "Could not prepare service request.");
+    return;
+  }
+  const saved = saveSelectedCanonicalPropertyRecord(created.value.propertyRecord);
+  if (!saved.ok) {
+    showToast(saved.errors?.[0] || "Could not save service request.");
+    return;
+  }
+  renderAllState();
+  showToast("Service request prepared. No supplier contacted. No payment taken.");
+}
+
+function createCanonicalServiceIntentRequest() {
+  if (!isCanonicalWorkspaceValid()) {
+    showToast("Open a selected property before preparing a service request.");
+    return;
+  }
+  const bridge = bridgeApi();
+  const serviceLifecycle = serviceLifecycleApi();
+  const record = labsState.selectedCanonicalProperty.record;
+  const intentId = record.entryContext?.serviceIntentId;
+  if (!intentId || !serviceLifecycle?.createServiceRequestFromServiceIntent) {
+    showToast("No public service intent is attached to this property.");
+    return;
+  }
+  const loaded = bridge?.readCanonicalStore?.(localStorage, bridge.PUBLIC_GUEST_NAMESPACE_ID);
+  const intent = loaded?.ok ? loaded.value.serviceIntentsById?.[intentId] : null;
+  if (!intent) {
+    showToast("The public service intent could not be loaded for this property.");
+    return;
+  }
+  const created = serviceLifecycle.createServiceRequestFromServiceIntent(record, intent);
+  if (!created.ok) {
+    showToast(created.errors?.[0] || "Could not prepare service request.");
+    return;
+  }
+  const saved = saveSelectedCanonicalPropertyRecord(created.value.propertyRecord);
+  if (!saved.ok) {
+    showToast(saved.errors?.[0] || "Could not save service request.");
+    return;
+  }
+  renderAllState();
+  showToast("Service request prepared. No supplier contacted. No payment taken.");
+}
+
+function completeCanonicalServiceEvidence(serviceRequestId, mode = "accepted") {
+  if (!isCanonicalWorkspaceValid()) {
+    showToast("Open a selected property before updating evidence.");
+    return;
+  }
+  const evidenceLifecycle = evidenceLifecycleApi();
+  const record = labsState.selectedCanonicalProperty.record;
+  const serviceRequest = (record.serviceRequests || []).find((request) => request.id === serviceRequestId);
+  if (!evidenceLifecycle || !serviceRequest) {
+    showToast("Could not find the selected service request.");
+    return;
+  }
+  const lifecycleResult = mode === "placeholder"
+    ? evidenceLifecycle.createEvidencePlaceholderFromServiceRequest(record, serviceRequest)
+    : evidenceLifecycle.createSimulatedEvidenceFromServiceRequest(record, serviceRequest, { confirmationState: "confirmed" });
+  if (!lifecycleResult.ok) {
+    showToast(lifecycleResult.errors?.[0] || "Could not update evidence.");
+    return;
+  }
+  const saved = saveSelectedCanonicalPropertyRecord(lifecycleResult.value.propertyRecord);
+  if (!saved.ok) {
+    showToast(saved.errors?.[0] || "Could not save evidence.");
+    return;
+  }
+  renderAllState();
+  showToast(mode === "placeholder" ? "Evidence needs review. No document stored." : "Simulated evidence received. Evidence needs review.");
 }
 
 function canonicalSelectedPortfolioProperty() {
@@ -4223,6 +4381,8 @@ function renderSelectedCanonicalWorkspaceShell() {
   const nextBestAction = derivedState?.nextBestAction || null;
   const evidenceGaps = derivedState?.evidenceGaps || [];
   const monitoringItems = derivedState?.monitoringItems || [];
+  const serviceOption = canonicalPrimaryServiceOption();
+  const serviceRequests = selectedCanonicalServiceRequests();
   document.title = `${shell.address} | CMP Labs`;
   setText(".breadcrumb", `Properties / ${shell.address}`);
   setText(".prototype-badge", "Property workspace · Simulated Smart Check");
@@ -4339,6 +4499,25 @@ function renderSelectedCanonicalWorkspaceShell() {
   }
   if (upcomingGrid) {
     const upcomingItems = [
+      ...(serviceOption ? [{
+        badge: "Service recommendation",
+        title: serviceOption.label,
+        body: `${serviceOption.recommendedBecause || "Recommended because this property has an open gap."} No supplier contacted. No payment taken.`,
+        label: "Prepare service request",
+        action: "create-service-request"
+      }] : []),
+      ...serviceRequests.slice(0, 2).map((request) => {
+        const statusCopy = request.supplierJobPackData?.statusCopy || "Service request prepared. No supplier contacted. No payment taken.";
+        const evidenceCount = selectedCanonicalEvidenceForRequest(request.id).length;
+        return {
+          badge: "Simulated request",
+          title: request.supplierJobPackData?.serviceLabel || request.serviceId,
+          body: `${statusCopy} Evidence expected: ${(request.evidenceExpected || []).map((item) => String(item.evidenceType || "evidence").replace(/_/g, " ")).join(", ") || "evidence needs review"}.`,
+          label: evidenceCount ? "Review evidence" : "Evidence needs review",
+          action: "service-request",
+          requestId: request.id
+        };
+      }),
       ...evidenceGaps.slice(0, 2).map((gap) => ({
         badge: "Evidence gap",
         title: String(gap.evidenceType || "evidence").replace(/_/g, " "),
@@ -4368,7 +4547,15 @@ function renderSelectedCanonicalWorkspaceShell() {
         <span class="source-badge">${escapeHtml(item.badge)}</span>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.body)}</p>
-        <button class="text-button" type="button" data-toast="This selected-property preview is derived from the canonical record.">${escapeHtml(item.label || "Review")}</button>
+        ${item.action === "create-service-request"
+          ? `<button class="text-button" type="button" data-canonical-service-request>${escapeHtml(item.label || "Prepare service request")}</button>`
+          : item.action === "service-request"
+          ? `
+            <button class="text-button" type="button" data-canonical-service-evidence-placeholder="${escapeHtml(item.requestId)}">Evidence needs review</button>
+            <button class="text-button" type="button" data-canonical-service-evidence-complete="${escapeHtml(item.requestId)}">Mark simulated evidence received</button>
+          `
+          : `<button class="text-button" type="button" data-toast="This selected-property preview is derived from the canonical record.">${escapeHtml(item.label || "Review")}</button>`
+        }
       </article>
     `).join("");
   }
@@ -17734,6 +17921,28 @@ function bindPortfolioHome() {
 
     if (event.target.closest("[data-smart-open-workspace]")) {
       openPropertyWorkspace("overview");
+      return;
+    }
+
+    if (event.target.closest("[data-canonical-service-request]")) {
+      createCanonicalServiceRequest();
+      return;
+    }
+
+    if (event.target.closest("[data-canonical-service-intent-request]")) {
+      createCanonicalServiceIntentRequest();
+      return;
+    }
+
+    const evidencePlaceholderButton = event.target.closest("[data-canonical-service-evidence-placeholder]");
+    if (evidencePlaceholderButton) {
+      completeCanonicalServiceEvidence(evidencePlaceholderButton.dataset.canonicalServiceEvidencePlaceholder, "placeholder");
+      return;
+    }
+
+    const evidenceCompleteButton = event.target.closest("[data-canonical-service-evidence-complete]");
+    if (evidenceCompleteButton) {
+      completeCanonicalServiceEvidence(evidenceCompleteButton.dataset.canonicalServiceEvidenceComplete, "accepted");
       return;
     }
 
