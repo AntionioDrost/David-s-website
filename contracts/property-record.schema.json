@@ -1,0 +1,272 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.local/contracts/property-record.schema.json",
+  "title": "CMP PropertyRecord",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "namespace", "identity", "creationSource", "currentSetupStage", "lifecycleStatus", "schemaVersion", "createdAt", "updatedAt"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "namespace": { "type": "string", "minLength": 1 },
+    "identity": { "$ref": "#/$defs/propertyIdentity" },
+    "address": { "type": "string" },
+    "uprn": { "type": ["string", "null"] },
+    "creationSource": {
+      "type": "string",
+      "enum": ["public_check", "add_property", "service_intent", "problem_led", "ask_cmp", "demo_scenario", "migration", "legacy_import"]
+    },
+    "currentSetupStage": {
+      "type": "string",
+      "enum": ["add_property", "smart_checks", "review_found_data", "answer_unknowns", "property_brain", "analysis", "workspace"]
+    },
+    "lifecycleStatus": {
+      "type": "string",
+      "enum": ["draft", "active", "paused", "archived", "demo"]
+    },
+    "entryContext": { "$ref": "#/$defs/entryContext" },
+    "smartCheckResults": { "type": "array", "items": { "$ref": "#/$defs/smartCheckResult" }, "default": [] },
+    "landlordAnswers": { "type": "array", "items": { "$ref": "#/$defs/landlordAnswer" }, "default": [] },
+    "issues": { "type": "array", "items": { "$ref": "#/$defs/issue" }, "default": [] },
+    "evidence": { "type": "array", "items": { "$ref": "#/$defs/evidenceItem" }, "default": [] },
+    "actions": { "type": "array", "items": { "$ref": "#/$defs/actionItem" }, "default": [] },
+    "serviceRequests": { "type": "array", "items": { "$ref": "#/$defs/serviceRequestSummary" }, "default": [] },
+    "timeline": { "type": "array", "items": { "$ref": "#/$defs/timelineEvent" }, "default": [] },
+    "monitoring": { "type": "array", "items": { "$ref": "#/$defs/monitoringItem" }, "default": [] },
+    "reports": { "type": "array", "items": { "$ref": "#/$defs/reportRecord" }, "default": [] },
+    "demoMetadata": { "type": ["object", "null"] },
+    "schemaVersion": { "type": "string" },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "sourceType": {
+      "type": "string",
+      "enum": ["official", "local_authority", "user_stated", "document_extracted", "supplier_confirmed", "cmp_history", "inferred", "missing", "unknown"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "unknown"]
+    },
+    "capabilityStatus": {
+      "type": "string",
+      "enum": ["simulated", "live"]
+    },
+    "verificationStatus": {
+      "type": "string",
+      "enum": ["unverified", "needs_review", "accepted", "verified", "rejected", "unknown"]
+    },
+    "propertyIdentity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["displayAddress", "postcode", "matchStatus", "confidence"],
+      "properties": {
+        "displayAddress": { "type": "string" },
+        "line1": { "type": ["string", "null"] },
+        "line2": { "type": ["string", "null"] },
+        "town": { "type": ["string", "null"] },
+        "county": { "type": ["string", "null"] },
+        "postcode": { "type": "string" },
+        "uprn": { "type": ["string", "null"] },
+        "source": { "$ref": "#/$defs/sourceReference" },
+        "matchStatus": { "type": "string", "enum": ["matched", "likely_match", "manual", "unmatched", "unknown"] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "manualEdits": { "type": "array", "items": { "type": "object" }, "default": [] },
+        "previousValues": { "type": "array", "items": { "type": "object" }, "default": [] },
+        "history": { "type": "array", "items": { "type": "object" }, "default": [] }
+      }
+    },
+    "sourceReference": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sourceType", "sourceLabel", "confidence", "capabilityStatus"],
+      "properties": {
+        "sourceType": { "$ref": "#/$defs/sourceType" },
+        "sourceLabel": { "type": "string" },
+        "sourceIdentifier": { "type": ["string", "null"] },
+        "checkedDate": { "type": ["string", "null"], "format": "date" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "capabilityStatus": { "$ref": "#/$defs/capabilityStatus" },
+        "notes": { "type": ["string", "null"] }
+      }
+    },
+    "entryContext": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "sourceRoute": { "type": ["string", "null"] },
+        "serviceIntentId": { "type": ["string", "null"] },
+        "problemId": { "type": ["string", "null"] },
+        "askCmpPromptId": { "type": ["string", "null"] },
+        "scenarioId": { "type": ["string", "null"] }
+      }
+    },
+    "smartCheckResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "propertyId", "checkType", "resultStatus", "sourceReferences", "confidence", "capabilityStatus"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "checkType": { "type": "string" },
+        "resultStatus": { "type": "string", "enum": ["found", "likely", "missing", "unknown", "conflict", "not_applicable"] },
+        "value": {},
+        "sourceReferences": { "type": "array", "items": { "$ref": "#/$defs/sourceReference" } },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "requiresConfirmation": { "type": "boolean" },
+        "missingReason": { "type": ["string", "null"] },
+        "unknownReason": { "type": ["string", "null"] },
+        "checkedAt": { "type": ["string", "null"], "format": "date-time" },
+        "capabilityStatus": { "$ref": "#/$defs/capabilityStatus" }
+      }
+    },
+    "landlordAnswer": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "propertyId", "questionId", "answer", "source", "answeredAt"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "questionId": { "type": "string" },
+        "answer": {},
+        "context": { "type": "string", "enum": ["current", "future", "intended", "historical", "unknown"] },
+        "source": { "const": "user_stated" },
+        "answeredAt": { "type": "string", "format": "date-time" },
+        "dependencyKeys": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "evidenceStatus": { "type": "string", "enum": ["held", "missing", "expired", "unverified", "needs_review", "accepted"] },
+        "editedHistory": { "type": "array", "items": { "type": "object" }, "default": [] },
+        "sourceReferences": { "type": "array", "items": { "$ref": "#/$defs/sourceReference" }, "default": [] }
+      }
+    },
+    "issue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "propertyId", "category", "status", "severity", "confidence", "ruleVersion"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "category": { "type": "string" },
+        "status": { "type": "string", "enum": ["open", "awaiting_evidence", "in_progress", "resolved", "deferred"] },
+        "severity": { "type": "string", "enum": ["critical", "high", "medium", "low", "unknown"] },
+        "legalUrgency": { "type": "string", "enum": ["immediate", "soon", "routine", "unknown"] },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "sourceReferences": { "type": "array", "items": { "$ref": "#/$defs/sourceReference" }, "default": [] },
+        "triggerFacts": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "triggerAnswers": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "affectedStage": { "type": ["string", "null"] },
+        "resolvedAt": { "type": ["string", "null"], "format": "date-time" },
+        "ruleVersion": { "type": "string" },
+        "capabilityStatus": { "$ref": "#/$defs/capabilityStatus" }
+      }
+    },
+    "evidenceItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "propertyId", "evidenceType", "proofStatus", "verificationStatus", "capabilityStatus"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "linkedIssueId": { "type": ["string", "null"] },
+        "linkedActionId": { "type": ["string", "null"] },
+        "linkedServiceRequestId": { "type": ["string", "null"] },
+        "evidenceType": { "type": "string" },
+        "proofStatus": { "type": "string", "enum": ["held", "missing", "expired", "unverified", "needs_review", "accepted"] },
+        "verificationStatus": { "$ref": "#/$defs/verificationStatus" },
+        "source": { "$ref": "#/$defs/sourceType" },
+        "capabilityStatus": { "$ref": "#/$defs/capabilityStatus" },
+        "issuedDate": { "type": ["string", "null"], "format": "date" },
+        "expiryDate": { "type": ["string", "null"], "format": "date" },
+        "extractedFields": { "type": "object", "additionalProperties": true },
+        "userConfirmationState": { "type": "string", "enum": ["confirmed", "needs_confirmation", "rejected", "unknown"] },
+        "sourceReferences": { "type": "array", "items": { "$ref": "#/$defs/sourceReference" }, "default": [] }
+      }
+    },
+    "actionItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "propertyId", "linkedIssueId", "priority", "actionType", "reason", "nextStep", "primaryCta", "status"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "linkedIssueId": { "type": "string" },
+        "priority": { "type": "number" },
+        "actionType": { "type": "string" },
+        "reason": { "type": "string" },
+        "sourceConfidenceSummary": { "type": "string" },
+        "nextStep": { "type": "string" },
+        "primaryCta": { "type": "string" },
+        "secondaryCta": { "type": ["string", "null"] },
+        "serviceOptions": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "status": { "type": "string", "enum": ["recommended", "queued", "in_progress", "completed", "dismissed"] },
+        "createdAt": { "type": ["string", "null"], "format": "date-time" },
+        "updatedAt": { "type": ["string", "null"], "format": "date-time" }
+      }
+    },
+    "serviceRequestSummary": {
+      "type": "object",
+      "additionalProperties": true,
+      "required": ["id", "propertyId", "serviceId", "requestStatus", "capabilityStatus"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "serviceId": { "type": "string" },
+        "requestStatus": { "type": "string", "enum": ["draft", "quote_requested", "quote_received", "awaiting_payment", "booked", "in_progress", "completed", "evidence_received", "closed"] },
+        "capabilityStatus": { "$ref": "#/$defs/capabilityStatus" }
+      }
+    },
+    "timelineEvent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "propertyId", "eventType", "timestamp", "summary", "visibility", "capabilityStatus"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "eventType": { "type": "string" },
+        "sourceEntityType": { "type": ["string", "null"] },
+        "sourceEntityId": { "type": ["string", "null"] },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "summary": { "type": "string" },
+        "visibility": { "type": "string", "enum": ["public", "landlord", "internal", "qa"] },
+        "capabilityStatus": { "$ref": "#/$defs/capabilityStatus" }
+      }
+    },
+    "monitoringItem": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "propertyId", "monitoringType", "reason", "currentState", "nextAction", "capabilityStatus"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "sourceIssueId": { "type": ["string", "null"] },
+        "sourceActionId": { "type": ["string", "null"] },
+        "sourceEvidenceId": { "type": ["string", "null"] },
+        "sourceServiceRequestId": { "type": ["string", "null"] },
+        "monitoringType": { "type": "string" },
+        "reason": { "type": "string" },
+        "dueDate": { "type": ["string", "null"], "format": "date" },
+        "cadence": { "type": ["string", "null"] },
+        "currentState": { "type": "string" },
+        "nextAction": { "type": "string" },
+        "lastAnalysisDate": { "type": ["string", "null"], "format": "date-time" },
+        "capabilityStatus": { "$ref": "#/$defs/capabilityStatus" }
+      }
+    },
+    "reportRecord": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["id", "propertyId", "reportType", "generatedFromVersion", "generatedAt", "capabilityStatus"],
+      "properties": {
+        "id": { "type": "string" },
+        "propertyId": { "type": "string" },
+        "reportType": { "type": "string" },
+        "generatedFromVersion": { "type": "string" },
+        "includedEvidenceIds": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "includedIssueIds": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "includedActionIds": { "type": "array", "items": { "type": "string" }, "default": [] },
+        "generatedAt": { "type": "string", "format": "date-time" },
+        "capabilityStatus": { "$ref": "#/$defs/capabilityStatus" },
+        "ruleVersion": { "type": ["string", "null"] },
+        "schemaVersion": { "type": ["string", "null"] }
+      }
+    }
+  }
+}

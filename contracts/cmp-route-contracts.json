@@ -1,0 +1,371 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "version": "2026-06-18.stage-2",
+  "status": "contract-only",
+  "currentTransitionalRoutes": [
+    {
+      "route": "index.html",
+      "class": "public",
+      "audience": "public",
+      "requiredIdentifiers": [],
+      "allowedEntryContexts": ["marketing", "service", "problem", "advice", "demo-teaser"],
+      "stateOwner": "none",
+      "canonicalDestination": "/",
+      "temporaryAlias": "index.html",
+      "authEventuallyRequired": false,
+      "demoBehaviour": "may link to demo after demo is rebuilt over normal journey",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "not applicable"
+    },
+    {
+      "route": "services.html",
+      "class": "public",
+      "audience": "public",
+      "requiredIdentifiers": [],
+      "allowedEntryContexts": ["service-directory"],
+      "stateOwner": "public-page-state",
+      "canonicalDestination": "/services",
+      "temporaryAlias": "services.html",
+      "authEventuallyRequired": false,
+      "demoBehaviour": "none",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "not applicable"
+    },
+    {
+      "route": "individual service .html pages",
+      "class": "public",
+      "audience": "public",
+      "requiredIdentifiers": ["serviceSlug"],
+      "allowedEntryContexts": ["public-service-intent"],
+      "stateOwner": "cmp_public_service_draft::* until adapted",
+      "canonicalDestination": "/services/<slug>",
+      "temporaryAlias": "existing service file",
+      "authEventuallyRequired": false,
+      "demoBehaviour": "none",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "keep service intent context"
+    },
+    {
+      "route": "add-property.html",
+      "class": "public-app-bridge",
+      "audience": "public-and-app",
+      "requiredIdentifiers": [],
+      "allowedEntryContexts": ["Check My Property", "Add property", "serviceIntent", "problem-led"],
+      "stateOwner": "public workspace store until adapted",
+      "canonicalDestination": "/app/properties/new",
+      "temporaryAlias": "add-property.html",
+      "authEventuallyRequired": "optional-later",
+      "demoBehaviour": "may accept scenario seed later",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "stay in Add Property"
+    },
+    {
+      "route": "my-properties.html",
+      "class": "app-transitional",
+      "audience": "app",
+      "requiredIdentifiers": ["guestOrOwnerNamespace"],
+      "allowedEntryContexts": ["app-home", "auth-return"],
+      "stateOwner": "public workspace store until adapted",
+      "canonicalDestination": "/app/properties",
+      "temporaryAlias": "my-properties.html",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "may list persisted demo properties if enabled",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "show empty state"
+    },
+    {
+      "route": "dashboard-labs.html",
+      "class": "app-transitional",
+      "audience": "internal-and-transitional-app",
+      "requiredIdentifiers": [],
+      "allowedEntryContexts": ["temporary-public-handoff", "direct-internal-review"],
+      "stateOwner": "Labs local state",
+      "canonicalDestination": "/app/properties/:propertyId",
+      "temporaryAlias": "dashboard-labs.html",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "direct demo query remains operational",
+      "qaVisibility": "QA chrome hidden unless qa=1",
+      "invalidMissingIdBehaviour": "bare Labs workspace is transitional and noncanonical"
+    },
+    {
+      "route": "dashboard-labs.html?demo=nick",
+      "class": "demo",
+      "audience": "internal-demo",
+      "requiredIdentifiers": ["demo"],
+      "allowedEntryContexts": ["direct-internal-demo-review"],
+      "stateOwner": "guided demo state",
+      "canonicalDestination": "/app/demo/nick",
+      "temporaryAlias": "dashboard-labs.html?demo=nick",
+      "authEventuallyRequired": false,
+      "demoBehaviour": "runs Nick story in current system",
+      "qaVisibility": "QA chrome hidden unless qa=1",
+      "invalidMissingIdBehaviour": "invalid demo returns normal Labs"
+    },
+    {
+      "route": "dashboard-labs.html?state=*",
+      "class": "qa-internal",
+      "audience": "QA",
+      "requiredIdentifiers": ["state"],
+      "allowedEntryContexts": ["fixture-inspection"],
+      "stateOwner": "Labs fixture state",
+      "canonicalDestination": "/app/qa/...",
+      "temporaryAlias": "direct fixture query URL",
+      "authEventuallyRequired": "internal-only",
+      "demoBehaviour": "may seed fixture",
+      "qaVisibility": "visible QA chrome requires qa=1",
+      "invalidMissingIdBehaviour": "invalid state falls back safely"
+    },
+    {
+      "route": "dashboard.html",
+      "class": "legacy",
+      "audience": "internal-legacy",
+      "requiredIdentifiers": [],
+      "allowedEntryContexts": ["direct-internal-legacy-inspection"],
+      "stateOwner": "old dashboard state",
+      "canonicalDestination": "/app/properties",
+      "temporaryAlias": "dashboard.html",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "old demos only",
+      "qaVisibility": "internal legacy",
+      "invalidMissingIdBehaviour": "redirect or archive after replacement"
+    },
+    {
+      "route": "az-checker-v2.html",
+      "class": "legacy",
+      "audience": "internal-legacy",
+      "requiredIdentifiers": [],
+      "allowedEntryContexts": ["direct-internal-legacy-inspection"],
+      "stateOwner": "A-Z checker storage",
+      "canonicalDestination": "/app/properties/new",
+      "temporaryAlias": "az-checker-v2.html",
+      "authEventuallyRequired": false,
+      "demoBehaviour": "old A-Z scenarios only",
+      "qaVisibility": "internal legacy",
+      "invalidMissingIdBehaviour": "redirect or archive after full journey replacement"
+    }
+  ],
+  "futureCanonicalRoutes": [
+    {
+      "route": "/app/properties",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["ownerOrGuestNamespace"],
+      "allowedEntryContexts": ["app-home", "auth-return"],
+      "stateOwner": "canonical property store",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "may show persisted demo namespace if enabled",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "show empty state or property list"
+    },
+    {
+      "route": "/app/properties/new",
+      "class": "app-public-bridge",
+      "audience": "public-and-app",
+      "requiredIdentifiers": [],
+      "allowedEntryContexts": ["Check My Property", "Add property", "serviceIntent", "problem-led", "Ask CMP", "demo-seed"],
+      "stateOwner": "PropertyRecord draft",
+      "authEventuallyRequired": "optional-later",
+      "demoBehaviour": "can receive scenario seed",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "stay in Add Property"
+    },
+    {
+      "route": "/app/properties/:propertyId/review",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["after-add-property", "demo-seed"],
+      "stateOwner": "PropertyRecord.smartCheckResults",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId/unknowns",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["missing-facts", "uncertain-facts"],
+      "stateOwner": "PropertyRecord.landlordAnswers",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId/analysis",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["after-review", "workspace-nav"],
+      "stateOwner": "rules-derived Issue list",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["workspace-open"],
+      "stateOwner": "PropertyRecord",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId/actions",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["next-action", "analysis", "workspace-nav"],
+      "stateOwner": "PropertyRecord.actions",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId/evidence",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["issue", "action", "workspace-nav"],
+      "stateOwner": "PropertyRecord.evidence",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId/services",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["serviceIntentId", "action", "evidence-gap"],
+      "stateOwner": "PropertyRecord.serviceRequests",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId/timeline",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["workspace-nav"],
+      "stateOwner": "PropertyRecord.timeline",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId/ask",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["property-aware-ask-cmp"],
+      "stateOwner": "AskCmpContext",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/properties/:propertyId/monitoring",
+      "class": "app",
+      "audience": "app",
+      "requiredIdentifiers": ["propertyId"],
+      "allowedEntryContexts": ["monitoring-nav", "timeline", "action-outcome"],
+      "stateOwner": "PropertyRecord.monitoring",
+      "authEventuallyRequired": true,
+      "demoBehaviour": "normal route over seeded property",
+      "qaVisibility": "none",
+      "invalidMissingIdBehaviour": "return to My Properties with clear message"
+    },
+    {
+      "route": "/app/demo?scenario=<scenarioId>",
+      "class": "demo",
+      "audience": "public-or-internal-demo",
+      "requiredIdentifiers": ["scenarioId"],
+      "allowedEntryContexts": ["Try Demo", "internal-demo-review"],
+      "stateOwner": "namespaced demo seed store",
+      "authEventuallyRequired": false,
+      "demoBehaviour": "creates seeded PropertyRecord before entering normal journey",
+      "qaVisibility": "no QA controls",
+      "invalidMissingIdBehaviour": "choose valid scenario"
+    },
+    {
+      "route": "/app/qa/...",
+      "class": "qa-internal",
+      "audience": "QA",
+      "requiredIdentifiers": ["qaFlag"],
+      "allowedEntryContexts": ["internal-inspection"],
+      "stateOwner": "fixture and debug systems",
+      "authEventuallyRequired": "internal-only",
+      "demoBehaviour": "may inspect seeded states",
+      "qaVisibility": "visible only to QA",
+      "invalidMissingIdBehaviour": "reject or hide without QA flag"
+    }
+  ],
+  "redirectAliases": [
+    {
+      "current": "add-property.html",
+      "futureTarget": "/app/properties/new",
+      "rule": "Alias after canonical Add Property exists"
+    },
+    {
+      "current": "my-properties.html",
+      "futureTarget": "/app/properties",
+      "rule": "Alias after canonical property list exists"
+    },
+    {
+      "current": "dashboard-labs.html?demo=nick",
+      "futureTarget": "/app/demo/nick",
+      "rule": "Preserve direct internal demo alias"
+    },
+    {
+      "current": "dashboard.html",
+      "futureTarget": "/app/properties",
+      "rule": "Redirect or archive after app list is verified"
+    },
+    {
+      "current": "az-checker-v2.html",
+      "futureTarget": "/app/properties/new",
+      "rule": "Redirect or archive after full-check UX is merged"
+    },
+    {
+      "current": "individual service .html pages",
+      "futureTarget": "/services/<slug>",
+      "rule": "Alias after route architecture exists"
+    }
+  ],
+  "routeInvariants": [
+    "No property workspace may silently fall back to 57 The Butts.",
+    "A property-specific route requires a valid propertyId.",
+    "Missing or invalid propertyId returns to My Properties with a clear message.",
+    "Public Home and App Home are distinct.",
+    "App Home does not unexpectedly return to marketing Home.",
+    "Scenario routes seed a property before entering the journey.",
+    "Service routes preserve serviceIntentId or equivalent context.",
+    "QA parameters do not become product state.",
+    "state=* remains internal-only.",
+    "Legacy routes remain aliases until their canonical replacement passes."
+  ],
+  "knownViolations": [
+    {
+      "id": "route-violation-bare-labs",
+      "description": "Public Add Property and My Properties currently hand off to bare Labs as a temporary bridge.",
+      "route": "dashboard-labs.html",
+      "severity": "high",
+      "classification": "transitional noncanonical bare Labs workspace",
+      "targetStage": "Stage 3-5"
+    }
+  ]
+}

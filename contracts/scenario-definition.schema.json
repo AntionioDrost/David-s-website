@@ -1,0 +1,133 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.local/contracts/scenario-definition.schema.json",
+  "title": "CMP ScenarioDefinition",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "label",
+    "uniqueFictionalPropertyId",
+    "uniqueFictionalAddress",
+    "propertySeed",
+    "smartCheckSeed",
+    "answerSeed",
+    "expectedIssues",
+    "expectedTopAction",
+    "expectedServices",
+    "expectedMonitoring",
+    "expectedRouteOutcome"
+  ],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "label": { "type": "string", "minLength": 1 },
+    "uniqueFictionalPropertyId": { "type": "string", "minLength": 1 },
+    "uniqueFictionalAddress": { "type": "string", "minLength": 1 },
+    "propertySeed": { "type": "object", "additionalProperties": true },
+    "smartCheckSeed": { "type": "array", "items": { "$ref": "#/$defs/seededFinding" } },
+    "answerSeed": { "type": "array", "items": { "$ref": "#/$defs/seededAnswer" } },
+    "expectedIssues": { "type": "array", "items": { "$ref": "#/$defs/expectedIssue" } },
+    "expectedTopAction": { "$ref": "#/$defs/expectedAction" },
+    "expectedServices": { "type": "array", "items": { "$ref": "#/$defs/expectedService" } },
+    "expectedMonitoring": { "type": "array", "items": { "$ref": "#/$defs/expectedMonitoring" } },
+    "expectedRouteOutcome": { "type": "string" },
+    "capabilityStatus": { "type": "string", "enum": ["simulated", "live"], "default": "simulated" }
+  },
+  "$defs": {
+    "sourceType": {
+      "type": "string",
+      "enum": ["official", "local_authority", "user_stated", "document_extracted", "supplier_confirmed", "cmp_history", "inferred", "missing", "unknown"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "unknown"]
+    },
+    "proofStatus": {
+      "type": "string",
+      "enum": ["held", "missing", "expired", "unverified", "needs_review", "accepted"]
+    },
+    "issueStatus": {
+      "type": "string",
+      "enum": ["open", "awaiting_evidence", "in_progress", "resolved", "deferred"]
+    },
+    "actionStatus": {
+      "type": "string",
+      "enum": ["recommended", "queued", "in_progress", "completed", "dismissed"]
+    },
+    "serviceStatus": {
+      "type": "string",
+      "enum": ["draft", "quote_requested", "quote_received", "awaiting_payment", "booked", "in_progress", "completed", "evidence_received", "closed"]
+    },
+    "sourceReference": {
+      "type": "object",
+      "required": ["sourceType", "confidence", "capabilityStatus"],
+      "additionalProperties": true,
+      "properties": {
+        "sourceType": { "$ref": "#/$defs/sourceType" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "capabilityStatus": { "type": "string", "enum": ["simulated", "live"] }
+      }
+    },
+    "seededFinding": {
+      "type": "object",
+      "required": ["checkType", "resultStatus", "confidence"],
+      "additionalProperties": true,
+      "properties": {
+        "checkType": { "type": "string" },
+        "resultStatus": { "type": "string", "enum": ["found", "likely", "missing", "unknown", "conflict", "not_applicable"] },
+        "value": {},
+        "sourceReferences": { "type": "array", "items": { "$ref": "#/$defs/sourceReference" } },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+    "seededAnswer": {
+      "type": "object",
+      "required": ["questionId", "answer"],
+      "additionalProperties": true,
+      "properties": {
+        "questionId": { "type": "string" },
+        "answer": {},
+        "context": { "type": "string", "enum": ["current", "future", "intended", "historical", "unknown"] },
+        "evidenceStatus": { "$ref": "#/$defs/proofStatus" }
+      }
+    },
+    "expectedIssue": {
+      "type": "object",
+      "required": ["category", "status", "confidence"],
+      "additionalProperties": true,
+      "properties": {
+        "category": { "type": "string" },
+        "status": { "$ref": "#/$defs/issueStatus" },
+        "confidence": { "$ref": "#/$defs/confidence" }
+      }
+    },
+    "expectedAction": {
+      "type": "object",
+      "required": ["actionType", "status", "reason"],
+      "additionalProperties": true,
+      "properties": {
+        "actionType": { "type": "string" },
+        "status": { "$ref": "#/$defs/actionStatus" },
+        "reason": { "type": "string" }
+      }
+    },
+    "expectedService": {
+      "type": "object",
+      "required": ["serviceId", "status"],
+      "additionalProperties": true,
+      "properties": {
+        "serviceId": { "type": "string" },
+        "status": { "$ref": "#/$defs/serviceStatus" }
+      }
+    },
+    "expectedMonitoring": {
+      "type": "object",
+      "required": ["monitoringType", "reason"],
+      "additionalProperties": true,
+      "properties": {
+        "monitoringType": { "type": "string" },
+        "reason": { "type": "string" }
+      }
+    }
+  }
+}

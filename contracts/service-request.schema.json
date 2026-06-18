@@ -1,0 +1,104 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://cmp.local/contracts/service-request.schema.json",
+  "title": "CMP ServiceRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "propertyId", "serviceId", "source", "requestMode", "requestStatus", "capabilityStatus", "createdAt", "updatedAt"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1 },
+    "propertyId": { "type": "string", "minLength": 1 },
+    "issueId": { "type": ["string", "null"] },
+    "actionId": { "type": ["string", "null"] },
+    "serviceId": { "type": "string", "minLength": 1 },
+    "source": {
+      "type": "string",
+      "enum": ["public_service", "action_plan", "evidence_gap", "ask_cmp", "manual"]
+    },
+    "requestMode": {
+      "type": "string",
+      "enum": ["simulated", "live"]
+    },
+    "requestStatus": {
+      "type": "string",
+      "enum": ["draft", "quote_requested", "quote_received", "awaiting_payment", "booked", "in_progress", "completed", "evidence_received", "closed"]
+    },
+    "propertyAccessDetails": { "type": "object", "additionalProperties": true },
+    "contactDetails": { "type": "object", "additionalProperties": true },
+    "evidenceExpected": { "type": "array", "items": { "$ref": "#/$defs/evidenceExpectation" }, "default": [] },
+    "supplierJobPackData": { "type": "object", "additionalProperties": true },
+    "timelineEffects": { "type": "array", "items": { "$ref": "#/$defs/timelineEffect" }, "default": [] },
+    "monitoringEffects": { "type": "array", "items": { "$ref": "#/$defs/monitoringEffect" }, "default": [] },
+    "verificationStatus": { "$ref": "#/$defs/verificationStatus" },
+    "capabilityStatus": { "type": "string", "enum": ["simulated", "live"] },
+    "sourceReferences": { "type": "array", "items": { "$ref": "#/$defs/sourceReference" }, "default": [] },
+    "createdAt": { "type": "string", "format": "date-time" },
+    "updatedAt": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "sourceType": {
+      "type": "string",
+      "enum": ["official", "local_authority", "user_stated", "document_extracted", "supplier_confirmed", "cmp_history", "inferred", "missing", "unknown"]
+    },
+    "confidence": {
+      "type": "string",
+      "enum": ["high", "medium", "low", "unknown"]
+    },
+    "proofStatus": {
+      "type": "string",
+      "enum": ["held", "missing", "expired", "unverified", "needs_review", "accepted"]
+    },
+    "issueStatus": {
+      "type": "string",
+      "enum": ["open", "awaiting_evidence", "in_progress", "resolved", "deferred"]
+    },
+    "actionStatus": {
+      "type": "string",
+      "enum": ["recommended", "queued", "in_progress", "completed", "dismissed"]
+    },
+    "verificationStatus": {
+      "type": "string",
+      "enum": ["unverified", "needs_review", "accepted", "verified", "rejected", "unknown"]
+    },
+    "sourceReference": {
+      "type": "object",
+      "required": ["sourceType", "sourceLabel", "confidence", "capabilityStatus"],
+      "additionalProperties": false,
+      "properties": {
+        "sourceType": { "$ref": "#/$defs/sourceType" },
+        "sourceLabel": { "type": "string" },
+        "sourceIdentifier": { "type": ["string", "null"] },
+        "checkedDate": { "type": ["string", "null"], "format": "date" },
+        "confidence": { "$ref": "#/$defs/confidence" },
+        "capabilityStatus": { "type": "string", "enum": ["simulated", "live"] }
+      }
+    },
+    "evidenceExpectation": {
+      "type": "object",
+      "required": ["evidenceType", "proofStatus"],
+      "additionalProperties": true,
+      "properties": {
+        "evidenceType": { "type": "string" },
+        "proofStatus": { "$ref": "#/$defs/proofStatus" }
+      }
+    },
+    "timelineEffect": {
+      "type": "object",
+      "required": ["eventType", "summary"],
+      "additionalProperties": true,
+      "properties": {
+        "eventType": { "type": "string" },
+        "summary": { "type": "string" }
+      }
+    },
+    "monitoringEffect": {
+      "type": "object",
+      "required": ["monitoringType", "reason"],
+      "additionalProperties": true,
+      "properties": {
+        "monitoringType": { "type": "string" },
+        "reason": { "type": "string" }
+      }
+    }
+  }
+}
