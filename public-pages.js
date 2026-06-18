@@ -537,6 +537,31 @@
     return workspaceEntries().map((entry) => entry.property);
   }
 
+  function canonicalBridge() {
+    return window.CMPPublicPropertyBridge || null;
+  }
+
+  function canonicalPropertyEntries() {
+    const bridge = canonicalBridge();
+    if (!bridge?.listCanonicalProperties) return [];
+    const listed = bridge.listCanonicalProperties(localStorage, bridge.PUBLIC_GUEST_NAMESPACE_ID);
+    if (!listed.ok) return [];
+    return listed.value.map((record) => bridge.propertyCardFromRecord(record));
+  }
+
+  function myPropertyEntries() {
+    const bridge = canonicalBridge();
+    const canonicalCards = canonicalPropertyEntries();
+    const legacyProperties = propertyEntries();
+    if (!bridge?.dedupeLegacyPropertyCards || !bridge?.legacyPropertyCardFromSnapshot) {
+      return canonicalCards.length ? canonicalCards : legacyProperties;
+    }
+    const legacyOnly = bridge
+      .dedupeLegacyPropertyCards(canonicalCards, legacyProperties)
+      .map((property) => bridge.legacyPropertyCardFromSnapshot(property));
+    return [...canonicalCards, ...legacyOnly];
+  }
+
   function saveWorkspaceEntry(property, answers = {}) {
     // Transitional Stage 4 compatibility: My Properties still reads this legacy public workspace store.
     // Canonical Add Property writes to cmp_canonical_property_store_v1::guest:public first.
@@ -1936,6 +1961,21 @@
   }
 
   function selectPropertyAndOpenDashboard(property) {
+    if (property.sourceKind === "canonical" || property.canonicalPropertyId) {
+      const propertyId = property.canonicalPropertyId || property.id;
+      const record = property.record || {};
+      const origin = record.entryContext || property.originJourney || {};
+      window.CMPJourney?.update?.({
+        selectedPropertyId: propertyId,
+        entryService: origin.entryService || property.entryService || currentJourney().entryService,
+        focusMode: origin.focusMode || currentJourney().focusMode,
+        isTenanted: origin.isTenanted || currentJourney().isTenanted,
+        answeredQuestions: currentJourney().answeredQuestions || {}
+      });
+      window.location.href = `dashboard-labs.html?propertyId=${encodeURIComponent(propertyId)}`;
+      return;
+    }
+
     const origin = property.originJourney || {};
     window.CMPJourney?.update?.({
       selectedPropertyId: property.id,
@@ -1944,7 +1984,8 @@
       isTenanted: property.tenancy?.currentlyTenanted === true ? "yes" : property.tenancy?.currentlyTenanted === false ? "no" : currentJourney().isTenanted,
       answeredQuestions: currentJourney().answeredQuestions || {}
     });
-    window.location.href = "dashboard-labs.html";
+    flash("This older property record needs to be reconnected before opening the workspace.", "info");
+    window.location.href = `add-property.html${property.postcode ? `?postcode=${encodeURIComponent(property.postcode)}` : ""}`;
   }
 
   async function renderAddPropertyPage() {
@@ -2278,7 +2319,7 @@
 
   function renderMyPropertiesPage() {
     document.title = "My Properties | ComplyMyProperty";
-    const properties = propertyEntries();
+    const properties = myPropertyEntries();
     app.innerHTML = `
       ${baseHeader("my-properties")}
       <main class="public-main">
@@ -2289,7 +2330,6 @@
             <p>This sits between Add Property and the dashboard, just like the Wix journey. It keeps the landlord in control of which property they open next.</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property</a>
-              <button class="button secondary" type="button" data-load-demo-property>Try example property</button>
             </div>
           </div>
           <div class="page-hero-visual page-hero-visual-portfolio">
@@ -2303,17 +2343,17 @@
           <div class="section-heading">
             <span class="eyebrow">Property list</span>
             <h2>${properties.length ? "Your properties" : "Start by adding your first property"}</h2>
-            <p>${properties.length ? "Each card carries the journey label, a basic status, and the next obvious action." : "Add a property, or use the example property to preview how the dashboard opens from this page."}</p>
+            <p>${properties.length ? "Each card carries the current setup stage, Smart Check summary, and the next workspace handoff." : "Add a property to create the first canonical property record and prepare the workspace handoff."}</p>
           </div>
           ${properties.length ? `
             <div class="property-card-grid">
               ${properties.map((property) => {
-                const status = statusForProperty(property);
+                const status = property.sourceKind === "canonical" ? { tone: property.statusTone, label: property.statusLabel } : statusForProperty(property.record || property);
                 return `
                   <article class="property-summary-card">
                     <div class="property-summary-top">
                       <span class="status-pill ${escapeHtml(status.tone)}">${escapeHtml(status.label)}</span>
-                      <span class="quiet-pill">${escapeHtml(journeyLabelForProperty(property))}</span>
+                      <span class="quiet-pill">${escapeHtml(property.sourceKind === "canonical" ? "Property workspace" : journeyLabelForProperty(property.record || property))}</span>
                     </div>
                     <div class="property-summary-visual" aria-hidden="true">
                       <div class="property-summary-visual-window">
@@ -2327,12 +2367,14 @@
                     </div>
                     <h3>${escapeHtml(property.address)}</h3>
                     <span class="property-summary-label">Next action</span>
-                    <p class="property-summary-lead">${escapeHtml(nextActionForProperty(property))}</p>
+                    <p class="property-summary-lead">${escapeHtml(property.sourceKind === "canonical" ? "Open property workspace" : nextActionForProperty(property.record || property))}</p>
                     <div class="property-summary-meta">
                       <span>${escapeHtml(property.type || "Property type to confirm")}</span>
-                      <span>${escapeHtml(property.epc?.rating ? `EPC ${property.epc.rating}` : "No EPC rating recorded yet")}</span>
+                      <span>${escapeHtml(property.postcode || "Postcode to confirm")}</span>
+                      <span>${escapeHtml(property.epcLabel || "EPC missing / unknown")}</span>
                     </div>
-                    <button class="button primary" type="button" data-view-property="${escapeHtml(property.id)}">View dashboard</button>
+                    <p class="property-summary-lead">${escapeHtml(property.smartCheckSummary || "Review found data")}</p>
+                    <button class="button primary" type="button" data-view-property="${escapeHtml(property.id)}">Open property workspace</button>
                   </article>
                 `;
               }).join("")}
@@ -2343,7 +2385,6 @@
               <p>Add your first property to start checking compliance, tracking evidence, and opening the right dashboard.</p>
               <div class="hero-actions">
                 <a class="button primary" href="add-property.html">Add property</a>
-                <button class="button secondary" type="button" data-load-demo-property>Try example property</button>
               </div>
             </div>
           `}
@@ -2357,28 +2398,6 @@
       button.addEventListener("click", () => {
         const property = properties.find((item) => item.id === button.dataset.viewProperty);
         if (property) selectPropertyAndOpenDashboard(property);
-      });
-    });
-    app.querySelectorAll("[data-load-demo-property]").forEach((button) => {
-      button.addEventListener("click", () => {
-        const defaultSelection = generateAddressMatches("B37 7BA", demoPostcodeMeta("B37 7BA"))[0];
-        const existing = propertyEntries().find((item) => item.identity?.addressKey === normalizedAddressKey(defaultSelection.address, defaultSelection.postcode));
-        if (!existing) {
-          window.CMPJourney?.setEntry?.({
-            entryService: "full_compliance",
-            focusMode: "full_compliance",
-            isTenanted: "yes",
-            answeredQuestions: {
-              service_intent: "broader_check",
-              service_focus: "full_compliance"
-            },
-            sourceRoute: "my-properties.html"
-          });
-          const property = buildPropertyFromSelection(defaultSelection);
-          saveWorkspaceEntry(property, currentJourney().answeredQuestions);
-        }
-        flash("Example property loaded. You can open the dashboard now.", "success");
-        renderMyPropertiesPage();
       });
     });
   }

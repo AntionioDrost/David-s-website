@@ -572,6 +572,138 @@
     };
   }
 
+  function setupStageLabel(stage = "") {
+    const labels = {
+      add_property: "Add property",
+      smart_checks: "Smart Checks",
+      review_found_data: "Review found data",
+      answer_unknowns: "Answer unknowns",
+      property_brain: "Property Brain",
+      analysis: "Compliance Analysis",
+      workspace: "Property workspace",
+    };
+    return labels[stage] || "Setup in progress";
+  }
+
+  function listCanonicalProperties(storage, namespaceId = PUBLIC_GUEST_NAMESPACE_ID, options = {}) {
+    const loaded = readCanonicalStore(storage, namespaceId, options);
+    if (!loaded.ok) return loaded;
+    const store = loaded.value;
+    return resultOk(store.propertyOrder.map((propertyId) => store.propertiesById[propertyId]).filter(Boolean));
+  }
+
+  function smartCheckSummary(propertyRecord) {
+    const checks = propertyRecord?.smartCheckResults || [];
+    const found = checks.filter((check) => ["found", "likely"].includes(check.resultStatus)).length;
+    const missingUnknown = checks.filter((check) => ["missing", "unknown"].includes(check.resultStatus)).length;
+    const needsConfirmation = checks.filter((check) => check.requiresConfirmation).length;
+    return {
+      total: checks.length,
+      found,
+      missingUnknown,
+      needsConfirmation,
+      label: checks.length
+        ? `${found} found, ${needsConfirmation} need confirmation, ${missingUnknown} missing / unknown`
+        : "Smart Checks prepared for review",
+    };
+  }
+
+  function propertyCardFromRecord(propertyRecord) {
+    const summary = smartCheckSummary(propertyRecord);
+    const address = propertyRecord.identity?.displayAddress || propertyRecord.address || "Property address missing";
+    const postcode = propertyRecord.identity?.postcode || "";
+    const setupStage = setupStageLabel(propertyRecord.currentSetupStage);
+    const entryService = propertyRecord.entryContext?.entryService || "full_compliance";
+    return {
+      sourceKind: "canonical",
+      id: propertyRecord.id,
+      canonicalPropertyId: propertyRecord.id,
+      address,
+      postcode,
+      location: [postcode].filter(Boolean).join(", "),
+      setupStage,
+      statusTone: propertyRecord.currentSetupStage === "workspace" ? "info" : "warning",
+      statusLabel: setupStage,
+      smartCheckSummary: `Smart Checks: ${summary.label}`,
+      type: propertyRecord.smartCheckResults?.find((check) => check.checkType === "property_type")?.value?.propertyType || "Property type to confirm",
+      epcLabel: propertyRecord.smartCheckResults?.find((check) => check.checkType === "epc")?.value?.epcRating
+        ? `EPC ${propertyRecord.smartCheckResults.find((check) => check.checkType === "epc").value.epcRating}`
+        : "EPC missing / unknown",
+      entryService,
+      updatedAt: propertyRecord.updatedAt || propertyRecord.createdAt || "",
+      openHref: `dashboard-labs.html?propertyId=${encodeURIComponent(propertyRecord.id)}`,
+      record: propertyRecord,
+    };
+  }
+
+  function dedupeLegacyPropertyCards(canonicalCards = [], legacyProperties = []) {
+    const canonicalIds = new Set(canonicalCards.map((card) => card.canonicalPropertyId || card.id).filter(Boolean));
+    const canonicalAddressKeys = new Set(canonicalCards.map((card) => normalizedAddressKey(card.address, card.postcode)).filter(Boolean));
+    return legacyProperties.filter((property) => {
+      const canonicalId = property.canonicalPropertyId || property.identity?.canonicalPropertyId || null;
+      if (canonicalId && canonicalIds.has(canonicalId)) return false;
+      const addressKey = normalizedAddressKey(property.address, property.postcode);
+      return !canonicalAddressKeys.has(addressKey);
+    });
+  }
+
+  function legacyPropertyCardFromSnapshot(property) {
+    const canonicalId = property.canonicalPropertyId || property.identity?.canonicalPropertyId || null;
+    return {
+      sourceKind: "legacy",
+      id: property.id,
+      canonicalPropertyId: canonicalId,
+      address: property.address || "Legacy property",
+      postcode: property.postcode || "",
+      location: property.postcode || "",
+      setupStage: "Legacy setup",
+      statusTone: "neutral",
+      statusLabel: "Legacy setup",
+      smartCheckSummary: "Transitional public workspace record",
+      type: property.type || "Property type to confirm",
+      epcLabel: property.epc?.rating ? `EPC ${property.epc.rating}` : "No EPC rating recorded yet",
+      entryService: property.originJourney?.entryService || "full_compliance",
+      updatedAt: property.updatedAt || "",
+      openHref: canonicalId
+        ? `dashboard-labs.html?propertyId=${encodeURIComponent(canonicalId)}`
+        : `add-property.html${property.postcode ? `?postcode=${encodeURIComponent(property.postcode)}` : ""}`,
+      record: property,
+    };
+  }
+
+  function workspaceShellFromRecord(propertyRecord) {
+    const review = prepareReviewFoundData(propertyRecord);
+    const summary = smartCheckSummary(propertyRecord);
+    return {
+      status: "valid",
+      propertyId: propertyRecord.id,
+      address: review.address,
+      postcode: review.postcode,
+      setupStatus: setupStageLabel(propertyRecord.currentSetupStage),
+      updatedAt: propertyRecord.updatedAt || propertyRecord.createdAt || "",
+      smartCheckSummary: summary.label,
+      foundDataSummary: review.foundAutomatically.slice(0, 4),
+      missingUnknownSummary: review.missingUnknown.slice(0, 4),
+      needsConfirmationSummary: review.needsConfirmation.slice(0, 4),
+      intro: "Workspace connected to this property. Detailed compliance analysis follows in the next setup step.",
+      sourceCopy: "Simulated Smart Check",
+    };
+  }
+
+  function invalidWorkspaceShell(status = "missing", propertyId = "") {
+    const invalid = status === "invalid";
+    return {
+      status: invalid ? "invalid" : "missing",
+      propertyId: propertyId || null,
+      title: invalid ? "Property not found" : "Choose a property from My Properties",
+      body: invalid
+        ? "CMP could not find that canonical property record. Return to My Properties and open a listed property."
+        : "Open a property from My Properties so CMP can load the correct workspace.",
+      ctaLabel: "Open My Properties",
+      ctaHref: "my-properties.html",
+    };
+  }
+
   return {
     CANONICAL_STORE_VERSION,
     CANONICAL_STORE_KEY_PREFIX,
@@ -587,6 +719,14 @@
     createPropertyRecord,
     createOrUpdatePropertyFromSelection,
     prepareReviewFoundData,
+    listCanonicalProperties,
+    smartCheckSummary,
+    propertyCardFromRecord,
+    dedupeLegacyPropertyCards,
+    legacyPropertyCardFromSnapshot,
+    workspaceShellFromRecord,
+    invalidWorkspaceShell,
+    setupStageLabel,
     normalizedAddressKey,
     normalizePostcode,
   };

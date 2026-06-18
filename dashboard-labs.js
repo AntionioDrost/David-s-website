@@ -1849,6 +1849,7 @@ const labsState = {
   selectedServicePropertyId: "all",
   pendingServiceRequestType: "eicr",
   pendingServicePropertyId: "the-butts",
+  selectedCanonicalProperty: null,
   addPropertyStep: 1,
   addPropertyAddress: "Flat 42, 57 The Butts, Coventry, CV1 3BJ",
   smartSearchAnswerPanel: "",
@@ -2837,6 +2838,15 @@ function willowPortfolioProperty() {
 }
 
 function getPortfolioProperties() {
+  const canonicalProperty = canonicalSelectedPortfolioProperty();
+  if (canonicalProperty) {
+    return [canonicalProperty];
+  }
+
+  if (isCanonicalWorkspaceRoute()) {
+    return [];
+  }
+
   if (isEmptyPortfolioMode()) {
     return [];
   }
@@ -2856,6 +2866,15 @@ function getPortfolioProperties() {
 }
 
 function getPortfolioPropertyById(propertyId = "the-butts") {
+  const canonicalProperty = canonicalSelectedPortfolioProperty();
+  if (canonicalProperty) {
+    return canonicalProperty.id === propertyId || propertyId === "the-butts" ? canonicalProperty : canonicalProperty;
+  }
+
+  if (isCanonicalWorkspaceRoute()) {
+    return invalidCanonicalPortfolioProperty();
+  }
+
   return getPortfolioProperties().find((property) => property.id === propertyId) || getPortfolioProperties()[0] || buttsPortfolioProperty();
 }
 
@@ -2901,7 +2920,168 @@ function initialDemoStateFromUrl() {
   return null;
 }
 
+function requestedCanonicalPropertyId() {
+  return queryParams().get("propertyId") || "";
+}
+
+function shouldUseCanonicalPropertyRoute() {
+  const params = queryParams();
+  const fromCanonicalHandoff = ["my-properties", "add-property"].includes(params.get("from") || "");
+  return (Boolean(params.get("propertyId")) || fromCanonicalHandoff) && !isNickDemoMode() && !params.get("state") && params.get("fresh") !== "1";
+}
+
+function bridgeApi() {
+  return window.CMPPublicPropertyBridge || null;
+}
+
+function hydrateSelectedCanonicalProperty() {
+  if (!shouldUseCanonicalPropertyRoute()) {
+    labsState.selectedCanonicalProperty = null;
+    return;
+  }
+
+  const propertyId = requestedCanonicalPropertyId();
+  const bridge = bridgeApi();
+  if (!propertyId) {
+    labsState.selectedCanonicalProperty = {
+      status: "missing",
+      propertyId: "",
+      shell: bridge?.invalidWorkspaceShell?.("missing", "") || {
+        status: "missing",
+        propertyId: null,
+        title: "Choose a property from My Properties",
+        body: "Open a property from My Properties so CMP can load the correct workspace.",
+        ctaLabel: "Open My Properties",
+        ctaHref: "my-properties.html"
+      }
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+
+  if (!bridge?.readCanonicalStore || !bridge?.workspaceShellFromRecord) {
+    labsState.selectedCanonicalProperty = {
+      status: "invalid",
+      propertyId,
+      shell: bridge?.invalidWorkspaceShell?.("invalid", propertyId) || {
+        status: "invalid",
+        propertyId,
+        title: "Property not found",
+        body: "CMP could not load the canonical property bridge.",
+        ctaLabel: "Open My Properties",
+        ctaHref: "my-properties.html"
+      }
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+
+  const loaded = bridge.readCanonicalStore(localStorage, bridge.PUBLIC_GUEST_NAMESPACE_ID);
+  const record = loaded.ok ? loaded.value.propertiesById[propertyId] : null;
+  if (!record) {
+    labsState.selectedCanonicalProperty = {
+      status: "invalid",
+      propertyId,
+      shell: bridge.invalidWorkspaceShell("invalid", propertyId)
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+
+  labsState.selectedCanonicalProperty = {
+    status: "valid",
+    propertyId,
+    record,
+    shell: bridge.workspaceShellFromRecord(record)
+  };
+  labsState.portfolioMode = "single";
+  labsState.azPropertyId = propertyId;
+  labsState.selectedServicePropertyId = propertyId;
+  labsState.pendingServicePropertyId = propertyId;
+}
+
+function isCanonicalWorkspaceRoute() {
+  return Boolean(labsState.selectedCanonicalProperty);
+}
+
+function isCanonicalWorkspaceValid() {
+  return labsState.selectedCanonicalProperty?.status === "valid";
+}
+
+function canonicalWorkspaceShell() {
+  return labsState.selectedCanonicalProperty?.shell || null;
+}
+
+function canonicalSelectedPortfolioProperty() {
+  if (!isCanonicalWorkspaceValid()) return null;
+  const shell = canonicalWorkspaceShell();
+  return {
+    id: shell.propertyId,
+    address: shell.address,
+    postcode: shell.postcode,
+    location: shell.postcode || "Postcode to confirm",
+    label: `${shell.address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
+    inbox: "",
+    occupancy: "Needs confirmation",
+    journey: "Property workspace",
+    strength: 0,
+    evidenceScore: 0,
+    complianceScore: 0,
+    focus: "Review found data",
+    focusArea: "Smart Checks",
+    state: shell.setupStatus,
+    statusDetail: shell.smartCheckSummary || "Review prepared",
+    priority: "Continue property setup",
+    priorityBody: shell.intro,
+    serviceType: "review",
+    verifiedEvidence: 0,
+    reviewCount: (shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0),
+    missingEvidence: (shell.missingUnknownSummary || []).map((item) => item.label),
+    recommendedService: "Continue setup",
+    currentRequest: null,
+    workspaceAvailable: true,
+    mostUrgent: true,
+    search: `${shell.address} ${shell.postcode} canonical property smart checks review found data`
+  };
+}
+
+function invalidCanonicalPortfolioProperty() {
+  const shell = canonicalWorkspaceShell();
+  return {
+    id: shell?.propertyId || "invalid-property",
+    address: shell?.title || "Property not selected",
+    postcode: "",
+    location: "Open My Properties",
+    label: shell?.title || "Property not selected",
+    inbox: "",
+    occupancy: "Unknown",
+    journey: "Property workspace",
+    strength: 0,
+    evidenceScore: 0,
+    complianceScore: 0,
+    focus: "Select property",
+    focusArea: "Property selection",
+    state: "Not loaded",
+    statusDetail: shell?.body || "Open My Properties to choose a property.",
+    priority: "Open My Properties",
+    priorityBody: shell?.body || "Open My Properties to choose a property.",
+    serviceType: "review",
+    verifiedEvidence: 0,
+    reviewCount: 0,
+    missingEvidence: [],
+    recommendedService: "Select property",
+    currentRequest: null,
+    workspaceAvailable: false,
+    mostUrgent: false,
+    search: "invalid missing canonical property"
+  };
+}
+
 function selectedServicePropertyId() {
+  if (isCanonicalWorkspaceValid()) {
+    return labsState.selectedCanonicalProperty.propertyId;
+  }
+
   if (!isTwoPropertyMode()) {
     return "the-butts";
   }
@@ -3581,6 +3761,16 @@ function getRecentActivityItems() {
 }
 
 function openPropertyFromPortfolio(propertyId = "the-butts") {
+  if (isCanonicalWorkspaceValid()) {
+    openPropertyWorkspace("overview");
+    return;
+  }
+
+  if (isCanonicalWorkspaceRoute()) {
+    showPortfolioHome({ scroll: true });
+    return;
+  }
+
   if (isEmptyPortfolioMode()) {
     openPropertyWorkspace("overview");
     return;
@@ -3605,6 +3795,32 @@ function renderSidebarProperties() {
   const list = document.querySelector("[data-sidebar-property-list]");
 
   if (!list) {
+    return;
+  }
+
+  const canonicalProperty = canonicalSelectedPortfolioProperty();
+  if (canonicalProperty) {
+    list.innerHTML = `
+      <button class="property-option is-current" type="button" data-open-property-id="${escapeHtml(canonicalProperty.id)}">
+        <span class="status-dot" aria-hidden="true"></span>
+        <span>
+          <strong>${escapeHtml(canonicalProperty.address)}</strong>
+          <small>${escapeHtml(canonicalProperty.location)}</small>
+        </span>
+        <em class="sidebar-property-count">Smart Checks</em>
+      </button>
+    `;
+    return;
+  }
+
+  if (isCanonicalWorkspaceRoute()) {
+    const shell = canonicalWorkspaceShell();
+    list.innerHTML = `
+      <article class="sidebar-empty-state">
+        <strong>${escapeHtml(shell?.title || "Property not selected")}</strong>
+        <small>${escapeHtml(shell?.body || "Open My Properties to choose a property.")}</small>
+      </article>
+    `;
     return;
   }
 
@@ -3789,6 +4005,259 @@ function renderAllState() {
   renderPortfolioUtilityState();
   renderGlobalScoreSurfaces();
   renderAzChecker();
+  hydrateIcons();
+  renderSelectedCanonicalWorkspaceShell();
+}
+
+function setText(selector, value) {
+  const node = document.querySelector(selector);
+  if (node) {
+    node.textContent = value;
+  }
+}
+
+function renderSelectedCanonicalWorkspaceShell() {
+  if (!isCanonicalWorkspaceRoute()) {
+    return;
+  }
+
+  const shell = canonicalWorkspaceShell();
+  const tabBar = document.querySelector(".tab-bar");
+  const headerIntro = document.querySelector(".property-header p:not(.section-kicker)");
+  const propertyMeta = document.querySelector(".property-meta");
+  const home = document.querySelector("[data-portfolio-home]");
+  const homeHeader = document.querySelector(".portfolio-home-header");
+  const homeIntro = document.querySelector(".portfolio-home-header p:not(.section-kicker)");
+  const homeBadge = document.querySelector(".portfolio-home-header .prototype-badge");
+  const homeSecondaryGrid = document.querySelector(".home-two-column");
+  const homeQuickWin = document.querySelector(".home-quick-win-card");
+  const smartSearchSection = document.querySelector("[data-smart-search-results]");
+  const autopilotCard = document.querySelector(".portfolio-autopilot-card");
+  const pulseGrid = document.querySelector(".portfolio-pulse-grid");
+  const homeScoreGrid = document.querySelector("[data-home-score-grid]");
+  const homePriorityCard = document.querySelector(".home-priority-card");
+  const propertyList = document.querySelector("[data-home-property-list]");
+  const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
+  const rankList = document.querySelector("[data-home-priority-rank-list]");
+
+  if (!isCanonicalWorkspaceValid()) {
+    document.body.classList.add("canonical-property-route");
+    document.title = "Select property | CMP Labs";
+    setText(".breadcrumb", "Properties / Select property");
+    setText(".prototype-badge", "Property workspace");
+    setText("#propertyTitle", shell?.title || "Choose a property");
+    if (headerIntro) {
+      headerIntro.textContent = shell?.body || "Open a property from My Properties so CMP can load the correct workspace.";
+    }
+    if (propertyMeta) {
+      propertyMeta.innerHTML = `
+        <span>No selected property</span>
+        <span>Canonical ID required</span>
+        <span>Workspace not loaded</span>
+      `;
+    }
+    if (tabBar) {
+      tabBar.hidden = true;
+    }
+    hidePropertyPanelsAndTabs();
+    hidePortfolioPages();
+    if (home) {
+      home.hidden = false;
+    }
+    homeHeader?.removeAttribute("hidden");
+    smartSearchSection?.setAttribute("hidden", "");
+    autopilotCard?.removeAttribute("hidden");
+    pulseGrid?.removeAttribute("hidden");
+    homeScoreGrid?.removeAttribute("hidden");
+    homePriorityCard?.setAttribute("hidden", "");
+    if (homeSecondaryGrid) {
+      homeSecondaryGrid.hidden = true;
+    }
+    if (homeQuickWin) {
+      homeQuickWin.hidden = true;
+    }
+    setText("[data-portfolio-home] .section-kicker", "Property workspace");
+    setText("#portfolioHomeTitle", shell?.title || "Choose a property");
+    if (homeIntro) {
+      homeIntro.textContent = shell?.body || "Open a property from My Properties so CMP can load the correct workspace.";
+    }
+    if (homeBadge) {
+      homeBadge.textContent = "No property loaded";
+    }
+    setText("[data-home-property-count]", "0");
+    setText("[data-home-property-count-detail]", "properties loaded");
+    setText("[data-home-priority-count]", "0");
+    setText("[data-home-priority-detail]", "select property first");
+    setText("[data-home-verified-count]", "0");
+    setText("[data-home-review-count]", "0");
+    setText("[data-home-review-detail]", "nothing loaded");
+    setText("[data-home-summary-title]", shell?.title || "Choose a property");
+    setText("[data-home-summary-body]", shell?.body || "Open My Properties to choose a property.");
+    if (rankList) {
+      rankList.hidden = false;
+      rankList.innerHTML = `
+        <article class="priority-rank-item is-primary">
+          <span>Next</span>
+          <strong>Open My Properties</strong>
+          <p>${escapeHtml(shell?.body || "Choose a property before opening the workspace.")}</p>
+        </article>
+      `;
+    }
+    if (propertyList) {
+      propertyList.innerHTML = `
+        <article class="empty-portfolio-card">
+          <span class="tile-icon" data-icon="building"></span>
+          <h3>${escapeHtml(shell?.title || "Choose a property")}</h3>
+          <p>${escapeHtml(shell?.body || "Open My Properties so CMP can load the selected property record.")}</p>
+          <div class="button-row">
+            <a class="primary-button" href="${escapeHtml(shell?.ctaHref || "my-properties.html")}">${escapeHtml(shell?.ctaLabel || "Open My Properties")}</a>
+            <a class="secondary-button" href="add-property.html">Add property</a>
+          </div>
+        </article>
+      `;
+    }
+    if (upcomingGrid) {
+      upcomingGrid.innerHTML = `
+        <article class="portfolio-upcoming-card">
+          <span class="source-badge">Setup</span>
+          <h3>Open a listed property</h3>
+          <p>Workspace selection now requires a canonical property ID.</p>
+          <a class="text-button" href="my-properties.html">Open My Properties</a>
+        </article>
+      `;
+    }
+    hydrateIcons();
+    return;
+  }
+
+  document.body.classList.add("canonical-property-route");
+  document.title = `${shell.address} | CMP Labs`;
+  setText(".breadcrumb", `Properties / ${shell.address}`);
+  setText(".prototype-badge", "Property workspace · Simulated Smart Check");
+  setText("#propertyTitle", shell.address);
+  if (headerIntro) {
+    headerIntro.textContent = [shell.postcode, shell.setupStatus].filter(Boolean).join(" · ");
+  }
+  if (propertyMeta) {
+    propertyMeta.innerHTML = `
+      <span>${escapeHtml(shell.postcode || "Postcode to confirm")}</span>
+      <span>${escapeHtml(shell.setupStatus)}</span>
+      <span>${escapeHtml(shell.sourceCopy)}</span>
+    `;
+  }
+  if (tabBar) {
+    tabBar.hidden = false;
+  }
+  homeHeader?.removeAttribute("hidden");
+  smartSearchSection?.setAttribute("hidden", "");
+  autopilotCard?.removeAttribute("hidden");
+  pulseGrid?.removeAttribute("hidden");
+  homeScoreGrid?.removeAttribute("hidden");
+  homePriorityCard?.removeAttribute("hidden");
+  if (homeSecondaryGrid) {
+    homeSecondaryGrid.hidden = true;
+  }
+  if (homeQuickWin) {
+    homeQuickWin.hidden = true;
+  }
+  setText("[data-portfolio-home] .section-kicker", "Property workspace");
+  setText("#portfolioHomeTitle", `Workspace for ${shell.address}`);
+  if (homeIntro) {
+    homeIntro.textContent = shell.intro;
+  }
+  if (homeBadge) {
+    homeBadge.textContent = `${shell.postcode || "Postcode to confirm"} · ${shell.sourceCopy}`;
+  }
+  setText("[data-home-property-count]", "1");
+  setText("[data-home-property-count-detail]", "property tracked");
+  setText("[data-home-priority-count]", "1");
+  setText("[data-home-priority-detail]", "setup step");
+  setText("[data-home-verified-count]", "0");
+  setText("[data-home-review-count]", String((shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0)));
+  setText("[data-home-review-detail]", "items to review");
+  setText("[data-home-summary-title]", "Continue property setup");
+  setText("[data-home-summary-body]", shell.smartCheckSummary || "Review found data is prepared from the selected property file.");
+  setText("[data-home-priority-area]", "Smart Checks");
+  setText("[data-home-priority-status]", shell.setupStatus);
+  setText("[data-home-priority-body]", "Workspace connected to this property. Compliance analysis, evidence, actions and monitoring will continue from this record in the next stages.");
+  setText("[data-home-upload-priority]", "Continue setup");
+  setText("[data-home-arrange-priority]", "Review found data");
+  if (rankList) {
+    rankList.hidden = false;
+    const foundItems = shell.foundDataSummary?.length ? shell.foundDataSummary : [];
+    rankList.innerHTML = foundItems.length
+      ? foundItems.map((item, index) => `
+        <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
+          <span>${index === 0 ? "Found" : "Check"}</span>
+          <strong>${escapeHtml(item.label)}</strong>
+          <p>${escapeHtml(item.value)} · Source: ${escapeHtml(item.sourceLabel)} · Confidence: ${escapeHtml(item.confidence)}</p>
+        </article>
+      `).join("")
+      : `
+        <article class="priority-rank-item is-primary">
+          <span>Prepared</span>
+          <strong>Review found data</strong>
+          <p>CMP has prepared a selected-property workspace shell from the canonical record.</p>
+        </article>
+      `;
+  }
+  if (propertyList) {
+    propertyList.innerHTML = `
+      <article class="portfolio-property-card is-most-urgent">
+        <div class="portfolio-property-main">
+          <span class="status-dot" aria-hidden="true"></span>
+          <div>
+            <div class="property-card-heading-row">
+              <h3>${escapeHtml(shell.address)}</h3>
+              <span class="source-badge">Property workspace</span>
+            </div>
+            <p>${escapeHtml(shell.postcode || "Postcode to confirm")}</p>
+            <div class="signal-row">
+              <span>${escapeHtml(shell.setupStatus)}</span>
+              <span>${escapeHtml(shell.sourceCopy)}</span>
+              <span>Review prepared</span>
+            </div>
+          </div>
+        </div>
+        <div class="portfolio-property-progress">
+          <span>Setup status</span>
+          <strong>${escapeHtml(shell.setupStatus)}</strong>
+          <div class="strength-meter"><span style="width: 20%"></span></div>
+          <small>${escapeHtml(shell.smartCheckSummary || "Smart Checks prepared for review")}</small>
+        </div>
+        <div class="button-row">
+          <button class="primary-button" type="button" data-home-open-property-id="${escapeHtml(shell.propertyId)}">Open workspace</button>
+          <a class="secondary-button quiet-button" href="my-properties.html">My Properties</a>
+        </div>
+      </article>
+    `;
+  }
+  if (upcomingGrid) {
+    const upcomingItems = [
+      ...((shell.needsConfirmationSummary || []).slice(0, 2).map((item) => ({
+        badge: "Needs confirmation",
+        title: item.label,
+        body: `${item.value} · Confidence: ${item.confidence}`
+      }))),
+      ...((shell.missingUnknownSummary || []).slice(0, 2).map((item) => ({
+        badge: "Missing / unknown",
+        title: item.label,
+        body: item.reason || item.value
+      })))
+    ].slice(0, 4);
+    upcomingGrid.innerHTML = (upcomingItems.length ? upcomingItems : [{
+      badge: "Next",
+      title: "Continue setup",
+      body: "Answer unknowns before CMP derives compliance analysis, actions, evidence and monitoring from this record."
+    }]).map((item) => `
+      <article class="portfolio-upcoming-card">
+        <span class="source-badge">${escapeHtml(item.badge)}</span>
+        <h3>${escapeHtml(item.title)}</h3>
+        <p>${escapeHtml(item.body)}</p>
+        <button class="text-button" type="button" data-toast="This setup step is handled in the next consolidation stage.">Continue setup</button>
+      </article>
+    `).join("");
+  }
   hydrateIcons();
 }
 
@@ -20442,6 +20911,7 @@ if (initialDemoState) {
   configureDemoState(initialDemoState);
 }
 
+hydrateSelectedCanonicalProperty();
 hydrateIcons();
 renderAssistantPrompts();
 renderAllState();
