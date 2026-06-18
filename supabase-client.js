@@ -39,7 +39,8 @@
     return window.CMP_SUPABASE_CLIENT;
   }
 
-  function sanitizeRedirect(value, fallback = "dashboard.html") {
+  // Stage 1 transitional app-home destination until the canonical property list exists.
+  function sanitizeRedirect(value, fallback = "my-properties.html") {
     const target = String(value || fallback).trim();
     if (
       !target ||
@@ -54,12 +55,12 @@
     return target.includes(".html") ? target : fallback;
   }
 
-  function getRedirectTarget(fallback = "dashboard.html") {
+  function getRedirectTarget(fallback = "my-properties.html") {
     const params = new URLSearchParams(window.location.search);
     return sanitizeRedirect(params.get("redirect"), fallback);
   }
 
-  function authUrl(redirect = "dashboard.html") {
+  function authUrl(redirect = "my-properties.html") {
     return `auth.html?redirect=${encodeURIComponent(sanitizeRedirect(redirect))}`;
   }
 

@@ -160,13 +160,17 @@ function isNickDemoMode() {
   return params.get("demo") === "nick" || params.get("journeyDemo") === "nick";
 }
 
+function isQaMode() {
+  return queryParams().get("qa") === "1";
+}
+
 function isAdvancedDemoMode() {
   const params = queryParams();
-  return params.get("advanced") === "1" || params.get("debug") === "1";
+  return isQaMode() && (params.get("advanced") === "1" || params.get("debug") === "1");
 }
 
 function shouldHidePrototypeMachinery() {
-  return isNickDemoMode() && !isAdvancedDemoMode();
+  return !isQaMode();
 }
 
 function clearNickDemoStoredState() {

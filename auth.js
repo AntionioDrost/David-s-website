@@ -10,7 +10,8 @@
   const statusBox = document.getElementById("authStatus");
   const forgotButton = document.getElementById("forgotPassword");
   const modeButtons = Array.from(document.querySelectorAll("[data-auth-mode]"));
-  const redirectTarget = window.CMPAuth?.getRedirectTarget("dashboard.html") || "dashboard.html";
+  // Stage 1 transitional app-home destination until the canonical property list exists.
+  const redirectTarget = window.CMPAuth?.getRedirectTarget("my-properties.html") || "my-properties.html";
   let mode = new URLSearchParams(window.location.search).get("mode") === "signup" ? "signup" : "signin";
 
   function setStatus(message, tone = "neutral") {

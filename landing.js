@@ -25,6 +25,33 @@ const journeyContent = {
   }
 };
 
+const serviceEntryRoutes = {
+  epc: "epcs.html",
+  gas: "gas-safety.html",
+  eicr: "eicr.html",
+  inspection: "property-inspections.html",
+  licensing: "selective-licensing.html",
+  eviction: "evictions-possession.html",
+  possession_preparation: "possession-eviction-preparation.html",
+  mould: "mould-damp.html",
+  aml: "aml-checks.html",
+  rent_guarantee: "rent-guarantee.html",
+  insurance: "landlord-insurance.html",
+  mortgage: "mortgages.html"
+};
+
+function temporaryJourneyDestination(element) {
+  const entryService = element.dataset.journeyEntryService || "full_compliance";
+  const focusMode = element.dataset.journeyFocusMode || "full_compliance";
+  if (focusMode === "service_only" && serviceEntryRoutes[entryService]) {
+    return serviceEntryRoutes[entryService];
+  }
+  if (entryService === "portfolio") {
+    return "my-properties.html";
+  }
+  return "add-property.html";
+}
+
 function renderJourney(id) {
   const content = journeyContent[id] || journeyContent.check;
   const output = document.querySelector("#journeyOutput");
@@ -51,7 +78,7 @@ function wireJourneyEntryPoints() {
       });
       if (window.CMP_DEMO_MODE !== false && element.tagName === "A") {
         event.preventDefault();
-        window.location.href = "dashboard.html";
+        window.location.href = temporaryJourneyDestination(element);
       }
     });
   });

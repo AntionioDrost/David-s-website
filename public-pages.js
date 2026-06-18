@@ -654,7 +654,7 @@
             .join("")}
         </nav>
         <div class="nav-actions">
-          ${homeVariant ? "" : `<a class="nav-link-secondary" href="az-checker-v2.html">A-Z checker</a>`}
+          ${homeVariant ? "" : `<a class="nav-link-secondary" href="add-property.html">Check property</a>`}
           <a class="nav-cta" href="${navigationPrimaryHref()}"><i data-lucide="layout-dashboard"></i>${DEMO_MODE ? "My Properties" : "Log in"}</a>
         </div>
       </header>
@@ -1109,7 +1109,7 @@
               <h3>Guided checks. Answer what you know, skip what you don’t.</h3>
               <p>Start with the address, save the basics, and let unsure answers become a calm checklist rather than a failure state.</p>
               <div class="section-actions">
-                <a class="button secondary" href="az-checker-v2.html">Try the experimental A-Z V2</a>
+                <a class="button secondary" href="add-property.html">Start full property check</a>
               </div>
             </div>
             <div class="home-guided-feature-image">
@@ -1221,7 +1221,7 @@
               <div class="home-journey-actions">
                 <a class="button primary" href="add-property.html">Start with your postcode</a>
                 <a class="button secondary" href="services.html">Explore services</a>
-                <a class="button secondary" href="az-checker-v2.html">Build your A-Z check</a>
+                <a class="button secondary" href="add-property.html">Start full property check</a>
               </div>
             </div>
           </div>
@@ -1937,7 +1937,7 @@
       isTenanted: property.tenancy?.currentlyTenanted === true ? "yes" : property.tenancy?.currentlyTenanted === false ? "no" : currentJourney().isTenanted,
       answeredQuestions: currentJourney().answeredQuestions || {}
     });
-    window.location.href = "dashboard-labs.html?state=new-property";
+    window.location.href = "dashboard-labs.html";
   }
 
   async function renderAddPropertyPage() {
@@ -2050,7 +2050,7 @@
           selectedPropertyId: target.id
         });
         flash(existing ? "Workspace reopened. Review what CMP found and confirm the unknowns." : "Property workspace created. Address matched, EPC/property record prepared for review, and next questions are ready.", "success");
-        window.location.href = "dashboard-labs.html?state=new-property";
+        window.location.href = "dashboard-labs.html";
       });
     });
 

@@ -1,6 +1,7 @@
 (async function () {
-  const redirectTarget = "dashboard.html";
-  const loginUrl = window.CMPAuth?.authUrl(redirectTarget) || "auth.html?redirect=dashboard.html";
+  // Stage 1 transitional app-home destination until the canonical property list exists.
+  const redirectTarget = "my-properties.html";
+  const loginUrl = window.CMPAuth?.authUrl(redirectTarget) || "auth.html?redirect=my-properties.html";
   const demoMode = window.CMP_DEMO_MODE !== false;
 
   function sendToLogin(reason) {
