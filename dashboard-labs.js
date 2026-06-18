@@ -2924,10 +2924,19 @@ function requestedCanonicalPropertyId() {
   return queryParams().get("propertyId") || "";
 }
 
+function requestedDemoScenarioId() {
+  return queryParams().get("demoScenario") || "";
+}
+
+function isCanonicalScenarioRoute() {
+  const params = queryParams();
+  return Boolean(params.get("demoScenario")) && !isNickDemoMode() && !params.get("state");
+}
+
 function shouldUseCanonicalPropertyRoute() {
   const params = queryParams();
   const fromCanonicalHandoff = ["my-properties", "add-property"].includes(params.get("from") || "");
-  return (Boolean(params.get("propertyId")) || fromCanonicalHandoff) && !isNickDemoMode() && !params.get("state") && params.get("fresh") !== "1";
+  return (Boolean(params.get("propertyId")) || fromCanonicalHandoff || isCanonicalScenarioRoute()) && !isNickDemoMode() && !params.get("state") && params.get("fresh") !== "1";
 }
 
 function bridgeApi() {
@@ -2962,6 +2971,14 @@ function propertyActionsApi() {
   return window.CMPPropertyActions || null;
 }
 
+function scenarioDefinitionsApi() {
+  return window.CMPScenarioDefinitions || null;
+}
+
+function scenarioSeedingApi() {
+  return window.CMPScenarioSeeding || null;
+}
+
 function deriveSelectedCanonicalPropertyState(record) {
   const derivation = derivationApi();
   if (!derivation?.derivePropertyComplianceState || !record?.id) {
@@ -2979,6 +2996,7 @@ function refreshSelectedCanonicalPropertyState(record) {
     ...(labsState.selectedCanonicalProperty || {}),
     status: "valid",
     propertyId: record.id,
+    namespaceId: record.namespace || labsState.selectedCanonicalProperty?.namespaceId || bridge?.PUBLIC_GUEST_NAMESPACE_ID,
     record,
     shell: bridge?.workspaceShellFromRecord?.(record) || labsState.selectedCanonicalProperty?.shell,
     derivedState: derived.ok ? derived.value : null,
@@ -2986,12 +3004,20 @@ function refreshSelectedCanonicalPropertyState(record) {
   };
 }
 
+function selectedCanonicalNamespaceId() {
+  const bridge = bridgeApi();
+  return labsState.selectedCanonicalProperty?.namespaceId
+    || labsState.selectedCanonicalProperty?.record?.namespace
+    || bridge?.PUBLIC_GUEST_NAMESPACE_ID;
+}
+
 function saveSelectedCanonicalPropertyRecord(record) {
   const bridge = bridgeApi();
   if (!bridge?.readCanonicalStore || !bridge?.writeCanonicalStore || !record?.id) {
     return { ok: false, errors: ["Canonical bridge unavailable."] };
   }
-  const loaded = bridge.readCanonicalStore(localStorage, bridge.PUBLIC_GUEST_NAMESPACE_ID);
+  const namespaceId = selectedCanonicalNamespaceId();
+  const loaded = bridge.readCanonicalStore(localStorage, namespaceId);
   if (!loaded.ok) return loaded;
   const store = loaded.value;
   if (!store.propertiesById?.[record.id]) {
@@ -3007,9 +3033,79 @@ function saveSelectedCanonicalPropertyRecord(record) {
   return { ok: true, value: saved.value.propertiesById[record.id], warnings: saved.warnings || [] };
 }
 
+function hydrateCanonicalScenarioProperty() {
+  const bridge = bridgeApi();
+  const definitions = scenarioDefinitionsApi();
+  const seeding = scenarioSeedingApi();
+  const scenarioId = requestedDemoScenarioId();
+  const routeResult = seeding?.resolveScenarioRoute?.(queryParams());
+  if (!bridge?.readCanonicalStore || !bridge?.writeCanonicalStore || !definitions || !seeding || !routeResult?.ok) {
+    labsState.selectedCanonicalProperty = {
+      status: "invalid",
+      propertyId: scenarioId || "",
+      shell: bridge?.invalidWorkspaceShell?.("invalid", scenarioId) || {
+        status: "invalid",
+        propertyId: scenarioId || null,
+        title: "Scenario not found",
+        body: "CMP could not load that canonical demo scenario. Open a valid QA scenario route.",
+        ctaLabel: "Open My Properties",
+        ctaHref: "my-properties.html"
+      }
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+  const namespaceId = definitions.DEMO_SCENARIO_NAMESPACE;
+  const loaded = bridge.readCanonicalStore(localStorage, namespaceId);
+  if (!loaded.ok) {
+    labsState.selectedCanonicalProperty = {
+      status: "invalid",
+      propertyId: scenarioId,
+      shell: bridge.invalidWorkspaceShell("invalid", scenarioId)
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+  const seeded = seeding.seedScenarioProperty(loaded.value, scenarioId, {
+    now: new Date().toISOString()
+  });
+  if (!seeded.ok) {
+    labsState.selectedCanonicalProperty = {
+      status: "invalid",
+      propertyId: scenarioId,
+      shell: bridge.invalidWorkspaceShell("invalid", scenarioId)
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+  const saved = bridge.writeCanonicalStore(localStorage, seeded.value.store);
+  const record = saved.ok ? saved.value.propertiesById[seeded.value.property.id] : seeded.value.property;
+  const derived = deriveSelectedCanonicalPropertyState(record);
+  // Stage 9 routes seed demo properties into the canonical selected-property shell without touching guest records.
+  labsState.selectedCanonicalProperty = {
+    status: "valid",
+    propertyId: record.id,
+    namespaceId,
+    scenarioId,
+    record,
+    shell: bridge.workspaceShellFromRecord(record),
+    derivedState: derived.ok ? derived.value : null,
+    derivationWarnings: derived.ok ? derived.warnings || [] : derived.errors || []
+  };
+  labsState.portfolioMode = "single";
+  labsState.azPropertyId = record.id;
+  labsState.selectedServicePropertyId = record.id;
+  labsState.pendingServicePropertyId = record.id;
+}
+
 function hydrateSelectedCanonicalProperty() {
   if (!shouldUseCanonicalPropertyRoute()) {
     labsState.selectedCanonicalProperty = null;
+    return;
+  }
+
+  if (isCanonicalScenarioRoute()) {
+    hydrateCanonicalScenarioProperty();
     return;
   }
 
@@ -3065,6 +3161,7 @@ function hydrateSelectedCanonicalProperty() {
   labsState.selectedCanonicalProperty = {
     status: "valid",
     propertyId,
+    namespaceId: bridge.PUBLIC_GUEST_NAMESPACE_ID,
     record,
     shell: bridge.workspaceShellFromRecord(record),
     derivedState: derived.ok ? derived.value : null,
