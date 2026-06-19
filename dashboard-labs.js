@@ -174,31 +174,8 @@ function shouldHidePrototypeMachinery() {
 }
 
 function clearNickDemoStoredState() {
-  if (!isNickDemoMode()) {
-    return;
-  }
-
-  const storageKeys = [
-    "cmp_compliance_workspaces::guest",
-    "cmp_onboarding_complete",
-    "cmp_public_flash",
-    "cmp_public_postcode_hint"
-  ];
-  const storagePrefixes = [
-    "cmp_journey_context::",
-    "cmp_public_service_draft::"
-  ];
-
-  [window.localStorage, window.sessionStorage].forEach((storage) => {
-    try {
-      storageKeys.forEach((key) => storage.removeItem(key));
-      Object.keys(storage)
-        .filter((key) => storagePrefixes.some((prefix) => key.startsWith(prefix)))
-        .forEach((key) => storage.removeItem(key));
-    } catch {
-      // Storage can be unavailable in private browsing or embedded previews.
-    }
-  });
+  // Stage 10 keeps Nick demo startup non-destructive. Canonical demo records are
+  // seeded into the demo namespace and guest/live storage is left untouched.
 }
 
 function newPropertyEpcVariantCopy(variant = requestedNewPropertyEpcVariant()) {
@@ -2979,6 +2956,14 @@ function scenarioSeedingApi() {
   return window.CMPScenarioSeeding || null;
 }
 
+function guidedDemoStepsApi() {
+  return window.CMPGuidedDemoSteps || null;
+}
+
+function guidedDemoSessionApi() {
+  return window.CMPGuidedDemoSession || null;
+}
+
 function deriveSelectedCanonicalPropertyState(record) {
   const derivation = derivationApi();
   if (!derivation?.derivePropertyComplianceState || !record?.id) {
@@ -3096,6 +3081,59 @@ function hydrateCanonicalScenarioProperty() {
   labsState.azPropertyId = record.id;
   labsState.selectedServicePropertyId = record.id;
   labsState.pendingServicePropertyId = record.id;
+}
+
+function hydrateCanonicalGuidedDemoProperty(scenarioId = "", storyId = "") {
+  const bridge = bridgeApi();
+  const definitions = scenarioDefinitionsApi();
+  const session = guidedDemoSessionApi();
+  if (!bridge?.readCanonicalStore || !bridge?.writeCanonicalStore || !bridge?.workspaceShellFromRecord || !definitions?.DEMO_SCENARIO_NAMESPACE || !session?.createGuidedDemoSession) {
+    return { ok: false, errors: ["Guided demo canonical modules unavailable."] };
+  }
+
+  const namespaceId = definitions.DEMO_SCENARIO_NAMESPACE; // demo:canonical-scenarios
+  const loaded = bridge.readCanonicalStore(localStorage, namespaceId);
+  if (!loaded.ok) return loaded;
+
+  const created = session.createGuidedDemoSession(loaded.value, {
+    scenarioId,
+    storyId,
+    route: "dashboard-labs.html?demo=nick",
+    now: new Date().toISOString()
+  });
+  if (!created.ok) return created;
+
+  const saved = bridge.writeCanonicalStore(localStorage, created.value.store);
+  if (!saved.ok) return saved;
+
+  const record = saved.value.propertiesById[created.value.propertyId] || created.value.property;
+  const derived = deriveSelectedCanonicalPropertyState(record);
+  labsState.selectedCanonicalProperty = {
+    status: "valid",
+    propertyId: record.id,
+    namespaceId,
+    scenarioId: created.value.scenarioId,
+    guidedDemo: true,
+    record,
+    shell: bridge.workspaceShellFromRecord(record),
+    derivedState: derived.ok ? derived.value : null,
+    derivationWarnings: derived.ok ? derived.warnings || [] : derived.errors || []
+  };
+  labsState.guidedCanonicalDemo = {
+    scenarioId: created.value.scenarioId,
+    propertyId: record.id,
+    namespaceId,
+    steps: created.value.steps || [],
+    scenarioCards: created.value.scenarioCards || [],
+    copy: created.value.copy || {},
+    activeStepId: created.value.activeStepId || "welcome"
+  };
+  labsState.portfolioMode = "single";
+  labsState.azMode = "single";
+  labsState.azPropertyId = record.id;
+  labsState.selectedServicePropertyId = record.id;
+  labsState.pendingServicePropertyId = record.id;
+  return { ok: true, value: labsState.selectedCanonicalProperty, warnings: created.warnings || [] };
 }
 
 function hydrateSelectedCanonicalProperty() {
@@ -3269,19 +3307,59 @@ function renderCanonicalAskReportPanel() {
     <button class="text-button" type="button" data-canonical-ask-prompt="${escapeHtml(prompt.id)}">${escapeHtml(prompt.label)}</button>
   `).join("");
   return `
-    <article class="portfolio-upcoming-card">
+    <article class="portfolio-upcoming-card" data-canonical-ask-panel>
       <span class="source-badge">Ask CMP</span>
       <h3>Property-aware guidance</h3>
       <p>Based on current information from this Property Brain. Guidance, not legal advice.</p>
       ${promptButtons || `<button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Explain next best action</button>`}
     </article>
-    <article class="portfolio-upcoming-card">
+    <article class="portfolio-upcoming-card" data-canonical-report-panel>
       <span class="source-badge">Report preview</span>
       <h3>Generate from Property Brain</h3>
       <p>Report preview uses the selected property, rules output, source labels and confidence status.</p>
       <button class="text-button" type="button" data-canonical-report-preview="property_summary">Property Summary</button>
       <button class="text-button" type="button" data-canonical-report-preview="evidence_gap_summary">Evidence Gap Summary</button>
     </article>
+  `;
+}
+
+function renderGuidedCanonicalDemoPanel() {
+  if (!isNickDemoMode() || !labsState.guidedCanonicalDemo) return "";
+  const demo = guidedDemoState();
+  const guided = labsState.guidedCanonicalDemo;
+  const shell = canonicalWorkspaceShell();
+  const activeStep = (guided.steps || []).find((step) => step.stepId === guided.activeStepId) || (guided.steps || [])[0] || null;
+  const showScenarios = Boolean(demo.scenarioExplorerFocus || guided.showScenarioExplorer);
+  const scenarioCards = (guided.scenarioCards || []).map((card, index) => `
+    <article class="portfolio-upcoming-card" data-guided-scenario-card>
+      <span class="source-badge">Simulated demo property</span>
+      <h3>${escapeHtml(card.title || card.scenarioId)}</h3>
+      <p>${escapeHtml(card.story || card.demonstrates || "Load a canonical demo scenario.")}</p>
+      <p>Demonstrates: ${escapeHtml(card.demonstrates || "the normal product journey")}</p>
+      <button class="text-button" type="button" data-guided-scenario-id="${escapeHtml(card.scenarioId)}"${index === 0 ? guidedTargetAttrs("first-scenario") : ""}>${escapeHtml(card.ctaLabel || "Load scenario")}</button>
+    </article>
+  `).join("");
+  return `
+    <article class="portfolio-upcoming-card" data-canonical-guided-demo-panel>
+      <span class="source-badge">Guided demo</span>
+      <h3>${escapeHtml(activeStep?.title || "Canonical guided route")}</h3>
+      <p>${escapeHtml(activeStep?.explanation || "The demo is running on a canonical scenario property.")}</p>
+      <p>Selected: ${escapeHtml(shell?.address || "simulated demo property")} · Based on current information. Guidance, not legal advice.</p>
+      <div class="button-row">
+        <button class="text-button" type="button" data-guided-story="clean-property-check">Run guide</button>
+        <button class="text-button" type="button" data-guided-scroll-stories>Scenario explorer</button>
+      </div>
+    </article>
+    ${showScenarios ? `
+      <section data-canonical-scenario-explorer>
+        <article class="portfolio-upcoming-card">
+          <span class="source-badge">Scenario explorer</span>
+          <h3>Try another landlord situation</h3>
+          <p>Each card loads a separate canonical demo property. Guest and live records are not changed.</p>
+        </article>
+        ${scenarioCards}
+      </section>
+    ` : ""}
   `;
 }
 
@@ -4629,6 +4707,9 @@ function renderSelectedCanonicalWorkspaceShell() {
   if (homeBadge) {
     homeBadge.textContent = `${shell.postcode || "Postcode to confirm"} · ${canonicalRiskLabel(derivedState?.riskLevel)}`;
   }
+  home?.setAttribute("data-canonical-workspace-shell", "");
+  homePriorityCard?.setAttribute("data-canonical-next-action", "");
+  upcomingGrid?.setAttribute("data-canonical-monitoring-preview", "");
   setText("[data-home-property-count]", "1");
   setText("[data-home-property-count-detail]", "property tracked");
   setText("[data-home-priority-count]", String(derivedState?.actionItems?.length || 0));
@@ -4766,7 +4847,7 @@ function renderSelectedCanonicalWorkspaceShell() {
           : `<button class="text-button" type="button" data-toast="This selected-property preview is derived from the canonical record.">${escapeHtml(item.label || "Review")}</button>`
         }
       </article>
-    `).join("") + renderCanonicalAskReportPanel();
+    `).join("") + renderCanonicalAskReportPanel() + renderGuidedCanonicalDemoPanel();
   }
   hydrateIcons();
 }
@@ -7442,18 +7523,18 @@ function prepareStateForGuidedTourStep(state, step) {
 function enterGuidedDemo(storyId = "") {
   clearNickDemoStoredState();
   const demo = guidedDemoState();
+  const canonicalDemo = hydrateCanonicalGuidedDemoProperty("", storyId);
   demo.enabled = true;
   demo.lastNormalScenarioId = journeyState().scenarioId;
   demo.hasSeenLanding = true;
   demo.scenarioExplorerFocus = false;
   demo.strictMode = true;
   demo.freeExplore = false;
-  if (shouldHidePrototypeMachinery()) {
-    labsState.portfolioMode = "empty";
-    labsState.selectedServicePropertyId = "the-butts";
-    labsState.azMode = "single";
-    labsState.azPropertyId = "the-butts";
-  }
+  const selectedPropertyId = canonicalDemo.ok ? canonicalDemo.value.propertyId : "";
+  labsState.portfolioMode = selectedPropertyId ? "single" : "empty";
+  labsState.selectedServicePropertyId = selectedPropertyId || "";
+  labsState.azMode = "single";
+  labsState.azPropertyId = selectedPropertyId || "";
   syncGuidedDemoClass();
 
   if (storyId && guidedDemoStories[storyId]) {
@@ -7464,8 +7545,8 @@ function enterGuidedDemo(storyId = "") {
   demo.activeStoryId = "";
   demo.activeMomentIndex = 0;
   demo.mode = "landing";
-  showJourneyOs({ scroll: true });
-  renderJourneyOsState();
+  renderAllState();
+  showPortfolioHome({ scroll: true });
 }
 
 function exitGuidedDemo() {
@@ -7496,6 +7577,7 @@ function resetGuidedDemo(storyId = "") {
 function startGuidedStory(storyId) {
   const story = guidedDemoStories[storyId] || guidedDemoStories["clean-property-check"];
   const demo = guidedDemoState();
+  hydrateCanonicalGuidedDemoProperty("", storyId);
   demo.enabled = true;
   demo.activeStoryId = storyId in guidedDemoStories ? storyId : "clean-property-check";
   demo.activeMomentIndex = 0;
@@ -7505,6 +7587,26 @@ function startGuidedStory(storyId) {
   demo.freeExplore = false;
   syncGuidedDemoClass();
   applyGuidedMoment(demo.activeStoryId, 0);
+}
+
+function loadGuidedCanonicalScenario(scenarioId) {
+  const loaded = hydrateCanonicalGuidedDemoProperty(scenarioId);
+  const demo = guidedDemoState();
+  demo.enabled = true;
+  demo.mode = "scenario";
+  demo.activeStoryId = "";
+  demo.activeMomentIndex = 0;
+  demo.scenarioExplorerFocus = true;
+  demo.strictMode = false;
+  demo.freeExplore = true;
+  syncGuidedDemoClass();
+  if (!loaded.ok) {
+    showToast(loaded.errors?.[0] || "Could not load that demo scenario.");
+    return;
+  }
+  renderAllState();
+  showPortfolioHome({ scroll: true });
+  showToast("Loaded canonical demo scenario. Guest records were not changed.");
 }
 
 function advanceGuidedMoment(direction = 1) {
@@ -8670,6 +8772,34 @@ function renderGuidedStoryCards() {
 }
 
 function renderNickScenarioCards() {
+  const steps = guidedDemoStepsApi();
+  const definitions = scenarioDefinitionsApi();
+  const scenarioDefinitions = definitions?.listScenarioDefinitions?.();
+  const canonicalCards = scenarioDefinitions?.ok && steps?.listGuidedScenarioExplorerCards
+    ? steps.listGuidedScenarioExplorerCards(scenarioDefinitions.value)
+    : null;
+  if (canonicalCards?.ok) {
+    return canonicalCards.value.map((card, index) => {
+      const targetAttrs = index === 0 ? guidedTargetAttrs("first-scenario") : "";
+      return `
+        <article class="journey-guided-story-card nick-scenario-card" data-guided-scenario-card>
+          <div class="nick-scenario-card-top">
+            <p class="section-kicker">Simulated demo property</p>
+            <span>Canonical scenario</span>
+          </div>
+          <h3>${escapeHtml(card.title || card.scenarioId)}</h3>
+          <p>${escapeHtml(card.story || "Load a canonical demo scenario property.")}</p>
+          <div class="nick-scenario-chip-grid" aria-label="${escapeHtml(card.title || card.scenarioId)} scenario summary">
+            <span><b>Property</b>${escapeHtml(card.address || "Fictional address")}</span>
+            <span><b>Shows</b>${escapeHtml(card.demonstrates || "normal product journey")}</span>
+            <span><b>State</b>${escapeHtml(card.capabilityStatus || "simulated")}</span>
+            <span><b>Storage</b>Demo namespace only</span>
+          </div>
+          <button class="secondary-button" type="button" data-guided-scenario-id="${escapeHtml(card.scenarioId)}"${targetAttrs}>${escapeHtml(card.ctaLabel || "Load scenario")}</button>
+        </article>
+      `;
+    }).join("");
+  }
   return nickScenarioExplorerCards.map((card, index) => {
     const targetAttrs = index === 0 ? guidedTargetAttrs("first-scenario") : "";
     return `
@@ -11024,11 +11154,25 @@ function bindJourneyOs() {
       return;
     }
 
+    const guidedScenarioButton = event.target.closest("[data-guided-scenario-id]");
+    if (guidedScenarioButton) {
+      event.preventDefault();
+      closeTimelineModals();
+      loadGuidedCanonicalScenario(guidedScenarioButton.dataset.guidedScenarioId);
+      return;
+    }
+
     if (event.target.closest("[data-guided-scroll-stories]")) {
       event.preventDefault();
       guidedDemoState().scenarioExplorerFocus = true;
-      renderJourneyOsState();
-      document.querySelector("#guidedStoryGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      if (labsState.guidedCanonicalDemo && isCanonicalWorkspaceValid()) {
+        renderAllState();
+        showPortfolioHome({ scroll: false });
+        document.querySelector("[data-canonical-scenario-explorer]")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      } else {
+        renderJourneyOsState();
+        document.querySelector("#guidedStoryGrid")?.scrollIntoView({ behavior: "smooth", block: "start" });
+      }
       return;
     }
 
