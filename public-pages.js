@@ -597,17 +597,17 @@
         <div class="section-heading">
           <span class="eyebrow">Portfolio priority</span>
           <h2>Portfolio Sweep is ready</h2>
-          <p>Based on current information across ${escapeHtml(String(intelligence.propertyCount))} canonical properties. Guidance, not legal advice.</p>
+          <p>Based on current information across ${escapeHtml(String(intelligence.propertyCount))} saved properties. Guidance, not legal advice.</p>
         </div>
         <div class="property-card-grid">
           <article class="property-summary-card">
             <div class="property-summary-top">
               <span class="status-pill warning">Priority</span>
-              <span class="quiet-pill">Canonical portfolio</span>
+              <span class="quiet-pill">Portfolio Sweep</span>
             </div>
             <h3>${escapeHtml(top?.address || "Review portfolio priority")}</h3>
             <span class="property-summary-label">This property is first because...</span>
-            <p class="property-summary-lead">${escapeHtml(top?.priorityExplanation || "CMP ranked the current canonical property records by open risks and evidence gaps.")}</p>
+            <p class="property-summary-lead">${escapeHtml(top?.priorityExplanation || "CMP ranked the current saved properties by open risks and evidence gaps.")}</p>
             <div class="property-summary-meta">
               <span>${escapeHtml(String(intelligence.summary.evidenceGapCount || 0))} evidence gaps</span>
               <span>${escapeHtml(String(intelligence.summary.upcomingExpiryCount || 0))} expiry items</span>
@@ -621,7 +621,7 @@
               <span class="quiet-pill">Prepared for review</span>
             </div>
             <h3>${escapeHtml(reportPreview?.ok ? reportPreview.value.title : "Portfolio Summary")}</h3>
-            <p class="property-summary-lead">Report preview uses canonical PropertyRecords, derived state, source labels and confidence status.</p>
+            <p class="property-summary-lead">Report preview uses saved property data, derived status, source labels and confidence status.</p>
             <p class="property-summary-lead">No supplier contacted. No payment taken.</p>
           </article>
         </div>
@@ -2010,17 +2010,25 @@
     document.title = "Add Property | ComplyMyProperty";
     app.innerHTML = `
       ${baseHeader("add-property")}
-      <main class="public-main">
-        <section class="page-hero public-page-hero">
+      <main class="public-main bridge-page add-property-bridge-page">
+        <section class="page-hero public-page-hero bridge-hero add-property-bridge-hero">
           <div>
-            <span class="eyebrow">Add Property</span>
-            <h1>Add your property</h1>
-            <p>Enter a postcode and choose the right address. CMP will look for EPC information automatically and carry your ${escapeHtml(service.title)} journey forward.</p>
+            <span class="eyebrow">Add property</span>
+            <h1>Start your property check from the address.</h1>
+            <p>Enter a postcode, choose the right property and let CMP prepare Smart Checks before you move into the Property Brain.</p>
             <div class="hero-metrics">
-              <span><strong>Journey</strong> ${escapeHtml(service.title)}</span>
+              <span><strong>Path</strong> ${escapeHtml(service.title)}</span>
               <span><strong>Focus</strong> ${escapeHtml(focusLabel(context.focusMode || "service_only"))}</span>
               <span><strong>Tenancy</strong> ${escapeHtml(tenancyLabel(context.isTenanted || "unsure"))}</span>
             </div>
+            <form class="postcode-card bridge-postcode-card" id="addPropertySearchForm">
+              <label for="addPropertyPostcode">Property postcode</label>
+              <div class="postcode-row">
+                <input id="addPropertyPostcode" type="text" value="${escapeHtml(state.addProperty.postcode)}" placeholder="B37 7BA" autocomplete="postal-code">
+                <button class="button primary" type="submit" ${state.addProperty.isSearching ? "disabled" : ""}>${state.addProperty.isSearching ? "Checking..." : "Find address"}</button>
+              </div>
+              <small>Smart Checks are simulated where live data is unavailable. Review found data before continuing.</small>
+            </form>
           </div>
           <div class="page-hero-visual page-hero-visual-add-property">
             ${renderAddPropertyHeroStage()}
@@ -2029,9 +2037,30 @@
 
         ${renderFlashBanner()}
 
-        ${renderMyPropertiesPortfolioSummary()}
-
         <section class="page-section">
+          <div class="bridge-stage-row" aria-label="Add property flow">
+            <article>
+              <span>01</span>
+              <strong>Find address</strong>
+              <p>Start with a postcode and select the property.</p>
+            </article>
+            <article>
+              <span>02</span>
+              <strong>Smart Checks</strong>
+              <p>CMP prepares source and confidence labels.</p>
+            </article>
+            <article>
+              <span>03</span>
+              <strong>Review found data</strong>
+              <p>Confirm what is known, missing or needs review.</p>
+            </article>
+            <article>
+              <span>04</span>
+              <strong>Property Brain</strong>
+              <p>Open the property workspace and next best action.</p>
+            </article>
+          </div>
+
           <div class="add-property-stepper" aria-label="Add property steps">
             ${renderAddPropertyStepper()}
           </div>
@@ -2040,17 +2069,13 @@
             <section class="question-panel">
               <div class="question-panel-heading">
                 <span class="section-kicker">Step 1</span>
-                <h3>Enter postcode</h3>
+                <h3>Find the property</h3>
               </div>
-              <p class="question-panel-copy">Start with the property postcode. CMP will try to find EPC records and address matches automatically.</p>
-              <form class="postcode-card" id="addPropertySearchForm">
-                <label for="addPropertyPostcode">Property postcode</label>
-                <div class="postcode-row">
-                  <input id="addPropertyPostcode" type="text" value="${escapeHtml(state.addProperty.postcode)}" placeholder="B37 7BA" autocomplete="postal-code">
-                  <button class="button primary" type="submit" ${state.addProperty.isSearching ? "disabled" : ""}>${state.addProperty.isSearching ? "Checking..." : "Find address"}</button>
-                </div>
-                <small>We'll look for EPC information automatically. If live records are unavailable, CMP will still show a realistic property preview.</small>
-              </form>
+              <p class="question-panel-copy">Use the postcode search above. CMP will try to find address matches and EPC information automatically.</p>
+              <div class="helper-card compact bridge-helper">
+                <h3>${escapeHtml(state.addProperty.postcode ? "Postcode ready" : "Enter a postcode to begin")}</h3>
+                <p>${escapeHtml(state.addProperty.postcode ? "Choose the correct property below when the address options appear." : "The first step creates the property file that Smart Checks and Review found data can build on.")}</p>
+              </div>
             </section>
 
             <section class="question-panel">
@@ -2067,10 +2092,10 @@
                 <span class="section-kicker">Step 3</span>
                 <h3>Run Smart Checks</h3>
               </div>
-              <p class="question-panel-copy">Once you confirm the address, CMP will create the canonical property record, run simulated Smart Checks, and show what needs review next.</p>
+              <p class="question-panel-copy">Once you confirm the address, CMP will prepare the property file, run simulated Smart Checks, and show what needs review next.</p>
               <div class="helper-card compact">
                 <h3>${escapeHtml(state.addProperty.stage || "Choose the address, then CMP will do the rest.")}</h3>
-                <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare Smart Checks and show Review Found Data from the same PropertyRecord.")}</p>
+                <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare Smart Checks and show Review found data from the same property file.")}</p>
               </div>
             </section>
 
@@ -2103,14 +2128,14 @@
         renderAddPropertyPage();
         await wait(450);
         state.addProperty.stage = "Preparing Review Found Data...";
-        state.addProperty.message = "Address matched. Creating the canonical PropertyRecord and storing simulated Smart Checks...";
+        state.addProperty.message = "Address matched. Preparing the property file and simulated Smart Checks...";
         renderAddPropertyPage();
         await wait(550);
 
         const bridge = window.CMPPublicPropertyBridge;
         if (!bridge?.createOrUpdatePropertyFromSelection) {
           state.addProperty.stage = "Smart Checks unavailable";
-          state.addProperty.message = "The canonical Add Property bridge did not load. Please refresh and try again.";
+          state.addProperty.message = "The property setup tool did not load. Please refresh and try again.";
           renderAddPropertyPage();
           return;
         }
@@ -2141,9 +2166,9 @@
         state.addProperty.canonicalReview = canonicalReview;
         state.addProperty.stage = "Review found data";
         state.addProperty.message = existing
-          ? "Canonical Smart Checks updated. Review what CMP found before continuing."
-          : "Canonical PropertyRecord created. Smart Checks are ready for review before the next setup step.";
-        flash(existing ? "Canonical Smart Checks updated. Review found data is ready." : "Canonical property created. Review found data is ready.", "success");
+          ? "Smart Checks updated. Review what CMP found before continuing."
+          : "Property file created. Smart Checks are ready for review before the next setup step.";
+        flash(existing ? "Smart Checks updated. Review found data is ready." : "Property file created. Review found data is ready.", "success");
         renderAddPropertyPage();
       });
     });
@@ -2170,7 +2195,7 @@
       },
       {
         title: "Smart Checks",
-        detail: "CMP stores simulated checks on the PropertyRecord.",
+        detail: "CMP prepares simulated checks for this property.",
         state: reviewed ? "done" : selected ? "current" : "upcoming"
       },
       {
@@ -2264,21 +2289,21 @@
           <span class="section-kicker">Step 4</span>
           <h3>Review found data</h3>
         </div>
-        <p class="question-panel-copy">CMP has prepared a canonical property record for ${escapeHtml(review.address)}. These are simulated Smart Checks, prepared for review, not a legal compliance decision.</p>
+        <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}. These are simulated Smart Checks, prepared for review, not a legal compliance decision.</p>
 
-        <div class="helper-card compact">
+        <div class="helper-card compact review-found-card">
           <h3>Found automatically</h3>
           <p>Facts CMP could prepare from the address selection and simulated checks.</p>
           ${renderReviewItems(review.foundAutomatically)}
         </div>
 
-        <div class="helper-card compact">
+        <div class="helper-card compact review-found-card">
           <h3>Needs confirmation</h3>
           <p>Facts the landlord still needs to confirm before CMP can build the Property Brain.</p>
           ${renderReviewItems(review.needsConfirmation)}
         </div>
 
-        <div class="helper-card compact">
+        <div class="helper-card compact review-found-card">
           <h3>Missing / unknown</h3>
           <p>Missing or unknown values stay explicit. They become next setup steps, not false facts.</p>
           ${renderReviewItems(review.missingUnknown)}
@@ -2338,16 +2363,35 @@
   function renderMyPropertiesPage() {
     document.title = "My Properties | ComplyMyProperty";
     const properties = myPropertyEntries();
+    const propertyCount = properties.length;
+    const isOneProperty = propertyCount === 1;
+    const isMultiProperty = propertyCount > 1;
+    const listHeading = isMultiProperty
+      ? "Your property portfolio"
+      : isOneProperty
+        ? "Your property workspace is ready"
+        : "Start by adding your first property";
+    const listCopy = isMultiProperty
+      ? "Compare current status, evidence gaps and priority actions before opening a property."
+      : isOneProperty
+        ? "Open the property workspace, continue setup, or add another property when you are ready."
+        : "Add a property once. CMP will check what it can, show Review found data, and prepare the property workspace.";
     app.innerHTML = `
       ${baseHeader("my-properties")}
-      <main class="public-main">
-        <section class="page-hero public-page-hero">
+      <main class="public-main bridge-page my-properties-bridge-page">
+        <section class="page-hero public-page-hero bridge-hero my-properties-bridge-hero">
           <div>
             <span class="eyebrow">My Properties</span>
-            <h1>Choose a property, then open the right dashboard.</h1>
-            <p>This sits between Add Property and the property workspace. It keeps the landlord in control of which property they open next.</p>
+            <h1>${isMultiProperty ? "See what needs attention across your properties." : isOneProperty ? "Keep your property check moving." : "Your property workspace starts here."}</h1>
+            <p>${isMultiProperty ? "Portfolio Sweep helps prioritise evidence gaps, expiries and service opportunities across saved properties." : isOneProperty ? "Use this page to reopen the property workspace, review the next action, or add another property." : "Add the first property and CMP will build from Smart Checks to Review found data and the Property Brain."}</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property</a>
+              ${propertyCount ? `<a class="button secondary" href="${escapeHtml(isMultiProperty ? "dashboard-labs.html?portfolio=guest" : "#property-list")}">${isMultiProperty ? "Open Portfolio Sweep" : "Open property"}</a>` : `<a class="button tertiary" href="dashboard-labs.html?demo=nick">Try demo</a>`}
+            </div>
+            <div class="hero-metrics">
+              <span><strong>${escapeHtml(String(propertyCount))}</strong> ${propertyCount === 1 ? "property" : "properties"}</span>
+              <span>Current status</span>
+              <span>Next best action</span>
             </div>
           </div>
           <div class="page-hero-visual page-hero-visual-portfolio">
@@ -2356,12 +2400,13 @@
         </section>
 
         ${renderFlashBanner()}
+        ${renderMyPropertiesPortfolioSummary()}
 
-        <section class="page-section">
+        <section class="page-section" id="property-list">
           <div class="section-heading">
-            <span class="eyebrow">Property list</span>
-            <h2>${properties.length ? "Your properties" : "Start by adding your first property"}</h2>
-            <p>${properties.length ? "Each card carries the current setup stage, Smart Check summary, and the next workspace handoff." : "Add a property to create the first canonical property record and prepare the workspace handoff."}</p>
+            <span class="eyebrow">${isMultiProperty ? "Portfolio view" : "Property list"}</span>
+            <h2>${listHeading}</h2>
+            <p>${listCopy}</p>
           </div>
           ${properties.length ? `
             <div class="property-card-grid">
@@ -2384,7 +2429,7 @@
                       </div>
                     </div>
                     <h3>${escapeHtml(property.address)}</h3>
-                    <span class="property-summary-label">Next action</span>
+                    <span class="property-summary-label">Next best action</span>
                     <p class="property-summary-lead">${escapeHtml(property.sourceKind === "canonical" ? "Open property workspace" : nextActionForProperty(property.record || property))}</p>
                     <div class="property-summary-meta">
                       <span>${escapeHtml(property.type || "Property type to confirm")}</span>
@@ -2392,7 +2437,10 @@
                       <span>${escapeHtml(property.epcLabel || "EPC missing / unknown")}</span>
                     </div>
                     <p class="property-summary-lead">${escapeHtml(property.smartCheckSummary || "Review found data")}</p>
-                    <button class="button primary" type="button" data-view-property="${escapeHtml(property.id)}">Open property workspace</button>
+                    <div class="property-card-actions">
+                      <button class="button primary" type="button" data-view-property="${escapeHtml(property.id)}">Open property workspace</button>
+                      <a class="button secondary" href="add-property.html">Add another property</a>
+                    </div>
                   </article>
                 `;
               }).join("")}
@@ -2400,9 +2448,11 @@
           ` : `
             <div class="empty-state-card large">
               <strong>No properties added yet</strong>
-              <p>Add your first property to start checking compliance, tracking evidence, and opening the right dashboard.</p>
+              <p>Add your first property to start Smart Checks, review found data, track evidence gaps and open the property workspace.</p>
               <div class="hero-actions">
                 <a class="button primary" href="add-property.html">Add property</a>
+                <a class="button secondary" href="services.html">Request service</a>
+                <a class="button tertiary" href="dashboard-labs.html?demo=nick">Try demo</a>
               </div>
             </div>
           `}

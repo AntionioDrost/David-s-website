@@ -8942,3 +8942,308 @@ body[data-public-page="home"] .home2-human-band .home-trust-actions {
     border-radius: 26px;
   }
 }
+
+/* Wix bridge alignment pass 3: Add Property and My Properties only. */
+body[data-public-page="add-property"],
+body[data-public-page="my-properties"] {
+  --bridge-ink: #061522;
+  --bridge-navy: #10253b;
+  --bridge-blue: #0b6fca;
+  --bridge-green: #1f6b52;
+  --bridge-amber: #bf7a2d;
+  --bridge-paper: #f8faf7;
+  --bridge-line: rgba(8, 28, 48, 0.12);
+  --bridge-shadow: 0 28px 76px rgba(8, 23, 40, 0.13);
+  --bridge-soft-shadow: 0 18px 48px rgba(8, 23, 40, 0.09);
+  background:
+    radial-gradient(circle at 8% 4%, rgba(11, 111, 202, 0.11), transparent 28rem),
+    radial-gradient(circle at 92% 12%, rgba(31, 107, 82, 0.11), transparent 30rem),
+    linear-gradient(180deg, #f9fbf8 0%, #eef5f8 48%, #f7faf8 100%);
+}
+
+body[data-public-page="add-property"] .bridge-page,
+body[data-public-page="my-properties"] .bridge-page {
+  padding-top: 28px;
+}
+
+body[data-public-page="add-property"] .bridge-hero,
+body[data-public-page="my-properties"] .bridge-hero {
+  width: min(1180px, calc(100% - 40px));
+  min-height: 0;
+  margin-inline: auto;
+  padding: clamp(28px, 5vw, 54px);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 34px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(243, 248, 250, 0.88)),
+    radial-gradient(circle at 88% 20%, rgba(11, 111, 202, 0.16), transparent 24rem);
+  box-shadow: var(--bridge-shadow);
+}
+
+body[data-public-page="add-property"] .bridge-hero h1,
+body[data-public-page="my-properties"] .bridge-hero h1 {
+  max-width: 12.4ch;
+  color: var(--bridge-ink);
+  font-size: clamp(3.1rem, 7vw, 5.6rem);
+  line-height: 0.92;
+  text-wrap: balance;
+}
+
+body[data-public-page="add-property"] .bridge-hero p,
+body[data-public-page="my-properties"] .bridge-hero p {
+  max-width: 640px;
+  color: rgba(25, 45, 66, 0.74);
+}
+
+body[data-public-page="add-property"] .bridge-hero .eyebrow,
+body[data-public-page="my-properties"] .bridge-hero .eyebrow {
+  color: var(--bridge-blue);
+}
+
+body[data-public-page="add-property"] .bridge-postcode-card {
+  width: min(620px, 100%);
+  margin-top: 24px;
+  padding: 18px;
+  border: 1px solid var(--bridge-line);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--bridge-soft-shadow);
+}
+
+body[data-public-page="add-property"] .bridge-postcode-card label {
+  color: var(--bridge-ink);
+}
+
+body[data-public-page="add-property"] .bridge-postcode-card small {
+  color: rgba(25, 45, 66, 0.66);
+}
+
+body[data-public-page="add-property"] .page-hero-visual-add-property,
+body[data-public-page="my-properties"] .page-hero-visual-portfolio {
+  min-height: 420px;
+  border-radius: 28px;
+  background:
+    radial-gradient(circle at 16% 12%, rgba(255, 255, 255, 0.9), transparent 18rem),
+    linear-gradient(145deg, rgba(14, 37, 59, 0.92), rgba(16, 86, 119, 0.72));
+}
+
+body[data-public-page="add-property"] .add-property-stage-art,
+body[data-public-page="my-properties"] .portfolio-stage-art {
+  background:
+    radial-gradient(circle at 20% 16%, rgba(92, 189, 255, 0.26), transparent 18rem),
+    radial-gradient(circle at 82% 24%, rgba(83, 204, 156, 0.18), transparent 16rem),
+    linear-gradient(155deg, rgba(255, 255, 255, 0.88), rgba(235, 244, 247, 0.74));
+}
+
+body[data-public-page="add-property"] .bridge-stage-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 22px;
+}
+
+body[data-public-page="add-property"] .bridge-stage-row article,
+body[data-public-page="my-properties"] .property-summary-card,
+body[data-public-page="my-properties"] [data-my-properties-portfolio-summary] .property-summary-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--bridge-line);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: var(--bridge-soft-shadow);
+}
+
+body[data-public-page="add-property"] .bridge-stage-row article {
+  display: grid;
+  gap: 8px;
+  min-height: 150px;
+  padding: 18px;
+}
+
+body[data-public-page="add-property"] .bridge-stage-row article::before,
+body[data-public-page="my-properties"] .property-summary-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto;
+  height: 4px;
+  background: linear-gradient(90deg, var(--bridge-green), var(--bridge-blue));
+}
+
+body[data-public-page="add-property"] .bridge-stage-row span {
+  color: var(--bridge-blue);
+  font-size: 0.76rem;
+  font-weight: 900;
+}
+
+body[data-public-page="add-property"] .bridge-stage-row strong {
+  color: var(--bridge-ink);
+  font-size: 1rem;
+}
+
+body[data-public-page="add-property"] .bridge-stage-row p {
+  margin: 0;
+  color: rgba(25, 45, 66, 0.66);
+  font-size: 0.9rem;
+}
+
+body[data-public-page="add-property"] .add-property-flow {
+  grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+}
+
+body[data-public-page="add-property"] .add-property-flow .question-panel {
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(248, 251, 252, 0.9));
+  box-shadow: var(--bridge-soft-shadow);
+}
+
+body[data-public-page="add-property"] .add-property-flow [data-canonical-review] {
+  grid-column: 1 / -1;
+  border-color: rgba(11, 111, 202, 0.18);
+  background:
+    radial-gradient(circle at 8% 10%, rgba(11, 111, 202, 0.1), transparent 18rem),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 250, 252, 0.94));
+}
+
+body[data-public-page="add-property"] .bridge-helper,
+body[data-public-page="add-property"] .review-found-card {
+  border: 1px solid var(--bridge-line);
+  background: rgba(255, 255, 255, 0.82);
+}
+
+body[data-public-page="add-property"] .add-property-review-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+body[data-public-page="add-property"] .add-property-review-item {
+  display: grid;
+  gap: 8px;
+  padding: 14px;
+  border-color: rgba(8, 28, 48, 0.1);
+  border-radius: 18px;
+  background: linear-gradient(180deg, #fff, #f8fbfc);
+}
+
+body[data-public-page="my-properties"] [data-my-properties-portfolio-summary] {
+  width: min(1180px, calc(100% - 40px));
+  margin-inline: auto;
+  padding: clamp(26px, 4vw, 42px);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 8% 0%, rgba(191, 122, 45, 0.12), transparent 20rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(246, 250, 251, 0.9));
+  box-shadow: var(--bridge-soft-shadow);
+}
+
+body[data-public-page="my-properties"] .property-card-grid {
+  align-items: stretch;
+}
+
+body[data-public-page="my-properties"] .property-summary-card {
+  padding: 22px;
+}
+
+body[data-public-page="my-properties"] .property-summary-card h3 {
+  color: var(--bridge-ink);
+  font-size: 1.28rem;
+  line-height: 1.16;
+}
+
+body[data-public-page="my-properties"] .property-summary-visual {
+  min-height: 104px;
+  border-color: rgba(8, 28, 48, 0.1);
+}
+
+body[data-public-page="my-properties"] .property-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+}
+
+body[data-public-page="my-properties"] .property-card-actions .button {
+  flex: 1 1 180px;
+  justify-content: center;
+}
+
+body[data-public-page="my-properties"] .empty-state-card.large {
+  padding: clamp(28px, 6vw, 52px);
+  border: 1px solid var(--bridge-line);
+  border-radius: 32px;
+  background:
+    radial-gradient(circle at 12% 20%, rgba(11, 111, 202, 0.12), transparent 20rem),
+    linear-gradient(135deg, rgba(255, 255, 255, 0.96), rgba(245, 250, 251, 0.9));
+  box-shadow: var(--bridge-soft-shadow);
+}
+
+@media (max-width: 1040px) {
+  body[data-public-page="add-property"] .bridge-stage-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  body[data-public-page="add-property"] .add-property-flow {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-public-page="add-property"] .bridge-hero,
+  body[data-public-page="my-properties"] .bridge-hero,
+  body[data-public-page="my-properties"] [data-my-properties-portfolio-summary] {
+    width: calc(100% - 24px);
+    padding: 22px 18px;
+    border-radius: 26px;
+  }
+
+  body[data-public-page="add-property"] .bridge-hero h1,
+  body[data-public-page="my-properties"] .bridge-hero h1 {
+    max-width: 10.6ch;
+    font-size: clamp(2.25rem, 11vw, 3.25rem);
+    line-height: 0.9;
+  }
+
+  body[data-public-page="add-property"] .bridge-postcode-card,
+  body[data-public-page="add-property"] .bridge-postcode-card .postcode-row,
+  body[data-public-page="add-property"] .bridge-postcode-card .button,
+  body[data-public-page="my-properties"] .hero-actions .button {
+    width: 100%;
+  }
+
+  body[data-public-page="add-property"] .bridge-postcode-card .postcode-row {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  body[data-public-page="add-property"] .bridge-postcode-card .postcode-row input {
+    flex: initial;
+    width: 100%;
+    min-height: 52px;
+    height: 52px;
+  }
+
+  body[data-public-page="add-property"] .page-hero-visual-add-property,
+  body[data-public-page="my-properties"] .page-hero-visual-portfolio {
+    min-height: 300px;
+    padding: 14px;
+  }
+
+  body[data-public-page="add-property"] .bridge-stage-row {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-public-page="add-property"] .add-property-flow .question-panel {
+    padding: 20px;
+    border-radius: 22px;
+  }
+
+  body[data-public-page="my-properties"] .property-card-actions {
+    display: grid;
+  }
+
+  body[data-public-page="my-properties"] .empty-state-card.large .hero-actions {
+    align-items: stretch;
+  }
+}
