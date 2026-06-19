@@ -131,7 +131,7 @@
       promise: "Choose the scenario first, then let CMP organise the evidence trail around it.",
       heroTitle: "Build the possession evidence pack before you chase the next step.",
       heroCopy: "Use the scenario cards to tell CMP what is happening. The aim is to organise facts, documents, and timelines calmly before you widen the process.",
-      description: "A scenario-led possession page that feels closer to the current Wix structure but keeps the prototype logic underneath.",
+      description: "Choose the possession situation, organise the evidence pack, and keep related checks optional until they help.",
       cardCta: "Prepare evidence pack",
       intentHeading: "Which situation sounds closest?",
       intents: [
@@ -1210,7 +1210,7 @@
             <div>
               <span class="eyebrow">Service-aware, not service-only</span>
               <h2 id="home2-support-title">Request a service when it is the right next step.</h2>
-              <p>CMP can prepare a service request from the property context, evidence gap or landlord goal. Prototype requests stay safe: no supplier contacted and no payment taken.</p>
+              <p>CMP can prepare a service request from the property context, evidence gap or landlord goal. The request stays safe: no supplier contacted and no payment taken.</p>
               <div class="section-actions">
                 <a class="button primary" href="services.html">Request service</a>
                 <a class="button secondary" href="add-property.html">Run full property check</a>
@@ -1332,7 +1332,7 @@
               <a class="button secondary" href="add-property.html">Full property check</a>
               <a class="button tertiary" href="my-properties.html">Continue from My Properties</a>
             </div>
-            <div class="service-safe-strip" aria-label="Prototype service safety">
+            <div class="service-safe-strip" aria-label="Service request safety">
               <span>Request prepared</span>
               <span>No supplier contacted</span>
               <span>No payment taken</span>
@@ -1374,8 +1374,8 @@
         <section class="page-section service-pilot-showcase" id="serviceDirectory">
           <div class="section-heading">
             <span class="eyebrow">Most requested</span>
-            <h2>Pilot service routes.</h2>
-            <p>These pages now use the new Request Centre pattern. Each one can stay focused or widen into a property check.</p>
+            <h2>Most requested service routes.</h2>
+            <p>Start with one service, add related checks if needed, or widen into a full property check when it helps.</p>
           </div>
           <div class="service-grid public-service-grid public-service-grid-showcase">
             ${renderServiceCards(SERVICE_PILOT_KEYS)}
@@ -1496,7 +1496,7 @@
           <label class="upload-mini-zone">
             <input type="file" hidden data-question-upload="${escapeHtml(question.key)}">
             <span>${draft[question.key] ? (options.pilotService ? "Change proof" : "Change document") : (options.pilotService ? "Add proof later" : "Choose document")}</span>
-            <small>${draft[question.key] ? `Selected for this demo: ${draft[question.key]}` : (options.pilotService ? "Optional. No file is saved in this prototype." : "Optional. In the final version, this would be stored securely.")}</small>
+            <small>${draft[question.key] ? `Proof selected for review: ${draft[question.key]}` : (options.pilotService ? "Optional. Add proof later; nothing is submitted from this screen." : "Optional. In the final version, this would be stored securely.")}</small>
           </label>
         </div>
       `;
@@ -1523,7 +1523,7 @@
 
   function renderServiceSafetyBand() {
     return `
-      <div class="service-safe-strip service-safe-strip-panel" aria-label="Prototype service safety">
+      <div class="service-safe-strip service-safe-strip-panel" aria-label="Service request safety">
         <span>Request prepared</span>
         <span>Evidence can be added later</span>
         <span>No supplier contacted</span>
@@ -1586,7 +1586,7 @@
               ${isPilotService ? `<a class="button tertiary" href="services.html">See all services</a>` : ""}
             </div>
             <div class="hero-metrics">
-              <span><strong>${progress.answered}/${progress.total}</strong> setup choices recorded</span>
+              <span><strong>${progress.answered}/${progress.total}</strong> answers started</span>
               <span><strong>${escapeHtml(focusLabel(state.serviceDraft.focusMode || "service_only"))}</strong> selected</span>
               <span><strong>${isPilotService ? "Prepared" : "Optional"}</strong> ${isPilotService ? "for review" : "documents can be added later"}</span>
             </div>
@@ -1653,9 +1653,9 @@
             ${renderOptionalEvidenceBlock(service, state.serviceDraft, service.calculator ? 6 : 5, { pilotService: isPilotService })}
 
             <section class="helper-card">
-              <span class="service-grid-eyebrow">${isPilotService ? "Safe prototype request" : "Reassurance"}</span>
+              <span class="service-grid-eyebrow">${isPilotService ? "Safe request preparation" : "Reassurance"}</span>
               <h3>${isPilotService ? "A request can be prepared without contacting anyone." : "Not sure? You can continue and come back later."}</h3>
-              <p>${isPilotService ? "CMP carries these answers into Add Property. The prototype can prepare the request context, but no supplier is contacted and no payment is taken." : "You stay in control of how much you want to check. CMP will carry these answers into Add Property and keep the next step obvious."}</p>
+              <p>${isPilotService ? "CMP carries these answers into Add Property and can prepare the request context, but no supplier is contacted and no payment is taken." : "You stay in control of how much you want to check. CMP will carry these answers into Add Property and keep the next step obvious."}</p>
             </section>
 
             <div class="service-journey-actions">

@@ -9543,6 +9543,10 @@ body[data-public-page="service"] .service-proof-panel .upload-mini-zone {
     overflow: visible;
   }
 
+  body[data-public-page="service"] .assistant-fab-shell {
+    display: none;
+  }
+
   body[data-public-page="services"] .nav-links,
   body[data-public-page="service"] .nav-links {
     flex-wrap: wrap;
