@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CMP Labs | Property workspace prototype</title>
+    <title>CMP | Property workspace prototype</title>
     <meta
       name="description"
-      content="An isolated CMP Labs dashboard concept for future property compliance workflows."
+      content="A CMP property workspace prototype for connected property checks, evidence, actions and monitoring."
     >
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="dashboard-labs.css">
@@ -33,7 +33,7 @@
     <div class="labs-shell" data-app-shell>
       <aside class="labs-sidebar" aria-label="Primary navigation" data-mobile-menu>
         <div class="sidebar-top">
-          <a class="brand-lockup" href="dashboard-labs.html" aria-label="CMP Labs dashboard home" data-home-link>
+          <a class="brand-lockup" href="dashboard-labs.html" aria-label="CMP property workspace home" data-home-link>
             <span class="brand-mark" aria-hidden="true">
               <svg class="cmp-logo" viewBox="0 0 64 64" role="presentation">
                 <rect class="cmp-logo-seal" x="8" y="8" width="48" height="48" rx="14"/>
@@ -45,13 +45,13 @@
             </span>
             <span>
               <strong>ComplyMyProperty</strong>
-              <small>Civic Property Intelligence OS</small>
+              <small>Property compliance workspace</small>
             </span>
           </a>
 
           <nav class="nav-stack">
             <section class="nav-group" aria-labelledby="navPortfolio">
-              <h2 id="navPortfolio">Portfolio</h2>
+              <h2 id="navPortfolio">Workspace</h2>
               <a class="nav-item" href="#" data-global-nav="Home">
                 <span class="nav-icon" data-icon="home"></span>
                 Home
@@ -63,14 +63,14 @@
             </section>
 
             <section class="nav-group" aria-labelledby="navPortfolioTools">
-              <h2 id="navPortfolioTools">Portfolio tools</h2>
+              <h2 id="navPortfolioTools">Workspace tools</h2>
               <a class="nav-item" href="#" data-global-nav="Compliance centre">
                 <span class="nav-icon" data-icon="layout"></span>
                 Compliance centre
               </a>
-              <a class="nav-item" href="#" data-global-nav="Journey OS">
+              <a class="nav-item" href="#" data-global-nav="Add property">
                 <span class="nav-icon" data-icon="zap"></span>
-                Add / check property
+                Add property
               </a>
               <a class="nav-item" href="#" data-global-nav="Evidence Vault">
                 <span class="nav-icon" data-icon="file"></span>
@@ -92,9 +92,9 @@
                 <span class="nav-icon" data-icon="message"></span>
                 Ask CMP
               </a>
-              <a class="nav-item" href="#" data-global-nav="Book a service">
+              <a class="nav-item" href="#" data-global-nav="Request service">
                 <span class="nav-icon" data-icon="calendar"></span>
-                Book a service
+                Request service
               </a>
               <a class="nav-item" href="#" data-global-nav="Learn">
                 <span class="nav-icon" data-icon="book"></span>
@@ -118,8 +118,8 @@
             <button class="property-option is-current" type="button" data-open-property>
               <span class="status-dot" aria-hidden="true"></span>
               <span>
-                <strong>57 The Butts</strong>
-                <small>Coventry, CV1 3BJ</small>
+                <strong>Selected property</strong>
+                <small>Open from My Properties</small>
               </span>
             </button>
           </div>
@@ -161,7 +161,7 @@
 
         <div class="utility-bar">
           <div>
-            <div class="breadcrumb">Properties / 57 The Butts</div>
+            <div class="breadcrumb">Properties / Selected property</div>
             <span class="prototype-badge">Prototype mode · demo data</span>
           </div>
           <div class="utility-actions">
@@ -175,7 +175,7 @@
         <header class="property-header">
           <div>
             <p class="section-kicker">Property workspace</p>
-            <h1 id="propertyTitle">57 The Butts</h1>
+            <h1 id="propertyTitle">Selected property</h1>
             <p>Coventry, CV1 3BJ</p>
           </div>
           <div class="property-meta" aria-label="Property metadata">
@@ -219,7 +219,7 @@
             <div class="portfolio-summary-panel">
               <span class="tile-icon" data-icon="shield"></span>
               <div>
-                <h3 data-home-summary-title>Check whether 57 The Butts has a current EICR</h3>
+                <h3 data-home-summary-title>Check whether Selected property has a current EICR</h3>
                 <p data-home-summary-body>Electrical Safety is the clearest evidence gap in the property file.</p>
                 <div class="priority-rank-list" data-home-priority-rank-list hidden></div>
                 <div class="button-row">
@@ -268,7 +268,7 @@
               <h2>What needs attention first</h2>
               <span class="source-badge" data-home-priority-area>Electrical Safety</span>
               <strong data-home-priority-status>Evidence missing</strong>
-              <p data-home-priority-body>CMP could not find a current EICR for 57 The Butts. Upload an existing report or request help arranging an inspection.</p>
+              <p data-home-priority-body>CMP could not find a current EICR for Selected property. Upload an existing report or request help arranging an inspection.</p>
             </div>
             <div class="home-priority-actions">
               <button class="primary-button" type="button" data-home-upload-priority>Upload EICR</button>
@@ -288,7 +288,7 @@
                 <div class="portfolio-property-main">
                   <span class="status-dot" aria-hidden="true"></span>
                   <div>
-                    <h3>57 The Butts</h3>
+                    <h3>Selected property</h3>
                     <p>Coventry, CV1 3BJ</p>
                     <div class="signal-row">
                       <span data-home-occupancy>Vacant property</span>
@@ -321,28 +321,28 @@
               <article class="portfolio-upcoming-card">
                 <span class="source-badge">Recommended</span>
                 <h3>Inspection review</h3>
-                <small class="property-card-label">57 The Butts &middot; CV1 3BJ</small>
+                <small class="property-card-label">Selected property &middot; CV1 3BJ</small>
                 <p>Confirm whether a recent inspection has been completed or schedule the next one.</p>
                 <button class="text-button" type="button" data-home-upcoming="inspection">Review inspection</button>
               </article>
               <article class="portfolio-upcoming-card">
                 <span class="source-badge">In 371 days</span>
                 <h3>Gas Safety</h3>
-                <small class="property-card-label">57 The Butts &middot; CV1 3BJ</small>
+                <small class="property-card-label">Selected property &middot; CV1 3BJ</small>
                 <p>Start planning the next Gas Safety check before the current certificate approaches expiry.</p>
                 <button class="text-button" type="button" data-home-upcoming="gas">View certificate</button>
               </article>
               <article class="portfolio-upcoming-card">
                 <span class="source-badge">Checking postcode</span>
                 <h3>Local licensing</h3>
-                <small class="property-card-label">57 The Butts &middot; CV1 3BJ</small>
+                <small class="property-card-label">Selected property &middot; CV1 3BJ</small>
                 <p>CMP is reviewing whether local rules may affect this address.</p>
                 <button class="text-button" type="button" data-home-upcoming="licensing">Review licensing</button>
               </article>
               <article class="portfolio-upcoming-card">
                 <span class="source-badge">Landlord confirmed</span>
                 <h3>Alarm evidence</h3>
-                <small class="property-card-label">57 The Butts &middot; CV1 3BJ</small>
+                <small class="property-card-label">Selected property &middot; CV1 3BJ</small>
                 <p>Smoke and CO alarms were reported as tested. Supporting evidence can be added later.</p>
                 <button class="text-button" type="button" data-home-upcoming="alarms">Add evidence</button>
               </article>
@@ -452,7 +452,7 @@
             <article class="properties-card" data-properties-card>
               <div class="properties-card-main">
                 <div>
-                  <h2>57 The Butts</h2>
+                  <h2>Selected property</h2>
                   <p>Coventry, CV1 3BJ</p>
                   <div class="signal-row">
                     <span data-properties-occupancy>Vacant property</span>
@@ -487,7 +487,7 @@
             <article class="properties-compact-row" data-properties-compact hidden>
               <div>
                 <span>Property</span>
-                <strong>57 The Butts</strong>
+                <strong>Selected property</strong>
                 <small>Coventry, CV1 3BJ</small>
               </div>
               <div>
@@ -575,7 +575,7 @@
             <div>
               <p class="section-kicker">START HERE</p>
               <span class="source-badge" data-compliance-request-indicator hidden>Support request open</span>
-              <h2 data-compliance-priority-title>57 The Butts needs Electrical Safety evidence</h2>
+              <h2 data-compliance-priority-title>Selected property needs Electrical Safety evidence</h2>
               <p data-compliance-priority-body>CMP has EPC and Gas Safety evidence recorded, but no current EICR is stored for this property.</p>
             </div>
             <div class="compliance-start-actions">
@@ -623,7 +623,7 @@
                 <tbody data-compliance-matrix-body>
                   <tr>
                     <th scope="row">
-                      <strong>57 The Butts</strong>
+                      <strong>Selected property</strong>
                       <span>Coventry, CV1 3BJ</span>
                     </th>
                     <td><span class="matrix-pill status-good-text">Confirmed</span><small>Official record</small></td>
@@ -658,22 +658,22 @@
               <article>
                 <span>This week</span>
                 <strong>No confirmed urgent deadlines</strong>
-                <p>57 The Butts · Improve missing evidence</p>
+                <p>Selected property · Improve missing evidence</p>
               </article>
               <article>
                 <span>In 34 days</span>
                 <strong>Inspection review recommended</strong>
-                <p>57 The Butts · Confirm inspection status</p>
+                <p>Selected property · Confirm inspection status</p>
               </article>
               <article>
                 <span>In 71 days</span>
                 <strong>Gas Safety renewal window opens</strong>
-                <p>57 The Butts · Plan future check</p>
+                <p>Selected property · Plan future check</p>
               </article>
               <article>
                 <span>Local watch</span>
                 <strong>Licensing review in progress</strong>
-                <p>57 The Butts · Postcode review</p>
+                <p>Selected property · Postcode review</p>
               </article>
             </div>
             <small class="prototype-note">Prototype forecast — example timeline for layout testing.</small>
@@ -765,7 +765,7 @@
             <div class="evidence-property-filter" aria-label="Evidence property filter">
               <span>Property</span>
               <button class="is-active" type="button" data-evidence-property-filter="all">All properties</button>
-              <button type="button" data-evidence-property-filter="the-butts">57 The Butts</button>
+              <button type="button" data-evidence-property-filter="the-butts">Selected property</button>
               <button type="button" data-evidence-property-filter="willow-brook">18 Willow Brook Drive</button>
             </div>
             <div class="properties-filter-row" aria-label="Evidence filters">
@@ -825,7 +825,7 @@
 
             <article class="property-evidence-health-card">
               <div>
-                <h2>57 The Butts</h2>
+                <h2>Selected property</h2>
                 <p>Coventry, CV1 3BJ</p>
               </div>
               <div class="property-evidence-health">
@@ -943,7 +943,7 @@
               <div class="ask-chat-topline">
                 <div>
                   <p class="section-kicker">AI COMMAND CENTRE</p>
-                  <h2>Portfolio intelligence for 57 The Butts</h2>
+                  <h2>Portfolio intelligence for Selected property</h2>
                 </div>
                 <span class="doc-status status-watch-text" data-ask-chat-state>Demo data only</span>
               </div>
@@ -966,7 +966,7 @@
                 </div>
                 <div class="chat-bubble-row is-assistant">
                   <span class="assistant-avatar">CMP</span>
-                  <p data-ask-chat-response>57 The Butts is missing Electrical Safety evidence. Your EPC and Gas Safety records are already stored, so the clearest next step is to upload or arrange an EICR.</p>
+                  <p data-ask-chat-response>Selected property is missing Electrical Safety evidence. Your EPC and Gas Safety records are already stored, so the clearest next step is to upload or arrange an EICR.</p>
                 </div>
                 <div class="ask-checking-line">
                   <span></span>
@@ -999,7 +999,7 @@
               </div>
               <div class="ask-context-highlight">
                 <strong data-ask-context-highlight-title>Electrical Safety is the clearest next step</strong>
-                <p data-ask-context-highlight-body>CMP has checked the evidence and tasks for 57 The Butts.</p>
+                <p data-ask-context-highlight-body>CMP has checked the evidence and tasks for Selected property.</p>
               </div>
             </aside>
           </section>
@@ -1062,7 +1062,7 @@
                   <circle class="response-visual-dot" cx="238" cy="103" r="6"/>
                 </svg>
               </div>
-              <p data-utility-ask-response>The clearest next step is to upload or arrange an EICR for 57 The Butts. Electrical Safety is the main missing evidence area.</p>
+              <p data-utility-ask-response>The clearest next step is to upload or arrange an EICR for Selected property. Electrical Safety is the main missing evidence area.</p>
             </article>
             <article class="utility-list-card ask-source-panel">
               <p class="section-kicker">WHAT CMP CAN USE</p>
@@ -1078,22 +1078,22 @@
           <header class="portfolio-utility-header">
             <div>
               <p class="section-kicker">PROPERTY SUPPORT</p>
-              <h1 id="portfolioServiceTitle">Book a service</h1>
+              <h1 id="portfolioServiceTitle">Request service</h1>
               <p>Find the right support for each property, keep requests tied to the file and avoid repeating the same admin.</p>
             </div>
           </header>
 
           <section class="service-property-context" aria-label="Current service recommendation property context" data-service-property-context>
             <p>Current recommendation for</p>
-            <strong>57 The Butts · CV1 3BJ</strong>
-            <span>Vacant property · General compliance check</span>
+            <strong>Selected property</strong>
+            <span>Property-specific support</span>
           </section>
 
           <article class="utility-hero-card service-recommendation-card">
             <div>
               <p class="section-kicker">RECOMMENDED NEXT SUPPORT</p>
               <h2 data-global-service-title>Arrange an EICR</h2>
-              <p data-global-service-body>Electrical Safety evidence is currently missing for 57 The Butts.</p>
+              <p data-global-service-body>Electrical Safety evidence is currently missing for Selected property.</p>
             </div>
             <div class="button-row" data-global-service-actions>
               <button class="primary-button" type="button" data-global-service-action="support">Request EICR support</button>
@@ -1273,7 +1273,7 @@
             <div>
               <p class="section-kicker">START HERE</p>
               <h2 data-tasks-start-title>Upload or arrange an EICR</h2>
-              <p class="property-card-label">57 The Butts · CV1 3BJ</p>
+              <p class="property-card-label">Selected property · CV1 3BJ</p>
               <p data-tasks-start-body>Electrical Safety is the clearest evidence gap in this property file.</p>
               <div class="task-meta-row">
                 <span data-tasks-start-source>Source: Compliance Centre · Evidence Vault</span>
@@ -1903,15 +1903,15 @@
           <header class="services-header">
             <div>
               <p class="section-kicker">Property support</p>
-              <h2>Property-specific support for 57 The Butts</h2>
+              <h2>Property-specific support</h2>
               <p>Only the most useful next actions for this workspace, based on the current property file and the evidence CMP still needs.</p>
-              <span class="service-property-label">57 The Butts · CV1 3BJ</span>
+              <span class="service-property-label">Selected property</span>
             </div>
             <div class="services-header-side">
               <small>Recommendations update as your property file becomes stronger.</small>
               <div class="button-row">
                 <button class="primary-button" type="button" data-assistant-message="Electrical Safety is your clearest unresolved evidence area. You can upload an existing EICR or request help arranging an inspection.">Ask CMP what to prioritise</button>
-                <button class="secondary-button" type="button" data-open-global-service>Open Book a service</button>
+                <button class="secondary-button" type="button" data-open-global-service>Open Request service</button>
                 <button class="secondary-button" type="button" data-scroll-target="[data-open-requests-panel]">View open requests</button>
               </div>
             </div>
@@ -1920,8 +1920,8 @@
           <article class="service-hub-bridge">
             <div>
               <p class="section-kicker">Global support hub</p>
-              <h3>Use Book a service for the full commercial pathway</h3>
-              <p>This property tab keeps the immediate workspace action visible. The global Book a service page shows all service cards, bundle previews and open request context for 57 The Butts.</p>
+              <h3>Use Request service for the full support pathway</h3>
+              <p>This property tab keeps the immediate workspace action visible. The global Request service page shows service cards, bundle previews and open request context for the selected property.</p>
             </div>
             <button class="text-button" type="button" data-open-global-service>Open the hub</button>
           </article>
@@ -2066,7 +2066,7 @@
             <div class="detail-grid">
               <article class="detail-item">
                 <span>Address</span>
-                <strong>57 The Butts</strong>
+                <strong>Selected property</strong>
                 <em class="source-pill">Address match</em>
                 <small>Matched during property setup</small>
               </article>
@@ -2133,7 +2133,7 @@
                 <h3>Address and property match</h3>
                 <span class="source-badge">Address match</span>
                 <dl>
-                  <div><dt>Address</dt><dd>57 The Butts</dd></div>
+                  <div><dt>Address</dt><dd>Selected property</dd></div>
                   <div><dt>Postcode</dt><dd>CV1 3BJ</dd></div>
                   <div><dt>UPRN</dt><dd>100000057573</dd></div>
                 </dl>
@@ -2391,7 +2391,7 @@
             <li class="is-active">Reading documents...</li>
             <li>Identifying document types...</li>
             <li>Extracting useful details...</li>
-            <li>Matching paperwork to 57 The Butts...</li>
+            <li>Matching paperwork to Selected property...</li>
             <li>Ready for your review</li>
           </ol>
         </div>
@@ -2405,7 +2405,7 @@
                 <span class="doc-status status-review-text" data-smart-eicr-status>Needs your review</span>
               </div>
               <h3 data-smart-eicr-title>Electrical Installation Condition Report</h3>
-              <p data-smart-eicr-note>Property: 57 The Butts</p>
+              <p data-smart-eicr-note>Property: Selected property</p>
               <dl>
                 <div><dt>Inspection date</dt><dd>12 May 2026</dd></div>
                 <div><dt>Suggested review date</dt><dd>11 May 2031</dd></div>
@@ -2424,7 +2424,7 @@
                 <span class="doc-status status-good-text">Ready to file</span>
               </div>
               <h3>Tenancy agreement</h3>
-              <p>Property: 57 The Butts</p>
+              <p>Property: Selected property</p>
               <dl>
                 <div><dt>Tenancy type</dt><dd>Assured tenancy</dd></div>
                 <div><dt>Start date</dt><dd>01 June 2026</dd></div>
@@ -2442,7 +2442,7 @@
                 <span class="doc-status status-review-text">Needs classification</span>
               </div>
               <h3>Document needs help</h3>
-              <p>Suggested match: 57 The Butts</p>
+              <p>Suggested match: Selected property</p>
               <p>CMP could not confidently identify this document.</p>
               <div class="button-row">
                 <button class="secondary-button" type="button" data-toast="Preview only — classification controls are not connected to a live workflow.">Choose document type</button>
@@ -2468,15 +2468,15 @@
       <section class="timeline-modal journey-action-modal" role="dialog" aria-modal="true" aria-labelledby="journeyActionModalTitle" data-journey-action-modal hidden>
         <div class="modal-header">
           <div>
-            <p class="section-kicker" data-journey-action-kicker>Journey OS simulation</p>
+            <p class="section-kicker" data-journey-action-kicker>Property journey simulation</p>
             <h2 id="journeyActionModalTitle" data-journey-action-title>Prototype action</h2>
-            <p class="modal-property-context" data-journey-action-context>Property · 57 The Butts · CV1 3BJ</p>
+            <p class="modal-property-context" data-journey-action-context>Property · Selected property · CV1 3BJ</p>
           </div>
-          <button class="icon-button" type="button" aria-label="Close Journey OS action" data-journey-action-close>
+          <button class="icon-button" type="button" aria-label="Close property journey action" data-journey-action-close>
             <span class="nav-icon" data-icon="close"></span>
           </button>
         </div>
-        <p class="modal-note" data-journey-action-body>Journey OS simulation action.</p>
+        <p class="modal-note" data-journey-action-body>Property journey simulation action.</p>
         <div class="service-choice-list compact-choice-list" data-journey-defer-reasons hidden></div>
         <div class="journey-modal-content" data-journey-action-content></div>
         <div class="button-row" data-journey-action-controls>
@@ -2490,7 +2490,7 @@
           <div>
             <p class="section-kicker">Property evidence summary</p>
             <h2 id="summaryModalTitle">Property evidence summary</h2>
-            <p>57 The Butts · Coventry, CV1 3BJ</p>
+            <p>Selected property · Coventry, CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close evidence summary" data-summary-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -2561,7 +2561,7 @@
           <div>
             <p class="section-kicker">Property support</p>
             <h2 id="serviceModalTitle" data-service-modal-title>Request support</h2>
-            <p class="modal-property-context" data-service-modal-property-context>Property · 57 The Butts · CV1 3BJ</p>
+            <p class="modal-property-context" data-service-modal-property-context>Property · Selected property · CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close support request" data-service-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -2571,7 +2571,7 @@
           <p class="modal-note" data-service-modal-body>Tell CMP how you would like to proceed. This demo stores the request locally for presentation only.</p>
           <dl class="support-request-summary">
             <div><dt>Selected support type</dt><dd data-service-selected-type>EICR support</dd></div>
-            <div><dt>Property</dt><dd data-service-selected-property>57 The Butts · CV1 3BJ</dd></div>
+            <div><dt>Property</dt><dd data-service-selected-property>Selected property · CV1 3BJ</dd></div>
           </dl>
           <div class="support-choice-group">
             <p>Preferred contact method</p>
@@ -2595,7 +2595,7 @@
           <h3>Support request created</h3>
           <p>CMP has added this to your support requests. In the final product this would notify the CMP team or connected supplier workflow.</p>
           <dl>
-            <div><dt>Property</dt><dd data-service-success-property>57 The Butts · CV1 3BJ</dd></div>
+            <div><dt>Property</dt><dd data-service-success-property>Selected property · CV1 3BJ</dd></div>
             <div><dt>Request type</dt><dd data-service-success-type>EICR support</dd></div>
             <div><dt>Status</dt><dd>Awaiting review</dd></div>
             <div><dt>Created</dt><dd>Just now</dd></div>
@@ -2612,7 +2612,7 @@
           <div>
             <p class="section-kicker">Service bundle</p>
             <h2 id="bundleModalTitle">Preview service bundle</h2>
-            <p class="modal-property-context" data-bundle-property-context>Bundle for · 57 The Butts · CV1 3BJ</p>
+            <p class="modal-property-context" data-bundle-property-context>Bundle for · Selected property · CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close bundle preview" data-bundle-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -2750,7 +2750,7 @@
         <div class="summary-sections task-detail-grid">
           <section>
             <h3>Property</h3>
-            <p data-task-detail-property>57 The Butts · CV1 3BJ</p>
+            <p data-task-detail-property>Selected property · CV1 3BJ</p>
           </section>
           <section>
             <h3>Category</h3>
@@ -2792,7 +2792,7 @@
           </section>
           <section>
             <h3>Property</h3>
-            <p data-activity-detail-property>57 The Butts · CV1 3BJ</p>
+            <p data-activity-detail-property>Selected property · CV1 3BJ</p>
           </section>
           <section>
             <h3>Category</h3>
@@ -2856,7 +2856,7 @@
           </section>
           <section>
             <h3>Suggested next step</h3>
-            <p data-activity-summary-next>Upload or arrange an EICR for 57 The Butts.</p>
+            <p data-activity-summary-next>Upload or arrange an EICR for Selected property.</p>
           </section>
         </div>
         <div class="button-row">
@@ -2898,7 +2898,7 @@
           <section class="demo-control-section">
             <div>
               <p class="section-kicker">Property check scenario</p>
-              <h3>Journey OS engine</h3>
+              <h3>Property journey engine</h3>
             </div>
             <div class="demo-state-options" role="list">
               <button class="secondary-button" type="button" data-journey-demo-option="clean-property-match">Clean property match</button>
@@ -2948,7 +2948,7 @@
         <div class="modal-header">
           <div>
             <p class="section-kicker">Presenter guide</p>
-            <h2 id="demoGuideModalTitle">Journey OS guided demo</h2>
+            <h2 id="demoGuideModalTitle">Guided product demo</h2>
           </div>
           <button class="icon-button" type="button" aria-label="Close demo guide" data-demo-guide-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -3017,7 +3017,7 @@
             <span class="nav-icon" data-icon="close"></span>
           </button>
         </div>
-        <p class="modal-note">This demo currently opens the full property workspace for 57 The Butts. Portfolio-level behaviour is shown for both properties so global tools can be tested with a realistic two-property view.</p>
+        <p class="modal-note">This demo currently opens the full property workspace for Selected property. Portfolio-level behaviour is shown for both properties so global tools can be tested with a realistic two-property view.</p>
         <div class="summary-sections">
           <section>
             <h3>18 Willow Brook Drive</h3>
@@ -3037,7 +3037,7 @@
           </section>
         </div>
         <div class="button-row">
-          <button class="primary-button" type="button" data-second-property-open-demo>Open 57 The Butts workspace</button>
+          <button class="primary-button" type="button" data-second-property-open-demo>Open Selected property workspace</button>
           <button class="secondary-button" type="button" data-second-property-close>Close</button>
         </div>
       </section>
@@ -3084,11 +3084,11 @@
           <h3>Smart search ready</h3>
           <p>CMP matched the address, found a likely EPC-style record and prepared property context for review.</p>
           <div class="workspace-preview-card">
-            <p class="workspace-preview-address" data-add-selected-address>Flat 42, 57 The Butts, Coventry, CV1 3BJ</p>
+            <p class="workspace-preview-address" data-add-selected-address>Flat 42, selected property, Coventry, CV1 3BJ</p>
             <div class="workspace-preview-grid">
               <article>
                 <span class="doc-status status-good-text">Address matched</span>
-                <strong>Flat 42, 57 The Butts, Coventry, CV1 3BJ</strong>
+                <strong>Flat 42, selected property, Coventry, CV1 3BJ</strong>
                 <p>Confirmed from address selection.</p>
               </article>
               <article>
@@ -3147,7 +3147,7 @@
           <div>
             <p class="section-kicker">Property passport</p>
             <h2 id="basicsModalTitle">Edit property basics</h2>
-            <p>57 The Butts · Coventry, CV1 3BJ</p>
+            <p>Selected property · Coventry, CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close property basics" data-basics-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -3229,7 +3229,7 @@
           <div>
             <p class="section-kicker">CMP Labs</p>
             <h2 id="memoryModalTitle">Property Memory</h2>
-            <p>57 The Butts · Coventry, CV1 3BJ</p>
+            <p>Selected property · Coventry, CV1 3BJ</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close Property Memory" data-memory-close>
             <span class="nav-icon" data-icon="close"></span>

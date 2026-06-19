@@ -17779,3 +17779,125 @@ select:focus-visible,
     overflow-x: auto;
   }
 }
+
+/* Stage 12 final visibility override. Kept at the end so normal routes do not expose demo chrome. */
+.demo-state-strip {
+  display: none !important;
+}
+
+body.is-demo-route .demo-state-strip,
+body.is-qa-route .demo-state-strip,
+body.nick-demo-mode .demo-state-strip,
+body.advanced-demo-mode .demo-state-strip {
+  display: flex !important;
+}
+
+/* Stage 12 final alignment: keep normal routes focused on the product surface. */
+body.canonical-property-route .property-header,
+body.canonical-portfolio-route .portfolio-home-header {
+  border-radius: 18px;
+}
+
+body.canonical-property-route .portfolio-home-header .prototype-badge,
+body.canonical-property-route .property-header .prototype-badge {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+body.canonical-property-route .home-priority-card,
+body.canonical-property-route .portfolio-upcoming-card,
+body.canonical-portfolio-route .portfolio-summary-panel,
+body.canonical-portfolio-route .portfolio-sweep-card {
+  border-radius: 12px;
+}
+
+.journey-guided-presenter,
+.journey-guided-callout,
+.demo-guide-modal {
+  max-width: min(460px, calc(100vw - 32px));
+}
+
+@media (max-width: 980px) {
+  .labs-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .labs-sidebar {
+    position: relative;
+    width: 100%;
+    max-width: none;
+    min-height: auto;
+  }
+
+  .workspace,
+  .portfolio-home,
+  .portfolio-properties,
+  .portfolio-compliance,
+  .portfolio-evidence,
+  .portfolio-tasks,
+  .portfolio-activity {
+    padding-inline: 16px;
+  }
+
+  .property-header,
+  .portfolio-home-header,
+  .services-header,
+  .journey-guided-hero {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .property-meta,
+  .hero-stat-grid,
+  .portfolio-pulse-grid,
+  .home-two-column,
+  .home-score-grid,
+  .portfolio-summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .journey-guided-presenter,
+  .journey-guided-callout {
+    position: fixed;
+    right: 16px;
+    bottom: 16px;
+    left: 16px;
+    max-width: none;
+  }
+}
+
+@media (max-width: 760px) {
+  .nav-stack {
+    grid-template-columns: 1fr;
+  }
+
+  .property-header h1,
+  .portfolio-home-header h1,
+  .journey-guided-hero h1 {
+    font-size: clamp(1.55rem, 8vw, 2.2rem);
+    letter-spacing: 0;
+  }
+
+  .portfolio-home-header p,
+  .property-header p,
+  .home-priority-card p,
+  .portfolio-upcoming-card p,
+  .journey-guided-presenter p {
+    font-size: 0.94rem;
+  }
+
+  .button-row,
+  .portfolio-header-actions,
+  .services-header-side .button-row {
+    display: grid;
+    grid-template-columns: 1fr;
+    width: 100%;
+  }
+
+  .button-row > *,
+  .portfolio-header-actions > *,
+  .services-header-side .button-row > * {
+    width: 100%;
+    justify-content: center;
+  }
+}

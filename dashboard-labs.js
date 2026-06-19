@@ -4752,7 +4752,7 @@ function renderSelectedCanonicalWorkspaceShell() {
 
   if (!isCanonicalWorkspaceValid()) {
     document.body.classList.add("canonical-property-route");
-    document.title = "Select property | CMP Labs";
+    document.title = "Select property | CMP";
     setText(".breadcrumb", "Properties / Select property");
     setText(".prototype-badge", "Property workspace");
     setText("#propertyTitle", shell?.title || "Choose a property");
@@ -4847,7 +4847,7 @@ function renderSelectedCanonicalWorkspaceShell() {
   const monitoringItems = derivedState?.monitoringItems || [];
   const serviceOption = canonicalPrimaryServiceOption();
   const serviceRequests = selectedCanonicalServiceRequests();
-  document.title = `${shell.address} | CMP Labs`;
+  document.title = `${shell.address} | CMP`;
   setText(".breadcrumb", `Properties / ${shell.address}`);
   setText(".prototype-badge", "Property workspace · Simulated Smart Check");
   setText("#propertyTitle", shell.address);
@@ -5942,17 +5942,19 @@ function syncDemoChrome() {
   const simpleProductNav = (nickMode && !advancedMode) || (!isTwoPropertyMode() && !isFivePropertyMode());
   document.body.classList.toggle("nick-demo-mode", nickMode);
   document.body.classList.toggle("advanced-demo-mode", advancedMode);
+  document.body.classList.toggle("is-demo-route", nickMode || isCanonicalScenarioRoute());
+  document.body.classList.toggle("is-qa-route", isQaMode() || advancedMode);
   document.body.classList.toggle("hide-prototype-machinery", shouldHidePrototypeMachinery());
   document.body.classList.toggle("simple-product-nav", simpleProductNav);
 
   setNavItemLabel("Home", "Home");
   setNavItemLabel("Properties", simpleProductNav ? "Property" : "Properties");
   setNavItemLabel("Compliance centre", simpleProductNav ? "Complete property check" : "Compliance centre");
-  setNavItemLabel("Journey OS", simpleProductNav ? "Add / check property" : "Add / check property");
+  setNavItemLabel("Add property", "Add property");
   setNavItemLabel("Evidence Vault", simpleProductNav ? "Evidence" : "Evidence Vault");
   setNavItemLabel("Tasks", simpleProductNav ? "Action Plan" : "Tasks");
   setNavItemLabel("Activity", simpleProductNav ? "Monitoring" : "Activity");
-  setNavItemLabel("Book a service", simpleProductNav ? "Services" : "Book a service");
+  setNavItemLabel("Request service", simpleProductNav ? "Services" : "Request service");
 
   const portfolioHeading = document.querySelector("#navPortfolio");
   if (portfolioHeading) {
@@ -18670,7 +18672,7 @@ function bindTabs() {
         return;
       }
 
-      if (item.dataset.globalNav === "Journey OS") {
+      if (item.dataset.globalNav === "Add property" || item.dataset.globalNav === "Journey OS") {
         showJourneyOs({ scroll: true });
         return;
       }
@@ -18695,7 +18697,7 @@ function bindTabs() {
         return;
       }
 
-      if (item.dataset.globalNav === "Book a service") {
+      if (item.dataset.globalNav === "Request service" || item.dataset.globalNav === "Book a service") {
         showGlobalServicePage({ scroll: true });
         return;
       }

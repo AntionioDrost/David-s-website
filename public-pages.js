@@ -1070,31 +1070,22 @@
     document.title = "ComplyMyProperty | Landlord compliance made simple";
     app.innerHTML = `
       ${baseHeader("home")}
-      <div class="home-service-rail-wrap">
-        <div class="home-service-rail-label">Browse services</div>
-        <div class="home-service-rail" aria-label="Homepage service links">
-          ${SERVICE_ORDER.map((key) => {
-            const service = SERVICE_CONFIG[key];
-            return `<a href="${escapeHtml(service.route)}">${serviceIconMarkup(key, "rail")}<span>${escapeHtml(service.title)}</span></a>`;
-          }).join("")}
-        </div>
-      </div>
       <main class="public-main homepage-main">
         <section class="hero home-hero">
           <div class="hero-content home-hero-copy">
-            <span class="eyebrow">Landlord compliance made simple</span>
-            <h1>The safest place to automate property compliance.</h1>
-            <p>Built for private landlords. No subscription fee. Start with one service, check a property, or build a wider compliance picture at your own pace.</p>
+            <span class="eyebrow">Check My Property</span>
+            <h1>Build a Property Brain, then act on the next best step.</h1>
+            <p>CMP checks what it can, asks only what it must, and keeps evidence, services, report previews and monitoring connected to one property record.</p>
             <div class="hero-actions">
-              <a class="button primary" href="add-property.html">Check your property</a>
-              <a class="button secondary" href="services.html">View services</a>
-              <a class="button tertiary" href="${escapeHtml(navigationPrimaryHref())}">${DEMO_MODE ? "My Properties" : "Log in"}</a>
+              <a class="button primary" href="add-property.html">Check My Property</a>
+              <a class="button secondary" href="services.html">Book a service</a>
+              <a class="button tertiary" href="dashboard-labs.html?demo=nick">Try demo</a>
             </div>
             <div class="hero-metrics home-hero-metrics">
-              <span>No subscription</span>
-              <span>Property-led</span>
-              <span>Guided checks</span>
-              <span>Evidence ready</span>
+              <span>Smart Checks</span>
+              <span>Property Brain</span>
+              <span>Next best action</span>
+              <span>Monitoring</span>
             </div>
           </div>
           <div class="home-hero-media">
@@ -1104,11 +1095,21 @@
           </div>
         </section>
 
+        <div class="home-service-rail-wrap">
+          <div class="home-service-rail-label">Services if you already know what you need</div>
+          <div class="home-service-rail" aria-label="Homepage service links">
+            ${SERVICE_ORDER.map((key) => {
+              const service = SERVICE_CONFIG[key];
+              return `<a href="${escapeHtml(service.route)}">${serviceIconMarkup(key, "rail")}<span>${escapeHtml(service.title)}</span></a>`;
+            }).join("")}
+          </div>
+        </div>
+
         <section class="page-section">
           <div class="section-heading home-centered-heading">
-            <span class="eyebrow">What do you need help with today?</span>
-            <h2>What do you need help with today?</h2>
-            <p>Choose one service, keep the journey focused, and only widen into a broader property check if it helps.</p>
+            <span class="eyebrow">Start where you are</span>
+            <h2>Check a property or request one service.</h2>
+            <p>Choose one service if that is all you need, or start a Full property check when you want the wider picture.</p>
           </div>
           <div class="service-selector-grid">
             ${renderServiceCards(SERVICE_ORDER, "selector")}
@@ -1117,8 +1118,8 @@
 
         <section class="page-section home-story-section">
           <div class="section-heading home-centered-heading">
-            <span class="eyebrow">The one stop shop for Property Compliance</span>
-            <h2>The one stop shop for Property Compliance</h2>
+            <span class="eyebrow">One property system</span>
+            <h2>One property system, not disconnected forms.</h2>
             <p>Start with one service, one property, or one problem. CMP keeps the journey clear and builds around the real situation.</p>
           </div>
           <div class="home-editorial-grid">
@@ -1166,7 +1167,7 @@
         <section class="page-section home-support-section">
           <div class="section-heading home-centered-heading">
             <span class="eyebrow">What happens next</span>
-            <h2>We don’t just make you compliant. We prepare you for what happens next.</h2>
+            <h2>We don’t just check one certificate. We prepare you for what happens next.</h2>
             <p>Use property facts, certificates, timelines, and evidence to stay ready for renewals, tenancy changes, inspections, and possession prep.</p>
           </div>
           <div class="home-editorial-grid home-editorial-grid-support">
@@ -1195,7 +1196,7 @@
 
         <section class="page-section home-honest-section">
           <div class="section-heading home-centered-heading">
-            <span class="eyebrow">A-Z compliance checker</span>
+            <span class="eyebrow">Full property check</span>
             <h2>You can be honest with us — we build around your real situation.</h2>
             <p>Landlords should be able to say “Not sure at this point”, keep moving, and come back later. Unsure answers become a checklist, not a failure.</p>
           </div>
@@ -1243,7 +1244,7 @@
           <div class="home-journey-shell">
             <div class="section-heading home-centered-heading home-journey-heading">
               <span class="eyebrow">How ComplyMyProperty works</span>
-              <h2>From postcode to fully compliant</h2>
+              <h2>From postcode to current status</h2>
               <p>CMP turns a postcode, a few answers and your documents into a clear property compliance picture.</p>
             </div>
             <div class="home-journey-chip-row">
@@ -1269,7 +1270,7 @@
 
               <article class="home-journey-preview">
                 <div class="home-journey-preview-copy">
-                  <span class="service-grid-eyebrow">Compliance OS preview</span>
+                  <span class="service-grid-eyebrow">Property Brain preview</span>
                   <strong>One property. Clear next steps. Everything together.</strong>
                   <p>Recommendations appear after CMP understands the property, the gaps, and the evidence you have added.</p>
                 </div>
@@ -1285,7 +1286,7 @@
                 <span class="home-journey-step-index">03</span>
                 <span class="status-pill neutral">Not sure saved</span>
                 <h3>Answer calmly</h3>
-                <p>Use the A-Z check. Choose ‘not sure’ whenever you need to.</p>
+                <p>Use the full property check. Choose ‘not sure’ whenever you need to.</p>
               </article>
 
               <article class="home-journey-card journey-step-4 is-right">
@@ -1316,7 +1317,7 @@
               </div>
               <div class="home-journey-actions">
                 <a class="button primary" href="add-property.html">Start with your postcode</a>
-                <a class="button secondary" href="services.html">Explore services</a>
+                <a class="button secondary" href="services.html">Book a service</a>
                 <a class="button secondary" href="add-property.html">Start full property check</a>
               </div>
             </div>
