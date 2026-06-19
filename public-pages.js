@@ -12,28 +12,28 @@
       entryService: "epc",
       title: "EPCs",
       eyebrow: "Energy performance",
-      promise: "Check the EPC, keep it simple, and only widen the journey if you want to.",
-      heroTitle: "EPC help without turning it into a full compliance exam.",
-      heroCopy: "Start with the EPC if that is why you are here. CMP can keep the journey EPC-only, widen it to related checks, or turn it into a full property review later.",
-      description: "Check EPC status, review expiry dates, and improve the rating without being pushed into unrelated checks.",
-      cardCta: "Start EPC support",
+      promise: "Start with EPC rating, expiry and improvement context, then widen only if it helps.",
+      heroTitle: "EPC support that starts with the rating and expiry.",
+      heroCopy: "Use this route when EPC status, renewal timing or improvement work is the reason you are here. CMP can keep the journey EPC-only, add related checks, or widen into a full property review.",
+      description: "Check EPC status, review expiry dates, and spot improvement opportunities without being pushed into unrelated checks.",
+      cardCta: "Start EPC route",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "book_epc", label: "I just want to book an EPC", helper: "Keep this focused on the certificate and the next step." },
-        { value: "check_rules", label: "I want to check if this property meets EPC rules", helper: "Use the property and EPC data to understand what matters." },
-        { value: "improve_rating", label: "I want to improve the EPC rating", helper: "Start with the current EPC, then look at sensible follow-on actions." },
-        { value: "broader_check", label: "I want a broader compliance check", helper: "Use EPC as the starting point for a wider property review." }
+        { value: "book_epc", label: "I just need an EPC assessment", helper: "Keep this focused on the certificate and the next step." },
+        { value: "check_rules", label: "I want to understand the EPC position", helper: "Use the rating, dates and property context to see what matters." },
+        { value: "improve_rating", label: "I want to improve a low EPC rating", helper: "Start with the current EPC, then look at sensible follow-on actions." },
+        { value: "broader_check", label: "I want a broader property check", helper: "Use EPC as the starting point for a wider property review." }
       ],
       questions: [
-        { key: "eviction_reason", type: "choice", label: "Is eviction part of the reason you're here?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure" } },
-        { key: "already_have_epc", type: "choice", label: "Do you already have an EPC?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } }
+        { key: "eviction_reason", type: "choice", label: "Is the EPC needed for letting, renewal or a property decision?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure" } },
+        { key: "already_have_epc", type: "choice", label: "Do you already have an EPC certificate or rating?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } }
       ],
       optionalEvidence: [
-        { key: "epc_upload", type: "upload", label: "Upload an EPC if you have it" },
-        { key: "epc_issue_date", type: "date", label: "EPC issue date, if known" }
+        { key: "epc_upload", type: "upload", label: "Add EPC proof later if you have it" },
+        { key: "epc_issue_date", type: "date", label: "EPC issue or expiry date, if known" }
       ],
       assistant: [
-        "If you only came for the EPC, choose the focused option. CMP will not push the full checker too hard.",
+        "If you only came for the EPC, choose the focused option. CMP will not push the full property check too hard.",
         "If the EPC is already in place, CMP can use that as the first known fact when the property is added."
       ]
     },
@@ -42,27 +42,27 @@
       entryService: "gas",
       title: "Gas Safety",
       eyebrow: "Gas Safety",
-      promise: "Start with the gas question first, then decide whether you need a certificate check, upload, or wider review.",
-      heroTitle: "Keep Gas Safety focused until you decide to go deeper.",
-      heroCopy: "CMP asks whether gas applies, whether you already have a certificate, and whether you want to keep this journey tight or widen it later.",
-      description: "Check whether gas applies, capture the last inspection, and decide whether you need a new certificate or just better evidence.",
-      cardCta: "Start Gas Safety support",
+      promise: "Start with gas appliances, certificate evidence and renewal timing.",
+      heroTitle: "Gas Safety support that starts with the property setup.",
+      heroCopy: "CMP asks whether gas applies, whether proof is already held, and whether you need to request a service or simply keep better evidence.",
+      description: "Check whether gas applies, capture certificate evidence and renewal timing, then decide whether this stays focused or widens.",
+      cardCta: "Start Gas Safety route",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "check_gas", label: "I want to check my gas safety compliance", helper: "Start with the certificate and the appliance setup." },
-        { value: "need_certificate", label: "I need a new Gas Safety Certificate", helper: "Use this if the certificate is missing or due." },
-        { value: "tenant_prep", label: "I'm preparing for a tenant or inspection", helper: "Capture the evidence and the last known check date." },
-        { value: "full_check", label: "I want a full compliance check", helper: "Gas first, then the wider property picture." }
+        { value: "check_gas", label: "I want to check the gas safety position", helper: "Start with appliances, certificate evidence and the last known check." },
+        { value: "need_certificate", label: "I need a Gas Safety Certificate", helper: "Use this if the certificate is missing, due or unclear." },
+        { value: "tenant_prep", label: "I'm preparing for a tenant or inspection", helper: "Capture the proof and annual renewal context." },
+        { value: "full_check", label: "I want a full property check", helper: "Gas first, then the wider property picture." }
       ],
       questions: [
         { key: "has_gas_appliances", type: "choice", label: "Does the property have gas appliances?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
         { key: "has_gas_certificate", type: "choice", label: "Do you currently have a Gas Safety Certificate?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
         { key: "last_gas_check", type: "date", label: "When was the last gas safety check?", placement: "documents" },
-        { key: "gas_upload", type: "upload", label: "Upload Gas Safety Certificate if you have it", placement: "documents" }
+        { key: "gas_upload", type: "upload", label: "Add Gas Safety proof later if you have it", placement: "documents" }
       ],
       assistant: [
         "If you are not sure whether gas applies, say so. CMP will treat that as a check-next item, not a failure.",
-        "If you already have the certificate, you can upload it later from the property dashboard too."
+        "If you already have the certificate, you can add the proof later from the property workspace too."
       ]
     },
     eicr: {
@@ -70,22 +70,22 @@
       entryService: "eicr",
       title: "EICR",
       eyebrow: "Electrical safety",
-      promise: "Start with the electrical report first, then decide whether to widen the journey.",
-      heroTitle: "Use the EICR journey when electrical safety is the main reason you are here.",
-      heroCopy: "CMP keeps the first questions short: do you have an EICR, when was the last inspection, and do you want this to stay EICR-focused?",
-      description: "Capture the current EICR position, upload the report if you have it, and then choose whether to widen the checks.",
-      cardCta: "Start EICR support",
+      promise: "Start with electrical safety proof, report age and renewal context.",
+      heroTitle: "EICR support for held proof, missing reports and renewals.",
+      heroCopy: "CMP keeps the first questions short: whether you have an EICR, when it was last inspected, and whether this should stay certificate-focused.",
+      description: "Capture the current EICR position, add proof later if you have it, and then choose whether to widen the checks.",
+      cardCta: "Start EICR route",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "check_electrical", label: "I want to check my electrical compliance", helper: "Start with the current EICR and what is known." },
-        { value: "need_eicr", label: "I need a new EICR", helper: "Use this if the report is missing or due." },
-        { value: "tenant_or_renewal", label: "I'm preparing for a tenant, renewal or inspection", helper: "Keep the journey practical and evidence-led." },
-        { value: "full_check", label: "I want a full compliance check", helper: "EICR first, then the wider property picture." }
+        { value: "check_electrical", label: "I want to check the electrical safety position", helper: "Start with the current EICR and what is known." },
+        { value: "need_eicr", label: "I need an EICR", helper: "Use this if the report is missing, due or unclear." },
+        { value: "tenant_or_renewal", label: "I'm preparing for a tenant, renewal or inspection", helper: "Keep the journey practical, dated and evidence-led." },
+        { value: "full_check", label: "I want a full property check", helper: "EICR first, then the wider property picture." }
       ],
       questions: [
         { key: "has_eicr", type: "choice", label: "Do you currently have an EICR?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
         { key: "last_eicr_check", type: "date", label: "When was the last electrical inspection?", placement: "documents" },
-        { key: "eicr_upload", type: "upload", label: "Upload EICR report if you have it", placement: "documents" }
+        { key: "eicr_upload", type: "upload", label: "Add EICR proof later if you have it", placement: "documents" }
       ],
       assistant: [
         "If you have the report but not the date, continue anyway. CMP can mark it as something to confirm later.",
@@ -379,6 +379,7 @@
     "inspection",
     "aml"
   ];
+  const SERVICE_PILOT_KEYS = ["epc", "gas", "eicr"];
 
   const SERVICE_VISUALS = {
     epc: { icon: "house", tone: "blue" },
@@ -1317,26 +1318,78 @@
 
   function renderServicesOverview() {
     document.title = "Services | ComplyMyProperty";
+    const remainingServices = SERVICE_ORDER.filter((key) => !SERVICE_PILOT_KEYS.includes(key));
     app.innerHTML = `
       ${baseHeader("services")}
-      <main class="public-main">
-        <section class="page-hero public-page-hero">
+      <main class="public-main service-pilot-main">
+        <section class="page-hero public-page-hero service-index-hero">
           <div>
-            <span class="eyebrow">Services overview</span>
-            <h1>Start with the right service, then choose how deep CMP should go.</h1>
-            <p>Choose one service, answer a few simple questions, then add the property and open the right dashboard from My Properties.</p>
+            <span class="eyebrow">CMP Request Centre</span>
+            <h1>What do you need help with today?</h1>
+            <p>Request one service, widen into related checks, or start a full property check. CMP keeps the choice clear before you add the property.</p>
             <div class="hero-actions">
-              <a class="button primary" href="add-property.html">Add property first</a>
-              <a class="button secondary" href="my-properties.html">Go to My Properties</a>
+              <a class="button primary" href="#serviceDirectory">Choose a service</a>
+              <a class="button secondary" href="add-property.html">Full property check</a>
+              <a class="button tertiary" href="my-properties.html">Continue from My Properties</a>
+            </div>
+            <div class="service-safe-strip" aria-label="Prototype service safety">
+              <span>Request prepared</span>
+              <span>No supplier contacted</span>
+              <span>No payment taken</span>
             </div>
           </div>
-          <div class="page-hero-visual page-hero-visual-gallery">
-            <img src="${PUBLIC_VISUALS.serviceGallery}" alt="ComplyMyProperty service-led dashboard preview">
+          <div class="page-hero-visual page-hero-visual-service">
+            ${renderServiceHeroStage("gas")}
           </div>
         </section>
+
+        <section class="page-section service-decision-section">
+          <div class="section-heading">
+            <span class="eyebrow">Choose the route</span>
+            <h2>Start narrow or widen the property picture.</h2>
+            <p>These routes match how landlords usually arrive: one certificate, a cluster of checks, or an existing property workspace.</p>
+          </div>
+          <div class="service-request-centre-grid">
+            <article class="service-request-card tone-blue">
+              <span class="service-grid-eyebrow">Direct route</span>
+              <h3>Request one service</h3>
+              <p>Use this if you already know you need EPC, Gas Safety, EICR or another focused service.</p>
+              <a class="service-selector-link" href="#serviceDirectory">Choose service</a>
+            </article>
+            <article class="service-request-card tone-green">
+              <span class="service-grid-eyebrow">Wider check</span>
+              <h3>Full property check</h3>
+              <p>Start with the property instead and let Smart Checks build the wider Property Brain.</p>
+              <a class="service-selector-link" href="add-property.html">Check My Property</a>
+            </article>
+            <article class="service-request-card tone-purple">
+              <span class="service-grid-eyebrow">Already started</span>
+              <h3>Continue from My Properties</h3>
+              <p>Open a saved property workspace, review the next best action, or pick up a prepared service request.</p>
+              <a class="service-selector-link" href="my-properties.html">Open My Properties</a>
+            </article>
+          </div>
+        </section>
+
+        <section class="page-section service-pilot-showcase" id="serviceDirectory">
+          <div class="section-heading">
+            <span class="eyebrow">Most requested</span>
+            <h2>Pilot service routes.</h2>
+            <p>These pages now use the new Request Centre pattern. Each one can stay focused or widen into a property check.</p>
+          </div>
+          <div class="service-grid public-service-grid public-service-grid-showcase">
+            ${renderServiceCards(SERVICE_PILOT_KEYS)}
+          </div>
+        </section>
+
         <section class="page-section">
+          <div class="section-heading">
+            <span class="eyebrow">More support</span>
+            <h2>Other service routes remain available.</h2>
+            <p>Choose the route closest to the landlord problem. CMP will keep the request prepared for review until the property is added.</p>
+          </div>
           <div class="service-grid public-service-grid">
-            ${renderServiceCards()}
+            ${renderServiceCards(remainingServices)}
           </div>
         </section>
       </main>
@@ -1395,7 +1448,7 @@
     `;
   }
 
-  function renderQuestionField(question, draft) {
+  function renderQuestionField(question, draft, options = {}) {
     if (question.type === "choice") {
       const options = question.options.map((value) => ({
         value,
@@ -1442,8 +1495,8 @@
           <label>${escapeHtml(question.label)}</label>
           <label class="upload-mini-zone">
             <input type="file" hidden data-question-upload="${escapeHtml(question.key)}">
-            <span>${draft[question.key] ? "Change document" : "Choose document"}</span>
-            <small>${draft[question.key] ? `Selected for this demo: ${draft[question.key]}` : "Optional. In the final version, this would be stored securely."}</small>
+            <span>${draft[question.key] ? (options.pilotService ? "Change proof" : "Change document") : (options.pilotService ? "Add proof later" : "Choose document")}</span>
+            <small>${draft[question.key] ? `Selected for this demo: ${draft[question.key]}` : (options.pilotService ? "Optional. No file is saved in this prototype." : "Optional. In the final version, this would be stored securely.")}</small>
           </label>
         </div>
       `;
@@ -1451,18 +1504,54 @@
     return "";
   }
 
-  function renderOptionalEvidenceBlock(service, draft, stepNumber) {
+  function renderOptionalEvidenceBlock(service, draft, stepNumber, options = {}) {
     const documentQuestions = optionalEvidenceQuestionsForService(service);
     if (!documentQuestions.length) return "";
     return `
-      <section class="question-panel optional-evidence-panel">
+      <section class="question-panel optional-evidence-panel${options.pilotService ? " service-proof-panel" : ""}">
         <div class="question-panel-heading">
           <span class="section-kicker">Step ${stepNumber}</span>
-          <h3>Optional documents and dates</h3>
+          <h3>${options.pilotService ? "Optional proof and dates" : "Optional documents and dates"}</h3>
         </div>
-        <p class="question-panel-copy">Have this document handy? You can add it now, or skip and come back later.</p>
+        <p class="question-panel-copy">${options.pilotService ? "Have proof handy? Add the name now, or skip and come back later. No supplier is contacted and no payment is taken." : "Have this document handy? You can add it now, or skip and come back later."}</p>
         <div class="question-stack-inner">
-          ${documentQuestions.map((question) => renderQuestionField(question, draft)).join("")}
+          ${documentQuestions.map((question) => renderQuestionField(question, draft, options)).join("")}
+        </div>
+      </section>
+    `;
+  }
+
+  function renderServiceSafetyBand() {
+    return `
+      <div class="service-safe-strip service-safe-strip-panel" aria-label="Prototype service safety">
+        <span>Request prepared</span>
+        <span>Evidence can be added later</span>
+        <span>No supplier contacted</span>
+        <span>No payment taken</span>
+        <span>Guidance, not legal advice</span>
+      </div>
+    `;
+  }
+
+  function renderServiceRelatedChecks(serviceKey) {
+    const relatedMap = {
+      epc: ["gas", "eicr", "inspection"],
+      gas: ["epc", "eicr", "inspection"],
+      eicr: ["gas", "epc", "licensing"],
+    };
+    const related = relatedMap[serviceKey] || ["epc", "gas", "eicr"];
+    return `
+      <section class="service-related-panel">
+        <div>
+          <span class="service-grid-eyebrow">Related checks</span>
+          <h3>Need more than this one service?</h3>
+          <p>Keep this route focused, add a related check, or move into the full property review when you are ready.</p>
+        </div>
+        <div class="service-related-links">
+          ${related.map((key) => {
+            const relatedService = SERVICE_CONFIG[key];
+            return `<a href="${escapeHtml(relatedService.route)}">${serviceIconMarkup(key, "rail")}<span>${escapeHtml(relatedService.title)}</span></a>`;
+          }).join("")}
         </div>
       </section>
     `;
@@ -1482,34 +1571,39 @@
     document.title = `${service.title} | ComplyMyProperty`;
     const progress = serviceProgress(state.serviceDraft, service);
     const journeyQuestions = journeyQuestionsForService(service);
+    const isPilotService = SERVICE_PILOT_KEYS.includes(serviceKey);
     app.innerHTML = `
       ${baseHeader("services")}
-      <main class="public-main">
-        <section class="page-hero public-page-hero">
+      <main class="public-main${isPilotService ? " service-pilot-main" : ""}">
+        <section class="page-hero public-page-hero${isPilotService ? " service-detail-hero" : ""}">
           <div>
             <span class="eyebrow service-hero-eyebrow">${serviceIconMarkup(serviceKey, "hero")}${escapeHtml(service.eyebrow)}</span>
             <h1>${escapeHtml(service.heroTitle)}</h1>
             <p>${escapeHtml(service.heroCopy)}</p>
             <div class="hero-actions">
-              <a class="button primary" href="#journeyStart">Start this journey</a>
-              <button class="button secondary" type="button" data-skip-service>Skip to Add Property</button>
+              <a class="button primary" href="#journeyStart">${isPilotService ? "Start this service route" : "Start this journey"}</a>
+              <button class="button secondary" type="button" data-skip-service>${isPilotService ? "Widen to full property check" : "Skip to Add Property"}</button>
+              ${isPilotService ? `<a class="button tertiary" href="services.html">See all services</a>` : ""}
             </div>
             <div class="hero-metrics">
               <span><strong>${progress.answered}/${progress.total}</strong> setup choices recorded</span>
               <span><strong>${escapeHtml(focusLabel(state.serviceDraft.focusMode || "service_only"))}</strong> selected</span>
-              <span><strong>Optional</strong> documents can be added later</span>
+              <span><strong>${isPilotService ? "Prepared" : "Optional"}</strong> ${isPilotService ? "for review" : "documents can be added later"}</span>
             </div>
+            ${isPilotService ? renderServiceSafetyBand() : ""}
           </div>
           <div class="page-hero-visual page-hero-visual-service">
             ${renderServiceHeroStage(serviceKey)}
           </div>
         </section>
 
-        <section class="page-section service-journey-shell" id="journeyStart">
+        ${isPilotService ? renderServiceRelatedChecks(serviceKey) : ""}
+
+        <section class="page-section service-journey-shell${isPilotService ? " service-pilot-journey-shell" : ""}" id="journeyStart">
           <div class="section-heading">
             <span class="eyebrow">${escapeHtml(service.title)} journey</span>
-            <h2>Choose how focused you want us to be.</h2>
-            <p>You stay in control. Just this service is a valid path. Related checks and a wider property review are optional.</p>
+            <h2>${isPilotService ? "Choose the service route that fits." : "Choose how focused you want us to be."}</h2>
+            <p>${isPilotService ? "Just this service is a valid path. Related checks and the full property check stay optional until you choose them." : "You stay in control. Just this service is a valid path. Related checks and a wider property review are optional."}</p>
           </div>
 
           <div class="journey-progress-bar" aria-label="Journey setup progress">
@@ -1548,25 +1642,26 @@
             <section class="question-panel">
               <div class="question-panel-heading">
                 <span class="section-kicker">4</span>
-                <h3>Service-specific questions</h3>
+                <h3>${isPilotService ? `${escapeHtml(service.title)} questions` : "Service-specific questions"}</h3>
               </div>
               <div class="question-stack-inner">
-                ${journeyQuestions.map((question) => renderQuestionField(question, state.serviceDraft)).join("")}
+                ${journeyQuestions.map((question) => renderQuestionField(question, state.serviceDraft, { pilotService: isPilotService })).join("")}
               </div>
             </section>
 
             ${service.calculator ? renderMortgageCalculator(state.serviceDraft) : ""}
-            ${renderOptionalEvidenceBlock(service, state.serviceDraft, service.calculator ? 6 : 5)}
+            ${renderOptionalEvidenceBlock(service, state.serviceDraft, service.calculator ? 6 : 5, { pilotService: isPilotService })}
 
             <section class="helper-card">
-              <span class="service-grid-eyebrow">Reassurance</span>
-              <h3>Not sure? You can continue and come back later.</h3>
-              <p>You stay in control of how much you want to check. CMP will carry these answers into Add Property and keep the next step obvious.</p>
+              <span class="service-grid-eyebrow">${isPilotService ? "Safe prototype request" : "Reassurance"}</span>
+              <h3>${isPilotService ? "A request can be prepared without contacting anyone." : "Not sure? You can continue and come back later."}</h3>
+              <p>${isPilotService ? "CMP carries these answers into Add Property. The prototype can prepare the request context, but no supplier is contacted and no payment is taken." : "You stay in control of how much you want to check. CMP will carry these answers into Add Property and keep the next step obvious."}</p>
             </section>
 
             <div class="service-journey-actions">
-              <button class="button primary" type="button" data-continue-service>Continue to Add Property</button>
+              <button class="button primary" type="button" data-continue-service>${isPilotService ? "Prepare request and add property" : "Continue to Add Property"}</button>
               <button class="button secondary" type="button" data-service-properties>Go to My Properties instead</button>
+              ${isPilotService ? `<a class="button tertiary" href="services.html">Back to services</a>` : ""}
             </div>
           </div>
         </section>
