@@ -541,12 +541,25 @@
     return window.CMPPublicPropertyBridge || null;
   }
 
-  function canonicalPropertyEntries() {
+  function portfolioDerivationApi() {
+    return window.CMPPortfolioDerivation || null;
+  }
+
+  function portfolioActionsApi() {
+    return window.CMPPortfolioActions || null;
+  }
+
+  function canonicalPropertyRecords() {
     const bridge = canonicalBridge();
     if (!bridge?.listCanonicalProperties) return [];
     const listed = bridge.listCanonicalProperties(localStorage, bridge.PUBLIC_GUEST_NAMESPACE_ID);
-    if (!listed.ok) return [];
-    return listed.value.map((record) => bridge.propertyCardFromRecord(record));
+    return listed.ok ? listed.value : [];
+  }
+
+  function canonicalPropertyEntries() {
+    const bridge = canonicalBridge();
+    if (!bridge?.propertyCardFromRecord) return [];
+    return canonicalPropertyRecords().map((record) => bridge.propertyCardFromRecord(record));
   }
 
   function myPropertyEntries() {
@@ -560,6 +573,60 @@
       .dedupeLegacyPropertyCards(canonicalCards, legacyProperties)
       .map((property) => bridge.legacyPropertyCardFromSnapshot(property));
     return [...canonicalCards, ...legacyOnly];
+  }
+
+  function myPropertiesPortfolioIntelligence() {
+    const portfolioApi = portfolioDerivationApi();
+    if (!portfolioApi?.derivePortfolioIntelligence) return null;
+    const records = canonicalPropertyRecords();
+    const result = portfolioApi.derivePortfolioIntelligence(records, {
+      now: nowIso()
+    });
+    return result.ok ? result.value : null;
+  }
+
+  function renderMyPropertiesPortfolioSummary() {
+    const intelligence = myPropertiesPortfolioIntelligence();
+    if (!intelligence || intelligence.propertyCount < 2 || !intelligence.portfolioToolsVisible) {
+      return "";
+    }
+    const top = intelligence.rankedProperties?.[0];
+    const reportPreview = portfolioActionsApi()?.createPortfolioReportPreview?.(intelligence, "portfolio_summary", { now: nowIso() });
+    return `
+      <section class="page-section" data-my-properties-portfolio-summary>
+        <div class="section-heading">
+          <span class="eyebrow">Portfolio priority</span>
+          <h2>Portfolio Sweep is ready</h2>
+          <p>Based on current information across ${escapeHtml(String(intelligence.propertyCount))} canonical properties. Guidance, not legal advice.</p>
+        </div>
+        <div class="property-card-grid">
+          <article class="property-summary-card">
+            <div class="property-summary-top">
+              <span class="status-pill warning">Priority</span>
+              <span class="quiet-pill">Canonical portfolio</span>
+            </div>
+            <h3>${escapeHtml(top?.address || "Review portfolio priority")}</h3>
+            <span class="property-summary-label">This property is first because...</span>
+            <p class="property-summary-lead">${escapeHtml(top?.priorityExplanation || "CMP ranked the current canonical property records by open risks and evidence gaps.")}</p>
+            <div class="property-summary-meta">
+              <span>${escapeHtml(String(intelligence.summary.evidenceGapCount || 0))} evidence gaps</span>
+              <span>${escapeHtml(String(intelligence.summary.upcomingExpiryCount || 0))} expiry items</span>
+              <span>${escapeHtml(String(intelligence.summary.lowConfidencePropertyCount || 0))} low confidence</span>
+            </div>
+            <a class="button primary" href="dashboard-labs.html?portfolio=guest">Open Portfolio Sweep</a>
+          </article>
+          <article class="property-summary-card">
+            <div class="property-summary-top">
+              <span class="status-pill info">Report preview</span>
+              <span class="quiet-pill">Prepared for review</span>
+            </div>
+            <h3>${escapeHtml(reportPreview?.ok ? reportPreview.value.title : "Portfolio Summary")}</h3>
+            <p class="property-summary-lead">Report preview uses canonical PropertyRecords, derived state, source labels and confidence status.</p>
+            <p class="property-summary-lead">No supplier contacted. No payment taken.</p>
+          </article>
+        </div>
+      </section>
+    `;
   }
 
   function saveWorkspaceEntry(property, answers = {}) {
@@ -2012,6 +2079,8 @@
         </section>
 
         ${renderFlashBanner()}
+
+        ${renderMyPropertiesPortfolioSummary()}
 
         <section class="page-section">
           <div class="add-property-stepper" aria-label="Add property steps">

@@ -2820,6 +2820,11 @@ function getPortfolioProperties() {
     return [canonicalProperty];
   }
 
+  const canonicalPortfolio = canonicalPortfolioProperties();
+  if (canonicalPortfolio.length || isCanonicalPortfolioRoute()) {
+    return canonicalPortfolio;
+  }
+
   if (isCanonicalWorkspaceRoute()) {
     return [];
   }
@@ -2846,6 +2851,11 @@ function getPortfolioPropertyById(propertyId = "the-butts") {
   const canonicalProperty = canonicalSelectedPortfolioProperty();
   if (canonicalProperty) {
     return canonicalProperty.id === propertyId || propertyId === "the-butts" ? canonicalProperty : canonicalProperty;
+  }
+
+  const canonicalPortfolio = canonicalPortfolioProperties();
+  if (canonicalPortfolio.length || isCanonicalPortfolioRoute()) {
+    return canonicalPortfolio.find((property) => property.id === propertyId) || canonicalPortfolio[0] || invalidCanonicalPortfolioProperty();
   }
 
   if (isCanonicalWorkspaceRoute()) {
@@ -2962,6 +2972,14 @@ function guidedDemoStepsApi() {
 
 function guidedDemoSessionApi() {
   return window.CMPGuidedDemoSession || null;
+}
+
+function portfolioDerivationApi() {
+  return window.CMPPortfolioDerivation || null;
+}
+
+function portfolioActionsApi() {
+  return window.CMPPortfolioActions || null;
 }
 
 function deriveSelectedCanonicalPropertyState(record) {
@@ -3213,6 +3231,119 @@ function hydrateSelectedCanonicalProperty() {
 
 function isCanonicalWorkspaceRoute() {
   return Boolean(labsState.selectedCanonicalProperty);
+}
+
+function isCanonicalPortfolioRoute() {
+  return Boolean(labsState.canonicalPortfolio?.status === "valid");
+}
+
+function isCanonicalPortfolioRequested() {
+  const params = queryParams();
+  if (params.get("state") || isNickDemoMode() || isCanonicalScenarioRoute()) return false;
+  return params.get("portfolio") === "guest" || (params.get("portfolioDemo") === "1" && params.get("qa") === "1");
+}
+
+function hydrateCanonicalPortfolioMode() {
+  if (!isCanonicalPortfolioRequested()) {
+    labsState.canonicalPortfolio = null;
+    return;
+  }
+  const bridge = bridgeApi();
+  const portfolioApi = portfolioDerivationApi();
+  const definitions = scenarioDefinitionsApi();
+  const seeding = scenarioSeedingApi();
+  const params = queryParams();
+  if (!bridge?.readCanonicalStore || !bridge?.writeCanonicalStore || !portfolioApi?.derivePortfolioIntelligence) {
+    labsState.canonicalPortfolio = {
+      status: "invalid",
+      mode: "unavailable",
+      records: [],
+      intelligence: null,
+      message: "Canonical portfolio modules are unavailable."
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+
+  const isDemo = params.get("portfolioDemo") === "1" && params.get("qa") === "1";
+  const namespaceId = isDemo ? definitions?.DEMO_SCENARIO_NAMESPACE : bridge.PUBLIC_GUEST_NAMESPACE_ID;
+  let loaded = bridge.readCanonicalStore(localStorage, namespaceId);
+  if (!loaded.ok) {
+    labsState.canonicalPortfolio = {
+      status: "invalid",
+      mode: isDemo ? "demo" : "guest",
+      namespaceId,
+      records: [],
+      intelligence: null,
+      message: loaded.errors?.join(" ") || "Could not load canonical portfolio store."
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+
+  if (isDemo) {
+    const scenarioIds = ["standard-first-property", "missing-gas-evidence", "missing-eicr-evidence", "damp-mould-concern"];
+    const seeded = seeding?.seedScenarioSet?.(loaded.value, scenarioIds, {
+      now: new Date().toISOString()
+    });
+    if (!seeded?.ok) {
+      labsState.canonicalPortfolio = {
+        status: "invalid",
+        mode: "demo",
+        namespaceId,
+        records: [],
+        intelligence: null,
+        message: seeded?.errors?.join(" ") || "Could not seed canonical portfolio demo."
+      };
+      labsState.portfolioMode = "empty";
+      return;
+    }
+    const saved = bridge.writeCanonicalStore(localStorage, seeded.value.store);
+    if (!saved.ok) {
+      labsState.canonicalPortfolio = {
+        status: "invalid",
+        mode: "demo",
+        namespaceId,
+        records: [],
+        intelligence: null,
+        message: saved.errors?.join(" ") || "Could not save canonical portfolio demo."
+      };
+      labsState.portfolioMode = "empty";
+      return;
+    }
+    loaded = { ok: true, value: saved.value };
+  }
+
+  const records = (loaded.value.propertyOrder || []).map((propertyId) => loaded.value.propertiesById[propertyId]).filter(Boolean);
+  const derived = portfolioApi.derivePortfolioIntelligence(records, {
+    now: new Date().toISOString(),
+    explicitPortfolioMode: true
+  });
+  if (!derived.ok) {
+    labsState.canonicalPortfolio = {
+      status: "invalid",
+      mode: isDemo ? "demo" : "guest",
+      namespaceId,
+      records,
+      intelligence: null,
+      message: derived.errors?.join(" ") || "Could not derive canonical portfolio."
+    };
+    labsState.portfolioMode = "empty";
+    return;
+  }
+
+  labsState.canonicalPortfolio = {
+    status: "valid",
+    mode: isDemo ? "demo" : "guest",
+    namespaceId,
+    records,
+    intelligence: derived.value,
+    warnings: derived.warnings || []
+  };
+  labsState.portfolioMode = records.length > 1 ? "canonical" : records.length === 1 ? "single" : "empty";
+  labsState.azMode = records.length > 1 ? "portfolio" : "single";
+  labsState.selectedServicePropertyId = records.length > 1 ? "all" : records[0]?.id || "";
+  labsState.azPropertyId = records[0]?.id || "";
 }
 
 function isCanonicalWorkspaceValid() {
@@ -3576,6 +3707,52 @@ function canonicalSelectedPortfolioProperty() {
     mostUrgent: true,
     search: `${shell.address} ${shell.postcode} canonical property smart checks review found data`
   };
+}
+
+function canonicalPortfolioIntelligence() {
+  return labsState.canonicalPortfolio?.status === "valid" ? labsState.canonicalPortfolio.intelligence : null;
+}
+
+function canonicalPortfolioItemToProperty(item, topPropertyId) {
+  const action = item.nextBestAction || {};
+  const service = (item.serviceOpportunities || [])[0] || null;
+  const score = item.derivedState?.scores || {};
+  return {
+    id: item.propertyId,
+    address: item.address,
+    postcode: item.postcode,
+    location: item.postcode || "Postcode to confirm",
+    label: `${item.address}${item.postcode ? ` · ${item.postcode}` : ""}`,
+    inbox: "",
+    occupancy: canonicalOccupancyLabel(item.derivedState?.context?.occupancyStatus),
+    journey: "Canonical portfolio",
+    strength: score.confidence?.value || 0,
+    evidenceScore: score.evidenceStrength?.value || 0,
+    complianceScore: score.legalCompliance?.value || 0,
+    focus: item.topIssue?.reason || action.title || "Review property",
+    focusArea: item.topIssue?.category || service?.category || "Portfolio priority",
+    state: canonicalStatusLabel(item.overallStatus),
+    statusDetail: item.priorityExplanation,
+    priority: action.title || "Review property",
+    priorityBody: action.reason || item.priorityExplanation,
+    serviceType: service?.category || "review",
+    verifiedEvidence: (item.derivedState?.evidenceState || []).filter((evidence) => ["accepted", "held"].includes(evidence.proofStatus)).length,
+    reviewCount: item.evidenceGapsCount,
+    missingEvidence: (item.derivedState?.evidenceGaps || []).map((gap) => String(gap.evidenceType || "evidence").replace(/_/g, " ")),
+    recommendedService: service?.label || action.primaryCtaLabel || "Review property",
+    currentRequest: null,
+    workspaceAvailable: true,
+    mostUrgent: item.propertyId === topPropertyId,
+    nextRenewal: item.upcomingExpiryCount ? `${item.upcomingExpiryCount} expiry item${item.upcomingExpiryCount === 1 ? "" : "s"}` : "",
+    search: `${item.address} ${item.postcode} canonical portfolio ${item.priorityExplanation} ${action.title || ""}`
+  };
+}
+
+function canonicalPortfolioProperties() {
+  const intelligence = canonicalPortfolioIntelligence();
+  if (!intelligence) return [];
+  const topPropertyId = intelligence.rankedProperties?.[0]?.propertyId || "";
+  return (intelligence.rankedProperties || intelligence.items || []).map((item) => canonicalPortfolioItemToProperty(item, topPropertyId));
 }
 
 function invalidCanonicalPortfolioProperty() {
@@ -14584,6 +14761,38 @@ function renderPortfolioMatrix(properties, matrixQuestions) {
 }
 
 function renderPortfolioNextActions() {
+  const intelligence = canonicalPortfolioIntelligence();
+  if (intelligence) {
+    const items = (intelligence.sweepItems || []).slice(0, 5);
+    const fallbackItems = items.length ? items : [{
+      title: "Portfolio review",
+      reason: "Based on current information, review the selected canonical properties before taking action.",
+      actionLabel: "Review property",
+      propertyIds: (intelligence.items || []).map((item) => item.propertyId).slice(0, 1),
+      capabilityStatus: "simulated"
+    }];
+    return `
+      <ol class="portfolio-next-actions" data-canonical-portfolio-sweep>
+        ${fallbackItems.map((item, index) => {
+          const propertyId = item.propertyIds?.[0] || item.propertyId || intelligence.rankedProperties?.[0]?.propertyId || "";
+          const property = propertyId ? (intelligence.items || []).find((candidate) => candidate.propertyId === propertyId) : null;
+          const label = property?.address || propertyId || `Portfolio item ${index + 1}`;
+          const actionLabel = item.actionLabel || "Review before action";
+          return `
+            <li>
+              <div>
+                <strong>${escapeHtml(label)}</strong>
+                <span>${escapeHtml(item.reason || item.title || "Based on current information, review this priority.")}</span>
+                <small>${escapeHtml(item.capabilityStatus || "simulated")} · Guidance, not legal advice · No supplier contacted · No payment taken</small>
+              </div>
+              <button class="secondary-button" type="button" data-toast="${escapeHtml(actionLabel)} prepared for review. No supplier contacted. No payment taken.">${escapeHtml(actionLabel)}</button>
+            </li>
+          `;
+        }).join("")}
+      </ol>
+    `;
+  }
+
   return `
     <ol class="portfolio-next-actions">
       <li>
@@ -21618,6 +21827,7 @@ if (initialDemoState) {
 }
 
 hydrateSelectedCanonicalProperty();
+hydrateCanonicalPortfolioMode();
 hydrateIcons();
 renderAssistantPrompts();
 renderAllState();

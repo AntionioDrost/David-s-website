@@ -459,6 +459,8 @@ test("product isolation", async (t) => {
       "core/cmp-scenario-seeding.js",
       "core/cmp-guided-demo-steps.js",
       "core/cmp-guided-demo-session.js",
+      "core/cmp-portfolio-derivation.js",
+      "core/cmp-portfolio-actions.js",
     ];
     for (const file of productFiles) {
       let content = fs.readFileSync(path.join(root, file), "utf8");
