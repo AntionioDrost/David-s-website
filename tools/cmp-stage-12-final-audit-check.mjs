@@ -383,6 +383,7 @@ test("Stage 12 changes stay within final visual/audit scope", () => {
     "dashboard-labs.html",
     "dashboard-labs.js",
     "dashboard-labs.css",
+    "docs/CMP_PUBLIC_VISUAL_ALIGNMENT_SPEC.md",
     "tools/cmp-stage-12-final-audit-check.mjs",
   ]);
   const changed = changedFiles().filter((file) => !file.startsWith("audit/"));

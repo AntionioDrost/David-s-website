@@ -16,7 +16,7 @@
       heroTitle: "EPC help without turning it into a full compliance exam.",
       heroCopy: "Start with the EPC if that is why you are here. CMP can keep the journey EPC-only, widen it to related checks, or turn it into a full property review later.",
       description: "Check EPC status, review expiry dates, and improve the rating without being pushed into unrelated checks.",
-      cardCta: "Start EPC journey",
+      cardCta: "Start EPC support",
       intentHeading: "What do you need help with today?",
       intents: [
         { value: "book_epc", label: "I just want to book an EPC", helper: "Keep this focused on the certificate and the next step." },
@@ -46,7 +46,7 @@
       heroTitle: "Keep Gas Safety focused until you decide to go deeper.",
       heroCopy: "CMP asks whether gas applies, whether you already have a certificate, and whether you want to keep this journey tight or widen it later.",
       description: "Check whether gas applies, capture the last inspection, and decide whether you need a new certificate or just better evidence.",
-      cardCta: "Start Gas Safety journey",
+      cardCta: "Start Gas Safety support",
       intentHeading: "What do you need help with today?",
       intents: [
         { value: "check_gas", label: "I want to check my gas safety compliance", helper: "Start with the certificate and the appliance setup." },
@@ -74,7 +74,7 @@
       heroTitle: "Use the EICR journey when electrical safety is the main reason you are here.",
       heroCopy: "CMP keeps the first questions short: do you have an EICR, when was the last inspection, and do you want this to stay EICR-focused?",
       description: "Capture the current EICR position, upload the report if you have it, and then choose whether to widen the checks.",
-      cardCta: "Start EICR journey",
+      cardCta: "Start EICR support",
       intentHeading: "What do you need help with today?",
       intents: [
         { value: "check_electrical", label: "I want to check my electrical compliance", helper: "Start with the current EICR and what is known." },
@@ -101,7 +101,7 @@
       heroTitle: "Start a possession journey without turning it into legal advice.",
       heroCopy: "CMP helps landlords organise compliance documents, notices, and communications before they move further into possession preparation.",
       description: "Start with the landlord goal, then build the evidence pack around the property and the tenancy.",
-      cardCta: "Start possession journey",
+      cardCta: "Start possession support",
       intentHeading: "What do you need help with today?",
       intents: [
         { value: "understand_options", label: "I want to understand my eviction options", helper: "Keep the wording careful and evidence-led." },
@@ -132,7 +132,7 @@
       heroTitle: "Build the possession evidence pack before you chase the next step.",
       heroCopy: "Use the scenario cards to tell CMP what is happening. The aim is to organise facts, documents, and timelines calmly before you widen the process.",
       description: "A scenario-led possession page that feels closer to the current Wix structure but keeps the prototype logic underneath.",
-      cardCta: "Start evidence prep",
+      cardCta: "Prepare evidence pack",
       intentHeading: "Which situation sounds closest?",
       intents: [
         { value: "rent_owes", label: "Tenant owes rent", helper: "Organise arrears and communication records." },
@@ -170,7 +170,7 @@
       heroTitle: "Treat mould and damp like a case history, not a generic certificate check.",
       heroCopy: "CMP can organise the timeline, reports, repairs, and tenant updates around a mould or damp issue without forcing the whole property through a bigger process.",
       description: "Organise the issue, seriousness, tenant reports, inspections, repairs, and follow-up in one calm flow.",
-      cardCta: "Start mould journey",
+      cardCta: "Start mould support",
       intentHeading: "What do you need help with today?",
       intents: [
         { value: "assess_issue", label: "I want to report or assess mould issues", helper: "Start with the seriousness and whether it has been reported." },
@@ -2397,7 +2397,7 @@
           <div>
             <span class="eyebrow">My Properties</span>
             <h1>Choose a property, then open the right dashboard.</h1>
-            <p>This sits between Add Property and the dashboard, just like the Wix journey. It keeps the landlord in control of which property they open next.</p>
+            <p>This sits between Add Property and the property workspace. It keeps the landlord in control of which property they open next.</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property</a>
             </div>
