@@ -1071,11 +1071,11 @@
     app.innerHTML = `
       ${baseHeader("home")}
       <main class="public-main homepage-main">
-        <section class="hero home-hero">
+        <section class="hero home-hero home2-hero">
           <div class="hero-content home-hero-copy">
             <span class="eyebrow">Check My Property</span>
-            <h1>Build a Property Brain, then act on the next best step.</h1>
-            <p>CMP checks what it can, asks only what it must, and keeps evidence, services, report previews and monitoring connected to one property record.</p>
+            <h1>Your property compliance command centre.</h1>
+            <p>CMP checks what it can, asks only what it must, then builds a Property Brain with the current status, evidence gaps and one clear next best action.</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Check My Property</a>
               <a class="button secondary" href="services.html">Request service</a>
@@ -1083,76 +1083,86 @@
             </div>
             <div class="hero-metrics home-hero-metrics">
               <span>Smart Checks</span>
+              <span>Review found data</span>
               <span>Property Brain</span>
               <span>Next best action</span>
-              <span>Monitoring</span>
             </div>
           </div>
           <div class="home-hero-media">
-            <div class="home-hero-visual">
-              ${renderHomepageFlagshipVisual()}
+            <div class="home-hero-visual home2-hero-visual">
+              <div class="home2-workspace-stage">
+                <img src="${PUBLIC_VISUALS.homeHeroWide}" alt="ComplyMyProperty property compliance workspace preview">
+                <article class="home2-stage-card home2-stage-card-status">
+                  <span class="status-pill info">Current status</span>
+                  <strong>Based on current information</strong>
+                  <small>Evidence and source confidence stay visible.</small>
+                </article>
+                <article class="home2-stage-card home2-stage-card-action">
+                  <span class="status-pill attention">Next best action</span>
+                  <strong>Review found data</strong>
+                  <small>Confirm what CMP found before requesting support.</small>
+                </article>
+              </div>
             </div>
           </div>
         </section>
 
-        <div class="home-service-rail-wrap">
-          <div class="home-service-rail-label">Services if you already know what you need</div>
-          <div class="home-service-rail" aria-label="Homepage service links">
-            ${SERVICE_ORDER.map((key) => {
+        <section class="page-section home2-request-centre" aria-labelledby="home2-request-title">
+          <div class="section-heading home-centered-heading">
+            <span class="eyebrow">What do you need help with today?</span>
+            <h2 id="home2-request-title">Start with the path that matches the job.</h2>
+            <p>Use CMP as a full property check, a focused service request, or a safe product preview.</p>
+          </div>
+          <div class="home2-decision-grid">
+            <a class="home2-decision-card is-primary" href="add-property.html">
+              <span class="home2-decision-kicker">Full property check</span>
+              <strong>Check a property</strong>
+              <p>Add the address, run Smart Checks, review found data and build the Property Brain.</p>
+              <span class="home2-decision-action">Check My Property</span>
+            </a>
+            <a class="home2-decision-card" href="services.html">
+              <span class="home2-decision-kicker">Focused support</span>
+              <strong>Request one service</strong>
+              <p>Start with EPC, Gas Safety, EICR, licensing, possession preparation or a condition concern.</p>
+              <span class="home2-decision-action">Request service</span>
+            </a>
+            <a class="home2-decision-card" href="dashboard-labs.html?demo=nick">
+              <span class="home2-decision-kicker">Guided preview</span>
+              <strong>Try demo</strong>
+              <p>Walk through a simulated property journey without touching your live property records.</p>
+              <span class="home2-decision-action">Open demo</span>
+            </a>
+          </div>
+        </section>
+
+        <section class="page-section home2-service-strip" aria-labelledby="home2-service-title">
+          <div class="home2-section-split">
+            <div>
+              <span class="eyebrow">Services if you already know what you need</span>
+              <h2 id="home2-service-title">Choose a service, then keep it connected to the property.</h2>
+            </div>
+            <a class="button secondary" href="services.html">View all services</a>
+          </div>
+          <div class="home2-service-grid">
+            ${["epc", "gas", "eicr", "mould", "possession_preparation", "licensing"].map((key) => {
               const service = SERVICE_CONFIG[key];
-              return `<a href="${escapeHtml(service.route)}">${serviceIconMarkup(key, "rail")}<span>${escapeHtml(service.title)}</span></a>`;
+              return `
+                <a class="home2-service-card tone-${escapeHtml(serviceVisual(key).tone)}" href="${escapeHtml(service.route)}">
+                  ${serviceIconMarkup(key, "selector")}
+                  <span>${escapeHtml(service.eyebrow)}</span>
+                  <strong>${escapeHtml(service.title)}</strong>
+                  <small>${escapeHtml(serviceSelectorCopy(key))}</small>
+                </a>
+              `;
             }).join("")}
           </div>
-        </div>
-
-        <section class="page-section">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">Start where you are</span>
-            <h2>Check a property or request one service.</h2>
-            <p>Choose one service if that is all you need, or start a Full property check when you want the wider picture.</p>
-          </div>
-          <div class="service-selector-grid">
-            ${renderServiceCards(SERVICE_ORDER, "selector")}
-          </div>
         </section>
 
-        <section class="page-section home-story-section">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">One property system</span>
-            <h2>One property system, not disconnected forms.</h2>
-            <p>Start with one service, one property, or one problem. CMP keeps the journey clear and builds around the real situation.</p>
-          </div>
-          <div class="home-editorial-grid">
-            <article class="home-editorial-card home-editorial-card-light home-editorial-card-large">
-              <div class="home-editorial-copy">
-                <span class="service-grid-eyebrow">Add a property</span>
-                <h3>Add a property. CMP builds the picture around it.</h3>
-                <p>Start with a postcode, choose the right address, and let CMP prepare the property file before you widen the checks.</p>
-                <a class="button secondary" href="add-property.html">Start with your postcode</a>
-              </div>
-              <div class="home-editorial-image">
-                <img src="${PUBLIC_VISUALS.homePortfolio}" alt="Property compliance portfolio preview">
-              </div>
-            </article>
-            <article class="home-editorial-card home-editorial-card-dark">
-              <div class="home-editorial-copy">
-                <span class="service-grid-eyebrow">Guided checks</span>
-                <h3>Answer what you know. Save what you don’t.</h3>
-                <p>Keep the journey focused on one service, then widen only when the property context makes it useful.</p>
-                <a class="button tertiary light" href="services.html">View all service journeys</a>
-              </div>
-              <div class="home-editorial-image home-editorial-image-dark">
-                <img src="${PUBLIC_VISUALS.homeAurora}" alt="Cinematic compliance dashboard preview">
-              </div>
-            </article>
-          </div>
-        </section>
-
-        <section class="page-section home-postcode-section">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">Property checker</span>
-            <h2>Enter your postcode here to check compliance:</h2>
-            <p>Enter a postcode, choose the right address, and CMP will carry the journey into Add Property without creating a generic listing.</p>
+        <section class="page-section home-postcode-section home2-postcode-section">
+          <div class="home2-postcode-copy">
+            <span class="eyebrow">Property-led from the first click</span>
+            <h2>Start with the address. CMP builds the picture around it.</h2>
+            <p>Enter a postcode, choose the right property, and CMP will carry the journey into Add Property with Smart Checks and Review found data.</p>
           </div>
           <form class="postcode-card" id="homePostcodeForm">
             <label for="homePostcodeInput">Property postcode</label>
@@ -1164,175 +1174,113 @@
           </form>
         </section>
 
-        <section class="page-section home-support-section">
+        <section class="page-section home2-brain-section" aria-labelledby="home2-brain-title">
           <div class="section-heading home-centered-heading">
-            <span class="eyebrow">What happens next</span>
-            <h2>We don’t just check one certificate. We prepare you for what happens next.</h2>
-            <p>Use property facts, certificates, timelines, and evidence to stay ready for renewals, tenancy changes, inspections, and possession prep.</p>
+            <span class="eyebrow">Property Brain</span>
+            <h2 id="home2-brain-title">CMP turns scattered property facts into a clearer current status.</h2>
+            <p>Smart Checks, Review found data and Answer unknowns work together so the next step is based on the property, not a disconnected form.</p>
           </div>
-          <div class="home-editorial-grid home-editorial-grid-support">
-            <article class="home-editorial-card home-editorial-card-light">
-              <div class="home-editorial-copy">
-                <span class="service-grid-eyebrow">Evidence</span>
-                <h3>Keep documents, dates and reminders together.</h3>
-                <p>CMP helps organise what is already known, what still needs checking, and what should happen next.</p>
-              </div>
-              <div class="home-editorial-image">
-                <img src="${PUBLIC_VISUALS.homeEvidence}" alt="Property evidence and document workflow">
-              </div>
+          <div class="home2-brain-grid">
+            <article class="home2-brain-card">
+              <span>01</span>
+              <strong>Smart Checks</strong>
+              <p>CMP checks available property signals and labels the source and confidence.</p>
             </article>
-            <article class="home-editorial-card home-editorial-card-light">
-              <div class="home-editorial-copy">
-                <span class="service-grid-eyebrow">Next steps</span>
-                <h3>See the property picture before you take action.</h3>
-                <p>Recommendations, timelines and renewal prompts appear after CMP understands the property and the evidence around it.</p>
-              </div>
-              <div class="home-editorial-image">
-                <img src="${PUBLIC_VISUALS.homeDashboard}" alt="ComplyMyProperty dashboard overview">
-              </div>
+            <article class="home2-brain-card">
+              <span>02</span>
+              <strong>Review found data</strong>
+              <p>Confirm what CMP found before it becomes part of the property picture.</p>
+            </article>
+            <article class="home2-brain-card">
+              <span>03</span>
+              <strong>Answer unknowns</strong>
+              <p>Say “not sure” where needed. Unknowns become follow-up items, not blockers.</p>
+            </article>
+            <article class="home2-brain-card is-featured">
+              <span>04</span>
+              <strong>Current status</strong>
+              <p>The Property Brain keeps evidence gaps, risk signals and next actions connected.</p>
             </article>
           </div>
         </section>
 
-        <section class="page-section home-honest-section">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">Full property check</span>
-            <h2>You can be honest with us — we build around your real situation.</h2>
-            <p>Landlords should be able to say “Not sure at this point”, keep moving, and come back later. Unsure answers become a checklist, not a failure.</p>
-          </div>
-          <div class="home-guided-feature">
-            <div class="home-guided-feature-copy">
-              <span class="service-grid-eyebrow">Guided compliance checker</span>
-              <h3>Guided checks. Answer what you know, skip what you don’t.</h3>
-              <p>Start with the address, save the basics, and let unsure answers become a calm checklist rather than a failure state.</p>
+        <section class="page-section home2-service-support" aria-labelledby="home2-support-title">
+          <div class="home2-support-card">
+            <div>
+              <span class="eyebrow">Service-aware, not service-only</span>
+              <h2 id="home2-support-title">Request a service when it is the right next step.</h2>
+              <p>CMP can prepare a service request from the property context, evidence gap or landlord goal. Prototype requests stay safe: no supplier contacted and no payment taken.</p>
               <div class="section-actions">
-                <a class="button secondary" href="add-property.html">Start full property check</a>
+                <a class="button primary" href="services.html">Request service</a>
+                <a class="button secondary" href="add-property.html">Run full property check</a>
               </div>
             </div>
-            <div class="home-guided-feature-image">
-              <img src="${PUBLIC_VISUALS.homeGuidedWide}" alt="Guided property compliance workflow preview">
+            <div class="home2-support-stack" aria-hidden="true">
+              <span>Evidence gap</span>
+              <span>Prepared for review</span>
+              <span>No supplier contacted</span>
+              <span>No payment taken</span>
             </div>
           </div>
         </section>
 
-        <section class="page-section">
+        <section class="page-section home2-flow-section" aria-labelledby="home2-flow-title">
           <div class="section-heading home-centered-heading">
-            <span class="eyebrow">Our Main Services</span>
-            <h2>Our Main Services. Take a look at some of the services we offer.</h2>
-            <p>Start with the service that matters now, then widen the journey only if it helps.</p>
+            <span class="eyebrow">How CMP works</span>
+            <h2 id="home2-flow-title">From postcode to a property workspace you can act from.</h2>
+            <p>Every step keeps the property, evidence and next action connected.</p>
           </div>
-          <div class="service-grid public-service-grid public-service-grid-showcase">
-            ${renderServiceCards(["epc", "gas", "eicr", "eviction", "licensing", "inspection"])}
+          <div class="home2-flow-grid">
+            ${[
+              ["Add property", "Start with the address and tenancy context."],
+              ["Smart Checks", "CMP checks what it can from available sources."],
+              ["Review found data", "Accept, correct or flag what was found."],
+              ["Answer unknowns", "Keep moving even when something is not known yet."],
+              ["Property Brain", "See current status, confidence and evidence gaps."],
+              ["Next best action", "Focus on the most useful action first."],
+              ["Evidence/service loop", "Upload proof or request support where appropriate."],
+              ["Monitoring", "Keep reminders and future checks visible."]
+            ].map(([title, copy], index) => `
+              <article class="home2-flow-card">
+                <span>${String(index + 1).padStart(2, "0")}</span>
+                <strong>${escapeHtml(title)}</strong>
+                <p>${escapeHtml(copy)}</p>
+              </article>
+            `).join("")}
           </div>
         </section>
 
-        <section class="page-section">
+        <section class="page-section home2-trust-section" aria-labelledby="home2-trust-title">
           <div class="section-heading home-centered-heading">
-            <span class="eyebrow">The latest</span>
-            <h2>The latest. Take a look at what everyone’s talking about right now.</h2>
-            <p>Example articles showing how CMP could explain compliance changes, reminders, and practical next steps in plain English.</p>
+            <span class="eyebrow">Evidence-led and careful</span>
+            <h2 id="home2-trust-title">Built for practical landlord decisions, not false certainty.</h2>
+            <p>CMP separates what is known, what needs confirmation, and what should be prepared for review.</p>
           </div>
-          <div class="news-grid">
-            ${NEWS_ARTICLES.slice(0, 4).map((article) => renderArticleCard(article)).join("")}
-          </div>
-          <div class="section-actions">
-            <a class="button secondary" href="news.html">See updates preview</a>
-          </div>
-        </section>
-
-        <section class="page-section home-journey-section" id="compliance-journey">
-          <div class="home-journey-shell">
-            <div class="section-heading home-centered-heading home-journey-heading">
-              <span class="eyebrow">How ComplyMyProperty works</span>
-              <h2>From postcode to current status</h2>
-              <p>CMP turns a postcode, a few answers and your documents into a clear property compliance picture.</p>
-            </div>
-            <div class="home-journey-chip-row">
-              <span>Start small.</span>
-              <span>Stay in control.</span>
-              <span>Not sure? Come back later.</span>
-              <span>No legal advice — just clearer next steps.</span>
-            </div>
-            <div class="home-journey-flow">
-              <article class="home-journey-card journey-step-1 is-left">
-                <span class="home-journey-step-index">01</span>
-                <span class="status-pill info">Property-led</span>
-                <h3>Start with a postcode</h3>
-                <p>Find the right property and begin with the basics.</p>
-              </article>
-
-              <article class="home-journey-card journey-step-2 is-right">
-                <span class="home-journey-step-index">02</span>
-                <span class="status-pill info">EPC imported</span>
-                <h3>Import what CMP can</h3>
-                <p>EPC and property data help pre-fill the first checks.</p>
-              </article>
-
-              <article class="home-journey-preview">
-                <div class="home-journey-preview-copy">
-                  <span class="service-grid-eyebrow">Property Brain preview</span>
-                  <strong>One property. Clear next steps. Everything together.</strong>
-                  <p>Recommendations appear after CMP understands the property, the gaps, and the evidence you have added.</p>
-                </div>
-                <div class="home-journey-preview-stage">
-                  <img src="${PUBLIC_VISUALS.homeAurora}" alt="Premium compliance journey dashboard preview">
-                  <span class="home-journey-preview-pill preview-pill-top">Next action ready</span>
-                  <span class="home-journey-preview-pill preview-pill-left">Evidence added</span>
-                  <span class="home-journey-preview-pill preview-pill-bottom">Renewals tracked</span>
-                </div>
-              </article>
-
-              <article class="home-journey-card journey-step-3 is-left">
-                <span class="home-journey-step-index">03</span>
-                <span class="status-pill neutral">Not sure saved</span>
-                <h3>Answer calmly</h3>
-                <p>Use the full property check. Choose ‘not sure’ whenever you need to.</p>
-              </article>
-
-              <article class="home-journey-card journey-step-4 is-right">
-                <span class="home-journey-step-index">04</span>
-                <span class="status-pill evidence">Evidence later</span>
-                <h3>Add evidence</h3>
-                <p>Upload certificates, notices, reports or photos if you have them.</p>
-              </article>
-
-              <article class="home-journey-card journey-step-5 is-left">
-                <span class="home-journey-step-index">05</span>
-                <span class="status-pill attention">Next action ready</span>
-                <h3>See what matters next</h3>
-                <p>CMP highlights gaps, renewals and useful next actions.</p>
-              </article>
-
-              <article class="home-journey-card journey-step-6 is-right">
-                <span class="home-journey-step-index">06</span>
-                <span class="status-pill good">Dashboard ready</span>
-                <h3>Keep everything together</h3>
-                <p>Your property dashboard becomes the place to track documents, actions and reminders.</p>
-              </article>
-            </div>
-            <div class="home-journey-footer">
-              <div class="home-journey-footer-copy">
-                <p>Start with one service, widen only when it helps, and let the property dashboard become the compliance file.</p>
-                <small>No legal advice — just clearer information and next steps.</small>
-              </div>
-              <div class="home-journey-actions">
-                <a class="button primary" href="add-property.html">Start with your postcode</a>
-                <a class="button secondary" href="services.html">Request service</a>
-                <a class="button secondary" href="add-property.html">Start full property check</a>
-              </div>
-            </div>
+          <div class="home2-trust-grid">
+            <article>
+              <strong>Based on current information</strong>
+              <p>Source and confidence labels keep the property picture honest.</p>
+            </article>
+            <article>
+              <strong>Evidence needs review</strong>
+              <p>Missing or uncertain proof becomes a clear evidence gap.</p>
+            </article>
+            <article>
+              <strong>Guidance, not legal advice</strong>
+              <p>CMP helps organise next steps without making legal guarantees.</p>
+            </article>
           </div>
         </section>
 
-        <section class="final-cta public-trust-band">
-          <div class="home-centered-heading">
-            <span class="eyebrow">Trust and support</span>
-            <h2>Real people. Smart tech. No guesswork.</h2>
-            <p>CMP helps organise property compliance information, highlight missing checks and evidence, and point landlords to the next practical step. It is not legal advice.</p>
+        <section class="final-cta public-trust-band home2-human-band">
+          <div class="home2-human-copy">
+            <span class="eyebrow">Human support plus smart technology</span>
+            <h2>Calm software for real landlord work.</h2>
+            <p>Use CMP to organise the property, understand the gaps, prepare service requests and keep monitoring visible over time.</p>
           </div>
-          <div class="home-trust-actions home-centered-actions">
-            <a class="button primary" href="services.html">Explore services</a>
-            <a class="button secondary" href="my-properties.html">Go to My Properties</a>
+          <div class="home-trust-actions">
+            <a class="button primary" href="add-property.html">Check My Property</a>
+            <a class="button secondary" href="services.html">Request service</a>
           </div>
         </section>
       </main>
