@@ -17901,3 +17901,208 @@ body.canonical-portfolio-route .portfolio-sweep-card {
     justify-content: center;
   }
 }
+
+/* Premium review polish: visual hierarchy only, no route or data changes. */
+.property-header,
+.portfolio-home-header,
+.portfolio-autopilot-card,
+.home-priority-card,
+.portfolio-summary-panel {
+  border: 1px solid rgba(12, 33, 55, 0.1);
+  box-shadow: 0 24px 70px rgba(8, 25, 43, 0.12);
+}
+
+.property-header,
+.portfolio-home-header {
+  background:
+    radial-gradient(circle at 86% 18%, rgba(60, 130, 205, 0.18), transparent 34%),
+    linear-gradient(135deg, #fff, #f4f8fc 52%, #eef5fb);
+}
+
+.property-header h1,
+.portfolio-home-header h1,
+.portfolio-autopilot-card h2,
+.home-priority-card h2 {
+  letter-spacing: 0;
+  text-wrap: balance;
+}
+
+.portfolio-autopilot-card {
+  position: relative;
+  overflow: hidden;
+  background:
+    linear-gradient(135deg, rgba(6, 22, 38, 0.98), rgba(17, 62, 112, 0.95)),
+    #071421;
+  color: #f6fbff;
+}
+
+.portfolio-autopilot-card::after {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  content: "";
+  background: radial-gradient(circle at 84% 18%, rgba(120, 190, 255, 0.2), transparent 34%);
+}
+
+.portfolio-autopilot-card > * {
+  position: relative;
+  z-index: 1;
+}
+
+.portfolio-autopilot-card .section-kicker,
+.portfolio-autopilot-card p {
+  color: rgba(240, 247, 255, 0.78);
+}
+
+.portfolio-autopilot-card .portfolio-summary-panel {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.96);
+  color: var(--civic-ink);
+  box-shadow: 0 22px 50px rgba(0, 0, 0, 0.14);
+}
+
+.portfolio-autopilot-card .portfolio-prompt-row button {
+  border-color: rgba(255, 255, 255, 0.16);
+  background: rgba(255, 255, 255, 0.1);
+  color: #f6fbff;
+}
+
+.portfolio-pulse-card,
+.portfolio-upcoming-card,
+.next-action-card,
+.primary-service-card,
+.journey-action-card,
+.journey-service-card,
+.assistant-rail,
+.portfolio-property-card {
+  border-color: rgba(12, 33, 55, 0.09);
+  box-shadow: 0 16px 42px rgba(8, 25, 43, 0.08);
+}
+
+.home-priority-card {
+  background: linear-gradient(180deg, #fff, #f7fbff);
+}
+
+.home-priority-card .source-badge,
+.portfolio-summary-panel .source-badge,
+.prototype-badge {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+.primary-button {
+  box-shadow: 0 14px 34px rgba(9, 43, 82, 0.24);
+}
+
+.secondary-button,
+.quiet-button {
+  box-shadow: 0 10px 28px rgba(8, 25, 43, 0.06);
+}
+
+.demo-state-strip {
+  opacity: 0.94;
+}
+
+.journey-guided-presenter,
+.journey-guided-callout,
+.demo-guide-modal {
+  border: 1px solid rgba(12, 33, 55, 0.12);
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 26px 70px rgba(8, 25, 43, 0.18);
+}
+
+@media (max-width: 980px) {
+  .labs-shell {
+    display: block;
+    width: 100%;
+    min-height: 100vh;
+    padding: 74px 12px 86px;
+  }
+
+  .labs-sidebar {
+    position: fixed !important;
+    z-index: 80;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: min(304px, calc(100vw - 42px));
+    max-width: none;
+    height: 100dvh;
+    min-height: 0;
+    margin: 0;
+    overflow-y: auto;
+    transform: translateX(-106%);
+    transition: transform 0.22s ease;
+  }
+
+  body.menu-open .labs-sidebar,
+  body.sidebar-open .labs-sidebar {
+    transform: translateX(0);
+  }
+
+  .workspace {
+    width: 100%;
+    max-width: min(1180px, calc(100vw - 24px));
+    margin: 0 auto;
+    padding-inline: 0;
+  }
+
+  .portfolio-home,
+  .portfolio-properties,
+  .portfolio-compliance,
+  .portfolio-evidence,
+  .portfolio-tasks,
+  .portfolio-activity {
+    padding-inline: 0;
+  }
+
+  .mobile-bar {
+    position: fixed;
+    z-index: 90;
+  }
+}
+
+@media (max-width: 640px) {
+  .property-header,
+  .portfolio-home-header,
+  .portfolio-autopilot-card,
+  .home-priority-card,
+  .portfolio-summary-panel,
+  .portfolio-pulse-card,
+  .portfolio-upcoming-card {
+    border-radius: 16px;
+  }
+
+  .property-header,
+  .portfolio-home-header,
+  .portfolio-autopilot-card,
+  .home-priority-card {
+    padding: 18px;
+  }
+
+  .portfolio-home-header h1,
+  .property-header h1,
+  .portfolio-autopilot-card h2,
+  .home-priority-card h2 {
+    max-width: 100%;
+    font-size: clamp(1.45rem, 7.2vw, 2rem);
+  }
+
+  .portfolio-summary-panel h3,
+  .portfolio-summary-panel p,
+  .home-priority-card h3,
+  .home-priority-card p,
+  .portfolio-home-header p,
+  .portfolio-autopilot-card p {
+    max-width: 100%;
+  }
+
+  .journey-guided-presenter,
+  .journey-guided-callout {
+    right: 12px;
+    bottom: 12px;
+    left: 12px;
+    max-height: min(62vh, 430px);
+    overflow-y: auto;
+  }
+}

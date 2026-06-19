@@ -4636,7 +4636,7 @@ function renderOverviewState() {
     tileIcon.dataset.icon = labsState.eicrAdded ? "shield" : "alert";
   }
 
-  document.querySelector("[data-electrical-status]").textContent = labsState.eicrAdded ? "Verified" : "Needs checking";
+  document.querySelector("[data-electrical-status]").textContent = labsState.eicrAdded ? "Accepted" : "Needs checking";
   document.querySelector("[data-electrical-source]").textContent = labsState.eicrAdded ? "Uploaded document" : "No EICR evidence";
 }
 
@@ -4645,11 +4645,11 @@ function renderDocumentsState() {
   document.querySelector("[data-review-count]").textContent = labsState.eicrAdded ? "0 documents" : "1 document";
   document.querySelector("[data-next-upload]").textContent = labsState.eicrAdded ? "Inspection evidence" : "EICR";
   document.querySelector("[data-next-upload-note]").textContent = labsState.eicrAdded ? "Latest inspection record is the next useful item" : "Electrical Safety is still unverified";
-  document.querySelector("[data-vault-state]").textContent = labsState.eicrAdded ? "3 verified, 0 missing" : "2 verified, 1 missing";
+  document.querySelector("[data-vault-state]").textContent = labsState.eicrAdded ? "3 accepted, 0 missing" : "2 accepted, 1 missing";
 
   document.querySelector("[data-eicr-source]").textContent = labsState.eicrAdded ? "Uploaded document" : "No evidence uploaded";
   const status = document.querySelector("[data-eicr-doc-status]");
-  status.textContent = labsState.eicrAdded ? "Verified" : "Missing";
+  status.textContent = labsState.eicrAdded ? "Accepted" : "Missing";
   status.classList.toggle("status-good-text", labsState.eicrAdded);
   status.classList.toggle("status-review-text", !labsState.eicrAdded);
   document.querySelector("[data-eicr-review-date]").textContent = labsState.eicrAdded ? "Review date 11 May 2031" : "Review date unknown";
@@ -4678,7 +4678,7 @@ function renderComplianceState() {
 
   document.querySelector("[data-compliance-eicr-source]").textContent = labsState.eicrAdded ? "Uploaded document" : "No EICR evidence";
   const status = document.querySelector("[data-compliance-eicr-status]");
-  status.textContent = labsState.eicrAdded ? "Verified" : "Needs checking";
+  status.textContent = labsState.eicrAdded ? "Accepted" : "Needs checking";
   status.classList.toggle("status-good-text", labsState.eicrAdded);
   status.classList.toggle("status-review-text", !labsState.eicrAdded);
   document.querySelector("[data-compliance-eicr-details]").textContent = labsState.eicrAdded
@@ -4894,6 +4894,8 @@ function renderSelectedCanonicalWorkspaceShell() {
   setText("[data-home-verified-count]", String((derivedState?.evidenceState || []).filter((item) => ["accepted", "held"].includes(item.proofStatus)).length));
   setText("[data-home-review-count]", String(evidenceGaps.length || (shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0)));
   setText("[data-home-review-detail]", evidenceGaps.length ? "evidence gaps" : "items to review");
+  setText("[data-home-autopilot-title]", "This property has one clear next step");
+  setText("[data-home-autopilot-body]", "CMP has reviewed the selected property record and highlighted the most useful action to take next.");
   setText("[data-home-summary-title]", nextBestAction?.title || "Continue property setup");
   setText("[data-home-summary-body]", nextBestAction?.reason || shell.smartCheckSummary || "Review found data is prepared from the selected property file.");
   setText("[data-home-priority-area]", nextBestAction?.primaryCtaLabel || "Smart Checks");
@@ -6478,7 +6480,7 @@ function renderPortfolioHomeState() {
       ? "Your five-property portfolio has two urgent actions"
       : isTwoPropertyMode()
       ? "Your portfolio has a clear priority"
-      : "Your portfolio has one clear next step";
+      : "This property has one clear next step";
   }
   if (autopilotBody) {
     autopilotBody.textContent = isFivePropertyMode()
@@ -6743,7 +6745,7 @@ function serviceLifecycleLabel(status = "recommended") {
     required: "Required",
     pending_evidence: "Proof needed",
     uploaded: "Proof added",
-    accepted: "Verified simulation",
+    accepted: "Accepted simulation",
     rejected: "Rejected",
     expired: "Expired",
     review: "Needs review"
@@ -15404,7 +15406,7 @@ function renderJourneyEvidenceVaultBridge() {
   document.querySelector("[data-evidence-missing-detail]").textContent = "property-brain gaps";
   document.querySelector("[data-evidence-inbox-count]").textContent = "0";
   document.querySelector("[data-evidence-health-strength]").textContent = `${state.propertyBrain.Scores.evidenceStrengthScore}% evidence strength`;
-  document.querySelector("[data-evidence-health-verified]").textContent = uploadedCount ? `${uploadedCount} accepted fake scan${uploadedCount === 1 ? "" : "s"}` : "No accepted fake scans yet";
+  document.querySelector("[data-evidence-health-verified]").textContent = uploadedCount ? `${uploadedCount} accepted demo document${uploadedCount === 1 ? "" : "s"}` : "No accepted demo documents yet";
   document.querySelector("[data-evidence-health-missing]").textContent = missingCount ? `${missingCount} missing evidence item${missingCount === 1 ? "" : "s"}` : "No missing evidence in current route";
   document.querySelector("[data-evidence-health-focus]").textContent = "Evidence Vault is reading the Journey OS Property Intelligence profile for 57 The Butts.";
   document.querySelector(".evidence-inbox-panel")?.setAttribute("hidden", "");
@@ -15414,7 +15416,7 @@ function renderJourneyEvidenceVaultBridge() {
   if (evidenceMissingHeading) {
     evidenceMissingHeading.querySelector(".section-kicker").textContent = "Journey OS gaps";
     evidenceMissingTitle.textContent = "What the Property Intelligence profile still needs";
-    evidenceMissingHeading.querySelector("p:not(.section-kicker)").textContent = "Missing documents, weak evidence and fake scan results linked to the active property.";
+    evidenceMissingHeading.querySelector("p:not(.section-kicker)").textContent = "Missing documents, weak evidence and demo document results linked to the active property.";
   }
   const healthCard = document.querySelector(".property-evidence-health-card");
   if (healthCard) {
@@ -15638,7 +15640,7 @@ function renderPortfolioEvidenceState() {
   document.querySelector("[data-evidence-missing-detail]").textContent = isFivePropertyMode() ? "across five properties" : isTwoPropertyMode() ? "property-specific gaps" : labsState.eicrAdded ? "inspection record" : "EICR and inspection";
   document.querySelector("[data-evidence-inbox-count]").textContent = "1";
   document.querySelector("[data-evidence-health-strength]").textContent = isFivePropertyMode() ? `${portfolioEvidenceScore()}% evidence score` : isTwoPropertyMode() ? "2 properties tracked" : labsState.eicrAdded ? "58% evidenced" : "42% evidenced";
-  document.querySelector("[data-evidence-health-verified]").textContent = isFivePropertyMode() ? `${fullyCompliantProperties().length} evidence-ready property` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified records" : "5 verified records") : labsState.eicrAdded ? "3 verified records" : "2 verified records";
+  document.querySelector("[data-evidence-health-verified]").textContent = isFivePropertyMode() ? `${fullyCompliantProperties().length} evidence-ready property` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 accepted records" : "5 accepted records") : labsState.eicrAdded ? "3 accepted records" : "2 accepted records";
   document.querySelector("[data-evidence-health-missing]").textContent = isFivePropertyMode() ? `${portfolioEvidenceGapCount()} evidence gaps visible` : isTwoPropertyMode() ? (labsState.eicrAdded ? "3 evidence gaps visible" : "4 evidence gaps visible") : labsState.eicrAdded ? "Inspection evidence still missing" : "EICR evidence still missing";
   document.querySelector("[data-evidence-health-focus]").textContent = isFivePropertyMode()
     ? "Next gap: 3 Station Road onboarding evidence"
@@ -17950,7 +17952,7 @@ function showGlobalServicePage({ scroll = false } = {}) {
   activatePortfolioPage({
     selector: "[data-portfolio-service]",
     view: "bookService",
-    navLabel: "Book a service",
+    navLabel: "Request service",
     response: getGlobalServiceAssistantResponse("What should I book first?"),
     scroll
   });

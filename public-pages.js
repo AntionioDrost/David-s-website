@@ -271,7 +271,7 @@
         { key: "aml_upload", type: "upload", label: "Upload AML documents if you have them", placement: "documents" }
       ],
       assistant: [
-        "CMP can help organise the document trail here, but it is not giving a verified AML decision.",
+        "CMP can help organise the document trail here, but it is not giving a final AML decision.",
         "If you only need document organisation, keep the focus tight."
       ]
     },
@@ -422,7 +422,7 @@
   const DEFAULT_FOCUS_OPTIONS = [
     { value: "service_only", label: "Just this service", helper: "Keep CMP focused on what you came for." },
     { value: "related_checks", label: "Start with this service, then related checks", helper: "Let CMP widen the journey gently if it helps." },
-    { value: "full_compliance", label: "Check the whole property", helper: "Use this when you want the full A-Z picture." }
+    { value: "full_compliance", label: "Check the whole property", helper: "Use this when you want the full property check." }
   ];
 
   const DEMO_ADDRESS_TEMPLATES = [
@@ -962,7 +962,7 @@
           <strong>Property intelligence starts here.</strong>
         </article>
         <article class="home-flagship-float home-flagship-float-right">
-          <span class="status-pill good">A-Z guided</span>
+          <span class="status-pill good">Guided check</span>
           <strong>One calm next step at a time.</strong>
         </article>
       </div>
@@ -1078,7 +1078,7 @@
             <p>CMP checks what it can, asks only what it must, and keeps evidence, services, report previews and monitoring connected to one property record.</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Check My Property</a>
-              <a class="button secondary" href="services.html">Book a service</a>
+              <a class="button secondary" href="services.html">Request service</a>
               <a class="button tertiary" href="dashboard-labs.html?demo=nick">Try demo</a>
             </div>
             <div class="hero-metrics home-hero-metrics">
@@ -1317,7 +1317,7 @@
               </div>
               <div class="home-journey-actions">
                 <a class="button primary" href="add-property.html">Start with your postcode</a>
-                <a class="button secondary" href="services.html">Book a service</a>
+                <a class="button secondary" href="services.html">Request service</a>
                 <a class="button secondary" href="add-property.html">Start full property check</a>
               </div>
             </div>
