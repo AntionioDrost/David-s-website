@@ -286,18 +286,18 @@
       route: "rent-guarantee.html",
       entryService: "rent_guarantee",
       title: "Rent Guarantee",
-      eyebrow: "Rental income support",
-      promise: "Check the tenancy and payment situation first, then decide whether you want wider property checks as well.",
-      heroTitle: "Start with the tenancy and payment picture before you look at guarantee options.",
-      heroCopy: "CMP keeps the first questions practical: is the property tenanted, is the rent reliable, and do you want this to stay rent-guarantee focused?",
-      description: "Capture rent reliability and arrears concerns without being pushed into unrelated services too early.",
-      cardCta: "Start rent guarantee journey",
+      eyebrow: "Rent guarantee readiness",
+      promise: "Organise the tenancy, rent and arrears picture before deciding whether specialist support is needed.",
+      heroTitle: "Prepare the tenancy and rent picture before exploring rent guarantee support.",
+      heroCopy: "CMP helps capture rent reliability, arrears concerns and the documents a specialist may need. No underwriting is completed and no provider is contacted from this route.",
+      description: "Prepare a rent guarantee support request without implying underwriting, cover or approval.",
+      cardCta: "Prepare rent support request",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "want_cover", label: "I want rent guarantee cover", helper: "Start with the tenancy and payment picture." },
-        { value: "compare", label: "I want to compare guarantee options", helper: "Capture the current situation first." },
-        { value: "protect_income", label: "I want help protecting rental income", helper: "Keep the journey practical and landlord-friendly." },
-        { value: "not_sure", label: "I'm not sure", helper: "Use the starter questions and decide later." }
+        { value: "want_cover", label: "I want to prepare rent guarantee context", helper: "Start with the tenancy and payment picture." },
+        { value: "compare", label: "I want to organise information for specialist support", helper: "Capture the current situation first." },
+        { value: "protect_income", label: "I want to understand rent payment risk", helper: "Keep the route practical and document-led." },
+        { value: "not_sure", label: "I'm not sure what support fits", helper: "Use the starter questions and decide later." }
       ],
       questions: [
         { key: "rent_reliable", type: "choice", label: "Is the tenant currently paying reliably?", options: ["yes", "mostly", "no", "not_sure"], optionLabels: { yes: "Yes", mostly: "Mostly", no: "No", not_sure: "Not sure" } },
@@ -305,68 +305,68 @@
         { key: "wider_check", type: "choice", label: "Do you want wider compliance checked too?", options: ["yes", "no", "later"], optionLabels: { yes: "Yes", no: "No, keep it focused", later: "Maybe later" } }
       ],
       optionalEvidence: [
-        { key: "rent_guarantee_upload", type: "upload", label: "Upload an existing cover document or rent record if you have one" }
+        { key: "rent_guarantee_upload", type: "upload", label: "Add rent records or provider documents later if you have them" }
       ],
       assistant: [
-        "Rent guarantee is a side service here. CMP should not turn it into a giant compliance push unless you choose that.",
-        "If payments are mostly fine, keep the journey simple."
+        "CMP can prepare the rent and tenancy context, but it is not underwriting a guarantee or arranging cover.",
+        "No provider is contacted and no payment is taken from this route."
       ]
     },
     insurance: {
       route: "landlord-insurance.html",
       entryService: "insurance",
       title: "Landlord Insurance",
-      eyebrow: "Policy support",
-      promise: "Keep the insurance journey about cover, renewal, and risks — not about the wrong certificate.",
-      heroTitle: "Start with landlord insurance questions, not an unrelated Gas Safety page.",
-      heroCopy: "CMP keeps this page focused on the current cover, renewal state, and known risks so the landlord stays in control of how deep the journey goes.",
-      description: "Capture the current policy state and whether you want CMP to keep this insurance-focused or widen the property check later.",
-      cardCta: "Start insurance journey",
+      eyebrow: "Insurance readiness",
+      promise: "Organise policy details, property risks and renewal context before deciding whether specialist support is needed.",
+      heroTitle: "Prepare landlord insurance context without implying advice or cover.",
+      heroCopy: "CMP helps gather current policy details, known property risks and documents a specialist may ask for. No policy is arranged and no insurer is contacted from this route.",
+      description: "Prepare an insurance support request without implying advice, cover or a policy arrangement.",
+      cardCta: "Prepare insurance request",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "want_cover", label: "I want landlord insurance cover", helper: "Start with the current insurance position." },
-        { value: "compare_policies", label: "I want to compare policies", helper: "Keep it practical and focused." },
-        { value: "renew", label: "I need to renew my insurance", helper: "Use CMP to capture the current cover state." },
-        { value: "not_sure", label: "I'm not sure", helper: "Start gently and decide how far to go." }
+        { value: "want_cover", label: "I want to prepare insurance context", helper: "Start with the current policy position." },
+        { value: "compare_policies", label: "I want to organise information for specialist support", helper: "Keep it practical and focused." },
+        { value: "renew", label: "I need to prepare for renewal", helper: "Use CMP to capture the current policy state." },
+        { value: "not_sure", label: "I'm not sure what support fits", helper: "Start gently and decide how far to go." }
       ],
       questions: [
-        { key: "insurance_state", type: "choice", label: "What is the current insurance situation?", options: ["fully_insured", "basic_cover", "not_insured", "not_sure"], optionLabels: { fully_insured: "Fully insured", basic_cover: "Basic cover only", not_insured: "Not insured", not_sure: "I'm not sure" } },
+        { key: "insurance_state", type: "choice", label: "What policy information do you currently hold?", options: ["fully_insured", "basic_cover", "not_insured", "not_sure"], optionLabels: { fully_insured: "Policy currently held", basic_cover: "Some policy details held", not_insured: "No current policy details", not_sure: "I'm not sure" } },
         { key: "known_risks", type: "text", label: "Are there any known risks or concerns? (optional)" }
       ],
       optionalEvidence: [
-        { key: "insurance_upload", type: "upload", label: "Upload a policy document if you have it" }
+        { key: "insurance_upload", type: "upload", label: "Add policy or renewal documents later if you have them" }
       ],
       assistant: [
-        "This page is about insurance. Related compliance can stay secondary unless you choose otherwise.",
-        "You can continue without every detail and come back later."
+        "CMP can organise insurance readiness information, but it is not providing financial advice or arranging a policy.",
+        "No insurer is contacted and no cover is implied from this route."
       ]
     },
     mortgage: {
       route: "mortgages.html",
       entryService: "mortgage",
       title: "Mortgages",
-      eyebrow: "Mortgage support",
-      promise: "Use a simple estimate first, then decide whether to keep this mortgage-focused or widen the property review.",
-      heroTitle: "Start with the mortgage question, not the compliance deep end.",
-      heroCopy: "CMP treats mortgages as a side service for now. You can run a simple estimate, save the context, and then choose whether to add the property for a wider check.",
-      description: "Capture the mortgage situation and run a basic estimate without forcing mortgage details into compliance scoring.",
-      cardCta: "Start mortgage journey",
+      eyebrow: "Property finance readiness",
+      promise: "Organise property finance context and documents before deciding whether specialist support is needed.",
+      heroTitle: "Prepare mortgage context without implying advice, applications or approval.",
+      heroCopy: "CMP helps capture ownership, property value and borrowing context so you can decide what to gather next. This is guidance, not financial advice; no lender is contacted and no application is submitted from this route.",
+      description: "Prepare a mortgage support request and illustrative estimate without implying advice or approval.",
+      cardCta: "Prepare mortgage request",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "want_advice", label: "I want mortgage advice", helper: "Start with the current borrowing position." },
-        { value: "lender_requirements", label: "I need help understanding lender requirements", helper: "Keep this focused on the mortgage side first." },
-        { value: "refinance", label: "I need help refinancing", helper: "Use the estimate and the property context together." },
-        { value: "not_sure", label: "I'm not sure", helper: "Run the estimate and keep the rest optional." }
+        { value: "want_advice", label: "I want to prepare mortgage context", helper: "Start with the current borrowing position." },
+        { value: "lender_requirements", label: "I want to understand likely document needs", helper: "Keep this focused on readiness first." },
+        { value: "refinance", label: "I need to organise refinance context", helper: "Use the estimate and property context together." },
+        { value: "not_sure", label: "I'm not sure what support fits", helper: "Run the estimate and keep the rest optional." }
       ],
       questions: [
-        { key: "mortgage_state", type: "choice", label: "What is the current mortgage situation?", options: ["have_mortgage", "need_mortgage", "refinance", "not_sure"], optionLabels: { have_mortgage: "I already have a mortgage in place", need_mortgage: "I need a mortgage", refinance: "I want to refinance", not_sure: "I'm not sure" } }
+        { key: "mortgage_state", type: "choice", label: "What is the current property finance situation?", options: ["have_mortgage", "need_mortgage", "refinance", "not_sure"], optionLabels: { have_mortgage: "Mortgage currently in place", need_mortgage: "Finance may be needed", refinance: "Refinance context to organise", not_sure: "I'm not sure" } }
       ],
       optionalEvidence: [
-        { key: "mortgage_offer_upload", type: "upload", label: "Upload a mortgage illustration or offer if you have one" }
+        { key: "mortgage_offer_upload", type: "upload", label: "Add finance documents later if you have them" }
       ],
       assistant: [
-        "This calculator is only an estimate. CMP is not giving regulated mortgage advice here.",
-        "If you only want the estimate, keep the focus narrow and move on when you are ready."
+        "This route organises readiness information only. CMP is not providing financial advice.",
+        "No lender is contacted, no application is submitted and no approval is implied."
       ],
       calculator: true
     }
@@ -387,6 +387,7 @@
     "aml"
   ];
   const SERVICE_PILOT_KEYS = ["epc", "gas", "eicr", "inspection", "licensing", "mould", "possession_preparation", "eviction", "aml"];
+  const SERVICE_REFERRAL_KEYS = ["mortgage", "insurance", "rent_guarantee"];
 
   const SERVICE_VISUALS = {
     epc: { icon: "house", tone: "blue" },
@@ -859,6 +860,9 @@
 
   function assistantWidget() {
     const messages = assistantMessages();
+    const disclaimer = SERVICE_REFERRAL_KEYS.includes(serviceKey)
+      ? "CMP helps organise property information for review, but it is not financial or legal advice."
+      : "CMP helps organise and highlight property compliance information, but it is not legal advice.";
     return `
       <div class="assistant-fab-shell${state.assistantOpen ? " is-open" : ""}">
         <button class="assistant-fab" type="button" data-toggle-assistant>
@@ -876,7 +880,7 @@
           <div class="assistant-drawer-list">
             ${messages.map((message) => `<article><i data-lucide="message-circle-more"></i><span>${escapeHtml(message)}</span></article>`).join("")}
           </div>
-          <p class="assistant-disclaimer">CMP helps organise and highlight property compliance information, but it is not legal advice.</p>
+          <p class="assistant-disclaimer">${escapeHtml(disclaimer)}</p>
         </aside>
       </div>
     `;
@@ -887,10 +891,10 @@
       epc: "Check ratings, expiry, and what to do next.",
       eviction: "Organise evidence and possession-related records.",
       gas: "Start with gas appliances and certificate status.",
-      mortgage: "Estimate payments and lender-readiness basics.",
-      insurance: "Review policy position and property risks.",
+      mortgage: "Organise property finance context for review.",
+      insurance: "Prepare policy details and property risk context.",
       possession_preparation: "Build a calmer evidence pack around the scenario.",
-      rent_guarantee: "Protect rental income and track arrears signals.",
+      rent_guarantee: "Prepare tenancy and rent records for support.",
       mould: "Record reports, repairs, and communication history.",
       licensing: "Check if licensing applies before chasing paperwork.",
       eicr: "Review the electrical report and inspection dates.",
@@ -1325,7 +1329,7 @@
 
   function renderServicesOverview() {
     document.title = "Services | ComplyMyProperty";
-    const remainingServices = SERVICE_ORDER.filter((key) => !SERVICE_PILOT_KEYS.includes(key));
+    const remainingServices = SERVICE_ORDER.filter((key) => !SERVICE_PILOT_KEYS.includes(key) && !SERVICE_REFERRAL_KEYS.includes(key));
     app.innerHTML = `
       ${baseHeader("services")}
       <main class="public-main service-pilot-main">
@@ -1389,6 +1393,18 @@
           </div>
         </section>
 
+        <section class="page-section service-pilot-showcase">
+          <div class="section-heading">
+            <span class="eyebrow">Specialist support routes</span>
+            <h2>Prepare the context before specialist advice.</h2>
+            <p>Mortgage, insurance and rent guarantee routes help organise information and prepare a request. CMP does not give regulated financial advice, arrange cover or contact a provider from these pages.</p>
+          </div>
+          <div class="service-grid public-service-grid public-service-grid-showcase">
+            ${renderServiceCards(SERVICE_REFERRAL_KEYS)}
+          </div>
+        </section>
+
+        ${remainingServices.length ? `
         <section class="page-section">
           <div class="section-heading">
             <span class="eyebrow">More support</span>
@@ -1399,6 +1415,7 @@
             ${renderServiceCards(remainingServices)}
           </div>
         </section>
+        ` : ""}
       </main>
       ${baseFooter()}
       ${assistantWidget()}
@@ -1528,14 +1545,15 @@
     `;
   }
 
-  function renderServiceSafetyBand() {
+  function renderServiceSafetyBand(options = {}) {
+    const guidance = options.referral ? "Guidance, not financial or legal advice" : "Guidance, not legal advice";
     return `
       <div class="service-safe-strip service-safe-strip-panel" aria-label="Service request safety">
         <span>Request prepared</span>
         <span>Evidence can be added later</span>
         <span>No supplier contacted</span>
         <span>No payment taken</span>
-        <span>Guidance, not legal advice</span>
+        <span>${escapeHtml(guidance)}</span>
       </div>
     `;
   }
@@ -1551,6 +1569,9 @@
       possession_preparation: ["eviction", "inspection", "licensing"],
       eviction: ["possession_preparation", "inspection", "licensing"],
       aml: ["inspection", "licensing", "epc"],
+      mortgage: ["inspection", "licensing", "aml"],
+      insurance: ["inspection", "mould", "gas"],
+      rent_guarantee: ["inspection", "eviction", "aml"],
     };
     const related = relatedMap[serviceKey] || ["epc", "gas", "eicr"];
     return `
@@ -1584,7 +1605,8 @@
     document.title = `${service.title} | ComplyMyProperty`;
     const progress = serviceProgress(state.serviceDraft, service);
     const journeyQuestions = journeyQuestionsForService(service);
-    const isPilotService = SERVICE_PILOT_KEYS.includes(serviceKey);
+    const isReferralService = SERVICE_REFERRAL_KEYS.includes(serviceKey);
+    const isPilotService = SERVICE_PILOT_KEYS.includes(serviceKey) || isReferralService;
     app.innerHTML = `
       ${baseHeader("services")}
       <main class="public-main${isPilotService ? " service-pilot-main" : ""}">
@@ -1603,7 +1625,7 @@
               <span><strong>${escapeHtml(focusLabel(state.serviceDraft.focusMode || "service_only"))}</strong> selected</span>
               <span><strong>${isPilotService ? "Prepared" : "Optional"}</strong> ${isPilotService ? "for review" : "documents can be added later"}</span>
             </div>
-            ${isPilotService ? renderServiceSafetyBand() : ""}
+            ${isPilotService ? renderServiceSafetyBand({ referral: isReferralService }) : ""}
           </div>
           <div class="page-hero-visual page-hero-visual-service">
             ${renderServiceHeroStage(serviceKey)}
@@ -1719,7 +1741,7 @@
       <section class="question-panel calculator-panel">
         <div class="question-panel-heading">
           <span class="section-kicker">5</span>
-          <h3>Simple mortgage estimate</h3>
+          <h3>Illustrative finance estimate</h3>
         </div>
         <div class="calculator-grid">
           <label>Property value<input type="number" data-question-input="property_value" value="${escapeHtml(draft.property_value || "250000")}" min="0"></label>
@@ -1736,11 +1758,11 @@
           ], draft.repayment_mode || "repayment", "data-calculator-mode")}
         </div>
         <div class="calculator-summary">
-          <article><span>Estimated monthly payment</span><strong>£${estimate.monthlyPayment.toFixed(0)}</strong></article>
+          <article><span>Illustrative monthly payment</span><strong>£${estimate.monthlyPayment.toFixed(0)}</strong></article>
           <article><span>Loan to value</span><strong>${estimate.ltv.toFixed(1)}%</strong></article>
           <article><span>Rent coverage</span><strong>${estimate.rentCoverage ? `${estimate.rentCoverage.toFixed(0)}%` : "Add rent"}</strong></article>
         </div>
-        <small>Estimate only. It is not regulated mortgage advice.</small>
+        <small>Illustration only. It is not financial advice; no lender is contacted and no application is submitted.</small>
       </section>
     `;
   }
