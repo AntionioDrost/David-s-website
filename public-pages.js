@@ -289,8 +289,8 @@
       eyebrow: "Rent guarantee readiness",
       promise: "Organise the tenancy, rent and arrears picture before deciding whether specialist support is needed.",
       heroTitle: "Prepare the tenancy and rent picture before exploring rent guarantee support.",
-      heroCopy: "CMP helps capture rent reliability, arrears concerns and the documents a specialist may need. No underwriting is completed and no provider is contacted from this route.",
-      description: "Prepare a rent guarantee support request without implying underwriting, cover or approval.",
+      heroCopy: "CMP helps capture rent reliability, arrears concerns and the documents a specialist may need. CMP does not provide rent guarantee cover, complete underwriting or contact a provider from this route.",
+      description: "Prepare rent records and tenancy context for specialist support.",
       cardCta: "Prepare rent support request",
       intentHeading: "What do you need help with today?",
       intents: [
@@ -308,7 +308,7 @@
         { key: "rent_guarantee_upload", type: "upload", label: "Add rent records or provider documents later if you have them" }
       ],
       assistant: [
-        "CMP can prepare the rent and tenancy context, but it is not underwriting a guarantee or arranging cover.",
+        "CMP can prepare the rent and tenancy context, but it does not complete underwriting or arrange rent guarantee cover.",
         "No provider is contacted and no payment is taken from this route."
       ]
     },
@@ -318,9 +318,9 @@
       title: "Landlord Insurance",
       eyebrow: "Insurance readiness",
       promise: "Organise policy details, property risks and renewal context before deciding whether specialist support is needed.",
-      heroTitle: "Prepare landlord insurance context without implying advice or cover.",
-      heroCopy: "CMP helps gather current policy details, known property risks and documents a specialist may ask for. No policy is arranged and no insurer is contacted from this route.",
-      description: "Prepare an insurance support request without implying advice, cover or a policy arrangement.",
+      heroTitle: "Prepare your landlord insurance details before renewal or review.",
+      heroCopy: "CMP helps gather current policy details, known property risks and documents a specialist may ask for. No policy is arranged, no cover is verified and no insurer is contacted from this route.",
+      description: "Prepare policy details and property risk context for specialist support.",
       cardCta: "Prepare insurance request",
       intentHeading: "What do you need help with today?",
       intents: [
@@ -337,8 +337,8 @@
         { key: "insurance_upload", type: "upload", label: "Add policy or renewal documents later if you have them" }
       ],
       assistant: [
-        "CMP can organise insurance readiness information, but it is not providing financial advice or arranging a policy.",
-        "No insurer is contacted and no cover is implied from this route."
+        "CMP can organise insurance readiness information, but it does not arrange or recommend a policy.",
+        "No insurer is contacted and no cover is verified from this route."
       ]
     },
     mortgage: {
@@ -347,9 +347,9 @@
       title: "Mortgages",
       eyebrow: "Property finance readiness",
       promise: "Organise property finance context and documents before deciding whether specialist support is needed.",
-      heroTitle: "Prepare mortgage context without implying advice, applications or approval.",
-      heroCopy: "CMP helps capture ownership, property value and borrowing context so you can decide what to gather next. This is guidance, not financial advice; no lender is contacted and no application is submitted from this route.",
-      description: "Prepare a mortgage support request and illustrative estimate without implying advice or approval.",
+      heroTitle: "Prepare your mortgage context before you ask for support.",
+      heroCopy: "CMP helps capture ownership, property value and borrowing context so you can decide what to gather next. No lender is contacted, no application is submitted and no approval is implied from this route.",
+      description: "Prepare property finance context and an illustrative estimate for specialist support.",
       cardCta: "Prepare mortgage request",
       intentHeading: "What do you need help with today?",
       intents: [
@@ -365,7 +365,7 @@
         { key: "mortgage_offer_upload", type: "upload", label: "Add finance documents later if you have them" }
       ],
       assistant: [
-        "This route organises readiness information only. CMP is not providing financial advice.",
+        "This route organises readiness information only. CMP does not recommend a lender or product.",
         "No lender is contacted, no application is submitted and no approval is implied."
       ],
       calculator: true
@@ -1397,7 +1397,7 @@
           <div class="section-heading">
             <span class="eyebrow">Specialist support routes</span>
             <h2>Prepare the context before specialist advice.</h2>
-            <p>Mortgage, insurance and rent guarantee routes help organise information and prepare a request. CMP does not give regulated financial advice, arrange cover or contact a provider from these pages.</p>
+            <p>Mortgage, insurance and rent guarantee routes help organise information and prepare a request before any specialist support. No lender, insurer or provider is contacted from these pages.</p>
           </div>
           <div class="service-grid public-service-grid public-service-grid-showcase">
             ${renderServiceCards(SERVICE_REFERRAL_KEYS)}
@@ -1762,7 +1762,7 @@
           <article><span>Loan to value</span><strong>${estimate.ltv.toFixed(1)}%</strong></article>
           <article><span>Rent coverage</span><strong>${estimate.rentCoverage ? `${estimate.rentCoverage.toFixed(0)}%` : "Add rent"}</strong></article>
         </div>
-        <small>Illustration only. It is not financial advice; no lender is contacted and no application is submitted.</small>
+        <small>Illustration only. No lender is contacted and no application is submitted.</small>
       </section>
     `;
   }
