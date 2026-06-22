@@ -1,0 +1,240 @@
+{
+  "generatedAt": "2026-06-22T22:46:15.007Z",
+  "afterUrl": "http://127.0.0.1:4173/index.html",
+  "beforeUrl": "file:///var/folders/52/vfrt1t8s2j705wc019w9r9280000gn/T/cmp-v2-before-site-tkA9LX/index.html",
+  "screenshots": [
+    {
+      "variant": "before",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "file": "before-desktop-1440x1000.png"
+    },
+    {
+      "variant": "before",
+      "viewport": "tablet",
+      "width": 1024,
+      "height": 900,
+      "file": "before-tablet-1024x900.png"
+    },
+    {
+      "variant": "before",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "before-mobile-390x844.png"
+    },
+    {
+      "variant": "after",
+      "viewport": "desktop",
+      "width": 1440,
+      "height": 1000,
+      "file": "after-desktop-1440x1000.png"
+    },
+    {
+      "variant": "after",
+      "viewport": "tablet",
+      "width": 1024,
+      "height": 900,
+      "file": "after-tablet-1024x900.png"
+    },
+    {
+      "variant": "after",
+      "viewport": "mobile",
+      "width": 390,
+      "height": 844,
+      "file": "after-mobile-390x844.png"
+    }
+  ],
+  "checks": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "url": "http://127.0.0.1:4173/index.html",
+      "scrollWidth": 1440,
+      "bodyScrollWidth": 1440,
+      "noHorizontalOverflow": true,
+      "primaryCtaVisibleFirstViewport": true,
+      "primaryCtaRect": {
+        "top": 767,
+        "bottom": 815,
+        "width": 212,
+        "height": 48
+      },
+      "firstViewportTapTargets": {
+        "total": 11,
+        "below44": [],
+        "status": "pass"
+      },
+      "reducedMotionTransition": "0s",
+      "contrastChecks": [
+        {
+          "name": "hero h1",
+          "selector": ".cmp-v2-hero h1",
+          "ratio": 19.13,
+          "minimum": 3,
+          "status": "pass"
+        },
+        {
+          "name": "hero body copy",
+          "selector": ".cmp-v2-hero-copy > p",
+          "ratio": 10.23,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "primary CTA",
+          "selector": ".cmp-v2-hero .cmp-v2-button-primary",
+          "ratio": 10.77,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "principle strip",
+          "selector": ".cmp-v2-principles span",
+          "ratio": 12.37,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "dark human copy",
+          "selector": ".cmp-v2-human p",
+          "ratio": 10.79,
+          "minimum": 4.5,
+          "status": "pass"
+        }
+      ],
+      "contrastStatus": "pass"
+    },
+    {
+      "viewport": {
+        "width": 1024,
+        "height": 900
+      },
+      "url": "http://127.0.0.1:4173/index.html",
+      "scrollWidth": 1024,
+      "bodyScrollWidth": 1024,
+      "noHorizontalOverflow": true,
+      "primaryCtaVisibleFirstViewport": true,
+      "primaryCtaRect": {
+        "top": 692,
+        "bottom": 740,
+        "width": 212,
+        "height": 48
+      },
+      "firstViewportTapTargets": {
+        "total": 10,
+        "below44": [],
+        "status": "pass"
+      },
+      "reducedMotionTransition": "0s",
+      "contrastChecks": [
+        {
+          "name": "hero h1",
+          "selector": ".cmp-v2-hero h1",
+          "ratio": 19.13,
+          "minimum": 3,
+          "status": "pass"
+        },
+        {
+          "name": "hero body copy",
+          "selector": ".cmp-v2-hero-copy > p",
+          "ratio": 10.23,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "primary CTA",
+          "selector": ".cmp-v2-hero .cmp-v2-button-primary",
+          "ratio": 10.77,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "principle strip",
+          "selector": ".cmp-v2-principles span",
+          "ratio": 12.37,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "dark human copy",
+          "selector": ".cmp-v2-human p",
+          "ratio": 10.79,
+          "minimum": 4.5,
+          "status": "pass"
+        }
+      ],
+      "contrastStatus": "pass"
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "url": "http://127.0.0.1:4173/index.html",
+      "scrollWidth": 390,
+      "bodyScrollWidth": 390,
+      "noHorizontalOverflow": true,
+      "primaryCtaVisibleFirstViewport": true,
+      "primaryCtaRect": {
+        "top": 531,
+        "bottom": 577,
+        "width": 366,
+        "height": 46
+      },
+      "firstViewportTapTargets": {
+        "total": 5,
+        "below44": [],
+        "status": "pass"
+      },
+      "reducedMotionTransition": "0s",
+      "contrastChecks": [
+        {
+          "name": "hero h1",
+          "selector": ".cmp-v2-hero h1",
+          "ratio": 19.13,
+          "minimum": 3,
+          "status": "pass"
+        },
+        {
+          "name": "hero body copy",
+          "selector": ".cmp-v2-hero-copy > p",
+          "ratio": 10.23,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "primary CTA",
+          "selector": ".cmp-v2-hero .cmp-v2-button-primary",
+          "ratio": 10.77,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "principle strip",
+          "selector": ".cmp-v2-principles span",
+          "ratio": 12.37,
+          "minimum": 4.5,
+          "status": "pass"
+        },
+        {
+          "name": "dark human copy",
+          "selector": ".cmp-v2-human p",
+          "ratio": 10.79,
+          "minimum": 4.5,
+          "status": "pass"
+        }
+      ],
+      "contrastStatus": "pass"
+    }
+  ],
+  "reducedMotion": {
+    "viewport": "mobile",
+    "transitionDuration": "1e-05s",
+    "status": "pass"
+  },
+  "overallStatus": "pass"
+}

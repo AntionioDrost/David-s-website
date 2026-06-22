@@ -1,0 +1,191 @@
+{
+  "generatedAt": "2026-06-22T22:46:05.218Z",
+  "publicPagesPath": "/Users/davidtaylor/Desktop/VIBECODE/David-s-website/public-pages.js",
+  "landingCssPath": "/Users/davidtaylor/Desktop/VIBECODE/David-s-website/landing.css",
+  "assetDir": "/Users/davidtaylor/Desktop/VIBECODE/David-s-website/assets/generated/public-homepage-v2",
+  "total": 36,
+  "passed": 36,
+  "failed": 0,
+  "checks": [
+    {
+      "name": "primary CTA href",
+      "status": "pass",
+      "detail": "href=\"add-property.html\""
+    },
+    {
+      "name": "service CTA href",
+      "status": "pass",
+      "detail": "href=\"services.html\""
+    },
+    {
+      "name": "guided demo href",
+      "status": "pass",
+      "detail": "href=\"dashboard-labs.html?demo=nick\""
+    },
+    {
+      "name": "My Properties route",
+      "status": "pass",
+      "detail": "my-properties.html"
+    },
+    {
+      "name": "home postcode form id",
+      "status": "pass",
+      "detail": "id=\"homePostcodeForm\""
+    },
+    {
+      "name": "home postcode input id",
+      "status": "pass",
+      "detail": "id=\"homePostcodeInput\""
+    },
+    {
+      "name": "postcode input name",
+      "status": "pass",
+      "detail": "name=\"postcode\""
+    },
+    {
+      "name": "postcode storage key",
+      "status": "pass",
+      "detail": "sessionStorage.setItem(HOME_POSTCODE_KEY, postcode)"
+    },
+    {
+      "name": "Add Property postcode handoff",
+      "status": "pass",
+      "detail": "add-property.html?postcode="
+    },
+    {
+      "name": "assistant toggle hook",
+      "status": "pass",
+      "detail": "data-toggle-assistant"
+    },
+    {
+      "name": "article open hook",
+      "status": "pass",
+      "detail": "data-open-article"
+    },
+    {
+      "name": "canonical handoff hook",
+      "status": "pass",
+      "detail": "data-canonical-handoff"
+    },
+    {
+      "name": "service continue hook",
+      "status": "pass",
+      "detail": "data-continue-service"
+    },
+    {
+      "name": "service skip hook",
+      "status": "pass",
+      "detail": "data-skip-service"
+    },
+    {
+      "name": "service properties hook",
+      "status": "pass",
+      "detail": "data-service-properties"
+    },
+    {
+      "name": "question input hook",
+      "status": "pass",
+      "detail": "data-question-input"
+    },
+    {
+      "name": "question choice hook",
+      "status": "pass",
+      "detail": "data-question-choice"
+    },
+    {
+      "name": "question upload hook",
+      "status": "pass",
+      "detail": "data-question-upload"
+    },
+    {
+      "name": "intent hook",
+      "status": "pass",
+      "detail": "data-intent"
+    },
+    {
+      "name": "focus hook",
+      "status": "pass",
+      "detail": "data-focus"
+    },
+    {
+      "name": "tenanted hook",
+      "status": "pass",
+      "detail": "data-tenanted"
+    },
+    {
+      "name": "view property hook",
+      "status": "pass",
+      "detail": "data-view-property"
+    },
+    {
+      "name": "news filter hook",
+      "status": "pass",
+      "detail": "data-news-filter"
+    },
+    {
+      "name": "legal advice boundary",
+      "status": "pass",
+      "detail": "not legal advice"
+    },
+    {
+      "name": "supplier boundary",
+      "status": "pass",
+      "detail": "no supplier contacted"
+    },
+    {
+      "name": "V2 homepage renderer marker",
+      "status": "pass",
+      "detail": "renderHomepage uses the selected hybrid V2 homepage shell"
+    },
+    {
+      "name": "V2 CSS layer marker",
+      "status": "pass",
+      "detail": "landing.css contains the final homepage-only V2 implementation layer"
+    },
+    {
+      "name": "V2 copied asset: uk-rental-exterior-detail.png",
+      "status": "pass",
+      "detail": "assets/generated/public-homepage-v2/uk-rental-exterior-detail.png"
+    },
+    {
+      "name": "V2 copied asset: property-evidence-desk.png",
+      "status": "pass",
+      "detail": "assets/generated/public-homepage-v2/property-evidence-desk.png"
+    },
+    {
+      "name": "V2 copied asset: human-support-review.png",
+      "status": "pass",
+      "detail": "assets/generated/public-homepage-v2/human-support-review.png"
+    },
+    {
+      "name": "V2 copied asset: CMP_V2_IMAGE_PROVENANCE.md",
+      "status": "pass",
+      "detail": "assets/generated/public-homepage-v2/CMP_V2_IMAGE_PROVENANCE.md"
+    },
+    {
+      "name": "Forbidden homepage implementation change: core import",
+      "status": "pass",
+      "detail": "/from\\s+[\"']\\.\\/core\\//"
+    },
+    {
+      "name": "Forbidden homepage implementation change: Supabase import",
+      "status": "pass",
+      "detail": "/supabase/i"
+    },
+    {
+      "name": "Forbidden homepage implementation change: dashboard labs write",
+      "status": "pass",
+      "detail": "/dashboard-labs\\.js|dashboard-labs\\.css/"
+    },
+    {
+      "name": "Forbidden homepage implementation change: service storage key mutation",
+      "status": "pass",
+      "detail": "/SERVICE_DRAFT_PREFIX\\s*=/"
+    },
+    {
+      "name": "Forbidden homepage implementation change: workspace storage key mutation",
+      "status": "pass",
+      "detail": "/WORKSPACE_STORAGE_KEY\\s*=/"
+    }
+  ]
+}

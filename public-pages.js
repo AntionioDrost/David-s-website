@@ -728,10 +728,11 @@
     const homeVariant = active === "home";
     const links = homeVariant
       ? [
+          { href: "#begin", label: "How CMP works", key: "begin" },
           { href: "services.html", label: "Services", key: "services" },
-          { href: "add-property.html", label: "Add Property", key: "add-property" },
-          { href: "news.html", label: "Updates", key: "news" },
-          { href: "contact.html", label: "Contact", key: "contact" }
+          { href: "#property-brain", label: "Property Brain", key: "property-brain" },
+          { href: "#support", label: "Resources", key: "support" },
+          { href: "contact.html", label: "Support", key: "contact" }
         ]
       : [
           { href: "index.html", label: "Home", key: "home" },
@@ -746,8 +747,8 @@
         <a class="brand" href="index.html" aria-label="ComplyMyProperty home">
           <span class="brand-mark brand-mark-shield">${cmpShieldMarkSvg()}</span>
           <span class="brand-copy">
-            <strong>ComplyMyProperty</strong>
-            <small>Landlord compliance made simple</small>
+            <strong>${homeVariant ? "Comply My Property" : "ComplyMyProperty"}</strong>
+            <small>${homeVariant ? "Property intelligence for private landlords" : "Landlord compliance made simple"}</small>
           </span>
         </a>
         <nav class="nav-links" aria-label="Main navigation">
@@ -1079,87 +1080,144 @@
   }
 
   function renderHomepage() {
-    document.title = "ComplyMyProperty | Landlord compliance made simple";
+    document.title = "ComplyMyProperty | Property intelligence for private landlords";
     app.innerHTML = `
       ${baseHeader("home")}
-      <main class="public-main homepage-main">
-        <section class="hero home-hero home2-hero">
-          <div class="hero-content home-hero-copy">
-            <span class="eyebrow">Check My Property</span>
-            <h1>Your property compliance command centre.</h1>
-            <p>CMP checks what it can, asks only what it must, then builds a Property Brain with the current status, evidence gaps and one clear next best action.</p>
-            <div class="hero-actions">
-              <a class="button primary" href="add-property.html">Check My Property</a>
-              <a class="button secondary" href="services.html">Request service</a>
-              <a class="button tertiary" href="dashboard-labs.html?demo=nick">Try demo</a>
+      <main class="public-main homepage-main cmp-v2-homepage">
+        <section class="cmp-v2-hero" aria-labelledby="cmp-v2-hero-title">
+          <div class="cmp-v2-hero-copy">
+            <span class="cmp-v2-kicker">Check My Property</span>
+            <h1 id="cmp-v2-hero-title">Property intelligence that turns unknowns into one clear next action.</h1>
+            <p>ComplyMyProperty organises property identity, found facts, landlord answers, evidence gaps and monitoring into a calm Property Brain for private landlords.</p>
+            <div class="cmp-v2-actions">
+              <a class="button primary cmp-v2-button-primary" href="add-property.html"><i data-lucide="search-check"></i>Check My Property</a>
+              <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="file-check-2"></i>Request service</a>
+              <a class="button tertiary cmp-v2-button-quiet" href="dashboard-labs.html?demo=nick"><i data-lucide="layout-dashboard"></i>Try guided demo</a>
             </div>
-            <div class="hero-metrics home-hero-metrics">
-              <span>Smart Checks</span>
-              <span>Review found data</span>
-              <span>Property Brain</span>
-              <span>Next best action</span>
+            <div class="cmp-v2-principles" aria-label="CMP principles">
+              <span>Property-first</span>
+              <span>Evidence-led</span>
+              <span>Unknown remains unknown</span>
+              <span>Guidance, not legal advice</span>
+              <span>No supplier contacted until requested</span>
             </div>
           </div>
-          <div class="home-hero-media">
-            <div class="home-hero-visual home2-hero-visual">
-              <div class="home2-workspace-stage">
-                <img src="${PUBLIC_VISUALS.homeHeroWide}" alt="ComplyMyProperty property compliance workspace preview">
-                <article class="home2-stage-card home2-stage-card-status">
-                  <span class="status-pill info">Current status</span>
-                  <strong>Based on current information</strong>
-                  <small>Evidence and source confidence stay visible.</small>
-                </article>
-                <article class="home2-stage-card home2-stage-card-action">
-                  <span class="status-pill attention">Next best action</span>
-                  <strong>Review found data</strong>
-                  <small>Confirm what CMP found before requesting support.</small>
-                </article>
+          <div class="cmp-v2-hero-proof" aria-label="Readable Property Brain product preview">
+            <article class="cmp-v2-product-card">
+              <div class="cmp-v2-product-bar">
+                <span aria-hidden="true"></span>
+                <strong>Property Brain</strong>
+                <small>Example record</small>
               </div>
-            </div>
+              <div class="cmp-v2-property-head">
+                <div>
+                  <span class="cmp-v2-kicker">Demo property record</span>
+                  <strong>14 King Street</strong>
+                  <small>Birmingham B13 · private rental</small>
+                </div>
+                <div class="cmp-v2-review-badge">
+                  <strong>Review</strong>
+                  <span>next action ready</span>
+                </div>
+              </div>
+              <div class="cmp-v2-proof-grid">
+                <div><i class="cmp-v2-status cmp-v2-status-held"></i><strong>Identity found</strong><p>Address and property type are ready for landlord review.</p></div>
+                <div><i class="cmp-v2-status cmp-v2-status-held"></i><strong>EPC found</strong><p>Rating and expiry are visible. Source still needs review.</p></div>
+                <div><i class="cmp-v2-status cmp-v2-status-gap"></i><strong>Gas date missing</strong><p>Upload evidence or request support when ready.</p></div>
+                <div><i class="cmp-v2-status cmp-v2-status-monitor"></i><strong>Monitoring on</strong><p>Renewals stay connected to the property record.</p></div>
+              </div>
+              <div class="cmp-v2-next-action">
+                <span>Next action</span>
+                <strong>Confirm the licensing position before preparing service requests.</strong>
+              </div>
+            </article>
+            <figure class="cmp-v2-photo-panel">
+              <img src="assets/generated/public-homepage-v2/uk-rental-exterior-detail.png" alt="Concept image of a UK rental property exterior detail">
+              <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+            </figure>
           </div>
         </section>
 
-        <section class="page-section home2-request-centre" aria-labelledby="home2-request-title">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">What do you need help with today?</span>
-            <h2 id="home2-request-title">Start with the path that matches the job.</h2>
-            <p>Use CMP as a full property check, a focused service request, or a safe product preview.</p>
+        <section class="cmp-v2-section cmp-v2-begin" id="begin" aria-labelledby="cmp-v2-begin-title">
+          <div class="cmp-v2-section-head">
+            <span class="cmp-v2-kicker">Three ways to begin</span>
+            <h2 id="cmp-v2-begin-title">Start with the route that matches the landlord's question.</h2>
+            <p>Use a full property check, a focused service route, or an existing My Properties workspace without changing the underlying CMP journeys.</p>
           </div>
-          <div class="home2-decision-grid">
-            <a class="home2-decision-card is-primary" href="add-property.html">
-              <span class="home2-decision-kicker">Full property check</span>
+          <div class="cmp-v2-begin-grid">
+            <a class="cmp-v2-begin-card cmp-v2-begin-card-primary" href="add-property.html">
+              <span>Full property check</span>
               <strong>Check a property</strong>
               <p>Add the address, run Smart Checks, review found data and build the Property Brain.</p>
-              <span class="home2-decision-action">Check My Property</span>
+              <em>Check My Property</em>
             </a>
-            <a class="home2-decision-card" href="services.html">
-              <span class="home2-decision-kicker">Focused support</span>
+            <a class="cmp-v2-begin-card" href="services.html">
+              <span>Focused support</span>
               <strong>Request one service</strong>
               <p>Start with EPC, Gas Safety, EICR, licensing, possession preparation or a condition concern.</p>
-              <span class="home2-decision-action">Request service</span>
+              <em>Open services</em>
             </a>
-            <a class="home2-decision-card" href="dashboard-labs.html?demo=nick">
-              <span class="home2-decision-kicker">Guided preview</span>
-              <strong>Try demo</strong>
-              <p>Walk through a simulated property journey without touching your live property records.</p>
-              <span class="home2-decision-action">Open demo</span>
+            <a class="cmp-v2-begin-card" href="my-properties.html">
+              <span>Existing workspace</span>
+              <strong>Continue from My Properties</strong>
+              <p>Return to saved evidence, renewals, property notes and support context without starting again.</p>
+              <em>Open My Properties</em>
             </a>
           </div>
         </section>
 
-        <section class="page-section home2-service-strip" aria-labelledby="home2-service-title">
-          <div class="home2-section-split">
+        <section class="cmp-v2-section cmp-v2-brain" id="property-brain" aria-labelledby="cmp-v2-brain-title">
+          <div class="cmp-v2-split">
             <div>
-              <span class="eyebrow">Services if you already know what you need</span>
-              <h2 id="home2-service-title">Choose a service, then keep it connected to the property.</h2>
+              <span class="cmp-v2-kicker">Property Brain</span>
+              <h2 id="cmp-v2-brain-title">A readable product proof, not a miniature fake dashboard.</h2>
+              <p>The Property Brain separates found facts, landlord answers, missing evidence and human-review moments. It does not pretend all facts are known.</p>
+              <div class="cmp-v2-symbol-row" aria-label="Property Brain stages">
+                <span><b>I</b>Identity</span>
+                <span><b>E</b>Evidence</span>
+                <span><b>A</b>Action</span>
+                <span><b>M</b>Monitor</span>
+              </div>
             </div>
-            <a class="button secondary" href="services.html">View all services</a>
+            <div class="cmp-v2-record">
+              <div><strong>Address</strong><span>14 King Street, Birmingham B13</span><i class="cmp-v2-status cmp-v2-status-held"></i></div>
+              <div><strong>Property type</strong><span>Terraced house, private rental</span><i class="cmp-v2-status cmp-v2-status-held"></i></div>
+              <div><strong>EPC</strong><span>Rating C found. Expiry visible for review.</span><i class="cmp-v2-status cmp-v2-status-held"></i></div>
+              <div><strong>Gas Safety</strong><span>Certificate date not yet supplied.</span><i class="cmp-v2-status cmp-v2-status-gap"></i></div>
+              <div><strong>Licence position</strong><span>Needs review against local requirement.</span><i class="cmp-v2-status"></i></div>
+              <div><strong>Boundary</strong><span>Guidance, not legal advice. No supplier contacted until requested.</span><i class="cmp-v2-status cmp-v2-status-monitor"></i></div>
+            </div>
           </div>
-          <div class="home2-service-grid">
+        </section>
+
+        <section class="cmp-v2-section cmp-v2-loop" aria-labelledby="cmp-v2-loop-title">
+          <div class="cmp-v2-section-head">
+            <span class="cmp-v2-kicker">Evidence-to-action loop</span>
+            <h2 id="cmp-v2-loop-title">A gap becomes a route, not a warning wall.</h2>
+          </div>
+          <div class="cmp-v2-loop-grid">
+            <article><strong>Find</strong><p>CMP gathers property identity and available facts.</p></article>
+            <article><strong>Separate</strong><p>Held evidence, landlord answers and unknowns stay distinct.</p></article>
+            <article><strong>Ask</strong><p>Only useful questions appear before a route widens.</p></article>
+            <article><strong>Act</strong><p>One practical next action is named without overstating certainty.</p></article>
+            <article><strong>Monitor</strong><p>Renewals and repeat issues remain connected to the property.</p></article>
+          </div>
+        </section>
+
+        <section class="cmp-v2-section cmp-v2-service-preview" aria-labelledby="cmp-v2-service-title">
+          <div class="cmp-v2-section-split-head">
+            <div>
+              <span class="cmp-v2-kicker">Curated service preview</span>
+              <h2 id="cmp-v2-service-title">Service routes keep their job identity.</h2>
+              <p>Certificate-led routes, issue-led routes and preparation routes can stay focused while still connecting back to the same property record.</p>
+            </div>
+            <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="arrow-right"></i>View all services</a>
+          </div>
+          <div class="cmp-v2-service-grid">
             ${["epc", "gas", "eicr", "mould", "possession_preparation", "licensing"].map((key) => {
               const service = SERVICE_CONFIG[key];
               return `
-                <a class="home2-service-card tone-${escapeHtml(serviceVisual(key).tone)}" href="${escapeHtml(service.route)}">
+                <a class="cmp-v2-service-card" href="${escapeHtml(service.route)}">
                   ${serviceIconMarkup(key, "selector")}
                   <span>${escapeHtml(service.eyebrow)}</span>
                   <strong>${escapeHtml(service.title)}</strong>
@@ -1170,130 +1228,54 @@
           </div>
         </section>
 
-        <section class="page-section home-postcode-section home2-postcode-section">
-          <div class="home2-postcode-copy">
-            <span class="eyebrow">Property-led from the first click</span>
-            <h2>Start with the address. CMP builds the picture around it.</h2>
+        <section class="cmp-v2-section cmp-v2-postcode" aria-labelledby="cmp-v2-postcode-title">
+          <div>
+            <span class="cmp-v2-kicker">Property-led from the first click</span>
+            <h2 id="cmp-v2-postcode-title">Start with the address. CMP builds the picture around it.</h2>
             <p>Enter a postcode, choose the right property, and CMP will carry the journey into Add Property with Smart Checks and Review found data.</p>
           </div>
-          <form class="postcode-card" id="homePostcodeForm">
+          <form class="postcode-card cmp-v2-postcode-card" id="homePostcodeForm">
             <label for="homePostcodeInput">Property postcode</label>
             <div class="postcode-row">
               <input id="homePostcodeInput" type="text" name="postcode" placeholder="B37 7BA" autocomplete="postal-code">
-              <button class="button primary" type="submit">Find address</button>
+              <button class="button primary cmp-v2-button-primary" type="submit"><i data-lucide="search"></i>Find address</button>
             </div>
-            <small>We will look for EPC information automatically and keep the journey moving with a realistic property preview if live results are unavailable.</small>
+            <small>CMP keeps the journey moving with a property preview if live results are unavailable.</small>
           </form>
         </section>
 
-        <section class="page-section home2-brain-section" aria-labelledby="home2-brain-title">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">Property Brain</span>
-            <h2 id="home2-brain-title">CMP turns scattered property facts into a clearer current status.</h2>
-            <p>Smart Checks, Review found data and Answer unknowns work together so the next step is based on the property, not a disconnected form.</p>
-          </div>
-          <div class="home2-brain-grid">
-            <article class="home2-brain-card">
-              <span>01</span>
-              <strong>Smart Checks</strong>
-              <p>CMP checks available property signals and labels the source and confidence.</p>
-            </article>
-            <article class="home2-brain-card">
-              <span>02</span>
-              <strong>Review found data</strong>
-              <p>Confirm what CMP found before it becomes part of the property picture.</p>
-            </article>
-            <article class="home2-brain-card">
-              <span>03</span>
-              <strong>Answer unknowns</strong>
-              <p>Say “not sure” where needed. Unknowns become follow-up items, not blockers.</p>
-            </article>
-            <article class="home2-brain-card is-featured">
-              <span>04</span>
-              <strong>Current status</strong>
-              <p>The Property Brain keeps evidence gaps, risk signals and next actions connected.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="page-section home2-service-support" aria-labelledby="home2-support-title">
-          <div class="home2-support-card">
-            <div>
-              <span class="eyebrow">Service-aware, not service-only</span>
-              <h2 id="home2-support-title">Request a service when it is the right next step.</h2>
-              <p>CMP can prepare a service request from the property context, evidence gap or landlord goal. The request stays safe: no supplier contacted and no payment taken.</p>
-              <div class="section-actions">
-                <a class="button primary" href="services.html">Request service</a>
-                <a class="button secondary" href="add-property.html">Run full property check</a>
-              </div>
-            </div>
-            <div class="home2-support-stack" aria-hidden="true">
-              <span>Evidence gap</span>
-              <span>Prepared for review</span>
-              <span>No supplier contacted</span>
-              <span>No payment taken</span>
+        <section class="cmp-v2-section cmp-v2-support" id="support" aria-labelledby="cmp-v2-support-title">
+          <figure class="cmp-v2-photo-panel">
+            <img src="assets/generated/public-homepage-v2/property-evidence-desk.png" alt="Concept image of property evidence papers, tablet and files on a desk">
+            <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+          </figure>
+          <div>
+            <span class="cmp-v2-kicker">Human support and resources</span>
+            <h2 id="cmp-v2-support-title">Support is a credible layer, not a panic button.</h2>
+            <p>Automation organises the record and names the next action. Human support appears where evidence needs review or the landlord needs confidence before proceeding.</p>
+            <div class="cmp-v2-resource-list">
+              <article><strong>Understanding evidence states</strong><p>Held, missing, landlord supplied, review needed.</p></article>
+              <article><strong>When to request a certificate</strong><p>How a focused route can start from the property record.</p></article>
+              <article><strong>What support can and cannot do</strong><p>Guidance boundaries, legal-advice boundary and supplier-contact boundary.</p></article>
             </div>
           </div>
         </section>
 
-        <section class="page-section home2-flow-section" aria-labelledby="home2-flow-title">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">How CMP works</span>
-            <h2 id="home2-flow-title">From postcode to a property workspace you can act from.</h2>
-            <p>Every step keeps the property, evidence and next action connected.</p>
-          </div>
-          <div class="home2-flow-grid">
-            ${[
-              ["Add property", "Start with the address and tenancy context."],
-              ["Smart Checks", "CMP checks what it can from available sources."],
-              ["Review found data", "Accept, correct or flag what was found."],
-              ["Answer unknowns", "Keep moving even when something is not known yet."],
-              ["Property Brain", "See current status, confidence and evidence gaps."],
-              ["Next best action", "Focus on the most useful action first."],
-              ["Evidence/service loop", "Upload proof or request support where appropriate."],
-              ["Monitoring", "Keep reminders and future checks visible."]
-            ].map(([title, copy], index) => `
-              <article class="home2-flow-card">
-                <span>${String(index + 1).padStart(2, "0")}</span>
-                <strong>${escapeHtml(title)}</strong>
-                <p>${escapeHtml(copy)}</p>
-              </article>
-            `).join("")}
-          </div>
-        </section>
-
-        <section class="page-section home2-trust-section" aria-labelledby="home2-trust-title">
-          <div class="section-heading home-centered-heading">
-            <span class="eyebrow">Evidence-led and careful</span>
-            <h2 id="home2-trust-title">Built for practical landlord decisions, not false certainty.</h2>
-            <p>CMP separates what is known, what needs confirmation, and what should be prepared for review.</p>
-          </div>
-          <div class="home2-trust-grid">
-            <article>
-              <strong>Based on current information</strong>
-              <p>Source and confidence labels keep the property picture honest.</p>
-            </article>
-            <article>
-              <strong>Evidence needs review</strong>
-              <p>Missing or uncertain proof becomes a clear evidence gap.</p>
-            </article>
-            <article>
-              <strong>Guidance, not legal advice</strong>
-              <p>CMP helps organise next steps without making legal guarantees.</p>
-            </article>
-          </div>
-        </section>
-
-        <section class="final-cta public-trust-band home2-human-band">
-          <div class="home2-human-copy">
-            <span class="eyebrow">Human support plus smart technology</span>
-            <h2>Calm software for real landlord work.</h2>
+        <section class="cmp-v2-section cmp-v2-human" aria-labelledby="cmp-v2-human-title">
+          <div>
+            <span class="cmp-v2-kicker">Established-company depth</span>
+            <h2 id="cmp-v2-human-title">Calm software for real landlord work.</h2>
             <p>Use CMP to organise the property, understand the gaps, prepare service requests and keep monitoring visible over time.</p>
+            <div class="cmp-v2-actions">
+              <a class="button primary cmp-v2-button-primary" href="add-property.html"><i data-lucide="search-check"></i>Check My Property</a>
+              <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="file-check-2"></i>Request service</a>
+              <a class="button tertiary cmp-v2-button-quiet" href="dashboard-labs.html?demo=nick"><i data-lucide="layout-dashboard"></i>Try guided demo</a>
+            </div>
           </div>
-          <div class="home-trust-actions">
-            <a class="button primary" href="add-property.html">Check My Property</a>
-            <a class="button secondary" href="services.html">Request service</a>
-          </div>
+          <figure class="cmp-v2-photo-panel cmp-v2-photo-panel-small">
+            <img src="assets/generated/public-homepage-v2/human-support-review.png" alt="Concept image of a property professional reviewing information at a desk">
+            <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+          </figure>
         </section>
       </main>
       ${baseFooter()}
