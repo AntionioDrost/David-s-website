@@ -97,30 +97,31 @@
       entryService: "eviction",
       title: "Evictions & Possession",
       eyebrow: "Possession support",
-      promise: "Organise the property information and evidence before deciding what to do next.",
-      heroTitle: "Start a possession journey without turning it into legal advice.",
-      heroCopy: "CMP helps landlords organise compliance documents, notices, and communications before they move further into possession preparation.",
-      description: "Start with the landlord goal, then build the evidence pack around the property and the tenancy.",
+      promise: "Organise the property information, tenancy records and evidence before deciding what support you need.",
+      heroTitle: "Start a possession support route with the evidence in order.",
+      heroCopy: "CMP helps landlords organise compliance documents, notices, rent context and communications before they move further into possession preparation.",
+      description: "Start with the landlord goal, build the document trail around the property and keep the legal boundary clear.",
       cardCta: "Start possession support",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "understand_options", label: "I want to understand my eviction options", helper: "Keep the wording careful and evidence-led." },
-        { value: "check_compliance_first", label: "I want to make sure this property is compliant first", helper: "Start with the certificates and tenancy evidence." },
-        { value: "prepare_properly", label: "I want to prepare for possession properly", helper: "Build the document trail in a calm way." },
-        { value: "full_check", label: "I want a full compliance check", helper: "Use the possession journey as the reason for the wider review." }
+        { value: "understand_options", label: "I want to understand the next documents to organise", helper: "Keep the wording careful, factual and evidence-led." },
+        { value: "check_compliance_first", label: "I want to check the property evidence first", helper: "Start with certificates, tenancy records and communications." },
+        { value: "prepare_properly", label: "I want to prepare for possession support", helper: "Build the document trail in a calm way." },
+        { value: "full_check", label: "I want a full property check", helper: "Use the possession need as the reason for a wider property review." }
       ],
       questions: [
         { key: "regaining_possession", type: "choice", label: "Is regaining possession your main goal?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure yet" } },
-        { key: "eviction_situation", type: "select", label: "What situation sounds closest to your property?", options: ["Rent arrears", "Late payment pattern", "Anti-social behaviour", "Breach of tenancy", "Sale or move back in", "I'm not sure yet"] }
+        { key: "eviction_situation", type: "select", label: "What situation sounds closest to your property?", options: ["Rent arrears", "Late payment pattern", "Anti-social behaviour", "Breach of tenancy", "Sale or move back in", "I'm not sure yet"] },
+        { key: "possession_documents", type: "choice", label: "Do you already have notices, communications or rent records to organise?", options: ["yes", "some", "no", "not_sure"], optionLabels: { yes: "Yes", some: "Some records", no: "Not yet", not_sure: "Not sure" } }
       ],
       optionalEvidence: [
-        { key: "tenancy_agreement_upload", type: "upload", label: "Upload tenancy agreement if you have it" },
-        { key: "deposit_proof_upload", type: "upload", label: "Upload deposit proof if available" },
-        { key: "notice_evidence_upload", type: "upload", label: "Upload notices or tenant communications if you have them" }
+        { key: "tenancy_agreement_upload", type: "upload", label: "Add tenancy agreement proof later if you have it" },
+        { key: "deposit_proof_upload", type: "upload", label: "Add deposit proof later if available" },
+        { key: "notice_evidence_upload", type: "upload", label: "Add notices or tenant communications later if you have them" }
       ],
       assistant: [
         "CMP helps organise your information and evidence. It does not replace legal advice.",
-        "If you are not ready for a full possession workflow, you can still use this to organise the documents first."
+        "If you are not ready for formal advice, you can still use this to organise the document trail first."
       ]
     },
     possession_preparation: {
@@ -130,7 +131,7 @@
       eyebrow: "Evidence pack",
       promise: "Choose the scenario first, then let CMP organise the evidence trail around it.",
       heroTitle: "Build the possession evidence pack before you chase the next step.",
-      heroCopy: "Use the scenario cards to tell CMP what is happening. The aim is to organise facts, documents, and timelines calmly before you widen the process.",
+      heroCopy: "Use the scenario cards to tell CMP what is happening. The aim is to organise facts, documents, notices, communications and timelines calmly before you widen the process.",
       description: "Choose the possession situation, organise the evidence pack, and keep related checks optional until they help.",
       cardCta: "Prepare evidence pack",
       intentHeading: "Which situation sounds closest?",
@@ -149,12 +150,13 @@
         { value: "not_sure", label: "I'm not sure yet", helper: "Start the evidence pack without overcommitting." }
       ],
       questions: [
-        { key: "evidence_goal", type: "choice", label: "What do you want this to help with most?", options: ["organise_documents", "check_compliance", "prepare_timeline", "all_three"], optionLabels: { organise_documents: "Organise documents", check_compliance: "Check compliance first", prepare_timeline: "Build a timeline", all_three: "A bit of all three" } }
+        { key: "evidence_goal", type: "choice", label: "What do you want this to help with most?", options: ["organise_documents", "check_compliance", "prepare_timeline", "all_three"], optionLabels: { organise_documents: "Organise documents", check_compliance: "Check property records first", prepare_timeline: "Build a timeline", all_three: "A bit of all three" } },
+        { key: "possession_timeline_started", type: "choice", label: "Have you already started a timeline of notices, arrears or communications?", options: ["yes", "partly", "no", "not_sure"], optionLabels: { yes: "Yes", partly: "Partly", no: "Not yet", not_sure: "Not sure" } }
       ],
       optionalEvidence: [
-        { key: "tenancy_agreement_upload", type: "upload", label: "Upload tenancy agreement if you have it" },
-        { key: "rent_arrears_upload", type: "upload", label: "Upload rent arrears evidence if it is relevant" },
-        { key: "notice_evidence_upload", type: "upload", label: "Upload notices or tenant communications if you have them" }
+        { key: "tenancy_agreement_upload", type: "upload", label: "Add tenancy agreement proof later if you have it" },
+        { key: "rent_arrears_upload", type: "upload", label: "Add rent arrears evidence later if it is relevant" },
+        { key: "notice_evidence_upload", type: "upload", label: "Add notices or tenant communications later if you have them" }
       ],
       assistant: [
         "CMP helps organise your information and evidence. It does not replace legal advice.",
@@ -167,28 +169,29 @@
       title: "Mould & Damp",
       eyebrow: "Repairs and evidence",
       promise: "Keep mould and damp practical: issue, inspections, repairs, communications, then next steps.",
-      heroTitle: "Treat mould and damp like a case history, not a generic certificate check.",
-      heroCopy: "CMP can organise the timeline, reports, repairs, and tenant updates around a mould or damp issue without forcing the whole property through a bigger process.",
-      description: "Organise the issue, seriousness, tenant reports, inspections, repairs, and follow-up in one calm flow.",
+      heroTitle: "Treat mould and damp like a clear response record.",
+      heroCopy: "CMP can organise tenant reports, photos, severity notes, inspections, repairs and follow-up communication around a mould or damp issue without forcing the whole property through a bigger process.",
+      description: "Organise the tenant report, photos, seriousness, inspections, repairs and follow-up in one calm flow.",
       cardCta: "Start mould support",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "assess_issue", label: "I want to report or assess mould issues", helper: "Start with the seriousness and whether it has been reported." },
+        { value: "assess_issue", label: "I want to record a mould or damp report", helper: "Start with the seriousness and whether the tenant has reported it." },
         { value: "organise_repairs", label: "I want help organising evidence and repairs", helper: "Use the timeline and document prompts." },
-        { value: "prevention_guidance", label: "I want advice on prevention and compliance", helper: "Capture the property facts first, then keep the issue practical." },
-        { value: "broader_check", label: "I want a broader property check", helper: "Start with mould, then widen it later if you want." }
+        { value: "prevention_guidance", label: "I want to reduce repeat mould or damp issues", helper: "Capture the property facts first, then keep the issue practical." },
+        { value: "broader_check", label: "I want a broader property check", helper: "Start with mould or damp, then widen it later if you want." }
       ],
       questions: [
         { key: "mould_severity", type: "choice", label: "How serious does the issue seem?", options: ["minor_condensation", "one_area", "widespread", "not_sure"], optionLabels: { minor_condensation: "Minor condensation only", one_area: "Visible mould in one area", widespread: "Widespread or recurring mould", not_sure: "I'm not sure" } },
         { key: "tenant_reported_mould", type: "choice", label: "Has the tenant reported it?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
         { key: "mould_repair_state", type: "choice", label: "Has anything been inspected or repaired?", options: ["inspected", "repaired", "both", "not_yet"], optionLabels: { inspected: "Inspected only", repaired: "Repaired only", both: "Inspected and repaired", not_yet: "Not yet" } },
+        { key: "landlord_response_record", type: "choice", label: "Have you kept a record of your response so far?", options: ["yes", "partial", "no", "not_sure"], optionLabels: { yes: "Yes", partial: "Some notes", no: "Not yet", not_sure: "Not sure" } },
         { key: "mould_upload", type: "upload", label: "Upload photos or a report if you have them", placement: "documents" }
       ],
       optionalEvidence: [
-        { key: "mould_repair_notes_upload", type: "upload", label: "Upload repair or contractor notes if available" }
+        { key: "mould_repair_notes_upload", type: "upload", label: "Add repair or contractor notes later if available" }
       ],
       assistant: [
-        "This journey should stay practical. It is about records, dates, inspections, repairs, and communication.",
+        "This journey should stay practical. It is about records, dates, inspections, repairs and communication, not medical or legal certainty.",
         "If you are unsure how serious it is, mark that and keep going."
       ]
     },
@@ -197,28 +200,29 @@
       entryService: "licensing",
       title: "Selective Licensing",
       eyebrow: "Council licensing",
-      promise: "Check the local licensing position without dragging gas or electrical uploads into the centre of the page.",
-      heroTitle: "Start with the licence question, not the wrong certificate.",
-      heroCopy: "CMP keeps this journey focused on whether licensing applies, what the current licence state is, and what local authority context you already know.",
-      description: "Check if the property may need licensing, record the current position, and widen the journey only if you want to.",
+      promise: "Organise the licensing position, local authority context and evidence you already hold.",
+      heroTitle: "Start with the local licence question.",
+      heroCopy: "CMP keeps this journey focused on whether HMO, selective or additional licensing may apply, what the current licence state is, and what local authority context you already know.",
+      description: "Record whether the property may need licensing, what evidence is held, and whether you need application or renewal support.",
       cardCta: "Start licensing journey",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "check_need", label: "I want to check if this property needs licensing", helper: "Use postcode and local authority details if you know them." },
-        { value: "apply_licence", label: "I need help applying for a licence", helper: "Capture the current position and evidence." },
+        { value: "check_need", label: "I want to check if licensing may apply", helper: "Use postcode and local authority details if you know them." },
+        { value: "apply_licence", label: "I need support preparing a licence application", helper: "Capture the current position and evidence." },
         { value: "renew_manage", label: "I need help renewing or managing a licence", helper: "Keep the renewal state and documents together." },
         { value: "not_sure", label: "I'm not sure", helper: "Start the licence journey without overcommitting." }
       ],
       questions: [
         { key: "licence_state", type: "choice", label: "What is the current licensing situation?", options: ["already_licensed", "not_licensed", "expired", "not_sure"], optionLabels: { already_licensed: "Already licensed", not_licensed: "Not licensed", expired: "Expired or needs renewal", not_sure: "I'm not sure" } },
+        { key: "licence_type", type: "choice", label: "Which licence type might be relevant?", options: ["hmo", "selective", "additional", "not_sure"], optionLabels: { hmo: "HMO", selective: "Selective licensing", additional: "Additional licensing", not_sure: "Not sure" } },
         { key: "local_authority", type: "text", label: "Do you know the council or local authority?" }
       ],
       optionalEvidence: [
-        { key: "licence_upload", type: "upload", label: "Upload a licence document if you have it" }
+        { key: "licence_upload", type: "upload", label: "Add licence or application proof later if you have it" }
       ],
       assistant: [
-        "This page is only about licensing. Wider checks can stay secondary unless you choose otherwise.",
-        "If you do not know the council yet, continue anyway and add it later."
+        "This page organises licensing information. It does not confirm live council records.",
+        "If you do not know the council or licence type yet, continue anyway and add it later."
       ]
     },
     inspection: {
@@ -228,50 +232,53 @@
       eyebrow: "Condition and access",
       promise: "Keep inspections practical: what kind, what concerns, what was last done, and what proof you have.",
       heroTitle: "Use the inspection journey for condition, access, and practical evidence.",
-      heroCopy: "CMP can help organise inspection records, photos, condition notes, and the next property action without immediately turning it into a full compliance audit.",
-      description: "Choose the inspection type, capture the main concern, and decide whether you want routine checks or a broader property review.",
+      heroCopy: "CMP can help organise landlord visit records, inspection photos, condition notes, access concerns and the next inspection plan without immediately turning it into a full property review.",
+      description: "Choose the inspection type, capture the condition concern, add photo or report proof later and decide whether you need a broader property review.",
       cardCta: "Start inspection journey",
       intentHeading: "What do you need help with today?",
       intents: [
         { value: "routine", label: "I want to arrange a routine property inspection", helper: "Use this for regular condition and access checks." },
         { value: "condition", label: "I want to check the condition of a property", helper: "Useful for signs of neglect, damage, or issues building up." },
         { value: "concern", label: "I'm concerned about possible damage or neglect", helper: "Keep the concern practical and documented." },
-        { value: "broader_check", label: "I want a wider compliance and condition check", helper: "Start with the inspection and widen it later." }
+        { value: "broader_check", label: "I want a wider property and condition check", helper: "Start with the inspection and widen it later." }
       ],
       questions: [
         { key: "inspection_type", type: "choice", label: "What kind of inspection do you need?", options: ["routine", "pre_tenancy", "mid_tenancy", "end_tenancy"], optionLabels: { routine: "Routine inspection", pre_tenancy: "Pre-tenancy or move-in", mid_tenancy: "Mid-tenancy inspection", end_tenancy: "End-of-tenancy or condition check" } },
         { key: "inspection_concern", type: "text", label: "What are you most concerned about?" },
+        { key: "visit_record_state", type: "choice", label: "Do you already have visit notes, photos or a report?", options: ["yes", "some", "no", "not_sure"], optionLabels: { yes: "Yes", some: "Some proof", no: "Not yet", not_sure: "Not sure" } },
         { key: "last_inspection", type: "date", label: "When was the property last inspected?", placement: "documents" },
-        { key: "inspection_upload", type: "upload", label: "Upload inspection photos or reports if you have them", placement: "documents" }
+        { key: "inspection_upload", type: "upload", label: "Add inspection photos or reports later if you have them", placement: "documents" }
       ],
       assistant: [
         "If you are not sure which inspection type fits best, pick the closest and keep moving.",
-        "Photos and notes can be added later from the property dashboard too."
+        "Photos and notes can be added later from the property workspace too."
       ]
     },
     aml: {
       route: "aml-checks.html",
       entryService: "aml",
       title: "AML Checks",
-      eyebrow: "Identity and documents",
-      promise: "Keep AML document questions simple and separate from the rest of the property unless you choose otherwise.",
-      heroTitle: "Use the AML journey when you need document organisation, not a random certificate page.",
-      heroCopy: "CMP can capture what AML documents you have already and whether you want this to stay focused or widen into a broader property check.",
-      description: "Capture photo ID and proof-of-address document status without making this page look like a gas or EICR checklist.",
+      eyebrow: "Due diligence support",
+      promise: "Organise identity, address and source-of-funds style evidence before deciding what support is needed.",
+      heroTitle: "Use the AML route for due diligence documents.",
+      heroCopy: "CMP can capture what identity, address and funds-related evidence you already hold and whether this should stay focused or widen into a broader property check.",
+      description: "Organise due diligence evidence held vs missing without claiming a regulated check is complete.",
       cardCta: "Start AML journey",
       intentHeading: "What do you need help with today?",
       intents: [
-        { value: "understand_aml", label: "I want to understand AML requirements", helper: "Use this if you want a calm starting point." },
-        { value: "check_property", label: "I want to check this property is compliant", helper: "Keep it practical and document-led." },
-        { value: "organise_documents", label: "I need help organising documents", helper: "Capture what exists now, then add more later." },
-        { value: "full_check", label: "I want a full compliance check", helper: "Use AML as the starting point for a wider journey." }
+        { value: "understand_aml", label: "I want to understand what evidence is needed", helper: "Use this if you want a calm starting point." },
+        { value: "check_property", label: "I want to organise due diligence for this property", helper: "Keep it practical and document-led." },
+        { value: "organise_documents", label: "I need help organising ID and funds evidence", helper: "Capture what exists now, then add more later." },
+        { value: "full_check", label: "I want a full property check", helper: "Use AML as the starting point for a wider journey." }
       ],
       questions: [
-        { key: "aml_docs", type: "choice", label: "What documents do you currently have?", options: ["photo_id", "proof_of_address", "both", "not_sure"], optionLabels: { photo_id: "Photo ID", proof_of_address: "Proof of address", both: "Both", not_sure: "Not sure" } },
-        { key: "aml_upload", type: "upload", label: "Upload AML documents if you have them", placement: "documents" }
+        { key: "aml_context", type: "choice", label: "What is the due diligence context?", options: ["landlord", "agent", "purchase_or_sale", "not_sure"], optionLabels: { landlord: "Landlord record", agent: "Agent request", purchase_or_sale: "Purchase or sale", not_sure: "Not sure" } },
+        { key: "aml_docs", type: "choice", label: "What identity or address evidence do you currently have?", options: ["photo_id", "proof_of_address", "both", "not_sure"], optionLabels: { photo_id: "Photo ID", proof_of_address: "Proof of address", both: "Both", not_sure: "Not sure" } },
+        { key: "source_funds_evidence", type: "choice", label: "Do you hold any source-of-funds or supporting evidence?", options: ["yes", "some", "no", "not_sure"], optionLabels: { yes: "Yes", some: "Some evidence", no: "Not yet", not_sure: "Not sure" } },
+        { key: "aml_upload", type: "upload", label: "Add AML evidence later if you have it", placement: "documents" }
       ],
       assistant: [
-        "CMP can help organise the document trail here, but it is not giving a final AML decision.",
+        "CMP can help organise the document trail here, but it is not confirming that a regulated AML check is complete.",
         "If you only need document organisation, keep the focus tight."
       ]
     },
@@ -379,7 +386,7 @@
     "inspection",
     "aml"
   ];
-  const SERVICE_PILOT_KEYS = ["epc", "gas", "eicr"];
+  const SERVICE_PILOT_KEYS = ["epc", "gas", "eicr", "inspection", "licensing", "mould", "possession_preparation", "eviction", "aml"];
 
   const SERVICE_VISUALS = {
     epc: { icon: "house", tone: "blue" },
@@ -1373,8 +1380,8 @@
 
         <section class="page-section service-pilot-showcase" id="serviceDirectory">
           <div class="section-heading">
-            <span class="eyebrow">Most requested</span>
-            <h2>Most requested service routes.</h2>
+            <span class="eyebrow">Request Centre routes</span>
+            <h2>Choose a service route.</h2>
             <p>Start with one service, add related checks if needed, or widen into a full property check when it helps.</p>
           </div>
           <div class="service-grid public-service-grid public-service-grid-showcase">
@@ -1538,6 +1545,12 @@
       epc: ["gas", "eicr", "inspection"],
       gas: ["epc", "eicr", "inspection"],
       eicr: ["gas", "epc", "licensing"],
+      inspection: ["mould", "gas", "eicr"],
+      licensing: ["inspection", "gas", "eicr"],
+      mould: ["inspection", "gas", "licensing"],
+      possession_preparation: ["eviction", "inspection", "licensing"],
+      eviction: ["possession_preparation", "inspection", "licensing"],
+      aml: ["inspection", "licensing", "epc"],
     };
     const related = relatedMap[serviceKey] || ["epc", "gas", "eicr"];
     return `

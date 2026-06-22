@@ -9248,7 +9248,7 @@ body[data-public-page="my-properties"] .empty-state-card.large {
   }
 }
 
-/* Wix service pilot pass 4: services index plus EPC, Gas Safety and EICR only. */
+/* Wix service request-centre pattern: services index and cleaned service-detail routes. */
 
 body[data-public-page="services"] .service-pilot-main,
 body[data-public-page="service"] .service-pilot-main {
