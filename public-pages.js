@@ -388,6 +388,9 @@
   ];
   const SERVICE_PILOT_KEYS = ["epc", "gas", "eicr", "inspection", "licensing", "mould", "possession_preparation", "eviction", "aml"];
   const SERVICE_REFERRAL_KEYS = ["mortgage", "insurance", "rent_guarantee"];
+  const SERVICE_CERTIFICATE_KEYS = ["epc", "gas", "eicr"];
+  const SERVICE_PROBLEM_KEYS = ["inspection", "licensing", "mould"];
+  const SERVICE_EVIDENCE_KEYS = ["possession_preparation", "eviction", "aml"];
 
   const SERVICE_VISUALS = {
     epc: { icon: "house", tone: "blue" },
@@ -405,6 +408,10 @@
   };
 
   const PUBLIC_VISUALS = {
+    v2Exterior: "assets/generated/public-v2-system/photos/uk-rental-exterior-detail.png",
+    v2EvidenceDesk: "assets/generated/public-v2-system/photos/property-evidence-desk.png",
+    v2HumanSupport: "assets/generated/public-v2-system/photos/human-support-review.png",
+    v2ConditionInspection: "assets/generated/public-v2-system/photos/calm-condition-inspection.png",
     serviceGallery: "assets/generated/property-os-preview.svg",
     serviceJourney: "assets/generated/service-journey-preview.svg",
     addProperty: "assets/generated/add-property-flow.svg",
@@ -687,6 +694,73 @@
     return config ? config.title : titleCase(key);
   }
 
+  function serviceArchetype(key) {
+    if (SERVICE_CERTIFICATE_KEYS.includes(key)) return "certificate";
+    if (SERVICE_PROBLEM_KEYS.includes(key)) return "problem";
+    if (SERVICE_EVIDENCE_KEYS.includes(key)) return "evidence";
+    if (SERVICE_REFERRAL_KEYS.includes(key)) return "specialist";
+    return "general";
+  }
+
+  function serviceArchetypeLabel(key) {
+    const labels = {
+      certificate: "Certificate-led",
+      problem: "Condition-led",
+      evidence: "Evidence-led",
+      specialist: "Specialist readiness",
+      general: "Service route"
+    };
+    return labels[serviceArchetype(key)] || labels.general;
+  }
+
+  function serviceArchetypeCopy(key) {
+    const copy = {
+      certificate: "Status, document date, expiry and evidence state stay visible before any request is prepared.",
+      problem: "Report, evidence, timeline, repair or follow-up context are organised before the route widens.",
+      evidence: "Documents, notices, identity checks and supporting records are arranged into a calm preparation pack.",
+      specialist: "CMP prepares the property context for review. No lender, insurer or provider is contacted from this route.",
+      general: "The route stays focused while keeping the wider property record available."
+    };
+    return copy[serviceArchetype(key)] || copy.general;
+  }
+
+  function serviceArchetypeSteps(key) {
+    const steps = {
+      certificate: ["Current status", "Expiry context", "Evidence review"],
+      problem: ["Report received", "Evidence timeline", "Follow-up plan"],
+      evidence: ["Scenario context", "Document trail", "Preparation pack"],
+      specialist: ["Readiness context", "Support boundary", "No provider contact"],
+      general: ["Focused route", "Useful answers", "Prepared request"]
+    };
+    return steps[serviceArchetype(key)] || steps.general;
+  }
+
+  function serviceCategoryIntro(archetype) {
+    const copy = {
+      certificate: {
+        eyebrow: "Certificate-led services",
+        title: "Start with status, proof and renewal context.",
+        body: "EPC, Gas Safety and EICR routes should feel technical and calm: held proof, missing dates, expiry windows and evidence review before any request is prepared."
+      },
+      problem: {
+        eyebrow: "Condition and problem-led services",
+        title: "Organise the report before widening the route.",
+        body: "Inspection, licensing, mould and damp routes need warmer seriousness: what happened, what is known, what evidence exists and what follow-up may be needed."
+      },
+      evidence: {
+        eyebrow: "Possession and evidence preparation",
+        title: "Build the document trail around the property.",
+        body: "Possession and due-diligence routes stay factual and preparation-led, keeping notices, records, identity evidence and timelines separate from legal conclusions."
+      },
+      specialist: {
+        eyebrow: "Specialist and referral support",
+        title: "Prepare the context without implying approval or cover.",
+        body: "Mortgage, insurance and rent guarantee routes organise readiness information only. No provider is contacted, no cover is verified and no approval is implied."
+      }
+    };
+    return copy[archetype];
+  }
+
   function focusLabel(value) {
     const labels = {
       service_only: "Just this service",
@@ -743,12 +817,12 @@
           { href: "contact.html", label: "Contact", key: "contact" }
         ];
     return `
-      <header class="site-nav${homeVariant ? " homepage-nav" : ""}">
+      <header class="site-nav public-v2-nav${homeVariant ? " homepage-nav" : ""}">
         <a class="brand" href="index.html" aria-label="ComplyMyProperty home">
           <span class="brand-mark brand-mark-shield">${cmpShieldMarkSvg()}</span>
           <span class="brand-copy">
             <strong>${homeVariant ? "Comply My Property" : "ComplyMyProperty"}</strong>
-            <small>${homeVariant ? "Property intelligence for private landlords" : "Landlord compliance made simple"}</small>
+            <small>${homeVariant ? "Property intelligence for private landlords" : "Property intelligence for private landlords"}</small>
           </span>
         </a>
         <nav class="nav-links" aria-label="Main navigation">
@@ -780,9 +854,9 @@
           </div>
           <small class="footer-note">The safest place for private landlords to organise property compliance with no subscription fee.</small>
           <div class="footer-trust-pills">
-            <span>No subscription</span>
-            <span>Property-led</span>
-            <span>Guided checks</span>
+            <span>Request prepared</span>
+            <span>No supplier contacted</span>
+            <span>No payment taken</span>
           </div>
         </div>
         <div class="site-footer-section footer-services-section">
@@ -821,7 +895,7 @@
           <div class="footer-legal-notes">
             <small class="footer-note">Privacy, terms and data protection pages will be added in the final build.</small>
             <small class="footer-note">Social profile links can be connected before launch.</small>
-            <small class="footer-note">CMP helps organise and highlight property compliance information, but it is not legal advice.</small>
+            <small class="footer-note">Guidance, not legal advice. Based on current information. Evidence needs review before action.</small>
           </div>
         </div>
       </footer>
@@ -909,13 +983,14 @@
     return keys.map((key) => {
       const service = SERVICE_CONFIG[key];
       const visual = serviceVisual(key);
+      const archetype = serviceArchetype(key);
       if (variant === "selector") {
         return `
-          <article class="service-selector-card tone-${escapeHtml(visual.tone)}">
+          <article class="service-selector-card tone-${escapeHtml(visual.tone)} service-archetype-${escapeHtml(archetype)}">
             <div class="service-card-head">
               ${serviceIconMarkup(key, "selector")}
               <div class="service-card-copy">
-                <span class="service-grid-eyebrow">${escapeHtml(service.eyebrow)}</span>
+                <span class="service-grid-eyebrow">${escapeHtml(serviceArchetypeLabel(key))}</span>
                 <h3>${escapeHtml(service.title)}</h3>
               </div>
             </div>
@@ -928,16 +1003,17 @@
         `;
       }
       return `
-        <article class="service-grid-card tone-${escapeHtml(visual.tone)}">
+        <article class="service-grid-card tone-${escapeHtml(visual.tone)} service-archetype-${escapeHtml(archetype)}">
           <div class="service-card-head">
             ${serviceIconMarkup(key, "grid")}
             <div class="service-card-copy">
-              <span class="service-grid-eyebrow">${escapeHtml(service.eyebrow)}</span>
+              <span class="service-grid-eyebrow">${escapeHtml(serviceArchetypeLabel(key))}</span>
               <h3>${escapeHtml(service.title)}</h3>
             </div>
           </div>
           ${serviceCardPreviewMarkup(key)}
           <p>${escapeHtml(service.description)}</p>
+          <small class="service-card-boundary">${escapeHtml(serviceArchetypeCopy(key))}</small>
           <a class="service-grid-link" href="${escapeHtml(service.route)}">${escapeHtml(service.cardCta)}</a>
         </article>
       `;
@@ -947,10 +1023,11 @@
   function serviceCardPreviewMarkup(key, variant = "full") {
     const visual = serviceVisual(key);
     const compact = variant === "selector";
+    const archetype = serviceArchetype(key);
     return `
-      <div class="service-card-preview service-card-preview-${escapeHtml(variant)} tone-${escapeHtml(visual.tone)}" aria-hidden="true">
+      <div class="service-card-preview service-card-preview-${escapeHtml(variant)} service-preview-${escapeHtml(archetype)} tone-${escapeHtml(visual.tone)}" aria-hidden="true">
         <div class="service-card-preview-window">
-          <span class="service-card-preview-chip">${escapeHtml(compact ? "Preview" : SERVICE_CONFIG[key].title)}</span>
+          <span class="service-card-preview-chip">${escapeHtml(compact ? serviceArchetypeLabel(key) : SERVICE_CONFIG[key].title)}</span>
           <div class="service-card-preview-lines">
             <span></span>
             <span></span>
@@ -985,15 +1062,17 @@
   function renderServiceHeroStage(key) {
     const service = SERVICE_CONFIG[key];
     const visual = serviceVisual(key);
+    const archetype = serviceArchetype(key);
+    const steps = serviceArchetypeSteps(key);
     return `
-      <div class="service-hero-stage tone-${escapeHtml(visual.tone)}" aria-hidden="true">
+      <div class="service-hero-stage service-hero-stage-${escapeHtml(archetype)} tone-${escapeHtml(visual.tone)}" aria-hidden="true">
         <div class="service-hero-stage-header">
-          <span class="service-stage-badge">${escapeHtml(service.title)}</span>
+          <span class="service-stage-badge">${escapeHtml(serviceArchetypeLabel(key))}</span>
           <strong>${escapeHtml(service.promise)}</strong>
         </div>
         <div class="service-hero-stage-grid">
           <div class="service-hero-stage-card service-hero-stage-card-main">
-            <span class="service-stage-mini service-stage-mini-blue">Focused</span>
+            <span class="service-stage-mini service-stage-mini-blue">${escapeHtml(steps[0])}</span>
             <div class="service-stage-lines">
               <span></span>
               <span></span>
@@ -1001,7 +1080,7 @@
             </div>
           </div>
           <div class="service-hero-stage-card service-hero-stage-card-side">
-            <span class="service-stage-mini service-stage-mini-purple">Optional later</span>
+            <span class="service-stage-mini service-stage-mini-purple">${escapeHtml(steps[1])}</span>
             <div class="service-stage-checks">
               <span>Just this service</span>
               <span>Related checks</span>
@@ -1009,7 +1088,7 @@
             </div>
           </div>
           <div class="service-hero-stage-card service-hero-stage-card-bottom">
-            <span class="service-stage-mini service-stage-mini-green">Upload if ready</span>
+            <span class="service-stage-mini service-stage-mini-green">${escapeHtml(steps[2])}</span>
             <div class="service-stage-docstack">
               <span></span>
               <span></span>
@@ -1132,7 +1211,7 @@
               </div>
             </article>
             <figure class="cmp-v2-photo-panel">
-              <img src="assets/generated/public-homepage-v2/uk-rental-exterior-detail.png" alt="Concept image of a UK rental property exterior detail">
+              <img src="${PUBLIC_VISUALS.v2Exterior}" alt="Concept image of a UK rental property exterior detail">
               <figcaption>Concept/prototype asset. See image provenance.</figcaption>
             </figure>
           </div>
@@ -1246,7 +1325,7 @@
 
         <section class="cmp-v2-section cmp-v2-support" id="support" aria-labelledby="cmp-v2-support-title">
           <figure class="cmp-v2-photo-panel">
-            <img src="assets/generated/public-homepage-v2/property-evidence-desk.png" alt="Concept image of property evidence papers, tablet and files on a desk">
+            <img src="${PUBLIC_VISUALS.v2EvidenceDesk}" alt="Concept image of property evidence papers, tablet and files on a desk">
             <figcaption>Concept/prototype asset. See image provenance.</figcaption>
           </figure>
           <div>
@@ -1273,7 +1352,7 @@
             </div>
           </div>
           <figure class="cmp-v2-photo-panel cmp-v2-photo-panel-small">
-            <img src="assets/generated/public-homepage-v2/human-support-review.png" alt="Concept image of a property professional reviewing information at a desk">
+            <img src="${PUBLIC_VISUALS.v2HumanSupport}" alt="Concept image of a property professional reviewing information at a desk">
             <figcaption>Concept/prototype asset. See image provenance.</figcaption>
           </figure>
         </section>
@@ -1311,15 +1390,20 @@
 
   function renderServicesOverview() {
     document.title = "Services | ComplyMyProperty";
-    const remainingServices = SERVICE_ORDER.filter((key) => !SERVICE_PILOT_KEYS.includes(key) && !SERVICE_REFERRAL_KEYS.includes(key));
+    const serviceGroups = [
+      { archetype: "certificate", keys: SERVICE_CERTIFICATE_KEYS },
+      { archetype: "problem", keys: SERVICE_PROBLEM_KEYS },
+      { archetype: "evidence", keys: SERVICE_EVIDENCE_KEYS },
+      { archetype: "specialist", keys: SERVICE_REFERRAL_KEYS }
+    ];
     app.innerHTML = `
       ${baseHeader("services")}
-      <main class="public-main service-pilot-main">
+      <main class="public-main service-pilot-main service-index-v2">
         <section class="page-hero public-page-hero service-index-hero">
           <div>
             <span class="eyebrow">CMP Request Centre</span>
-            <h1>What do you need help with today?</h1>
-            <p>Request one service, widen into related checks, or start a full property check. CMP keeps the choice clear before you add the property.</p>
+            <h1>Choose the service route without losing the property picture.</h1>
+            <p>Request one focused service, widen into related checks, or start a full property check. CMP keeps the route clear before the property record is created.</p>
             <div class="hero-actions">
               <a class="button primary" href="#serviceDirectory">Choose a service</a>
               <a class="button secondary" href="add-property.html">Full property check</a>
@@ -1332,21 +1416,25 @@
             </div>
           </div>
           <div class="page-hero-visual page-hero-visual-service">
+            <figure class="service-index-photo">
+              <img src="${PUBLIC_VISUALS.v2Exterior}" alt="Concept image of a UK rental property exterior detail">
+              <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+            </figure>
             ${renderServiceHeroStage("gas")}
           </div>
         </section>
 
         <section class="page-section service-decision-section">
           <div class="section-heading">
-            <span class="eyebrow">Choose the route</span>
-            <h2>Start narrow or widen the property picture.</h2>
-            <p>These routes match how landlords usually arrive: one certificate, a cluster of checks, or an existing property workspace.</p>
+            <span class="eyebrow">Three entry routes</span>
+            <h2>Start from the landlord's actual job.</h2>
+            <p>Services stay focused, the full-property path remains prominent, and saved properties have a clear route back into the workspace.</p>
           </div>
           <div class="service-request-centre-grid">
-            <article class="service-request-card tone-blue">
+            <article class="service-request-card tone-blue service-request-card-primary">
               <span class="service-grid-eyebrow">Direct route</span>
               <h3>Request one service</h3>
-              <p>Use this if you already know you need EPC, Gas Safety, EICR or another focused service.</p>
+              <p>Use this if the landlord already knows the certificate, condition issue, evidence pack or readiness route they need.</p>
               <a class="service-selector-link" href="#serviceDirectory">Choose service</a>
             </article>
             <article class="service-request-card tone-green">
@@ -1364,40 +1452,41 @@
           </div>
         </section>
 
-        <section class="page-section service-pilot-showcase" id="serviceDirectory">
+        <section class="page-section service-pilot-showcase service-directory-v2" id="serviceDirectory">
           <div class="section-heading">
-            <span class="eyebrow">Request Centre routes</span>
-            <h2>Choose a service route.</h2>
-            <p>Start with one service, add related checks if needed, or widen into a full property check when it helps.</p>
+            <span class="eyebrow">Curated service discovery</span>
+            <h2>Routes grouped by the kind of landlord work they support.</h2>
+            <p>Each group has a distinct visual rhythm and boundary, but every card still leads to the existing service route and the same Add Property handoff.</p>
           </div>
-          <div class="service-grid public-service-grid public-service-grid-showcase">
-            ${renderServiceCards(SERVICE_PILOT_KEYS)}
-          </div>
+          ${serviceGroups.map((group) => {
+            const intro = serviceCategoryIntro(group.archetype);
+            return `
+              <section class="service-category-block service-category-${escapeHtml(group.archetype)}">
+                <div class="service-category-copy">
+                  <span class="service-grid-eyebrow">${escapeHtml(intro.eyebrow)}</span>
+                  <h3>${escapeHtml(intro.title)}</h3>
+                  <p>${escapeHtml(intro.body)}</p>
+                </div>
+                <div class="service-grid public-service-grid public-service-grid-showcase service-category-grid">
+                  ${renderServiceCards(group.keys)}
+                </div>
+              </section>
+            `;
+          }).join("")}
         </section>
 
-        <section class="page-section service-pilot-showcase">
-          <div class="section-heading">
-            <span class="eyebrow">Specialist support routes</span>
-            <h2>Prepare the context before specialist advice.</h2>
-            <p>Mortgage, insurance and rent guarantee routes help organise information and prepare a request before any specialist support. No lender, insurer or provider is contacted from these pages.</p>
+        <section class="page-section service-index-bridge-band">
+          <div>
+            <span class="eyebrow">Property bridge</span>
+            <h2>Not sure which route fits? Start with the address.</h2>
+            <p>A full property check runs Smart Checks first, then shows Review Found Data before the Property Brain opens.</p>
           </div>
-          <div class="service-grid public-service-grid public-service-grid-showcase">
-            ${renderServiceCards(SERVICE_REFERRAL_KEYS)}
-          </div>
-        </section>
-
-        ${remainingServices.length ? `
-        <section class="page-section">
-          <div class="section-heading">
-            <span class="eyebrow">More support</span>
-            <h2>Other service routes remain available.</h2>
-            <p>Choose the route closest to the landlord problem. CMP will keep the request prepared for review until the property is added.</p>
-          </div>
-          <div class="service-grid public-service-grid">
-            ${renderServiceCards(remainingServices)}
+          <div class="hero-actions">
+            <a class="button primary" href="add-property.html">Check My Property</a>
+            <a class="button secondary" href="my-properties.html">Open My Properties</a>
+            <a class="button tertiary" href="#serviceDirectory">Back to services</a>
           </div>
         </section>
-        ` : ""}
       </main>
       ${baseFooter()}
       ${assistantWidget()}
@@ -1573,6 +1662,33 @@
     `;
   }
 
+  function renderServiceArchetypePanel(key) {
+    const archetype = serviceArchetype(key);
+    const steps = serviceArchetypeSteps(key);
+    const image = archetype === "problem" ? PUBLIC_VISUALS.v2ConditionInspection : archetype === "specialist" ? PUBLIC_VISUALS.v2HumanSupport : PUBLIC_VISUALS.v2EvidenceDesk;
+    const imageAlt = archetype === "problem"
+      ? "Concept image of a calm property condition inspection scene"
+      : archetype === "specialist"
+        ? "Concept image of a property professional reviewing information at a desk"
+        : "Concept image of property evidence papers, tablet and files on a desk";
+    return `
+      <section class="service-archetype-panel service-archetype-panel-${escapeHtml(archetype)}">
+        <div>
+          <span class="service-grid-eyebrow">${escapeHtml(serviceArchetypeLabel(key))}</span>
+          <h2>${escapeHtml(archetype === "certificate" ? "Treat the document as evidence first." : archetype === "problem" ? "Turn the report into a practical timeline." : archetype === "evidence" ? "Prepare the record before deciding the next step." : "Prepare context without implying approval.")}</h2>
+          <p>${escapeHtml(serviceArchetypeCopy(key))}</p>
+          <div class="service-archetype-steps" aria-label="${escapeHtml(serviceArchetypeLabel(key))} route shape">
+            ${steps.map((step) => `<span>${escapeHtml(step)}</span>`).join("")}
+          </div>
+        </div>
+        <figure class="service-archetype-photo">
+          <img src="${escapeHtml(image)}" alt="${escapeHtml(imageAlt)}">
+          <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+        </figure>
+      </section>
+    `;
+  }
+
   function renderServicePage() {
     const service = SERVICE_CONFIG[serviceKey];
     if (!service) {
@@ -1591,8 +1707,8 @@
     const isPilotService = SERVICE_PILOT_KEYS.includes(serviceKey) || isReferralService;
     app.innerHTML = `
       ${baseHeader("services")}
-      <main class="public-main${isPilotService ? " service-pilot-main" : ""}">
-        <section class="page-hero public-page-hero${isPilotService ? " service-detail-hero" : ""}">
+      <main class="public-main${isPilotService ? " service-pilot-main" : ""} service-detail-main service-archetype-${escapeHtml(serviceArchetype(serviceKey))}">
+        <section class="page-hero public-page-hero${isPilotService ? " service-detail-hero" : ""} service-detail-hero-${escapeHtml(serviceArchetype(serviceKey))}">
           <div>
             <span class="eyebrow service-hero-eyebrow">${serviceIconMarkup(serviceKey, "hero")}${escapeHtml(service.eyebrow)}</span>
             <h1>${escapeHtml(service.heroTitle)}</h1>
@@ -1614,6 +1730,7 @@
           </div>
         </section>
 
+        ${isPilotService ? renderServiceArchetypePanel(serviceKey) : ""}
         ${isPilotService ? renderServiceRelatedChecks(serviceKey) : ""}
 
         <section class="page-section service-journey-shell${isPilotService ? " service-pilot-journey-shell" : ""}" id="journeyStart">
@@ -2122,7 +2239,7 @@
     document.title = "Add Property | ComplyMyProperty";
     app.innerHTML = `
       ${baseHeader("add-property")}
-      <main class="public-main bridge-page add-property-bridge-page">
+      <main class="public-main bridge-page add-property-bridge-page public-v2-bridge">
         <section class="page-hero public-page-hero bridge-hero add-property-bridge-hero">
           <div>
             <span class="eyebrow">Add property</span>
@@ -2490,7 +2607,7 @@
         : "Add a property once. CMP will check what it can, show Review found data, and prepare the property workspace.";
     app.innerHTML = `
       ${baseHeader("my-properties")}
-      <main class="public-main bridge-page my-properties-bridge-page">
+      <main class="public-main bridge-page my-properties-bridge-page public-v2-bridge my-properties-state-${isMultiProperty ? "multi" : isOneProperty ? "one" : "empty"}">
         <section class="page-hero public-page-hero bridge-hero my-properties-bridge-hero">
           <div>
             <span class="eyebrow">My Properties</span>
@@ -2525,7 +2642,7 @@
               ${properties.map((property) => {
                 const status = property.sourceKind === "canonical" ? { tone: property.statusTone, label: property.statusLabel } : statusForProperty(property.record || property);
                 return `
-                  <article class="property-summary-card">
+                  <article class="property-summary-card property-summary-card-${isMultiProperty ? "portfolio" : "single"}">
                     <div class="property-summary-top">
                       <span class="status-pill ${escapeHtml(status.tone)}">${escapeHtml(status.label)}</span>
                       <span class="quiet-pill">${escapeHtml(property.sourceKind === "canonical" ? "Property workspace" : journeyLabelForProperty(property.record || property))}</span>
