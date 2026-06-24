@@ -32,7 +32,7 @@ const keyRoutes = [
   "add-property.html",
   "my-properties.html",
   "dashboard-labs.html?propertyId=prop_stage12_smoke",
-  "dashboard-labs.html?demo=nick",
+  "dashboard-labs.html?demo=nick&qa=1",
   "dashboard-labs.html?demoScenario=no-epc-found&qa=1",
   "dashboard-labs.html?portfolioDemo=1&qa=1",
   "az-checker-v2.html",

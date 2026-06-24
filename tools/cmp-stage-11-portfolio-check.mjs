@@ -191,7 +191,7 @@ test("stage isolation stays within allowed files and routes load", async () => {
       "/dashboard-labs.html?portfolio=guest",
       "/dashboard-labs.html?portfolioDemo=1&qa=1",
       "/dashboard-labs.html?propertyId=prop_stage11_smoke",
-      "/dashboard-labs.html?demo=nick",
+      "/dashboard-labs.html?demo=nick&qa=1",
       "/dashboard-labs.html?demoScenario=no-epc-found&qa=1",
       "/az-checker-v2.html",
       "/dashboard.html",

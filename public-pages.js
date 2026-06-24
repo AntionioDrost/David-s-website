@@ -1,10 +1,17 @@
 (function () {
   const DEMO_MODE = window.CMP_DEMO_MODE !== false;
+  const QA_MODE = new URLSearchParams(window.location.search).get("qa") === "1";
   const WORKSPACE_STORAGE_KEY = "cmp_compliance_workspaces::guest";
   const ONBOARDING_STORAGE = "cmp_onboarding_complete";
   const FLASH_STORAGE_KEY = "cmp_public_flash";
   const SERVICE_DRAFT_PREFIX = "cmp_public_service_draft::";
   const HOME_POSTCODE_KEY = "cmp_public_postcode_hint";
+
+  function qaDemoCta(className = "button tertiary") {
+    return QA_MODE
+      ? `<a class="${escapeHtml(className)}" href="dashboard-labs.html?demo=nick&qa=1"><i data-lucide="layout-dashboard"></i>Open QA demo</a>`
+      : "";
+  }
 
   const SERVICE_CONFIG = {
     epc: {
@@ -1171,7 +1178,7 @@
             <div class="cmp-v2-actions">
               <a class="button primary cmp-v2-button-primary" href="add-property.html"><i data-lucide="search-check"></i>Check My Property</a>
               <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="file-check-2"></i>Request service</a>
-              <a class="button tertiary cmp-v2-button-quiet" href="dashboard-labs.html?demo=nick"><i data-lucide="layout-dashboard"></i>Try guided demo</a>
+              ${qaDemoCta("button tertiary cmp-v2-button-quiet")}
             </div>
             <div class="cmp-v2-principles" aria-label="CMP principles">
               <span>Property-first</span>
@@ -1348,7 +1355,7 @@
             <div class="cmp-v2-actions">
               <a class="button primary cmp-v2-button-primary" href="add-property.html"><i data-lucide="search-check"></i>Check My Property</a>
               <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="file-check-2"></i>Request service</a>
-              <a class="button tertiary cmp-v2-button-quiet" href="dashboard-labs.html?demo=nick"><i data-lucide="layout-dashboard"></i>Try guided demo</a>
+              ${qaDemoCta("button tertiary cmp-v2-button-quiet")}
             </div>
           </div>
           <figure class="cmp-v2-photo-panel cmp-v2-photo-panel-small">
@@ -2649,7 +2656,7 @@
             <p>${isMultiProperty ? "Portfolio Sweep helps prioritise evidence gaps, expiries and service opportunities across saved properties." : isOneProperty ? "Use this page to reopen the property workspace, review the next action, or add another property." : "Add the first property and CMP will build from Smart Checks to Review found data and the Property Brain."}</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property</a>
-              ${propertyCount ? `<a class="button secondary" href="${escapeHtml(isMultiProperty ? "dashboard-labs.html?portfolio=guest" : "#property-list")}">${isMultiProperty ? "Open Portfolio Sweep" : "Open property"}</a>` : `<a class="button tertiary" href="dashboard-labs.html?demo=nick">Try demo</a>`}
+              ${propertyCount ? `<a class="button secondary" href="${escapeHtml(isMultiProperty ? "dashboard-labs.html?portfolio=guest" : "#property-list")}">${isMultiProperty ? "Open Portfolio Sweep" : "Open property"}</a>` : qaDemoCta("button tertiary")}
             </div>
             <div class="hero-metrics">
               <span><strong>${escapeHtml(String(propertyCount))}</strong> ${propertyCount === 1 ? "property" : "properties"}</span>
@@ -2715,7 +2722,7 @@
               <div class="hero-actions">
                 <a class="button primary" href="add-property.html">Add property</a>
                 <a class="button secondary" href="services.html">Request service</a>
-                <a class="button tertiary" href="dashboard-labs.html?demo=nick">Try demo</a>
+                ${qaDemoCta("button tertiary")}
               </div>
             </div>
           `}

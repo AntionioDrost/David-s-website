@@ -268,7 +268,7 @@ test("public and internal routes still return HTTP 200", async () => {
       "/selective-licensing.html",
       "/evictions-possession.html",
       "/mould-damp.html",
-      "/dashboard-labs.html?demo=nick",
+      "/dashboard-labs.html?demo=nick&qa=1",
       "/dashboard-labs.html?state=empty&qa=1",
       "/az-checker-v2.html",
       "/dashboard.html",

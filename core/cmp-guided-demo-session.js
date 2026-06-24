@@ -52,7 +52,7 @@
     const steps = stepsApi.listGuidedDemoSteps();
     return {
       sessionId: `guided_demo_${scenarioId}`,
-      route: options.route || "dashboard-labs.html?demo=nick",
+      route: options.route || "dashboard-labs.html?demo=nick&qa=1",
       mode: "guided_demo",
       namespaceId: definitionsApi.DEMO_SCENARIO_NAMESPACE,
       scenarioId,
@@ -103,8 +103,8 @@
       active: true,
       scenarioId,
       namespaceId: definitionsApi?.DEMO_SCENARIO_NAMESPACE || "demo:canonical-scenarios",
-      route: "dashboard-labs.html?demo=nick",
-      requiresQa: false,
+      route: "dashboard-labs.html?demo=nick&qa=1",
+      requiresQa: true,
     });
   }
 

@@ -157,11 +157,100 @@ function queryParams() {
 
 function isNickDemoMode() {
   const params = queryParams();
-  return params.get("demo") === "nick" || params.get("journeyDemo") === "nick";
+  return isQaMode() && (params.get("demo") === "nick" || params.get("journeyDemo") === "nick");
 }
 
 function isQaMode() {
   return queryParams().get("qa") === "1";
+}
+
+function hasNickDemoRequest(params = queryParams()) {
+  return params.get("demo") === "nick" || params.get("journeyDemo") === "nick";
+}
+
+function hasInternalRouteRequest(params = queryParams()) {
+  return hasNickDemoRequest(params)
+    || Boolean(params.get("demoScenario"))
+    || params.get("portfolioDemo") === "1"
+    || Boolean(params.get("state"));
+}
+
+function safeHandoffSearch(params = queryParams()) {
+  const blockedKeys = new Set([
+    "demo",
+    "journeyDemo",
+    "demoScenario",
+    "portfolioDemo",
+    "state",
+    "qa",
+    "advanced",
+    "debug",
+    "scenarioId",
+    "guidedScenario",
+    "story",
+    "fresh"
+  ]);
+  const safe = new URLSearchParams();
+  params.forEach((value, key) => {
+    if (!blockedKeys.has(key) && !/^demo/i.test(key)) {
+      safe.append(key, value);
+    }
+  });
+  return safe.toString();
+}
+
+function safeHandoffUrl(target, params = queryParams()) {
+  const search = safeHandoffSearch(params);
+  return search ? `${target}?${search}` : target;
+}
+
+function quarantineInternalRouteWithoutQa() {
+  const params = queryParams();
+  if (params.get("qa") === "1" || !hasInternalRouteRequest(params)) {
+    return { blocked: false };
+  }
+
+  let target = "my-properties.html";
+  if (hasNickDemoRequest(params) || params.get("demoScenario")) {
+    target = "index.html";
+  } else if (params.get("portfolioDemo") === "1") {
+    target = "my-properties.html";
+  } else if (params.get("state") === "new-property") {
+    target = "add-property.html";
+  }
+
+  return {
+    blocked: true,
+    reason: "internal-route-requires-qa",
+    target: safeHandoffUrl(target, params)
+  };
+}
+
+function shouldUseMissingPropertySafeHandoff(params = queryParams()) {
+  return !isQaMode()
+    && !hasInternalRouteRequest(params)
+    && !params.get("propertyId")
+    && params.get("portfolio") !== "guest";
+}
+
+function runStageARouteGate() {
+  const internal = quarantineInternalRouteWithoutQa();
+  if (internal.blocked) {
+    window.location.replace(internal.target);
+    return internal;
+  }
+
+  if (shouldUseMissingPropertySafeHandoff()) {
+    const target = safeHandoffUrl("my-properties.html", queryParams());
+    window.location.replace(target);
+    return {
+      blocked: true,
+      reason: "missing-property-id",
+      target
+    };
+  }
+
+  return { blocked: false };
 }
 
 function isAdvancedDemoMode() {
@@ -2896,7 +2985,7 @@ function initialDemoStateFromUrl() {
   const params = new URLSearchParams(window.location.search);
   const requestedState = params.get("state");
 
-  if (requestedState) {
+  if (requestedState && isQaMode()) {
     return normaliseDemoState(requestedState);
   }
 
@@ -2917,7 +3006,7 @@ function requestedDemoScenarioId() {
 
 function isCanonicalScenarioRoute() {
   const params = queryParams();
-  return Boolean(params.get("demoScenario")) && !isNickDemoMode() && !params.get("state");
+  return isQaMode() && Boolean(params.get("demoScenario")) && !isNickDemoMode() && !params.get("state");
 }
 
 function shouldUseCanonicalPropertyRoute() {
@@ -3116,7 +3205,7 @@ function hydrateCanonicalGuidedDemoProperty(scenarioId = "", storyId = "") {
   const created = session.createGuidedDemoSession(loaded.value, {
     scenarioId,
     storyId,
-    route: "dashboard-labs.html?demo=nick",
+    route: "dashboard-labs.html?demo=nick&qa=1",
     now: new Date().toISOString()
   });
   if (!created.ok) return created;
@@ -4378,6 +4467,13 @@ function hydrateIcons() {
   });
 }
 
+function syncQaOnlyControls() {
+  const showQaControls = isQaMode();
+  document.querySelectorAll("[data-qa-only]").forEach((node) => {
+    node.hidden = !showQaControls;
+  });
+}
+
 function showToast(message) {
   const region = document.querySelector("[data-toast-region]");
 
@@ -4733,6 +4829,48 @@ function setText(selector, value) {
   }
 }
 
+function scrubNormalCanonicalRoutePresetText() {
+  if (!isCanonicalWorkspaceRoute() || isQaMode() || isNickDemoMode() || isCanonicalScenarioRoute()) {
+    return;
+  }
+
+  const shell = canonicalWorkspaceShell();
+  const replacementAddress = isCanonicalWorkspaceValid() ? shell.address : "selected property";
+  const replacementPostcode = isCanonicalWorkspaceValid() && shell.postcode ? shell.postcode : "postcode hidden";
+  const replacementFull = `${replacementAddress}${replacementPostcode ? `, ${replacementPostcode}` : ""}`;
+  const replacements = [
+    [/Flat 42,\s*57 The Butts,\s*Coventry,\s*CV1 3BJ/gi, replacementFull],
+    [/57 The Butts\s*·\s*CV1 3BJ/gi, `${replacementAddress} · ${replacementPostcode}`],
+    [/57 The Butts/gi, replacementAddress],
+    [/57-the-butts/gi, "selected-property"],
+    [/18 Willow Brook Drive\s*·\s*B37 7BA/gi, `${replacementAddress} · ${replacementPostcode}`],
+    [/18 Willow Brook Drive/gi, replacementAddress],
+    [/12 Maple Quay,\s*Bristol/gi, replacementAddress],
+    [/12 Maple Quay/gi, replacementAddress],
+    [/44 Northgate Mews/gi, replacementAddress],
+    [/63 Paper Mill Street/gi, replacementAddress],
+    [/25 Beacon Yard/gi, replacementAddress]
+  ];
+  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  const textNodes = [];
+  while (walker.nextNode()) {
+    textNodes.push(walker.currentNode);
+  }
+  textNodes.forEach((node) => {
+    const parentTag = node.parentElement?.tagName?.toLowerCase() || "";
+    if (["script", "style"].includes(parentTag)) {
+      return;
+    }
+    let value = node.nodeValue || "";
+    replacements.forEach(([pattern, replacement]) => {
+      value = value.replace(pattern, replacement);
+    });
+    if (value !== node.nodeValue) {
+      node.nodeValue = value;
+    }
+  });
+}
+
 function renderSelectedCanonicalWorkspaceShell() {
   if (!isCanonicalWorkspaceRoute()) {
     return;
@@ -4844,6 +4982,7 @@ function renderSelectedCanonicalWorkspaceShell() {
       `;
     }
     hydrateIcons();
+    scrubNormalCanonicalRoutePresetText();
     return;
   }
 
@@ -5043,6 +5182,7 @@ function renderSelectedCanonicalWorkspaceShell() {
     `).join("") + renderCanonicalAskReportPanel() + renderGuidedCanonicalDemoPanel();
   }
   hydrateIcons();
+  scrubNormalCanonicalRoutePresetText();
 }
 
 function resetDemoState() {
@@ -18857,7 +18997,16 @@ function bindTabs() {
         return;
       }
 
-      if (item.dataset.globalNav === "Add property" || item.dataset.globalNav === "Journey OS") {
+      if (item.dataset.globalNav === "Add property") {
+        if (!isQaMode()) {
+          openNormalAddPropertyFlow();
+          return;
+        }
+        showJourneyOs({ scroll: true });
+        return;
+      }
+
+      if (item.dataset.globalNav === "Journey OS") {
         showJourneyOs({ scroll: true });
         return;
       }
@@ -20009,7 +20158,29 @@ function bindDemoState() {
   });
 }
 
+function normalAddPropertyHref() {
+  const params = new URLSearchParams();
+  params.set("from", "dashboard-labs");
+  if (isCanonicalWorkspaceValid()) {
+    params.set("returnPropertyId", labsState.selectedCanonicalProperty.propertyId);
+  }
+  const serviceIntent = labsState.pendingServiceRequestType || labsState.selectedServicePropertyId || "";
+  if (serviceIntent && serviceIntent !== "the-butts" && serviceIntent !== "all") {
+    params.set("serviceIntent", serviceIntent);
+  }
+  const search = params.toString();
+  return `add-property.html${search ? `?${search}` : ""}`;
+}
+
+function openNormalAddPropertyFlow() {
+  window.location.href = normalAddPropertyHref();
+}
+
 function openAddPropertyModal() {
+  if (!isQaMode()) {
+    openNormalAddPropertyFlow();
+    return;
+  }
   labsState.addPropertyStep = 1;
   labsState.addPropertyAddress = addPropertyAddresses[0];
   renderAddPropertyState();
@@ -22165,53 +22336,59 @@ function confirmEicr() {
     : "Property file strengthened. Electrical Safety evidence verified. Evidence completeness increased from 42% to 58%.");
 }
 
-const initialDemoState = initialDemoStateFromUrl();
-if (initialDemoState) {
-  configureDemoState(initialDemoState);
-}
+const stageARouteGate = runStageARouteGate();
+window.__cmpStageARouteGate = stageARouteGate;
 
-hydrateSelectedCanonicalProperty();
-hydrateCanonicalPortfolioMode();
-hydrateIcons();
-renderAssistantPrompts();
-renderAllState();
-bindTabs();
-bindPortfolioHome();
-bindPortfolioProperties();
-bindPortfolioCompliance();
-bindAzChecker();
-bindPortfolioEvidence();
-bindPortfolioTasks();
-bindPortfolioActivity();
-bindJourneyOs();
-bindDemoState();
-bindUtilityPages();
-bindAssistant();
-bindMobileMenu();
-bindToasts();
-bindFindings();
-bindPrsDrawer();
-bindScenarios();
-bindWhatIf();
-bindTimeline();
-bindInbox();
-bindSmartUpload();
-bindServices();
-bindPropertyDetails();
-window.__cmpDemoTest = {
-  setAnswers: applyGuidedAnswerSet,
-  answerUnknown,
-  state: journeyState
-};
-if (isNickDemoMode()) {
-  enterGuidedDemo();
-} else if (initialDemoState === "new-property") {
-  startJourneyFromNewPropertyState({ scroll: false });
-} else {
-  showPortfolioHome();
-}
-if (isEmptyPortfolioMode()) {
-  setAssistantResponse(getGlobalAskDefaultResponse());
+if (!stageARouteGate.blocked) {
+  const initialDemoState = initialDemoStateFromUrl();
+  if (initialDemoState) {
+    configureDemoState(initialDemoState);
+  }
+
+  hydrateSelectedCanonicalProperty();
+  hydrateCanonicalPortfolioMode();
+  hydrateIcons();
+  syncQaOnlyControls();
+  renderAssistantPrompts();
+  renderAllState();
+  bindTabs();
+  bindPortfolioHome();
+  bindPortfolioProperties();
+  bindPortfolioCompliance();
+  bindAzChecker();
+  bindPortfolioEvidence();
+  bindPortfolioTasks();
+  bindPortfolioActivity();
+  bindJourneyOs();
+  bindDemoState();
+  bindUtilityPages();
+  bindAssistant();
+  bindMobileMenu();
+  bindToasts();
+  bindFindings();
+  bindPrsDrawer();
+  bindScenarios();
+  bindWhatIf();
+  bindTimeline();
+  bindInbox();
+  bindSmartUpload();
+  bindServices();
+  bindPropertyDetails();
+  window.__cmpDemoTest = {
+    setAnswers: applyGuidedAnswerSet,
+    answerUnknown,
+    state: journeyState
+  };
+  if (isNickDemoMode()) {
+    enterGuidedDemo();
+  } else if (initialDemoState === "new-property") {
+    startJourneyFromNewPropertyState({ scroll: false });
+  } else {
+    showPortfolioHome();
+  }
+  if (isEmptyPortfolioMode()) {
+    setAssistantResponse(getGlobalAskDefaultResponse());
+  }
 }
 
 window.labsDemoProperty = labsDemoProperty;

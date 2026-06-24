@@ -154,9 +154,9 @@
       <div class="drawer-backdrop" data-drawer-close></div>
 
       <main class="workspace" aria-labelledby="propertyTitle">
-        <div class="demo-state-strip" aria-label="Demo state controls">
-          <button class="demo-state-button" type="button" data-demo-state-open>Demo state</button>
-          <button class="demo-state-button" type="button" data-demo-guide-open>Demo guide</button>
+        <div class="demo-state-strip" aria-label="QA route controls" data-qa-only hidden>
+          <button class="demo-state-button" type="button" data-demo-state-open>QA states</button>
+          <button class="demo-state-button" type="button" data-demo-guide-open>QA guide</button>
         </div>
 
         <div class="utility-bar">
@@ -354,7 +354,7 @@
               <p class="section-kicker">Evidence Inbox</p>
               <h2>Forward paperwork to CMP</h2>
               <p>Keep certificates and property records together. CMP can suggest the correct property and document category for review.</p>
-              <div class="inbox-address" data-home-inbox-address>57-the-butts@inbox.complymyproperty.co.uk</div>
+              <div class="inbox-address" data-home-inbox-address>selected-property@inbox.complymyproperty.co.uk</div>
               <div class="button-row">
                 <button class="secondary-button" type="button" data-home-copy-inbox>Copy inbox address</button>
                 <button class="text-button" type="button" data-home-open-vault>Open Evidence Vault</button>
@@ -748,7 +748,7 @@
               <p class="section-kicker">EVIDENCE INBOX</p>
               <h2>Forward paperwork once</h2>
               <p>Send certificates, tenancy paperwork and property records to CMP. CMP can suggest the correct property and document category for review.</p>
-              <div class="inbox-address" data-evidence-inbox-address>57-the-butts@inbox.complymyproperty.co.uk</div>
+              <div class="inbox-address" data-evidence-inbox-address>selected-property@inbox.complymyproperty.co.uk</div>
             </div>
             <div class="evidence-inbox-actions">
               <button class="secondary-button" type="button" data-evidence-copy-inbox>Copy inbox address</button>
@@ -766,7 +766,7 @@
               <span>Property</span>
               <button class="is-active" type="button" data-evidence-property-filter="all">All properties</button>
               <button type="button" data-evidence-property-filter="the-butts">Selected property</button>
-              <button type="button" data-evidence-property-filter="willow-brook">18 Willow Brook Drive</button>
+              <button type="button" data-evidence-property-filter="willow-brook">Second QA property</button>
             </div>
             <div class="properties-filter-row" aria-label="Evidence filters">
               <button class="is-active" type="button" data-evidence-filter="all">All</button>
@@ -1747,7 +1747,7 @@
               <p class="section-kicker">Your CMP Evidence Inbox</p>
               <h3>Your CMP Evidence Inbox</h3>
               <p>Forward certificates and property paperwork here. CMP will suggest the correct property and document category for your review.</p>
-              <div class="inbox-address" data-inbox-address>57-the-butts@inbox.complymyproperty.co.uk</div>
+              <div class="inbox-address" data-inbox-address>selected-property@inbox.complymyproperty.co.uk</div>
               <div class="button-row">
                 <button class="secondary-button" type="button" data-copy-inbox>Copy inbox address</button>
                 <button class="text-button" type="button" data-toast="Forwarding will accept PDFs, photos and emails in a future CMP workflow.">How forwarding works</button>
@@ -2875,7 +2875,7 @@
             <span class="nav-icon" data-icon="close"></span>
           </button>
         </div>
-        <p class="modal-note">Switch the local demo between portfolio states, property-check scenarios and presenter stories. Everything stays simulated and local.</p>
+        <p class="modal-note">Switch the local demo between portfolio states, property-check scenarios and internal QA stories. Everything stays simulated and local.</p>
         <div class="demo-control-centre">
           <section class="demo-control-section">
             <div>
@@ -2947,7 +2947,7 @@
       <section class="timeline-modal demo-guide-modal" role="dialog" aria-modal="true" aria-labelledby="demoGuideModalTitle" data-demo-guide-modal hidden>
         <div class="modal-header">
           <div>
-            <p class="section-kicker">Presenter guide</p>
+            <p class="section-kicker">QA guide</p>
             <h2 id="demoGuideModalTitle">Guided product demo</h2>
           </div>
           <button class="icon-button" type="button" aria-label="Close demo guide" data-demo-guide-close>
@@ -3011,7 +3011,7 @@
           <div>
             <p class="section-kicker">Portfolio preview</p>
             <h2 id="secondPropertyModalTitle">Second property workspace preview</h2>
-            <p class="modal-property-context">18 Willow Brook Drive · B37 7BA</p>
+            <p class="modal-property-context">Second QA property · postcode hidden</p>
           </div>
           <button class="icon-button" type="button" aria-label="Close second property preview" data-second-property-close>
             <span class="nav-icon" data-icon="close"></span>
@@ -3020,7 +3020,7 @@
         <p class="modal-note">This demo currently opens the full property workspace for Selected property. Portfolio-level behaviour is shown for both properties so global tools can be tested with a realistic two-property view.</p>
         <div class="summary-sections">
           <section>
-            <h3>18 Willow Brook Drive</h3>
+            <h3>Second QA property</h3>
             <ul>
               <li>Birmingham, B37 7BA</li>
               <li>Currently tenanted</li>

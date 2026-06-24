@@ -247,7 +247,7 @@ test("scenario route is internal, canonical and does not expose public navigatio
   await withStaticServer(async (origin) => {
     for (const route of [
       "/dashboard-labs.html?demoScenario=no-epc-found&qa=1",
-      "/dashboard-labs.html?demo=nick",
+      "/dashboard-labs.html?demo=nick&qa=1",
       "/dashboard-labs.html?demo=nick&advanced=1&qa=1",
       "/dashboard-labs.html?state=empty",
       "/dashboard-labs.html?state=before-eicr",

@@ -125,7 +125,7 @@ test("demo session seeds canonical default scenario in demo namespace only", () 
   guestStore.propertiesById.guest_property = { id: "guest_property" };
   guestStore.propertyOrder.push("guest_property");
   const session = guidedSession.createGuidedDemoSession(freshDemoStore(), {
-    route: "dashboard-labs.html?demo=nick",
+    route: "dashboard-labs.html?demo=nick&qa=1",
     now: "2026-06-19T09:00:00.000Z",
   });
   assert.equal(session.ok, true, JSON.stringify(session.errors || []));
@@ -165,7 +165,7 @@ test("guided demo scenario properties use derivation, service, Ask CMP and repor
   const serviceOption = serviceLifecycle.resolveServiceOptionsForAction(derived.nextBestAction, session.property, derived).value[0];
   assert.ok(serviceOption);
   const ask = askContext.buildAskCmpContext(session.property, derived, {
-    currentPage: "dashboard-labs.html?demo=nick",
+    currentPage: "dashboard-labs.html?demo=nick&qa=1",
     now: "2026-06-19T09:15:00.000Z",
   });
   assert.equal(ask.ok, true);
@@ -225,7 +225,7 @@ test("routes and product isolation remain intact", async () => {
 
   await withStaticServer(async (origin) => {
     for (const route of [
-      "/dashboard-labs.html?demo=nick",
+      "/dashboard-labs.html?demo=nick&qa=1",
       "/dashboard-labs.html?demoScenario=no-epc-found&qa=1",
       "/dashboard-labs.html?state=empty",
       "/az-checker-v2.html",
