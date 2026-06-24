@@ -1212,7 +1212,7 @@
             </article>
             <figure class="cmp-v2-photo-panel">
               <img src="${PUBLIC_VISUALS.v2Exterior}" alt="Concept image of a UK rental property exterior detail">
-              <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+              <figcaption>Illustrative property preview.</figcaption>
             </figure>
           </div>
         </section>
@@ -1326,7 +1326,7 @@
         <section class="cmp-v2-section cmp-v2-support" id="support" aria-labelledby="cmp-v2-support-title">
           <figure class="cmp-v2-photo-panel">
             <img src="${PUBLIC_VISUALS.v2EvidenceDesk}" alt="Concept image of property evidence papers, tablet and files on a desk">
-            <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+            <figcaption>Illustrative evidence preview.</figcaption>
           </figure>
           <div>
             <span class="cmp-v2-kicker">Human support and resources</span>
@@ -1353,7 +1353,7 @@
           </div>
           <figure class="cmp-v2-photo-panel cmp-v2-photo-panel-small">
             <img src="${PUBLIC_VISUALS.v2HumanSupport}" alt="Concept image of a property professional reviewing information at a desk">
-            <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+            <figcaption>Illustrative support preview.</figcaption>
           </figure>
         </section>
       </main>
@@ -1418,7 +1418,7 @@
           <div class="page-hero-visual page-hero-visual-service">
             <figure class="service-index-photo">
               <img src="${PUBLIC_VISUALS.v2Exterior}" alt="Concept image of a UK rental property exterior detail">
-              <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+              <figcaption>Illustrative property preview.</figcaption>
             </figure>
             ${renderServiceHeroStage("gas")}
           </div>
@@ -1683,7 +1683,7 @@
         </div>
         <figure class="service-archetype-photo">
           <img src="${escapeHtml(image)}" alt="${escapeHtml(imageAlt)}">
-          <figcaption>Concept/prototype asset. See image provenance.</figcaption>
+          <figcaption>Illustrative service preview.</figcaption>
         </figure>
       </section>
     `;
@@ -2295,10 +2295,10 @@
           </div>
 
           <div class="question-stack add-property-flow">
-            <section class="question-panel">
+            <section class="question-panel" data-add-property-step="find">
               <div class="question-panel-heading">
                 <span class="section-kicker">Step 1</span>
-                <h3>Find the property</h3>
+                <h3 id="addPropertyFindTitle" tabindex="-1">Find the property</h3>
               </div>
               <p class="question-panel-copy">Use the postcode search above. CMP will try to find address matches and EPC information automatically.</p>
               <div class="helper-card compact bridge-helper">
@@ -2307,19 +2307,19 @@
               </div>
             </section>
 
-            <section class="question-panel">
+            <section class="question-panel" data-add-property-step="address">
               <div class="question-panel-heading">
                 <span class="section-kicker">Step 2</span>
-                <h3>Select address</h3>
+                <h3 id="addPropertyAddressTitle" tabindex="-1">Select address</h3>
               </div>
               <p class="question-panel-copy">Choose the right property card below. CMP will carry the selected address into your property record.</p>
               ${renderAddressResults()}
             </section>
 
-            <section class="question-panel">
+            <section class="question-panel" data-add-property-step="checks">
               <div class="question-panel-heading">
                 <span class="section-kicker">Step 3</span>
-                <h3>Run Smart Checks</h3>
+                <h3 id="addPropertyChecksTitle" tabindex="-1">Run Smart Checks</h3>
               </div>
               <p class="question-panel-copy">Once you confirm the address, CMP will prepare the property file, run simulated Smart Checks, and show what needs review next.</p>
               <div class="helper-card compact">
@@ -2351,6 +2351,7 @@
         state.addProperty.stage = "Checking EPC records...";
         state.addProperty.message = "Checking EPC records...";
         renderAddPropertyPage();
+        queueAddPropertyProgression("[data-add-property-step='checks']", "#addPropertyChecksTitle");
         await wait(350);
         state.addProperty.stage = "Importing property details...";
         state.addProperty.message = "Importing property details...";
@@ -2399,6 +2400,7 @@
           : "Property file created. Smart Checks are ready for review before the next setup step.";
         flash(existing ? "Smart Checks updated. Review found data is ready." : "Property file created. Review found data is ready.", "success");
         renderAddPropertyPage();
+        queueAddPropertyProgression("[data-canonical-review]", "#addPropertyReviewTitle");
       });
     });
 
@@ -2502,7 +2504,7 @@
               <span>Source: ${escapeHtml(item.sourceLabel)}</span>
               <span>${escapeHtml(item.capabilityStatus === "simulated" ? "Simulated Smart Check" : item.capabilityStatus)}</span>
             </div>
-            ${item.reason ? `<small>${escapeHtml(item.reason)}</small>` : ""}
+            ${item.reason ? `<small>${escapeHtml(landlordFacingCopy(item.reason))}</small>` : ""}
           </article>
         `).join("")}
       </div>
@@ -2513,10 +2515,10 @@
     const review = state.addProperty.canonicalReview;
     if (!review) return "";
     return `
-      <section class="question-panel" data-canonical-review data-property-id="${escapeHtml(review.propertyId)}">
+      <section class="question-panel" data-canonical-review data-add-property-step="review" data-property-id="${escapeHtml(review.propertyId)}">
         <div class="question-panel-heading">
           <span class="section-kicker">Step 4</span>
-          <h3>Review found data</h3>
+          <h3 id="addPropertyReviewTitle" tabindex="-1">Review found data</h3>
         </div>
         <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}. These are simulated Smart Checks, prepared for review, not a legal compliance decision.</p>
 
@@ -2548,6 +2550,35 @@
 
   function wait(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  function landlordFacingCopy(value) {
+    return String(value || "")
+      .replace(/prototype data/gi, "preview information")
+      .replace(/prototype/gi, "preview");
+  }
+
+  function queueAddPropertyProgression(sectionSelector, focusSelector) {
+    window.requestAnimationFrame(() => progressToAddPropertySection(sectionSelector, focusSelector));
+  }
+
+  function progressToAddPropertySection(sectionSelector, focusSelector) {
+    const section = app.querySelector(sectionSelector);
+    if (!section) return;
+    const heading = focusSelector ? app.querySelector(focusSelector) : section.querySelector("h2, h3");
+    const header = document.querySelector(".public-v2-nav, .site-nav, header");
+    const stickyOffset = Math.ceil((header?.getBoundingClientRect().height || 0) + 18);
+    const targetTop = Math.max(0, section.getBoundingClientRect().top + window.scrollY - stickyOffset);
+    const prefersReducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)")?.matches;
+    window.scrollTo({
+      top: targetTop,
+      behavior: prefersReducedMotion ? "auto" : "smooth"
+    });
+    window.setTimeout(() => {
+      if (heading && typeof heading.focus === "function") {
+        heading.focus({ preventScroll: true });
+      }
+    }, prefersReducedMotion ? 0 : 220);
   }
 
   async function searchAddresses(postcode, options = {}) {
@@ -2587,6 +2618,9 @@
     state.addProperty.isSearching = false;
     state.addProperty.stage = "Choose the right address";
     renderAddPropertyPage();
+    if (!options.quiet) {
+      queueAddPropertyProgression("[data-add-property-step='address']", "#addPropertyAddressTitle");
+    }
   }
 
   function renderMyPropertiesPage() {

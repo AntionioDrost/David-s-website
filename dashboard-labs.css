@@ -19813,3 +19813,54 @@ body.checker-is-active .labs-sidebar .property-option.is-current {
     animation-duration: 0.001ms;
   }
 }
+
+/* CMP V2 final journey polish: selected-property cards and watchlist readability. */
+body.canonical-property-route .workspace {
+  max-width: 940px;
+}
+
+body.canonical-property-route .portfolio-home-header {
+  padding: 24px;
+}
+
+body.canonical-property-route .home-upcoming-grid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+body.canonical-property-route .portfolio-upcoming-card {
+  min-height: 178px;
+  padding: 18px;
+  border-radius: 12px;
+}
+
+body.canonical-property-route .portfolio-upcoming-card .text-button,
+body.canonical-property-route .portfolio-upcoming-card .primary-button,
+body.canonical-property-route .portfolio-upcoming-card .secondary-button {
+  width: 100%;
+  min-height: 38px;
+  justify-content: center;
+  white-space: normal;
+  line-height: 1.18;
+}
+
+body.canonical-property-route .portfolio-property-card {
+  border-radius: 12px;
+}
+
+body.canonical-property-route .assistant-rail .prompt-stack button {
+  min-height: 38px;
+  line-height: 1.2;
+}
+
+@media (max-width: 1180px) {
+  body.canonical-property-route .home-upcoming-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 760px) {
+  body.canonical-property-route .home-upcoming-grid {
+    grid-template-columns: 1fr;
+  }
+}

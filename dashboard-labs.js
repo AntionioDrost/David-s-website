@@ -3233,6 +3233,10 @@ function isCanonicalWorkspaceRoute() {
   return Boolean(labsState.selectedCanonicalProperty);
 }
 
+function isNormalSelectedCanonicalWorkspace() {
+  return isCanonicalWorkspaceValid() && !isNickDemoMode() && !isCanonicalScenarioRoute() && !isQaMode();
+}
+
 function isCanonicalPortfolioRoute() {
   return Boolean(labsState.canonicalPortfolio?.status === "valid");
 }
@@ -4347,10 +4351,10 @@ function formatControlledAssistantResponse(message) {
 
   return [
     `Summary: ${response}`,
-    "Based on: Simulated demo data from the local property record, Evidence Vault, Compliance Centre, tasks and service basket.",
-    "What this means: Treat this as source-backed prototype guidance for prioritising review, evidence and support steps.",
+    "Based on: Current local property information, Evidence, Action Plan, tasks and service context.",
+    "What this means: Treat this as source-backed guidance for prioritising review, evidence and support steps.",
     "Suggested next action: Check the linked evidence or action before booking, uploading or deferring anything.",
-    "Limits: Prototype mode only. No live lookup performed and this is not legal advice."
+    "Limits: No live lookup performed. Guidance, not legal advice."
   ].join("\n\n");
 }
 
@@ -4397,7 +4401,10 @@ function setAssistantResponse(message) {
   const response = document.querySelector("[data-assistant-response] p");
 
   if (response) {
-    response.textContent = formatControlledAssistantResponse(message);
+    const safeMessage = isNormalSelectedCanonicalWorkspace() && /57 The Butts/i.test(String(message || ""))
+      ? answerCanonicalAskPrompt("next-best-action")
+      : message;
+    response.textContent = formatControlledAssistantResponse(safeMessage);
   }
 }
 
@@ -4847,6 +4854,7 @@ function renderSelectedCanonicalWorkspaceShell() {
   const monitoringItems = derivedState?.monitoringItems || [];
   const serviceOption = canonicalPrimaryServiceOption();
   const serviceRequests = selectedCanonicalServiceRequests();
+  const assistantResponse = document.querySelector("[data-assistant-response]");
   document.title = `${shell.address} | CMP`;
   setText(".breadcrumb", `Properties / ${shell.address}`);
   setText(".prototype-badge", "Property workspace · Simulated Smart Check");
@@ -4903,6 +4911,12 @@ function renderSelectedCanonicalWorkspaceShell() {
   setText("[data-home-priority-body]", nextBestAction?.reason || "Workspace connected to this property. Detailed compliance sections remain transitional while CMP completes setup.");
   setText("[data-home-upload-priority]", nextBestAction?.primaryCtaLabel || "Continue setup");
   setText("[data-home-arrange-priority]", nextBestAction?.secondaryCtaLabel || "Review found data");
+  if (assistantResponse) {
+    const label = assistantResponse.querySelector("span");
+    const body = assistantResponse.querySelector("p");
+    if (label) label.textContent = "Ask CMP response";
+    if (body) body.textContent = answerCanonicalAskPrompt("next-best-action");
+  }
   renderScoreCards(homeScoreGrid, canonicalStage6ScoreCards(derivedState), { compact: true });
   if (rankList) {
     rankList.hidden = false;
@@ -6052,7 +6066,9 @@ function switchTab(target) {
   renderAssistantPrompts();
 
   if (target === "documents") {
-    setAssistantResponse(labsState.eicrAdded ? postEicrAssistantResponses["What evidence am I missing?"] : assistantResponses["What evidence am I missing?"]);
+    setAssistantResponse(isCanonicalWorkspaceValid()
+      ? getAssistantResponse("What evidence do I need?")
+      : labsState.eicrAdded ? postEicrAssistantResponses["What evidence am I missing?"] : assistantResponses["What evidence am I missing?"]);
   } else if (target === "compliance") {
     setAssistantResponse(getAssistantResponse("What should I fix first?"));
   } else if (target === "timeline") {
@@ -15315,7 +15331,10 @@ function evidenceMatchesCurrentView(row) {
   const query = labsState.evidenceSearch.trim().toLowerCase();
   const matchesSearch = !query || `${row.title} ${row.document} ${row.property} ${row.source} ${row.status} ${row.keyDate} ${row.search}`.toLowerCase().includes(query);
   const matchesFilter = labsState.evidenceFilter === "all" || row.filters.includes(labsState.evidenceFilter);
-  const matchesProperty = labsState.evidencePropertyFilter === "all" || row.propertyId === labsState.evidencePropertyFilter;
+  const canonicalSelectedMatch = isNormalSelectedCanonicalWorkspace()
+    && labsState.evidencePropertyFilter === "the-butts"
+    && row.propertyId === canonicalWorkspaceShell()?.propertyId;
+  const matchesProperty = labsState.evidencePropertyFilter === "all" || row.propertyId === labsState.evidencePropertyFilter || canonicalSelectedMatch;
 
   return matchesSearch && matchesFilter && matchesProperty;
 }
@@ -15465,10 +15484,174 @@ function renderJourneyEvidenceVaultBridge() {
   }
 }
 
+function canonicalEvidenceLabel(value) {
+  return String(value || "evidence").replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
+function selectedCanonicalEvidenceRows() {
+  const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const serviceRequests = selectedCanonicalServiceRequests();
+  const address = shell?.address || "Selected property";
+  const foundRows = (shell?.foundDataSummary || []).slice(0, 4).map((item, index) => ({
+    id: `canonical-found-${index}`,
+    title: item.label,
+    document: item.value,
+    propertyId: shell.propertyId,
+    property: `${address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
+    source: item.sourceLabel || "Smart Check",
+    sourceClass: "status-watch-text",
+    status: "Prepared for review",
+    statusClass: "status-watch-text",
+    keyDate: `Confidence: ${item.confidence || "unknown"}`,
+    filters: ["review", "official"],
+    search: `${item.label} ${item.value} ${address}`,
+    actions: [{ label: "Ask CMP", action: "canonicalAskNext" }]
+  }));
+  const gapRows = (derivedState?.evidenceGaps || []).map((gap) => ({
+    id: gap.gapId,
+    title: canonicalEvidenceLabel(gap.evidenceType),
+    document: `${gap.reason || "Evidence needs review"} ${gap.recommendedNextStep || ""}`.trim(),
+    propertyId: shell.propertyId,
+    property: `${address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
+    source: gap.capabilityStatus === "simulated" ? "Smart Check" : gap.capabilityStatus || "Property file",
+    sourceClass: "status-review-text",
+    status: gap.proofStatus === "missing" ? "Missing" : "Needs review",
+    statusClass: "status-review-text",
+    keyDate: gap.expiryDate || "No date confirmed",
+    filters: ["missing", "review"],
+    search: `${gap.evidenceType} ${gap.reason} ${address}`,
+    actions: [
+      { label: "Prepare service request", action: "canonicalServiceRequest", primary: gap.linkedActionId === derivedState?.nextBestAction?.actionId },
+      { label: "Ask CMP", action: "canonicalAskNext" }
+    ]
+  }));
+  const requestRows = serviceRequests.map((request) => ({
+    id: request.id,
+    title: request.supplierJobPackData?.serviceLabel || canonicalEvidenceLabel(request.serviceId),
+    document: request.supplierJobPackData?.statusCopy || "Request prepared. No supplier contacted. No payment taken.",
+    propertyId: shell.propertyId,
+    property: `${address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
+    source: "Request prepared",
+    sourceClass: "status-watch-text",
+    status: "Evidence needs review",
+    statusClass: "status-watch-text",
+    keyDate: "No supplier contacted",
+    filters: ["review"],
+    search: `${request.serviceId} ${address}`,
+    actions: [{ label: "Ask CMP", action: "canonicalAskNext" }]
+  }));
+  return [...gapRows, ...requestRows, ...foundRows];
+}
+
+function renderSelectedCanonicalEvidenceState() {
+  const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const rows = selectedCanonicalEvidenceRows().filter(evidenceMatchesCurrentView);
+  const evidenceGaps = derivedState?.evidenceGaps || [];
+  const acceptedCount = (derivedState?.evidenceState || []).filter((item) => ["accepted", "held"].includes(item.proofStatus)).length;
+  const address = shell?.address || "Selected property";
+  const inbox = `${String(address).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "property"}@inbox.complymyproperty.co.uk`;
+  const evidenceKicker = document.querySelector("[data-portfolio-evidence] .section-kicker");
+  const evidenceAsk = document.querySelector("[data-evidence-ask]");
+  const evidenceMissingTitle = document.querySelector("#evidenceMissingTitle");
+  const evidenceMissingHeading = evidenceMissingTitle?.closest(".section-heading");
+  if (evidenceKicker) evidenceKicker.textContent = "Property evidence";
+  if (evidenceAsk) evidenceAsk.textContent = "Ask CMP what evidence matters";
+  document.querySelector("[data-evidence-upload]")?.removeAttribute("hidden");
+  document.querySelectorAll("[data-evidence-copy-inbox]").forEach((button) => button.removeAttribute("hidden"));
+  document.querySelector(".evidence-inbox-panel")?.removeAttribute("hidden");
+  document.querySelector(".evidence-toolbar")?.removeAttribute("hidden");
+  document.querySelector(".evidence-lower-grid")?.removeAttribute("hidden");
+  document.querySelector("[data-evidence-missing-section]")?.removeAttribute("hidden");
+  setText("#portfolioEvidenceTitle", `Evidence for ${address}`);
+  setText("[data-evidence-count-badge]", "Selected property");
+  setText("[data-evidence-verified-count]", String(acceptedCount));
+  setText("[data-evidence-review-count]", String(rows.length));
+  setText("[data-evidence-review-detail]", "items to review");
+  setText("[data-evidence-missing-count]", String(evidenceGaps.length));
+  setText("[data-evidence-missing-detail]", evidenceGaps.length === 1 ? "open evidence gap" : "open evidence gaps");
+  setText("[data-evidence-inbox-count]", "1");
+  setText("[data-evidence-health-strength]", `${canonicalScoreValue(derivedState, "evidenceStrength")}% evidenced`);
+  setText("[data-evidence-health-verified]", acceptedCount ? `${acceptedCount} accepted or held` : "No accepted proof yet");
+  setText("[data-evidence-health-missing]", evidenceGaps.length ? `${evidenceGaps.length} evidence gaps visible` : "No evidence gaps visible");
+  setText("[data-evidence-health-focus]", derivedState?.nextBestAction?.reason || "Review the selected property evidence.");
+  setText("[data-evidence-inbox-address]", inbox);
+  const healthCard = document.querySelector(".property-evidence-health-card");
+  if (healthCard) {
+    healthCard.querySelector("h2").textContent = `${address} evidence`;
+    healthCard.querySelector("p").textContent = shell?.postcode || "Postcode to confirm";
+  }
+  if (evidenceMissingHeading) {
+    evidenceMissingHeading.querySelector(".section-kicker").textContent = "Selected property";
+    evidenceMissingTitle.textContent = `What CMP still needs for ${address}`;
+    evidenceMissingHeading.querySelector("p:not(.section-kicker)").textContent = "Issue, action, evidence and monitoring stay connected to this selected property.";
+  }
+  const searchInput = document.querySelector("[data-evidence-search]");
+  if (searchInput && searchInput.value !== labsState.evidenceSearch) searchInput.value = labsState.evidenceSearch;
+  document.querySelectorAll("[data-evidence-property-filter]").forEach((button) => {
+    const propertyFilter = button.dataset.evidencePropertyFilter;
+    button.hidden = propertyFilter === "willow-brook";
+    button.classList.toggle("is-active", propertyFilter === "all" || propertyFilter === "the-butts");
+    if (propertyFilter === "the-butts") button.textContent = "Selected property";
+  });
+  document.querySelectorAll("[data-evidence-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.evidenceFilter === labsState.evidenceFilter);
+  });
+  document.querySelectorAll("[data-evidence-view]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.evidenceView === labsState.evidenceView);
+  });
+  const listCard = document.querySelector("[data-evidence-list-card]");
+  const list = document.querySelector("[data-evidence-list]");
+  const empty = document.querySelector("[data-evidence-empty]");
+  if (listCard) {
+    listCard.hidden = !rows.length;
+    listCard.classList.toggle("is-card-view", labsState.evidenceView === "cards");
+  }
+  if (list) list.innerHTML = rows.map(renderEvidenceRow).join("");
+  if (empty) {
+    empty.innerHTML = `
+      <h2>No evidence matches this view</h2>
+      <p>No selected-property evidence record matches those filters.</p>
+      <button class="secondary-button" type="button" data-evidence-clear>Clear filters</button>
+    `;
+    empty.hidden = Boolean(rows.length);
+  }
+  const missingList = document.querySelector("[data-evidence-missing-list]");
+  if (missingList) {
+    missingList.innerHTML = evidenceGaps.length
+      ? evidenceGaps.map((gap) => `
+        <article class="compliance-gap-card">
+          <div>
+            <h3>${escapeHtml(canonicalEvidenceLabel(gap.evidenceType))}</h3>
+            <p>${escapeHtml(gap.reason || "Evidence needs review")} ${escapeHtml(gap.recommendedNextStep || "")}</p>
+          </div>
+          <div class="compliance-gap-actions">
+            <button class="primary-button" type="button" data-canonical-service-request>Prepare service request</button>
+            <button class="text-button" type="button" data-canonical-ask-prompt="evidence-needed">Ask CMP</button>
+          </div>
+        </article>
+      `).join("")
+      : `
+        <article class="compliance-gap-card">
+          <div>
+            <h3>No open evidence gaps</h3>
+            <p>Based on current information, CMP has no selected-property evidence gap to list.</p>
+          </div>
+        </article>
+      `;
+  }
+}
+
 function renderPortfolioEvidenceState() {
   const page = document.querySelector("[data-portfolio-evidence]");
 
   if (!page) {
+    return;
+  }
+
+  if (isNormalSelectedCanonicalWorkspace()) {
+    renderSelectedCanonicalEvidenceState();
     return;
   }
 
@@ -19156,6 +19339,10 @@ function handleEvidenceAction(action) {
   if (action === "journeyUpload") {
     showJourneyOs({ scroll: true });
     openFakeUpload();
+  } else if (action === "canonicalServiceRequest") {
+    createCanonicalServiceRequest();
+  } else if (action === "canonicalAskNext") {
+    openAssistant(answerCanonicalAskPrompt("next-best-action"), { flash: true });
   } else if (action === "journeyActionPlan") {
     setJourneyStage("actionPlan", "actionPlan");
     showJourneyOs({ scroll: true });
@@ -21394,10 +21581,163 @@ function renderTimelineEvent(event) {
   `;
 }
 
+function selectedCanonicalTimelineEvents() {
+  const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const address = shell?.address || "Selected property";
+  const next = derivedState?.nextBestAction;
+  const gaps = derivedState?.evidenceGaps || [];
+  const serviceRequests = selectedCanonicalServiceRequests();
+  const monitoring = derivedState?.monitoringItems || [];
+  const events = [];
+  if (next) {
+    events.push({
+      id: "canonical-next-action",
+      group: "Now",
+      filter: "actions",
+      icon: "check",
+      category: "Next best action",
+      title: next.title,
+      badge: "Recommended",
+      badgeClass: "status-review-text",
+      body: `${next.reason} ${next.nextStep || ""}`.trim(),
+      open: true,
+      actions: [
+        { label: next.primaryCtaLabel || "Prepare service request", primary: true, toast: `${next.title}: ${next.reason}` },
+        { label: "Ask CMP why", assistant: answerCanonicalAskPrompt("next-best-action") }
+      ],
+      details: {
+        title: "Why this is first",
+        rows: [
+          ["Property", address],
+          ["Priority", next.priorityExplanation || "Ranked by CMP rules"],
+          ["Confidence", next.sourceConfidenceSummary || "Source confidence to review"]
+        ],
+        note: "Based on current information. Guidance, not legal advice."
+      }
+    });
+  }
+  gaps.slice(0, 4).forEach((gap) => {
+    events.push({
+      id: gap.gapId,
+      group: "Evidence watchlist",
+      filter: "evidence",
+      icon: "file",
+      category: "Evidence",
+      title: canonicalEvidenceLabel(gap.evidenceType),
+      badge: gap.proofStatus === "missing" ? "Missing" : "Needs review",
+      badgeClass: "status-review-text",
+      body: `${gap.reason || "Evidence needs review"} ${gap.recommendedNextStep || ""}`.trim(),
+      open: true,
+      actions: [
+        { label: "Prepare service request", primary: gap.linkedActionId === next?.actionId, toast: "Request prepared. No supplier contacted. No payment taken." },
+        { label: "Ask CMP", assistant: answerCanonicalAskPrompt("evidence-needed") }
+      ]
+    });
+  });
+  serviceRequests.slice(0, 3).forEach((request) => {
+    events.push({
+      id: request.id,
+      group: "Prepared requests",
+      filter: "actions",
+      icon: "calendar",
+      category: "Service",
+      title: request.supplierJobPackData?.serviceLabel || canonicalEvidenceLabel(request.serviceId),
+      badge: "Request prepared",
+      badgeClass: "status-watch-text",
+      body: request.supplierJobPackData?.statusCopy || "Request prepared. No supplier contacted. No payment taken.",
+      actions: [{ label: "Review evidence", toast: "Evidence needs review before any supplier contact." }]
+    });
+  });
+  monitoring.slice(0, 4).forEach((item) => {
+    events.push({
+      id: item.id,
+      group: "Monitoring",
+      filter: "actions",
+      icon: "clock",
+      category: "Monitoring",
+      title: item.title || canonicalEvidenceLabel(item.monitoringType),
+      badge: item.currentState === "open" ? "Open" : "Watching",
+      badgeClass: item.currentState === "open" ? "status-review-text" : "status-watch-text",
+      body: `${item.reason || ""} ${item.nextAction || ""}`.trim() || "Keep this item under review.",
+      open: item.currentState === "open"
+    });
+  });
+  if (!events.length) {
+    events.push({
+      id: "canonical-created",
+      group: "Now",
+      filter: "details",
+      icon: "building",
+      category: "Property setup",
+      title: "Property workspace created",
+      badge: "Prepared",
+      badgeClass: "status-watch-text",
+      body: `${address} is ready for review. Based on current information.`
+    });
+  }
+  return events;
+}
+
+function renderSelectedCanonicalTimelineState() {
+  const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const next = derivedState?.nextBestAction;
+  const allEvents = selectedCanonicalTimelineEvents();
+  const events = allEvents.filter(eventMatchesFilter);
+  const groups = [...new Set(events.map((event) => event.group))];
+  const list = document.querySelector("[data-timeline-list]");
+  if (!list) return;
+  list.innerHTML = groups.length
+    ? groups.map((group) => `
+        <section class="timeline-day">
+          <span class="timeline-day-label">${escapeHtml(group)}</span>
+          <div class="timeline-events">
+            ${events.filter((event) => event.group === group).map(renderTimelineEvent).join("")}
+          </div>
+        </section>
+      `).join("")
+    : `<div class="timeline-empty">No timeline events match this filter yet.</div>`;
+  setText("[data-timeline-event-count]", String(allEvents.length));
+  setText("[data-timeline-evidence-count]", String((derivedState?.evidenceGaps || []).length));
+  setText("[data-timeline-open-count]", String((derivedState?.monitoringItems || []).filter((item) => item.currentState === "open").length || (next ? 1 : 0)));
+  setText("[data-visit-title]", next ? "1 useful next step" : "Property ready for review");
+  const visitList = document.querySelector("[data-visit-list]");
+  if (visitList) {
+    visitList.innerHTML = next
+      ? `<li>${escapeHtml(next.title)}</li><li>${escapeHtml(next.reason)}</li>`
+      : `<li>${escapeHtml(shell?.address || "Selected property")} is ready for review</li>`;
+  }
+  setText("[data-timeline-action-body]", next ? `${next.title}. ${next.reason}` : "Review the selected property evidence and monitoring list.");
+  const actionButtons = document.querySelector("[data-timeline-action-buttons]");
+  if (actionButtons) {
+    actionButtons.innerHTML = next
+      ? `
+        <button class="primary-button" type="button" data-canonical-service-request>${escapeHtml(next.primaryCtaLabel || "Prepare service request")}</button>
+        <button class="secondary-button" type="button" data-canonical-ask-prompt="next-best-action">Ask CMP why</button>
+      `
+      : `<button class="secondary-button" type="button" data-canonical-ask-prompt="monitoring">Ask CMP what to monitor</button>`;
+  }
+  const confirmed = document.querySelector("[data-summary-confirmed]");
+  if (confirmed) {
+    confirmed.innerHTML = (shell?.foundDataSummary || []).slice(0, 4).map((item) => `<li>${escapeHtml(item.label)} - ${escapeHtml(item.value)}</li>`).join("");
+  }
+  const needs = document.querySelector("[data-summary-needs]");
+  if (needs) {
+    needs.innerHTML = (derivedState?.evidenceGaps || []).slice(0, 4).map((gap) => `<li>${escapeHtml(canonicalEvidenceLabel(gap.evidenceType))} - ${escapeHtml(gap.reason || "Evidence needs review")}</li>`).join("");
+  }
+  hydrateIcons();
+}
+
 function renderTimelineState() {
   const list = document.querySelector("[data-timeline-list]");
 
   if (!list) {
+    return;
+  }
+
+  if (isNormalSelectedCanonicalWorkspace()) {
+    renderSelectedCanonicalTimelineState();
     return;
   }
 
