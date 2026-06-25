@@ -8,6 +8,17 @@
       name="description"
       content="An experimental V2 of the ComplyMyProperty A-Z checker. Bright, guided, slide-based, and designed to show one calm next step at a time."
     >
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("qa") === "1") return;
+        const safe = new URLSearchParams();
+        const postcode = params.get("postcode") || params.get("pc") || "";
+        if (postcode) safe.set("postcode", postcode);
+        const search = safe.toString();
+        window.location.replace(`add-property.html${search ? `?${search}` : ""}`);
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;600;700;800&family=Sora:wght@600;700;800&display=swap" rel="stylesheet">

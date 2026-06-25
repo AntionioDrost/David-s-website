@@ -8,6 +8,14 @@
       name="description"
       content="CMP is a smart landlord compliance platform for property-by-property actions, evidence packs, renewals, and service bookings."
     >
+    <script>
+      (() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get("qa") !== "1") {
+          window.location.replace("my-properties.html");
+        }
+      })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link

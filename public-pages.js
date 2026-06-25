@@ -472,6 +472,7 @@
       message: "",
       stage: "",
       selectedId: "",
+      isCreating: false,
       canonicalRecord: null,
       canonicalReview: null,
       prefillHandled: false
@@ -694,6 +695,18 @@
       isTenanted: null,
       answeredQuestions: {}
     };
+  }
+
+  function serviceDraftForJourney(journey = currentJourney()) {
+    const answeredQuestions = journey?.answeredQuestions && typeof journey.answeredQuestions === "object"
+      ? journey.answeredQuestions
+      : {};
+    if (Object.keys(answeredQuestions).length) return answeredQuestions;
+    const directDraft = loadServiceDraft(journey?.entryService);
+    if (Object.keys(directDraft).length) return directDraft;
+    const sourceRoute = String(journey?.sourceRoute || "").split(/[?#]/)[0];
+    const sourceServiceKey = Object.keys(SERVICE_CONFIG).find((key) => SERVICE_CONFIG[key].route === sourceRoute);
+    return sourceServiceKey ? loadServiceDraft(sourceServiceKey) : {};
   }
 
   function serviceLabel(key) {
@@ -2274,29 +2287,6 @@
         ${renderFlashBanner()}
 
         <section class="page-section">
-          <div class="bridge-stage-row" aria-label="Add property flow">
-            <article>
-              <span>01</span>
-              <strong>Find address</strong>
-              <p>Start with a postcode and select the property.</p>
-            </article>
-            <article>
-              <span>02</span>
-              <strong>Smart Checks</strong>
-              <p>CMP prepares source and confidence labels.</p>
-            </article>
-            <article>
-              <span>03</span>
-              <strong>Review found data</strong>
-              <p>Confirm what is known, missing or needs review.</p>
-            </article>
-            <article>
-              <span>04</span>
-              <strong>Property Brain</strong>
-              <p>Open the property workspace and next best action.</p>
-            </article>
-          </div>
-
           <div class="add-property-stepper" aria-label="Add property steps">
             ${renderAddPropertyStepper()}
           </div>
@@ -2354,7 +2344,9 @@
       button.addEventListener("click", async () => {
         const match = state.addProperty.matches.find((item) => item.id === button.dataset.useAddress);
         if (!match) return;
+        if (state.addProperty.isCreating) return;
         state.addProperty.selectedId = match.id;
+        state.addProperty.isCreating = true;
         state.addProperty.stage = "Checking EPC records...";
         state.addProperty.message = "Checking EPC records...";
         renderAddPropertyPage();
@@ -2371,6 +2363,7 @@
 
         const bridge = window.CMPPublicPropertyBridge;
         if (!bridge?.createOrUpdatePropertyFromSelection) {
+          state.addProperty.isCreating = false;
           state.addProperty.stage = "Smart Checks unavailable";
           state.addProperty.message = "The property setup tool did not load. Please refresh and try again.";
           renderAddPropertyPage();
@@ -2379,9 +2372,10 @@
         const canonicalResult = bridge.createOrUpdatePropertyFromSelection(match, {
           storage: localStorage,
           journeyContext: currentJourney(),
-          serviceDraft: loadServiceDraft(currentJourney().entryService)
+          serviceDraft: serviceDraftForJourney()
         });
         if (!canonicalResult.ok) {
+          state.addProperty.isCreating = false;
           state.addProperty.stage = "Property needs checking";
           state.addProperty.message = canonicalResult.errors.join(" ");
           renderAddPropertyPage();
@@ -2389,23 +2383,14 @@
         }
         const canonicalRecord = canonicalResult.value.property;
         const canonicalReview = bridge.prepareReviewFoundData(canonicalRecord);
-        const property = buildPropertyFromSelection(match, canonicalRecord);
-        const existing = propertyEntries().find((item) => item.identity?.addressKey === property.identity.addressKey || item.identity?.uprn === property.identity.uprn);
-        const target = existing || property;
-        if (!existing) {
-          saveWorkspaceEntry(property, { ...currentJourney().answeredQuestions });
-          localStorage.setItem(ONBOARDING_STORAGE, "true");
-        }
         window.CMPJourney?.update?.({
-          selectedPropertyId: target.id
+          selectedPropertyId: canonicalRecord.id
         });
         state.addProperty.canonicalRecord = canonicalRecord;
         state.addProperty.canonicalReview = canonicalReview;
         state.addProperty.stage = "Review found data";
-        state.addProperty.message = existing
-          ? "Smart Checks updated. Review what CMP found before continuing."
-          : "Property file created. Smart Checks are ready for review before the next setup step.";
-        flash(existing ? "Smart Checks updated. Review found data is ready." : "Property file created. Review found data is ready.", "success");
+        state.addProperty.message = "Smart Checks are ready. Review what CMP found before continuing.";
+        flash("Review found data is ready.", "success");
         renderAddPropertyPage();
         queueAddPropertyProgression("[data-canonical-review]", "#addPropertyReviewTitle");
       });
@@ -2422,24 +2407,24 @@
     const reviewed = Boolean(state.addProperty.canonicalReview);
     const steps = [
       {
-        title: "Enter postcode",
-        detail: "Start with the property address search.",
-        state: state.addProperty.postcode ? "done" : "current"
-      },
-      {
-        title: "Choose address",
-        detail: "Pick the correct property card.",
-        state: selected ? "done" : state.addProperty.matches.length ? "current" : "upcoming"
+        title: "Find property",
+        detail: "Enter postcode and choose the correct address.",
+        state: selected || reviewed ? "done" : "current"
       },
       {
         title: "Smart Checks",
-        detail: "CMP prepares simulated checks for this property.",
+        detail: "CMP prepares source and confidence labels.",
         state: reviewed ? "done" : selected ? "current" : "upcoming"
       },
       {
         title: "Review found data",
-        detail: "Confirm sources, confidence and missing values.",
+        detail: "Confirm what is known, missing or needs review.",
         state: reviewed ? "current" : "upcoming"
+      },
+      {
+        title: "Open Property Brain",
+        detail: "Continue to the selected property workspace.",
+        state: "upcoming"
       }
     ];
 
@@ -2481,7 +2466,7 @@
                 <span></span>
               </div>
             </div>
-            <button class="button primary" type="button" data-use-address="${escapeHtml(match.id)}">${state.addProperty.selectedId === match.id ? "Selected" : "Use this property"}</button>
+            <button class="button primary" type="button" data-use-address="${escapeHtml(match.id)}" ${state.addProperty.isCreating ? "disabled" : ""}>${state.addProperty.selectedId === match.id && state.addProperty.isCreating ? "Preparing..." : state.addProperty.selectedId === match.id ? "Selected" : "Use this property"}</button>
           </article>
         `).join("")}
       </div>
@@ -2595,6 +2580,7 @@
       state.addProperty.message = "Enter a postcode to see the available addresses.";
       state.addProperty.stage = "Enter postcode";
       renderAddPropertyPage();
+      queueAddPropertyProgression("[data-add-property-step='find']", "#addPropertyPostcode");
       return;
     }
     state.addProperty.isSearching = true;
@@ -2614,6 +2600,7 @@
         state.addProperty.message = error.message;
         state.addProperty.stage = "Postcode needs checking";
         renderAddPropertyPage();
+        queueAddPropertyProgression("[data-add-property-step='find']", "#addPropertyPostcode");
         return;
       }
       meta = demoPostcodeMeta(postcode);
