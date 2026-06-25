@@ -125,7 +125,7 @@
     let body = "";
 
     if (id === "found-automatically") {
-      body = `${base}CMP found: ${formatFacts(context.knownFacts, "no confirmed automatic facts yet")}. Simulated Smart Checks remain prepared for review.`;
+      body = `${base}CMP found: ${formatFacts(context.knownFacts, "no confirmed automatic facts yet")}. Smart Checks use available and example information in this prototype. Review the source and confidence labels before relying on them.`;
     } else if (id === "unknowns" || id === "gas-confirmation") {
       body = `${base}CMP still needs confirmation for: ${formatFacts(context.unknownFacts, "no open unknowns are listed")}. Missing data stays unknown until you answer or add proof.`;
     } else if (id === "evidence-needed" || id === "eicr-proof" || id === "epc-missing") {

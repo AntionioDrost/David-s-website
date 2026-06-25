@@ -115,7 +115,9 @@ async function withStaticServer(fn) {
 }
 
 function changedFiles() {
-  return execFileSync("git", ["diff", "--name-only", "HEAD"], { cwd: repoRoot, encoding: "utf8" })
+  // Historical Stage 4 scope is pinned to its commit range; functional checks
+  // below still read the current cumulative branch.
+  return execFileSync("git", ["diff", "--name-only", "8ca34fe..73f947d"], { cwd: repoRoot, encoding: "utf8" })
     .split(/\r?\n/)
     .filter(Boolean);
 }
@@ -180,7 +182,12 @@ test("Review Found Data model is rendered from canonical record", () => {
   assert.equal(review.propertyId, "prop_stage4-review");
   assert.equal(review.address, "12 Canon Street, Birmingham, B1 1AA");
   assert.ok(review.foundAutomatically.length > 0);
-  assert.ok(review.needsConfirmation.length > 0);
+  assert.ok(review.foundAutomatically.some((item) => item.requiresConfirmation));
+  const foundOrMissingIds = new Set([
+    ...review.foundAutomatically.map((item) => item.id),
+    ...review.missingUnknown.map((item) => item.id),
+  ]);
+  assert.deepEqual(review.needsConfirmation.filter((item) => foundOrMissingIds.has(item.id)), []);
   assert.match(read("public-pages.js"), /data-canonical-review/);
 });
 

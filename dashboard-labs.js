@@ -3451,6 +3451,66 @@ function canonicalDerivedState() {
   return labsState.selectedCanonicalProperty?.derivedState || null;
 }
 
+function normalizedNormalRouteText(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim();
+}
+
+function findNormalRouteFixtureConflict(value, selectedAddress = canonicalWorkspaceShell()?.address || "") {
+  const text = normalizedNormalRouteText(value);
+  const selected = normalizedNormalRouteText(selectedAddress);
+  if (!text) return "";
+  for (const fixtureAddress of [
+    "57 The Butts",
+    "57-the-butts",
+    "12 Maple Quay",
+    "18 Willow Brook Drive",
+    "44 Northgate Mews",
+    "63 Paper Mill Street",
+    "25 Beacon Yard"
+  ]) {
+    const fixture = normalizedNormalRouteText(fixtureAddress);
+    if (text.includes(fixture) && !selected.includes(fixture)) {
+      return fixtureAddress;
+    }
+  }
+  return "";
+}
+
+function assertNormalCanonicalTextContext(value, label = "normal selected-property renderer") {
+  if (!isNormalSelectedCanonicalWorkspace()) return;
+  const conflict = findNormalRouteFixtureConflict(value);
+  if (conflict) {
+    throw new Error(`${label} attempted to render fixture address "${conflict}" for selected property ${canonicalWorkspaceShell()?.propertyId || "unknown"}.`);
+  }
+}
+
+function assertNormalCanonicalRecordContext(label = "normal selected-property renderer") {
+  if (!isNormalSelectedCanonicalWorkspace()) return;
+  const selected = labsState.selectedCanonicalProperty;
+  const record = selected?.record;
+  const shell = selected?.shell;
+  if (!record?.id || record.id !== selected.propertyId) {
+    throw new Error(`${label} attempted to render a mismatched property record.`);
+  }
+  if (!shell?.propertyId || shell.propertyId !== selected.propertyId) {
+    throw new Error(`${label} attempted to render a mismatched property shell.`);
+  }
+  [
+    record.address,
+    record.identity?.displayAddress,
+    record.identity?.postcode,
+    shell.address,
+    shell.postcode,
+    shell.smartCheckSummary,
+    ...(shell.foundDataSummary || []).map((item) => `${item.label} ${item.value}`),
+    ...(shell.needsConfirmationSummary || []).map((item) => `${item.label} ${item.value}`),
+    ...(shell.missingUnknownSummary || []).map((item) => `${item.label} ${item.value}`)
+  ].forEach((value) => assertNormalCanonicalTextContext(value, label));
+}
+
 function canonicalAskCmpContext() {
   if (!isCanonicalWorkspaceValid()) return null;
   const askContext = askContextApi();
@@ -3667,6 +3727,81 @@ function canonicalPrimaryServiceOption() {
 function selectedCanonicalServiceRequests() {
   const record = labsState.selectedCanonicalProperty?.record;
   return (record?.serviceRequests || []).filter((request) => request.propertyId === record.id);
+}
+
+function selectedCanonicalPrimaryAction() {
+  const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const record = labsState.selectedCanonicalProperty?.record;
+  const setupStage = record?.currentSetupStage || "";
+  const nextBestAction = derivedState?.nextBestAction || null;
+  const openServiceRequest = selectedCanonicalServiceRequests().find((request) => !["Cancelled", "Complete", "Completed"].includes(request.status));
+  const hasUnknowns = Boolean((shell?.missingUnknownSummary || []).length || (shell?.needsConfirmationSummary || []).length);
+  const setupIncomplete = ["add_property", "smart_checks", "review_found_data", "answer_unknowns"].includes(setupStage) || hasUnknowns || derivedState?.overallStatus === "setup_incomplete";
+
+  if (openServiceRequest) {
+    return {
+      label: "Continue service request",
+      tab: "services",
+      focusSelector: "[data-service-primary-card]",
+      prompt: "service-request"
+    };
+  }
+
+  if (setupIncomplete) {
+    return {
+      label: "Continue property setup",
+      tab: "details",
+      focusSelector: "[data-property-details-panel]",
+      prompt: "answer-unknowns"
+    };
+  }
+
+  if (nextBestAction?.primaryCtaLabel && /evidence|proof|upload/i.test(nextBestAction.primaryCtaLabel)) {
+    return {
+      label: "Add evidence",
+      tab: "documents",
+      focusSelector: "[data-document-upload-panel]",
+      prompt: "evidence-needed"
+    };
+  }
+
+  if (nextBestAction) {
+    return {
+      label: "Review next action",
+      tab: "overview",
+      focusSelector: "[data-canonical-next-action]",
+      prompt: "next-best-action"
+    };
+  }
+
+  return {
+    label: "Review property information",
+    tab: "details",
+    focusSelector: "[data-property-details-panel]",
+    prompt: "property-information"
+  };
+}
+
+function handleSelectedCanonicalPrimaryAction() {
+  if (!isCanonicalWorkspaceValid()) {
+    window.location.href = "my-properties.html";
+    return;
+  }
+
+  const action = selectedCanonicalPrimaryAction();
+  if (action.tab === "overview" && labsState.currentView === "home") {
+    window.setTimeout(() => scrollToPanel(action.focusSelector || "[data-canonical-next-action]"), 80);
+  } else {
+    switchTab(action.tab || "overview");
+    window.setTimeout(() => {
+      if (action.focusSelector) {
+        scrollToPanel(action.focusSelector);
+      }
+    }, 80);
+  }
+
+  setAssistantResponse(answerCanonicalAskPrompt(action.prompt || "next-best-action"));
 }
 
 function selectedCanonicalEvidenceForRequest(serviceRequestId) {
@@ -4485,7 +4620,12 @@ function showToast(message) {
 
   const toast = document.createElement("div");
   toast.className = "toast";
-  toast.textContent = message;
+  const isNormalCanonicalToast = isNormalSelectedCanonicalWorkspace();
+  if (isNormalCanonicalToast) {
+    toast.classList.add("toast-normal-route");
+  }
+  assertNormalCanonicalTextContext(message, "toast");
+  toast.textContent = String(message);
   region.append(toast);
 
   window.setTimeout(() => {
@@ -4497,10 +4637,8 @@ function setAssistantResponse(message) {
   const response = document.querySelector("[data-assistant-response] p");
 
   if (response) {
-    const safeMessage = isNormalSelectedCanonicalWorkspace() && /57 The Butts/i.test(String(message || ""))
-      ? answerCanonicalAskPrompt("next-best-action")
-      : message;
-    response.textContent = formatControlledAssistantResponse(safeMessage);
+    assertNormalCanonicalTextContext(message, "Ask CMP response");
+    response.textContent = formatControlledAssistantResponse(message);
   }
 }
 
@@ -4829,48 +4967,6 @@ function setText(selector, value) {
   }
 }
 
-function scrubNormalCanonicalRoutePresetText() {
-  if (!isCanonicalWorkspaceRoute() || isQaMode() || isNickDemoMode() || isCanonicalScenarioRoute()) {
-    return;
-  }
-
-  const shell = canonicalWorkspaceShell();
-  const replacementAddress = isCanonicalWorkspaceValid() ? shell.address : "selected property";
-  const replacementPostcode = isCanonicalWorkspaceValid() && shell.postcode ? shell.postcode : "postcode hidden";
-  const replacementFull = `${replacementAddress}${replacementPostcode ? `, ${replacementPostcode}` : ""}`;
-  const replacements = [
-    [/Flat 42,\s*57 The Butts,\s*Coventry,\s*CV1 3BJ/gi, replacementFull],
-    [/57 The Butts\s*·\s*CV1 3BJ/gi, `${replacementAddress} · ${replacementPostcode}`],
-    [/57 The Butts/gi, replacementAddress],
-    [/57-the-butts/gi, "selected-property"],
-    [/18 Willow Brook Drive\s*·\s*B37 7BA/gi, `${replacementAddress} · ${replacementPostcode}`],
-    [/18 Willow Brook Drive/gi, replacementAddress],
-    [/12 Maple Quay,\s*Bristol/gi, replacementAddress],
-    [/12 Maple Quay/gi, replacementAddress],
-    [/44 Northgate Mews/gi, replacementAddress],
-    [/63 Paper Mill Street/gi, replacementAddress],
-    [/25 Beacon Yard/gi, replacementAddress]
-  ];
-  const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
-  const textNodes = [];
-  while (walker.nextNode()) {
-    textNodes.push(walker.currentNode);
-  }
-  textNodes.forEach((node) => {
-    const parentTag = node.parentElement?.tagName?.toLowerCase() || "";
-    if (["script", "style"].includes(parentTag)) {
-      return;
-    }
-    let value = node.nodeValue || "";
-    replacements.forEach(([pattern, replacement]) => {
-      value = value.replace(pattern, replacement);
-    });
-    if (value !== node.nodeValue) {
-      node.nodeValue = value;
-    }
-  });
-}
-
 function renderSelectedCanonicalWorkspaceShell() {
   if (!isCanonicalWorkspaceRoute()) {
     return;
@@ -4894,6 +4990,14 @@ function renderSelectedCanonicalWorkspaceShell() {
   const propertyList = document.querySelector("[data-home-property-list]");
   const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
   const rankList = document.querySelector("[data-home-priority-rank-list]");
+  const homePromptRow = document.querySelector(".portfolio-prompt-row");
+  const propertyHeading = document.querySelector("#homePropertiesTitle");
+  const propertyHeadingBlock = propertyHeading?.closest(".section-heading");
+  const upcomingHeading = document.querySelector("#homeUpcomingTitle");
+  const upcomingHeadingBlock = upcomingHeading?.closest(".section-heading");
+  const headerPrimaryAction = document.querySelector(".portfolio-header-actions .primary-button");
+  const headerSecondaryAction = document.querySelector(".portfolio-header-actions .secondary-button");
+  const summaryPrimaryAction = document.querySelector("[data-home-open-action]");
 
   if (!isCanonicalWorkspaceValid()) {
     document.body.classList.add("canonical-property-route");
@@ -4910,6 +5014,15 @@ function renderSelectedCanonicalWorkspaceShell() {
         <span>Canonical ID required</span>
         <span>Workspace not loaded</span>
       `;
+    }
+    if (headerPrimaryAction) {
+      headerPrimaryAction.textContent = shell?.ctaLabel || "Open My Properties";
+      headerPrimaryAction.removeAttribute("data-journey-start");
+      headerPrimaryAction.setAttribute("data-normal-canonical-primary", "");
+      headerPrimaryAction.hidden = false;
+    }
+    if (headerSecondaryAction) {
+      headerSecondaryAction.hidden = true;
     }
     if (tabBar) {
       tabBar.hidden = true;
@@ -4982,10 +5095,10 @@ function renderSelectedCanonicalWorkspaceShell() {
       `;
     }
     hydrateIcons();
-    scrubNormalCanonicalRoutePresetText();
     return;
   }
 
+  assertNormalCanonicalRecordContext();
   document.body.classList.add("canonical-property-route");
   const derivedState = canonicalDerivedState();
   const nextBestAction = derivedState?.nextBestAction || null;
@@ -4993,10 +5106,12 @@ function renderSelectedCanonicalWorkspaceShell() {
   const monitoringItems = derivedState?.monitoringItems || [];
   const serviceOption = canonicalPrimaryServiceOption();
   const serviceRequests = selectedCanonicalServiceRequests();
+  const primaryAction = selectedCanonicalPrimaryAction();
+  const canonicalAskReportPanelMarkup = renderCanonicalAskReportPanel();
   const assistantResponse = document.querySelector("[data-assistant-response]");
   document.title = `${shell.address} | CMP`;
   setText(".breadcrumb", `Properties / ${shell.address}`);
-  setText(".prototype-badge", "Property workspace · Simulated Smart Check");
+  setText(".prototype-badge", "Property workspace · Smart Checks");
   setText("#propertyTitle", shell.address);
   if (headerIntro) {
     headerIntro.textContent = [shell.postcode, canonicalStatusLabel(derivedState?.overallStatus), canonicalRiskLabel(derivedState?.riskLevel)].filter(Boolean).join(" · ");
@@ -5007,6 +5122,15 @@ function renderSelectedCanonicalWorkspaceShell() {
       <span>${escapeHtml(canonicalStatusLabel(derivedState?.overallStatus))}</span>
       <span>Confidence: ${escapeHtml(derivedState?.confidenceLevel || "unknown")}</span>
     `;
+  }
+  if (headerPrimaryAction) {
+    headerPrimaryAction.textContent = primaryAction.label;
+    headerPrimaryAction.removeAttribute("data-journey-start");
+    headerPrimaryAction.setAttribute("data-normal-canonical-primary", "");
+    headerPrimaryAction.hidden = false;
+  }
+  if (headerSecondaryAction) {
+    headerSecondaryAction.hidden = true;
   }
   if (tabBar) {
     tabBar.hidden = false;
@@ -5043,8 +5167,24 @@ function renderSelectedCanonicalWorkspaceShell() {
   setText("[data-home-review-detail]", evidenceGaps.length ? "evidence gaps" : "items to review");
   setText("[data-home-autopilot-title]", "This property has one clear next step");
   setText("[data-home-autopilot-body]", "CMP has reviewed the selected property record and highlighted the most useful action to take next.");
+  if (homePromptRow) {
+    homePromptRow.remove();
+  }
+  if (propertyHeadingBlock) {
+    propertyHeadingBlock.querySelector(".section-kicker").textContent = "Selected property";
+    propertyHeading.textContent = "Property workspace";
+    propertyHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "This is the canonical property record opened from My Properties or Add Property.";
+  }
+  if (upcomingHeadingBlock) {
+    upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Next action path";
+    upcomingHeading.textContent = "Evidence, service and monitoring";
+    upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "Follow one property-specific next step, then keep evidence and monitoring tied to this address.";
+  }
   setText("[data-home-summary-title]", nextBestAction?.title || "Continue property setup");
   setText("[data-home-summary-body]", nextBestAction?.reason || shell.smartCheckSummary || "Review found data is prepared from the selected property file.");
+  if (summaryPrimaryAction) {
+    summaryPrimaryAction.textContent = primaryAction.label;
+  }
   setText("[data-home-priority-area]", nextBestAction?.primaryCtaLabel || "Smart Checks");
   setText("[data-home-priority-status]", canonicalStatusLabel(derivedState?.overallStatus));
   setText("[data-home-priority-body]", nextBestAction?.reason || "Workspace connected to this property. Detailed compliance sections remain transitional while CMP completes setup.");
@@ -5174,15 +5314,14 @@ function renderSelectedCanonicalWorkspaceShell() {
           : item.action === "service-request"
           ? `
             <button class="text-button" type="button" data-canonical-service-evidence-placeholder="${escapeHtml(item.requestId)}">Evidence needs review</button>
-            <button class="text-button" type="button" data-canonical-service-evidence-complete="${escapeHtml(item.requestId)}">Mark simulated evidence received</button>
+            <button class="text-button" type="button" data-canonical-service-evidence-complete="${escapeHtml(item.requestId)}">Mark evidence received</button>
           `
           : `<button class="text-button" type="button" data-toast="This selected-property preview is derived from the canonical record.">${escapeHtml(item.label || "Review")}</button>`
         }
       </article>
-    `).join("") + renderCanonicalAskReportPanel() + renderGuidedCanonicalDemoPanel();
+    `).join("") + canonicalAskReportPanelMarkup + renderGuidedCanonicalDemoPanel();
   }
   hydrateIcons();
-  scrubNormalCanonicalRoutePresetText();
 }
 
 function resetDemoState() {
@@ -6095,30 +6234,32 @@ function setNavItemLabel(navName, label) {
 function syncDemoChrome() {
   const nickMode = isNickDemoMode();
   const advancedMode = isAdvancedDemoMode();
-  const simpleProductNav = (nickMode && !advancedMode) || (!isTwoPropertyMode() && !isFivePropertyMode());
+  const normalCanonical = isNormalSelectedCanonicalWorkspace();
+  const simpleProductNav = normalCanonical || (nickMode && !advancedMode) || (!isTwoPropertyMode() && !isFivePropertyMode());
   document.body.classList.toggle("nick-demo-mode", nickMode);
   document.body.classList.toggle("advanced-demo-mode", advancedMode);
   document.body.classList.toggle("is-demo-route", nickMode || isCanonicalScenarioRoute());
   document.body.classList.toggle("is-qa-route", isQaMode() || advancedMode);
+  document.body.classList.toggle("normal-canonical-workspace", normalCanonical);
   document.body.classList.toggle("hide-prototype-machinery", shouldHidePrototypeMachinery());
   document.body.classList.toggle("simple-product-nav", simpleProductNav);
 
-  setNavItemLabel("Home", "Home");
-  setNavItemLabel("Properties", simpleProductNav ? "Property" : "Properties");
+  setNavItemLabel("Home", normalCanonical ? "Property Brain" : "Home");
+  setNavItemLabel("Properties", normalCanonical ? "My Properties" : simpleProductNav ? "Property" : "Properties");
   setNavItemLabel("Compliance centre", simpleProductNav ? "Complete property check" : "Compliance centre");
   setNavItemLabel("Add property", "Add property");
   setNavItemLabel("Evidence Vault", simpleProductNav ? "Evidence" : "Evidence Vault");
-  setNavItemLabel("Tasks", simpleProductNav ? "Action Plan" : "Tasks");
+  setNavItemLabel("Tasks", normalCanonical ? "Next action" : simpleProductNav ? "Action Plan" : "Tasks");
   setNavItemLabel("Activity", simpleProductNav ? "Monitoring" : "Activity");
   setNavItemLabel("Request service", simpleProductNav ? "Services" : "Request service");
 
   const portfolioHeading = document.querySelector("#navPortfolio");
   if (portfolioHeading) {
-    portfolioHeading.textContent = simpleProductNav ? "Property" : "Portfolio";
+    portfolioHeading.textContent = normalCanonical ? "Workspace" : simpleProductNav ? "Property" : "Portfolio";
   }
   const toolsHeading = document.querySelector("#navPortfolioTools");
   if (toolsHeading) {
-    toolsHeading.textContent = simpleProductNav ? "Property tools" : "Portfolio tools";
+    toolsHeading.textContent = normalCanonical ? "Property path" : simpleProductNav ? "Property tools" : "Portfolio tools";
   }
 }
 
@@ -6137,6 +6278,28 @@ function hidePropertyPanelsAndTabs() {
     tab.classList.remove("is-active");
     tab.setAttribute("aria-selected", "false");
   });
+}
+
+function normalCanonicalAssistantPromptForView(view) {
+  const prompts = {
+    home: "next-best-action",
+    properties: "found-automatically",
+    complianceCentre: "next-best-action",
+    evidenceVault: "evidence-needed",
+    tasks: "next-best-action",
+    activity: "monitoring-next",
+    bookService: "recommended-services",
+    learn: "property-summary-report",
+    settings: "property-summary-report"
+  };
+  return prompts[view] || "next-best-action";
+}
+
+function assistantResponseForActivatedPage(view, response) {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    return answerCanonicalAskPrompt(normalCanonicalAssistantPromptForView(view));
+  }
+  return response || getAssistantResponse(document.querySelector(".prompt-stack [data-prompt]")?.dataset.prompt || "");
 }
 
 function activatePortfolioPage({ selector, view, navLabel, bodyClass, response, scroll = false }) {
@@ -6159,7 +6322,7 @@ function activatePortfolioPage({ selector, view, navLabel, bodyClass, response, 
   setGlobalNavActive(navLabel);
   renderAllState();
   renderAssistantPrompts();
-  setAssistantResponse(response || getAssistantResponse(document.querySelector(".prompt-stack [data-prompt]")?.dataset.prompt || ""));
+  setAssistantResponse(assistantResponseForActivatedPage(view, response));
 
   if (scroll) {
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -11432,6 +11595,10 @@ function bindJourneyOs() {
   document.addEventListener("click", (event) => {
     if (event.target.closest("[data-journey-start]")) {
       event.preventDefault();
+      if (isNormalSelectedCanonicalWorkspace()) {
+        handleSelectedCanonicalPrimaryAction();
+        return;
+      }
       showJourneyOs({ scroll: true });
       return;
     }
@@ -18579,11 +18746,26 @@ function bindPortfolioHome() {
     button.addEventListener("click", openAddPropertyModal);
   });
 
+  document.addEventListener("click", (event) => {
+    if (!isNormalSelectedCanonicalWorkspace()) {
+      return;
+    }
+    if (event.target.closest("[data-normal-canonical-primary]")) {
+      event.preventDefault();
+      handleSelectedCanonicalPrimaryAction();
+    }
+  });
+
   document.querySelector("[data-home-ask]")?.addEventListener("click", () => {
     focusAssistantInput();
   });
 
   document.querySelector("[data-home-open-action]")?.addEventListener("click", () => {
+    if (isNormalSelectedCanonicalWorkspace()) {
+      handleSelectedCanonicalPrimaryAction();
+      return;
+    }
+
     if (isEmptyPortfolioMode()) {
       openAddPropertyModal();
       return;

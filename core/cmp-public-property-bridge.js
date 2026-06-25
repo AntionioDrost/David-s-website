@@ -538,7 +538,7 @@
       label: labelForCheck(check),
       value: valueForCheck(check),
       status: check.resultStatus,
-      sourceLabel: source.sourceLabel || "Simulated Smart Check",
+      sourceLabel: source.sourceLabel || "Smart Check",
       confidence: check.confidence || "unknown",
       capabilityStatus: check.capabilityStatus || "simulated",
       requiresConfirmation: Boolean(check.requiresConfirmation),
@@ -548,14 +548,19 @@
 
   function prepareReviewFoundData(propertyRecord) {
     const checks = propertyRecord.smartCheckResults || [];
+    const missingUnknownStatuses = new Set(["missing", "unknown"]);
     const foundAutomatically = checks
       .filter((check) => ["found", "likely"].includes(check.resultStatus))
       .map(reviewItem);
     const missingUnknown = checks
-      .filter((check) => ["missing", "unknown"].includes(check.resultStatus))
+      .filter((check) => missingUnknownStatuses.has(check.resultStatus))
       .map(reviewItem);
+    const alreadyVisible = new Set([
+      ...foundAutomatically.map((item) => item.id),
+      ...missingUnknown.map((item) => item.id),
+    ]);
     const needsConfirmation = checks
-      .filter((check) => check.requiresConfirmation)
+      .filter((check) => check.requiresConfirmation && !alreadyVisible.has(check.id))
       .map(reviewItem);
 
     return {
@@ -568,7 +573,7 @@
       missingUnknown,
       nextStepLabel: "Continue to workspace setup",
       handoffHref: `dashboard-labs.html?propertyId=${encodeURIComponent(propertyRecord.id)}&from=add-property`,
-      capabilityCopy: "Simulated Smart Check",
+      capabilityCopy: "Smart Checks use available and example information in this prototype. Review the findings before relying on them. No live supplier is contacted. No payment is taken. Guidance, not legal advice.",
     };
   }
 
@@ -686,7 +691,7 @@
       missingUnknownSummary: review.missingUnknown.slice(0, 4),
       needsConfirmationSummary: review.needsConfirmation.slice(0, 4),
       intro: "Workspace connected to this property. Detailed compliance analysis follows in the next setup step.",
-      sourceCopy: "Simulated Smart Check",
+      sourceCopy: "Example information in this prototype",
     };
   }
 

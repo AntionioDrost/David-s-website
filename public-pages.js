@@ -2276,7 +2276,7 @@
                 <input id="addPropertyPostcode" type="text" value="${escapeHtml(state.addProperty.postcode)}" placeholder="B37 7BA" autocomplete="postal-code">
                 <button class="button primary" type="submit" ${state.addProperty.isSearching ? "disabled" : ""}>${state.addProperty.isSearching ? "Checking..." : "Find address"}</button>
               </div>
-              <small>Smart Checks are simulated where live data is unavailable. Review found data before continuing.</small>
+              <small>Smart Checks prepare an initial view from the address and available property information. Review found data before continuing.</small>
             </form>
           </div>
           <div class="page-hero-visual page-hero-visual-add-property">
@@ -2318,7 +2318,7 @@
                 <span class="section-kicker">Step 3</span>
                 <h3 id="addPropertyChecksTitle" tabindex="-1">Run Smart Checks</h3>
               </div>
-              <p class="question-panel-copy">Once you confirm the address, CMP will prepare the property file, run simulated Smart Checks, and show what needs review next.</p>
+              <p class="question-panel-copy">Once you confirm the address, CMP will prepare the property file, run Smart Checks, and show what needs review next.</p>
               <div class="helper-card compact">
                 <h3>${escapeHtml(state.addProperty.stage || "Choose the address, then CMP will do the rest.")}</h3>
                 <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare Smart Checks and show Review found data from the same property file.")}</p>
@@ -2357,7 +2357,7 @@
         renderAddPropertyPage();
         await wait(450);
         state.addProperty.stage = "Preparing Review Found Data...";
-        state.addProperty.message = "Address matched. Preparing the property file and simulated Smart Checks...";
+        state.addProperty.message = "Address matched. Preparing the property file and Smart Checks...";
         renderAddPropertyPage();
         await wait(550);
 
@@ -2388,6 +2388,7 @@
         });
         state.addProperty.canonicalRecord = canonicalRecord;
         state.addProperty.canonicalReview = canonicalReview;
+        state.addProperty.isCreating = false;
         state.addProperty.stage = "Review found data";
         state.addProperty.message = "Smart Checks are ready. Review what CMP found before continuing.";
         flash("Review found data is ready.", "success");
@@ -2474,14 +2475,6 @@
   }
 
   function renderReviewItems(items) {
-    if (!items.length) {
-      return `
-        <div class="add-property-review-empty">
-          <strong>Nothing in this group yet</strong>
-          <p>CMP will add items here as more checks and answers are connected.</p>
-        </div>
-      `;
-    }
     return `
       <div class="add-property-review-list">
         ${items.map((item) => `
@@ -2493,8 +2486,8 @@
             <strong>${escapeHtml(item.label)}</strong>
             <p>${escapeHtml(item.value)}</p>
             <div class="property-summary-meta">
-              <span>Source: ${escapeHtml(item.sourceLabel)}</span>
-              <span>${escapeHtml(item.capabilityStatus === "simulated" ? "Simulated Smart Check" : item.capabilityStatus)}</span>
+              <span>Source: ${escapeHtml(landlordFacingCopy(item.sourceLabel))}</span>
+              <span>${escapeHtml(capabilityStatusCopy(item.capabilityStatus))}</span>
             </div>
             ${item.reason ? `<small>${escapeHtml(landlordFacingCopy(item.reason))}</small>` : ""}
           </article>
@@ -2506,31 +2499,38 @@
   function renderCanonicalReview() {
     const review = state.addProperty.canonicalReview;
     if (!review) return "";
+    const reviewGroups = [
+      {
+        title: "Found automatically",
+        body: "Facts CMP could prepare from the address selection and prepared checks.",
+        items: review.foundAutomatically
+      },
+      {
+        title: "Needs confirmation",
+        body: "Facts the landlord still needs to confirm before CMP can build the Property Brain.",
+        items: review.needsConfirmation
+      },
+      {
+        title: "Missing / unknown",
+        body: "Missing or unknown values stay explicit. They become next setup steps, not false facts.",
+        items: review.missingUnknown
+      }
+    ].filter((group) => group.items.length);
     return `
       <section class="question-panel" data-canonical-review data-add-property-step="review" data-property-id="${escapeHtml(review.propertyId)}">
         <div class="question-panel-heading">
           <span class="section-kicker">Step 4</span>
           <h3 id="addPropertyReviewTitle" tabindex="-1">Review found data</h3>
         </div>
-        <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}. These are simulated Smart Checks, prepared for review, not a legal compliance decision.</p>
+        <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}. ${escapeHtml(review.capabilityCopy)}</p>
 
-        <div class="helper-card compact review-found-card">
-          <h3>Found automatically</h3>
-          <p>Facts CMP could prepare from the address selection and simulated checks.</p>
-          ${renderReviewItems(review.foundAutomatically)}
-        </div>
-
-        <div class="helper-card compact review-found-card">
-          <h3>Needs confirmation</h3>
-          <p>Facts the landlord still needs to confirm before CMP can build the Property Brain.</p>
-          ${renderReviewItems(review.needsConfirmation)}
-        </div>
-
-        <div class="helper-card compact review-found-card">
-          <h3>Missing / unknown</h3>
-          <p>Missing or unknown values stay explicit. They become next setup steps, not false facts.</p>
-          ${renderReviewItems(review.missingUnknown)}
-        </div>
+        ${reviewGroups.map((group) => `
+          <div class="helper-card compact review-found-card">
+            <h3>${escapeHtml(group.title)}</h3>
+            <p>${escapeHtml(group.body)}</p>
+            ${renderReviewItems(group.items)}
+          </div>
+        `).join("")}
 
         <div class="service-journey-actions">
           <a class="button primary" data-canonical-handoff href="${escapeHtml(review.handoffHref)}">${escapeHtml(review.nextStepLabel)}</a>
@@ -2545,9 +2545,28 @@
   }
 
   function landlordFacingCopy(value) {
-    return String(value || "")
-      .replace(/prototype data/gi, "preview information")
-      .replace(/prototype/gi, "preview");
+    const raw = String(value || "");
+    const mapped = {
+      "Simulated Smart Check": "Smart Check",
+      "Simulated EPC preview": "Example EPC information",
+      "Simulated property preview": "Example property information",
+      "Simulated EPC data prepared for landlord review.": "Example EPC information is shown for landlord review. No live official lookup was performed.",
+      "Prepared for review from prototype data. No live supplier or official lookup was performed.": "Example information is shown for review. No live supplier or official lookup was performed.",
+      "Local authority unavailable in simulated preview": "Local authority is unavailable in the example information.",
+      "Property type unavailable in simulated preview": "Property type is unavailable in the example information.",
+      "Heating source unavailable in simulated preview": "Heating source is unavailable in the example information.",
+      "No EPC found in simulated preview": "No EPC found in the example information."
+    }[raw];
+    return mapped || raw;
+  }
+
+  function capabilityStatusCopy(value) {
+    const labels = {
+      simulated: "Prototype/example information",
+      live: "Live source"
+    };
+    const raw = String(value || "");
+    return labels[raw] || raw || "Needs review";
   }
 
   function queueAddPropertyProgression(sectionSelector, focusSelector) {
@@ -2840,7 +2859,7 @@
   function renderFlashBanner() {
     const notice = readFlash();
     if (!notice) return "";
-    return `<section class="page-section"><div class="flash-banner flash-${escapeHtml(notice.tone || "info")}"><strong>${escapeHtml(notice.message)}</strong></div></section>`;
+    return `<section class="page-section flash-banner-section"><div class="flash-banner flash-${escapeHtml(notice.tone || "info")}"><strong>${escapeHtml(notice.message)}</strong></div></section>`;
   }
 
   function toggleAssistant() {

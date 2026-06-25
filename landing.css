@@ -9034,6 +9034,13 @@ body[data-public-page="my-properties"] .bridge-hero {
   box-shadow: var(--bridge-shadow);
 }
 
+body[data-public-page="add-property"] .add-property-bridge-hero {
+  width: min(1120px, calc(100% - 32px));
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 420px);
+  gap: clamp(24px, 4vw, 42px);
+  align-items: stretch;
+}
+
 body[data-public-page="add-property"] .bridge-hero h1,
 body[data-public-page="my-properties"] .bridge-hero h1 {
   max-width: 12.4ch;
@@ -9141,7 +9148,33 @@ body[data-public-page="add-property"] .bridge-stage-row p {
 }
 
 body[data-public-page="add-property"] .add-property-flow {
+  max-width: 960px;
+  margin-inline: auto;
   grid-template-columns: minmax(0, 0.88fr) minmax(0, 1.12fr);
+}
+
+body[data-public-page="add-property"] .add-property-bridge-page > .page-hero,
+body[data-public-page="add-property"] .add-property-bridge-page > .page-section {
+  margin-top: 0;
+  margin-bottom: 0;
+}
+
+body[data-public-page="add-property"] .add-property-bridge-page > .page-section {
+  padding-top: 24px;
+  padding-bottom: 52px;
+}
+
+body[data-public-page="add-property"] .add-property-bridge-page > .flash-banner-section {
+  padding-top: 14px;
+  padding-bottom: 6px;
+}
+
+body[data-public-page="add-property"] .add-property-bridge-page > .flash-banner-section + .page-section {
+  padding-top: 0;
+}
+
+body[data-public-page="add-property"] .flash-banner-section .flash-banner {
+  margin: 0;
 }
 
 body[data-public-page="add-property"] .add-property-flow .question-panel {

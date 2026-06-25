@@ -32,6 +32,12 @@ function changedFiles() {
     .filter(Boolean);
 }
 
+function historicalChangedFiles(commit) {
+  return execFileSync("git", ["diff-tree", "--no-commit-id", "--name-only", "-r", commit], { cwd: repoRoot, encoding: "utf8" })
+    .split(/\r?\n/)
+    .filter(Boolean);
+}
+
 function fakeStorage(initial = {}) {
   const store = new Map(Object.entries(initial).map(([key, value]) => [key, String(value)]));
   const calls = [];
@@ -800,7 +806,7 @@ test("route files still return HTTP 200 for normal and explicit QA entries", asy
   });
 });
 
-test("Stage A file scope leaves schemas, rules, lifecycles and external workspace untouched", () => {
+test("Stage A historical file scope leaves schemas, rules, lifecycles and external workspace untouched", () => {
   const allowed = new Set([
     "dashboard-labs.js",
     "dashboard-labs.html",
@@ -815,8 +821,32 @@ test("Stage A file scope leaves schemas, rules, lifecycles and external workspac
     "tools/cmp-stage-12-final-audit-check.mjs",
     "tools/cmp-stage-a-context-demo-quarantine-check.mjs",
   ]);
-  const changed = changedFiles().filter((file) => !file.startsWith("audit/"));
+  // Historical stage-scope validation is pinned to the Stage A commit so
+  // cumulative Stage B/C regression runs do not fail because later files moved.
+  const changed = historicalChangedFiles("c255d31d").filter((file) => !file.startsWith("audit/"));
   assert.deepEqual(changed.filter((file) => !allowed.has(file)), []);
+});
+
+test("current cumulative branch still avoids protected schemas, rules, lifecycles and external workspace", () => {
+  const protectedPaths = new Set([
+    "core/cmp-ask-context.js",
+    "core/cmp-compliance-derivation.js",
+    "core/cmp-evidence-lifecycle.js",
+    "core/cmp-monitoring-derivation.js",
+    "core/cmp-portfolio-actions.js",
+    "core/cmp-portfolio-derivation.js",
+    "core/cmp-priority-rules.js",
+    "core/cmp-property-actions.js",
+    "core/cmp-property-store.js",
+    "core/cmp-report-generator.js",
+    "core/cmp-score-derivation.js",
+    "core/cmp-service-lifecycle.js",
+    "core/cmp-storage-drivers.js",
+    "core/cmp-transitional-adapters.js",
+  ]);
+  const changed = changedFiles().filter((file) => !file.startsWith("audit/"));
+  assert.deepEqual(changed.filter((file) => protectedPaths.has(file)), []);
+  assert.equal(changed.some((file) => file.startsWith("../") || file.includes("/Users/davidtaylor/Code/mysite")), false);
 });
 
 let passed = 0;

@@ -473,10 +473,12 @@ test("product isolation", async (t) => {
 
   await t.test("no existing product HTML/CSS/runtime page file changed during Stage 3", () => {
     const allowed = [/^core\//, /^contracts\/examples\//, /^docs\/CMP_CANONICAL_STORE_API\.md$/, /^docs\/CMP_LEGACY_ADAPTER_MATRIX\.md$/, /^tools\/cmp-stage-2-contract-check\.mjs$/, /^tools\/cmp-stage-3-property-store-check\.mjs$/];
-    const status = execFileSync("git", ["status", "--porcelain"], { cwd: root, encoding: "utf8" })
+    // Historical Stage 3 scope is pinned to its commit range so current
+    // cumulative runs can include later Stage C product hardening.
+    const status = execFileSync("git", ["diff", "--name-only", "0c6c79f..8ca34fe"], { cwd: root, encoding: "utf8" })
       .split("\n")
       .filter(Boolean)
-      .map((line) => line.slice(3).trim());
+      .map((line) => line.trim());
     for (const file of status) {
       assert.ok(allowed.some((pattern) => pattern.test(file)), `unexpected changed file: ${file}`);
     }

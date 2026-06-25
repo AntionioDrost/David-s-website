@@ -10001,6 +10001,11 @@ textarea:focus-visible,
   box-shadow: inset 0 0 0 1px rgba(31, 122, 83, 0.14);
 }
 
+body.normal-canonical-workspace .toast::before,
+.toast.toast-normal-route::before {
+  content: "Notice";
+}
+
 .assistant-response {
   position: relative;
   min-height: 220px;
@@ -19817,6 +19822,19 @@ body.checker-is-active .labs-sidebar .property-option.is-current {
 /* CMP V2 final journey polish: selected-property cards and watchlist readability. */
 body.canonical-property-route .workspace {
   max-width: 940px;
+}
+
+body.normal-canonical-workspace [data-global-nav="Add property"],
+body.normal-canonical-workspace [data-global-nav="Ask CMP"],
+body.normal-canonical-workspace [data-global-nav="Compliance centre"],
+body.normal-canonical-workspace [data-global-nav="Learn"],
+body.normal-canonical-workspace [data-global-nav="Settings"],
+body.normal-canonical-workspace .quiet-add {
+  display: none !important;
+}
+
+body.normal-canonical-workspace .portfolio-header-actions {
+  justify-content: flex-start;
 }
 
 body.canonical-property-route .portfolio-home-header {

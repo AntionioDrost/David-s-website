@@ -29,7 +29,9 @@ function read(filePath) {
 }
 
 function changedFiles() {
-  return execFileSync("git", ["diff", "--name-only", "HEAD"], { cwd: repoRoot, encoding: "utf8" })
+  // Historical Stage 11 scope is pinned to its commit range; functional checks
+  // below still read the current cumulative branch.
+  return execFileSync("git", ["diff", "--name-only", "464140a..48708a2"], { cwd: repoRoot, encoding: "utf8" })
     .split(/\r?\n/)
     .filter(Boolean);
 }
