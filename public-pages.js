@@ -2260,74 +2260,76 @@
     app.innerHTML = `
       ${baseHeader("add-property")}
       <main class="public-main bridge-page add-property-bridge-page public-v2-bridge">
-        <section class="page-hero public-page-hero bridge-hero add-property-bridge-hero">
-          <div>
-            <span class="eyebrow">Add property</span>
-            <h1>Start your property check from the address.</h1>
-            <p>Enter a postcode, choose the right property and let CMP prepare Smart Checks before you move into the Property Brain.</p>
-            <div class="hero-metrics">
-              <span><strong>Path</strong> ${escapeHtml(service.title)}</span>
-              <span><strong>Focus</strong> ${escapeHtml(focusLabel(context.focusMode || "service_only"))}</span>
-              <span><strong>Tenancy</strong> ${escapeHtml(tenancyLabel(context.isTenanted || "unsure"))}</span>
+        <div class="cmp-public-container add-property-journey-shell">
+          <section class="page-hero public-page-hero bridge-hero add-property-bridge-hero">
+            <div class="add-property-hero-copy">
+              <span class="eyebrow">Add property</span>
+              <h1>Start your property check from the address.</h1>
+              <p>Enter a postcode, choose the right property and let CMP prepare Smart Checks before you move into the Property Brain.</p>
+              <div class="hero-metrics">
+                <span><strong>Path</strong> ${escapeHtml(service.title)}</span>
+                <span><strong>Focus</strong> ${escapeHtml(focusLabel(context.focusMode || "service_only"))}</span>
+                <span><strong>Tenancy</strong> ${escapeHtml(tenancyLabel(context.isTenanted || "unsure"))}</span>
+              </div>
+              <form class="postcode-card bridge-postcode-card" id="addPropertySearchForm">
+                <label for="addPropertyPostcode">Property postcode</label>
+                <div class="postcode-row">
+                  <input id="addPropertyPostcode" type="text" value="${escapeHtml(state.addProperty.postcode)}" placeholder="B37 7BA" autocomplete="postal-code">
+                  <button class="button primary" type="submit" ${state.addProperty.isSearching ? "disabled" : ""}>${state.addProperty.isSearching ? "Checking..." : "Find address"}</button>
+                </div>
+                <small>Smart Checks prepare an initial view from the address and available property information. Review found data before continuing.</small>
+              </form>
             </div>
-            <form class="postcode-card bridge-postcode-card" id="addPropertySearchForm">
-              <label for="addPropertyPostcode">Property postcode</label>
-              <div class="postcode-row">
-                <input id="addPropertyPostcode" type="text" value="${escapeHtml(state.addProperty.postcode)}" placeholder="B37 7BA" autocomplete="postal-code">
-                <button class="button primary" type="submit" ${state.addProperty.isSearching ? "disabled" : ""}>${state.addProperty.isSearching ? "Checking..." : "Find address"}</button>
-              </div>
-              <small>Smart Checks prepare an initial view from the address and available property information. Review found data before continuing.</small>
-            </form>
-          </div>
-          <div class="page-hero-visual page-hero-visual-add-property">
-            ${renderAddPropertyHeroStage()}
-          </div>
-        </section>
+            <div class="page-hero-visual page-hero-visual-add-property">
+              ${renderAddPropertyHeroStage()}
+            </div>
+          </section>
 
-        ${renderFlashBanner()}
+          ${renderFlashBanner()}
 
-        <section class="page-section">
-          <div class="add-property-stepper" aria-label="Add property steps">
-            ${renderAddPropertyStepper()}
-          </div>
+          <section class="page-section add-property-workflow-section">
+            <div class="add-property-stepper add-property-progress" aria-label="Add property steps">
+              ${renderAddPropertyStepper()}
+            </div>
 
-          <div class="question-stack add-property-flow">
-            <section class="question-panel" data-add-property-step="find">
-              <div class="question-panel-heading">
-                <span class="section-kicker">Step 1</span>
-                <h3 id="addPropertyFindTitle" tabindex="-1">Find the property</h3>
-              </div>
-              <p class="question-panel-copy">Use the postcode search above. CMP will try to find address matches and EPC information automatically.</p>
-              <div class="helper-card compact bridge-helper">
-                <h3>${escapeHtml(state.addProperty.postcode ? "Postcode ready" : "Enter a postcode to begin")}</h3>
-                <p>${escapeHtml(state.addProperty.postcode ? "Choose the correct property below when the address options appear." : "The first step creates the property file that Smart Checks and Review found data can build on.")}</p>
-              </div>
-            </section>
+            <div class="question-stack add-property-flow">
+              <section class="question-panel" data-add-property-step="find">
+                <div class="question-panel-heading">
+                  <span class="section-kicker">Find property</span>
+                  <h3 id="addPropertyFindTitle" tabindex="-1">Find the property</h3>
+                </div>
+                <p class="question-panel-copy">Use the postcode search above. CMP will try to find address matches and EPC information automatically.</p>
+                <div class="helper-card compact bridge-helper">
+                  <h3>${escapeHtml(state.addProperty.postcode ? "Postcode ready" : "Enter a postcode to begin")}</h3>
+                  <p>${escapeHtml(state.addProperty.postcode ? "Choose the correct property below when the address options appear." : "The first step creates the property file that Smart Checks and Review found data can build on.")}</p>
+                </div>
+              </section>
 
-            <section class="question-panel" data-add-property-step="address">
-              <div class="question-panel-heading">
-                <span class="section-kicker">Step 2</span>
-                <h3 id="addPropertyAddressTitle" tabindex="-1">Select address</h3>
-              </div>
-              <p class="question-panel-copy">Choose the right property card below. CMP will carry the selected address into your property record.</p>
-              ${renderAddressResults()}
-            </section>
+              <section class="question-panel" data-add-property-step="address">
+                <div class="question-panel-heading">
+                  <span class="section-kicker">Current subtask</span>
+                  <h3 id="addPropertyAddressTitle" tabindex="-1">Select address</h3>
+                </div>
+                <p class="question-panel-copy">Choose the right property card below. CMP will carry the selected address into your property record.</p>
+                ${renderAddressResults()}
+              </section>
 
-            <section class="question-panel" data-add-property-step="checks">
-              <div class="question-panel-heading">
-                <span class="section-kicker">Step 3</span>
-                <h3 id="addPropertyChecksTitle" tabindex="-1">Run Smart Checks</h3>
-              </div>
-              <p class="question-panel-copy">Once you confirm the address, CMP will prepare the property file, run Smart Checks, and show what needs review next.</p>
-              <div class="helper-card compact">
-                <h3>${escapeHtml(state.addProperty.stage || "Choose the address, then CMP will do the rest.")}</h3>
-                <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare Smart Checks and show Review found data from the same property file.")}</p>
-              </div>
-            </section>
+              <section class="question-panel" data-add-property-step="checks">
+                <div class="question-panel-heading">
+                  <span class="section-kicker">Smart Checks</span>
+                  <h3 id="addPropertyChecksTitle" tabindex="-1">Run Smart Checks</h3>
+                </div>
+                <p class="question-panel-copy">Once you confirm the address, CMP will prepare the property file, run Smart Checks, and show what needs review next.</p>
+                <div class="helper-card compact">
+                  <h3>${escapeHtml(state.addProperty.stage || "Choose the address, then CMP will do the rest.")}</h3>
+                  <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare Smart Checks and show Review found data from the same property file.")}</p>
+                </div>
+              </section>
 
-            ${renderCanonicalReview()}
-          </div>
-        </section>
+              ${renderCanonicalReview()}
+            </div>
+          </section>
+        </div>
       </main>
       ${baseFooter()}
       ${assistantWidget()}
@@ -2478,16 +2480,13 @@
     return `
       <div class="add-property-review-list">
         ${items.map((item) => `
-          <article class="add-property-review-item">
-            <div class="property-summary-meta">
-              <span class="status-pill ${escapeHtml(item.status === "missing" || item.status === "unknown" ? "warning" : "info")}">${escapeHtml(item.status === "missing" ? "Missing / unknown" : item.status === "unknown" ? "Missing / unknown" : "Prepared for review")}</span>
-              <span class="quiet-pill">Confidence: ${escapeHtml(item.confidence)}</span>
-            </div>
+          <article class="add-property-review-item" data-review-fact-key="${escapeHtml(item.label)}">
+            ${item.status === "missing" || item.status === "unknown" ? `<span class="status-pill warning">Missing / unknown</span>` : ""}
             <strong>${escapeHtml(item.label)}</strong>
             <p>${escapeHtml(item.value)}</p>
             <div class="property-summary-meta">
+              <span>Confidence: ${escapeHtml(item.confidence)}</span>
               <span>Source: ${escapeHtml(landlordFacingCopy(item.sourceLabel))}</span>
-              <span>${escapeHtml(capabilityStatusCopy(item.capabilityStatus))}</span>
             </div>
             ${item.reason ? `<small>${escapeHtml(landlordFacingCopy(item.reason))}</small>` : ""}
           </article>
@@ -2499,30 +2498,30 @@
   function renderCanonicalReview() {
     const review = state.addProperty.canonicalReview;
     if (!review) return "";
+    const landlordQuestionItems = reviewQuestionItems(review);
+    const landlordQuestionIds = new Set(landlordQuestionItems.map((item) => item.id));
+    const foundItems = review.foundAutomatically.filter((item) => !landlordQuestionIds.has(item.id));
+    const handoff = reviewHandoffState(review);
     const reviewGroups = [
       {
-        title: "Found automatically",
-        body: "Facts CMP could prepare from the address selection and prepared checks.",
-        items: review.foundAutomatically
+        title: "What CMP found",
+        body: "Address, local context and property information prepared from the selected property.",
+        items: foundItems
       },
       {
-        title: "Needs confirmation",
-        body: "Facts the landlord still needs to confirm before CMP can build the Property Brain.",
-        items: review.needsConfirmation
-      },
-      {
-        title: "Missing / unknown",
-        body: "Missing or unknown values stay explicit. They become next setup steps, not false facts.",
-        items: review.missingUnknown
+        title: "What still needs your answer",
+        body: "Only unknowns and landlord-owned property questions stay here before the Property Brain is completed.",
+        items: landlordQuestionItems
       }
     ].filter((group) => group.items.length);
     return `
       <section class="question-panel" data-canonical-review data-add-property-step="review" data-property-id="${escapeHtml(review.propertyId)}">
         <div class="question-panel-heading">
-          <span class="section-kicker">Step 4</span>
+          <span class="section-kicker">Review found data</span>
           <h3 id="addPropertyReviewTitle" tabindex="-1">Review found data</h3>
         </div>
-        <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}. ${escapeHtml(review.capabilityCopy)}</p>
+        <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}.</p>
+        <p class="review-capability-disclosure">Example and available property information is shown for review. No live official lookup or legal compliance decision has been made.</p>
 
         ${reviewGroups.map((group) => `
           <div class="helper-card compact review-found-card">
@@ -2532,12 +2531,43 @@
           </div>
         `).join("")}
 
-        <div class="service-journey-actions">
-          <a class="button primary" data-canonical-handoff href="${escapeHtml(review.handoffHref)}">${escapeHtml(review.nextStepLabel)}</a>
-          <a class="button secondary" href="my-properties.html">Continue to My Properties</a>
+        <div class="review-handoff-card">
+          <div>
+            <span class="section-kicker">Next step</span>
+            <h3>${escapeHtml(handoff.heading)}</h3>
+            <p>${escapeHtml(handoff.copy)}</p>
+          </div>
+          <div class="service-journey-actions">
+            <a class="button primary" data-canonical-handoff href="${escapeHtml(handoff.href)}">${escapeHtml(handoff.primaryLabel)}</a>
+            <a class="button secondary" href="my-properties.html">Save and return to My Properties</a>
+          </div>
         </div>
       </section>
     `;
+  }
+
+  function reviewQuestionItems(review) {
+    const byId = new Map();
+    [
+      ...(review.missingUnknown || []),
+      ...(review.needsConfirmation || []),
+      ...(review.foundAutomatically || []).filter((item) => item.label === "Heating source")
+    ].forEach((item) => {
+      if (item?.id) byId.set(item.id, item);
+    });
+    return [...byId.values()];
+  }
+
+  function reviewHandoffState(review) {
+    const hasPropertyQuestions = reviewQuestionItems(review).length > 0;
+    return {
+      heading: "What happens next",
+      copy: hasPropertyQuestions
+        ? "Answer the remaining property questions so CMP can complete the Property Brain and recommend one clear next action."
+        : "Open the Property Brain to review the property position and one clear next action.",
+      primaryLabel: hasPropertyQuestions ? "Continue to property questions" : "Open Property Brain",
+      href: review.handoffHref
+    };
   }
 
   function wait(ms) {
@@ -2562,7 +2592,7 @@
 
   function capabilityStatusCopy(value) {
     const labels = {
-      simulated: "Prototype/example information",
+      simulated: "Example information",
       live: "Live source"
     };
     const raw = String(value || "");

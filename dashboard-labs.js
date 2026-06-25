@@ -2234,11 +2234,11 @@ function newPropertyEvidenceRows(setup = newPropertySetup()) {
       sourceClass: "status-neutral-text",
       status: "Needs answer",
       statusClass: "status-watch-text",
-      keyDate: "Confirm in guided check",
+      keyDate: "Confirm in property setup",
       filters: ["missing", "review"],
       search: "smoke co alarms 57 butts landlord answer evidence",
       actions: [
-        { label: "Continue guided check", action: "startGuidedCheck", primary: true },
+        { label: "Continue property setup", action: "startGuidedCheck", primary: true },
         { label: "Ask CMP", action: "askReview" }
       ]
     },
@@ -2256,7 +2256,7 @@ function newPropertyEvidenceRows(setup = newPropertySetup()) {
       filters: ["missing", "review"],
       search: "tenancy deposit documents 57 butts occupancy unknown not assessed",
       actions: [
-        { label: "Continue guided check", action: "startGuidedCheck", primary: true },
+        { label: "Continue property setup", action: "startGuidedCheck", primary: true },
         { label: "Ask CMP", action: "askTenancy" }
       ]
     },
@@ -2393,7 +2393,7 @@ function newPropertyTaskItems(setup = newPropertySetup()) {
       source: "Smart Search setup",
       body: "CMP needs the landlord answer before it can decide whether supporting evidence is needed.",
       status: "Needs answer",
-      suggestedAction: "Continue guided check",
+      suggestedAction: "Continue property setup",
       board: "progress",
       filters: ["evidence"],
       detail: "Alarm status depends on landlord input and supporting evidence if available.",
@@ -3776,10 +3776,10 @@ function selectedCanonicalPrimaryAction() {
   }
 
   return {
-    label: "Review property information",
-    tab: "details",
-    focusSelector: "[data-property-details-panel]",
-    prompt: "property-information"
+    label: "Review next action",
+    tab: "overview",
+    focusSelector: "[data-canonical-next-action]",
+    prompt: "next-best-action"
   };
 }
 
@@ -5107,6 +5107,9 @@ function renderSelectedCanonicalWorkspaceShell() {
   const serviceOption = canonicalPrimaryServiceOption();
   const serviceRequests = selectedCanonicalServiceRequests();
   const primaryAction = selectedCanonicalPrimaryAction();
+  const propertySetupIncomplete = primaryAction.label === "Continue property setup";
+  const propertySetupOrientation = "Property details → Property Brain → Next action";
+  const propertySetupIntro = "Answer the remaining property questions, then CMP will build the Property Brain and recommend one clear next action.";
   const canonicalAskReportPanelMarkup = renderCanonicalAskReportPanel();
   const assistantResponse = document.querySelector("[data-assistant-response]");
   document.title = `${shell.address} | CMP`;
@@ -5148,12 +5151,12 @@ function renderSelectedCanonicalWorkspaceShell() {
     homeQuickWin.hidden = true;
   }
   setText("[data-portfolio-home] .section-kicker", "Property workspace");
-  setText("#portfolioHomeTitle", `Workspace for ${shell.address}`);
+  setText("#portfolioHomeTitle", propertySetupIncomplete ? "Your property file is taking shape" : `Workspace for ${shell.address}`);
   if (homeIntro) {
-    homeIntro.textContent = nextBestAction?.reason || shell.intro;
+    homeIntro.textContent = propertySetupIncomplete ? propertySetupIntro : nextBestAction?.reason || shell.intro;
   }
   if (homeBadge) {
-    homeBadge.textContent = `${shell.postcode || "Postcode to confirm"} · ${canonicalRiskLabel(derivedState?.riskLevel)}`;
+    homeBadge.textContent = propertySetupOrientation;
   }
   home?.setAttribute("data-canonical-workspace-shell", "");
   homePriorityCard?.setAttribute("data-canonical-next-action", "");
@@ -5165,8 +5168,8 @@ function renderSelectedCanonicalWorkspaceShell() {
   setText("[data-home-verified-count]", String((derivedState?.evidenceState || []).filter((item) => ["accepted", "held"].includes(item.proofStatus)).length));
   setText("[data-home-review-count]", String(evidenceGaps.length || (shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0)));
   setText("[data-home-review-detail]", evidenceGaps.length ? "evidence gaps" : "items to review");
-  setText("[data-home-autopilot-title]", "This property has one clear next step");
-  setText("[data-home-autopilot-body]", "CMP has reviewed the selected property record and highlighted the most useful action to take next.");
+  setText("[data-home-autopilot-title]", propertySetupIncomplete ? "Your property file is taking shape" : "This property has one clear next step");
+  setText("[data-home-autopilot-body]", propertySetupIncomplete ? propertySetupIntro : "CMP has reviewed the selected property record and highlighted the most useful action to take next.");
   if (homePromptRow) {
     homePromptRow.remove();
   }
@@ -5180,8 +5183,8 @@ function renderSelectedCanonicalWorkspaceShell() {
     upcomingHeading.textContent = "Evidence, service and monitoring";
     upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "Follow one property-specific next step, then keep evidence and monitoring tied to this address.";
   }
-  setText("[data-home-summary-title]", nextBestAction?.title || "Continue property setup");
-  setText("[data-home-summary-body]", nextBestAction?.reason || shell.smartCheckSummary || "Review found data is prepared from the selected property file.");
+  setText("[data-home-summary-title]", propertySetupIncomplete ? "Your property file is taking shape" : nextBestAction?.title || "Review next action");
+  setText("[data-home-summary-body]", propertySetupIncomplete ? propertySetupIntro : nextBestAction?.reason || shell.smartCheckSummary || "Review the property position and one clear next action.");
   if (summaryPrimaryAction) {
     summaryPrimaryAction.textContent = primaryAction.label;
   }
@@ -5920,8 +5923,8 @@ function getGlobalServiceAssistantResponse(prompt) {
     const responses = {
       "What should I book first?": "Do not book a service yet. Confirm the property details and upload any certificates first so CMP can recommend the right support.",
       "Why is this recommended?": "CMP is holding service recommendations until it knows whether Gas Safety, EICR, licensing or other evidence gaps actually apply.",
-      "Can CMP help arrange it?": "CMP can help arrange support after the guided check confirms the property context and evidence gaps.",
-      "What can wait until later?": "Service requests can wait. Continue the guided check and upload existing evidence first."
+      "Can CMP help arrange it?": "CMP can help arrange support after property setup confirms the property context and evidence gaps.",
+      "What can wait until later?": "Service requests can wait. Continue property setup and upload existing evidence first."
     };
     return responses[prompt] || responses["What should I book first?"];
   }
@@ -13054,7 +13057,7 @@ function renderComplianceGaps() {
         </div>
         <div class="compliance-gap-actions">
           <button class="${primary ? "primary-button" : "text-button"}" type="button" data-compliance-action="${escapeHtml(action)}">
-            ${primary ? "Continue guided check" : "Review"}
+            ${primary ? "Continue property setup" : "Review"}
           </button>
         </div>
       </article>
@@ -13822,7 +13825,7 @@ function azCardsForSection(sectionId, property) {
       epc: [
         azCard(sectionId, { id: "occupancy-route", eyebrow: "Step 2", label: "Which setup route applies?", value: facts.tenanted, source: "Landlord answer needed", action: "Answer", options: ["Vacant", "Ready to let", "Currently tenanted", "New purchase review", "Not sure"], helper: "This tells CMP whether tenancy/deposit documents matter now or can wait." }),
         azCard(sectionId, { id: "move-in", eyebrow: "Tenancy timing", label: "Is anyone due to move in soon?", value: "Unknown", source: "Landlord answer needed", action: "Answer", options: ["Yes", "No", "Already occupied", "Not sure"], helper: "Move-in timing affects how quickly tenant-facing evidence becomes important." }),
-        azCard(sectionId, { id: "landlord-goal", eyebrow: "Goal", label: "What are you trying to do first?", value: "New property setup", source: "Setup flow", action: "Edit", control: "select", options: ["New property setup", "Ready to let", "Review existing tenancy", "New purchase review", "Build evidence pack"], helper: "CMP uses this to keep the guided check practical." })
+        azCard(sectionId, { id: "landlord-goal", eyebrow: "Goal", label: "What are you trying to do first?", value: "New property setup", source: "Setup flow", action: "Edit", control: "select", options: ["New property setup", "Ready to let", "Review existing tenancy", "New purchase review", "Build evidence pack"], helper: "CMP uses this to keep the property setup practical." })
       ],
       "gas-safety": [
         azCard(sectionId, { id: "appliances", eyebrow: "Landlord answer", label: "Does the property have gas appliances?", value: facts.gasAppliances, source: "Landlord answer needed", action: "Answer" }),
@@ -14034,7 +14037,7 @@ function renderNewPropertySetupSummary() {
           ${renderNewPropertyGuidedStages()}
         </ol>
         <div class="button-row">
-          <button class="primary-button" type="button" data-new-setup-start>Start guided check</button>
+          <button class="primary-button" type="button" data-new-setup-start>Start property setup</button>
           <button class="secondary-button" type="button" data-new-setup-upload>Upload certificates first</button>
         </div>
         <p class="new-property-setup-note">You can skip anything you do not know and return later. Scores, gaps and service recommendations stay provisional until these setup details are confirmed.</p>
@@ -14531,7 +14534,7 @@ function renderSmartSearchResults() {
       <ul>
         ${remainingItems.length
           ? remainingItems.map((item) => `<li>${escapeHtml(item)}</li>`).join("")
-          : "<li>Core setup unknowns are answered. Continue the guided check when ready.</li>"}
+          : "<li>Core setup unknowns are answered. Continue property setup when ready.</li>"}
       </ul>
       <div class="button-row">
         <button class="primary-button" type="button" ${nextPrimaryAttr}>${nextPrimaryLabel}</button>
@@ -15342,7 +15345,7 @@ function renderAzChecker() {
   if (checkerTitle) {
     checkerTitle.textContent = isNewSetup
       ? "Review CMP findings"
-      : "A guided check for answers, evidence and next steps.";
+      : "Property setup for answers, evidence and next steps.";
   }
   const checkerIntro = document.querySelector(".az-checker-header h2 + p");
   if (checkerIntro) {
@@ -16216,7 +16219,7 @@ function renderEvidenceMissingList() {
   if (isNewPropertyMode()) {
     const items = [
       ["Gas Safety evidence", "Upload if relevant to this property and occupancy.", "uploadGas", true],
-      ["Electrical Safety / EICR", "Upload an existing report or continue the guided check.", "uploadEicr", true],
+      ["Electrical Safety / EICR", "Upload an existing report or continue property setup.", "uploadEicr", true],
       ["Tenancy / deposit documents", "Only needed if the property is or will be tenanted.", "startGuidedCheck", false],
       ["Smoke and CO alarm status", "Confirm landlord answer and add supporting evidence if available.", "startGuidedCheck", false]
     ];
@@ -16229,7 +16232,7 @@ function renderEvidenceMissingList() {
         </div>
         <div class="compliance-gap-actions">
           <button class="${primary ? "primary-button" : "text-button"}" type="button" data-evidence-action="${escapeHtml(action)}">
-            ${primary ? "Upload" : "Continue guided check"}
+            ${primary ? "Upload" : "Continue property setup"}
           </button>
         </div>
       </article>
@@ -18118,11 +18121,11 @@ function renderPortfolioUtilityState() {
         <div class="az-checker-header">
           <div>
             <p class="section-kicker">Suggested next workflow</p>
-            <h2>${isEmptyPortfolioMode() ? "Add your first property first" : isNewPropertyMode() ? "Continue the guided check" : isFivePropertyMode() ? "Run Portfolio Sweep" : "Run the Compliance A-Z Checker"}</h2>
-            <p>${isEmptyPortfolioMode() ? "The checker becomes useful once there is an address to check. You can still preview the setup questions from Compliance Centre." : isNewPropertyMode() ? "Use the guided check to confirm property details, occupancy and evidence before CMP recommends services." : "Use the checker to turn CMP's context into scores, gaps and service recommendations."}</p>
+            <h2>${isEmptyPortfolioMode() ? "Add your first property first" : isNewPropertyMode() ? "Continue property setup" : isFivePropertyMode() ? "Run Portfolio Sweep" : "Run the Compliance A-Z Checker"}</h2>
+            <p>${isEmptyPortfolioMode() ? "The checker becomes useful once there is an address to check. You can still preview the setup questions from Compliance Centre." : isNewPropertyMode() ? "Use property setup to confirm property details, occupancy and evidence before CMP recommends services." : "Use the checker to turn CMP's context into scores, gaps and service recommendations."}</p>
           </div>
           <div class="button-row">
-            <button class="${isEmptyPortfolioMode() ? "secondary-button" : "primary-button"}" type="button" ${shortcutButtonAttr}>${isEmptyPortfolioMode() ? "Preview A-Z Checker" : isNewPropertyMode() ? "Continue guided check" : isFivePropertyMode() ? "Open Portfolio Sweep" : "Open A-Z Checker"}</button>
+            <button class="${isEmptyPortfolioMode() ? "secondary-button" : "primary-button"}" type="button" ${shortcutButtonAttr}>${isEmptyPortfolioMode() ? "Preview A-Z Checker" : isNewPropertyMode() ? "Continue property setup" : isFivePropertyMode() ? "Open Portfolio Sweep" : "Open A-Z Checker"}</button>
           </div>
         </div>
       </article>
@@ -18203,7 +18206,7 @@ function renderGlobalServiceState() {
     title.textContent = "Confirm the property profile before booking support";
     document.querySelector("[data-global-service-body]").textContent = "CMP can recommend services once you confirm property type, occupancy and which Gas Safety, Electrical Safety, licensing or evidence gaps apply.";
     document.querySelector("[data-global-service-actions]").innerHTML = `
-      <button class="primary-button" type="button" data-new-setup-start>Continue guided check</button>
+      <button class="primary-button" type="button" data-new-setup-start>Continue property setup</button>
       <button class="secondary-button" type="button" data-global-service-action="askPrepare">Ask CMP what to prepare</button>
     `;
     pathwaySection?.setAttribute("hidden", "");
@@ -18535,7 +18538,7 @@ function confirmNewPropertyFindings() {
     nextAction: "Answer occupancy and safety questions before compliance scoring.",
     route: "compliance",
     actions: [
-      makeActivityAction("Continue guided check", "startGuidedCheck", true),
+      makeActivityAction("Continue property setup", "startGuidedCheck", true),
       makeActivityAction("Upload certificates", "addEvidence")
     ]
   });
@@ -18645,7 +18648,7 @@ function recordNewPropertyEvidenceUpload(type) {
     statusClass: "status-good-text",
     search: config.search,
     why: "CMP recorded this because uploaded evidence changes the property evidence confidence.",
-    nextAction: "Continue the guided check so CMP can decide which gaps remain.",
+    nextAction: "Continue property setup so CMP can decide which gaps remain.",
     route: "details",
     actions: [
       makeActivityAction("Review setup", "reviewFindings", true),

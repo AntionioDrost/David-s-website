@@ -12509,3 +12509,422 @@ body[data-public-page] .footer-legal-notes {
     width: 100%;
   }
 }
+
+/* CMP Stage C.1: public journey acceptance polish. */
+body[data-public-page="add-property"] .cmp-public-container {
+  width: min(var(--cmpv2-page-width), calc(100% - 48px));
+  margin-inline: auto;
+}
+
+body[data-public-page="add-property"] .add-property-bridge-page,
+body[data-public-page="services"] .service-index-v2 {
+  width: 100%;
+}
+
+body[data-public-page="add-property"] .add-property-journey-shell {
+  display: grid;
+  gap: 18px;
+  padding-top: 28px;
+  padding-bottom: 64px;
+}
+
+body[data-public-page="add-property"] .add-property-journey-shell > .page-hero,
+body[data-public-page="add-property"] .add-property-journey-shell > .page-section,
+body[data-public-page="add-property"] .add-property-journey-shell > .flash-banner-section {
+  width: 100%;
+  margin: 0;
+}
+
+body[data-public-page="add-property"] .add-property-journey-shell > .flash-banner-section {
+  padding: 0;
+}
+
+body[data-public-page="add-property"] .add-property-journey-shell .flash-banner {
+  margin: 0;
+}
+
+body[data-public-page="add-property"] .add-property-bridge-hero {
+  grid-template-columns: minmax(0, 1.05fr) minmax(260px, 360px);
+  align-items: center;
+  gap: clamp(22px, 3vw, 36px);
+  width: 100%;
+  padding: clamp(28px, 4vw, 44px);
+}
+
+body[data-public-page="add-property"] .add-property-hero-copy {
+  display: grid;
+  align-content: center;
+  gap: 18px;
+  min-width: 0;
+}
+
+body[data-public-page="add-property"] .add-property-bridge-hero h1 {
+  max-width: 14.5ch;
+  font-size: clamp(2.55rem, 5.2vw, 4.65rem);
+}
+
+body[data-public-page="add-property"] .add-property-bridge-hero p {
+  max-width: 58rem;
+}
+
+body[data-public-page="add-property"] .bridge-postcode-card {
+  width: min(620px, 100%);
+  margin-top: 0;
+}
+
+body[data-public-page="add-property"] .page-hero-visual-add-property {
+  min-height: 310px;
+  align-self: stretch;
+}
+
+body[data-public-page="add-property"] .page-hero-visual-add-property .add-property-stage-art {
+  min-height: 100%;
+  padding: 18px;
+}
+
+body[data-public-page="add-property"] .page-hero-visual-add-property .add-property-stage-panel {
+  padding: 14px;
+}
+
+body[data-public-page="add-property"] .page-hero-visual-add-property .add-property-stage-search {
+  width: 78%;
+}
+
+body[data-public-page="add-property"] .page-hero-visual-add-property .add-property-stage-choice {
+  width: 82%;
+  margin-top: 14px;
+}
+
+body[data-public-page="add-property"] .page-hero-visual-add-property .add-property-stage-import {
+  width: 70%;
+  margin-top: 14px;
+}
+
+body[data-public-page="add-property"] .add-property-workflow-section {
+  padding: 4px 0 0;
+}
+
+body[data-public-page="add-property"] .add-property-progress {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+body[data-public-page="add-property"] .add-property-progress .step-pill {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  padding: 12px;
+  box-shadow: none;
+}
+
+body[data-public-page="add-property"] .add-property-progress .step-pill-index {
+  display: grid;
+  width: 24px;
+  height: 24px;
+  place-items: center;
+  border-radius: 999px;
+  background: rgba(12, 28, 45, 0.08);
+  color: var(--cmpv2-ink);
+}
+
+body[data-public-page="add-property"] .add-property-progress .step-pill strong {
+  margin-top: 0;
+  font-size: 0.9rem;
+}
+
+body[data-public-page="add-property"] .add-property-progress .step-pill small {
+  font-size: 0.78rem;
+  line-height: 1.32;
+}
+
+body[data-public-page="add-property"] .add-property-progress .step-pill-current .step-pill-index {
+  background: var(--cmpv2-blue);
+  color: #fff;
+}
+
+body[data-public-page="add-property"] .add-property-progress .step-pill-done .step-pill-index {
+  background: var(--cmpv2-green);
+  color: #fff;
+}
+
+body[data-public-page="add-property"] .add-property-flow {
+  max-width: 100%;
+  grid-template-columns: minmax(260px, 0.42fr) minmax(0, 0.58fr);
+  align-items: start;
+  gap: 16px;
+}
+
+body[data-public-page="add-property"] .add-property-flow .question-panel {
+  padding: 20px;
+}
+
+body[data-public-page="add-property"] .add-property-flow [data-add-property-step="address"] {
+  grid-row: span 2;
+}
+
+body[data-public-page="add-property"] .address-card-list {
+  gap: 12px;
+}
+
+body[data-public-page="add-property"] .address-card {
+  grid-template-columns: minmax(0, 1fr) minmax(150px, auto);
+  gap: 16px;
+  align-items: end;
+}
+
+body[data-public-page="add-property"] .address-card.is-selected {
+  border-color: var(--cmpv2-blue);
+  box-shadow: 0 0 0 3px rgba(35, 88, 168, 0.12), var(--cmpv2-shadow-tight);
+}
+
+body[data-public-page="add-property"] .address-card .button {
+  justify-self: end;
+}
+
+body[data-public-page="add-property"] .address-card-preview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  max-width: 220px;
+  margin-top: 10px;
+}
+
+body[data-public-page="add-property"] .address-card-preview span {
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(12, 28, 45, 0.12);
+}
+
+body[data-public-page="add-property"] .add-property-flow [data-canonical-review] {
+  margin-top: 2px;
+}
+
+body[data-public-page="add-property"] .review-capability-disclosure {
+  margin: -4px 0 18px;
+  max-width: 58rem;
+  border-left: 3px solid var(--cmpv2-blue);
+  background: rgba(35, 88, 168, 0.07);
+  color: var(--cmpv2-ink-soft);
+  padding: 10px 12px;
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+body[data-public-page="add-property"] .review-found-card {
+  gap: 12px;
+  padding: 18px;
+}
+
+body[data-public-page="add-property"] .review-found-card h3 {
+  font-size: 1.2rem;
+}
+
+body[data-public-page="add-property"] .review-found-card > p {
+  margin-bottom: 2px;
+}
+
+body[data-public-page="add-property"] .add-property-review-list {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr));
+  gap: 10px;
+}
+
+body[data-public-page="add-property"] .add-property-review-item {
+  align-content: start;
+  gap: 7px;
+  min-height: 0;
+  padding: 14px;
+}
+
+body[data-public-page="add-property"] .add-property-review-item strong {
+  color: var(--cmpv2-ink);
+}
+
+body[data-public-page="add-property"] .add-property-review-item p {
+  margin: 0;
+  color: var(--cmpv2-body);
+}
+
+body[data-public-page="add-property"] .add-property-review-item small,
+body[data-public-page="add-property"] .add-property-review-item .property-summary-meta {
+  color: var(--cmpv2-muted);
+  font-size: 0.82rem;
+  line-height: 1.38;
+}
+
+body[data-public-page="add-property"] .review-handoff-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 22px;
+  align-items: center;
+  margin-top: 24px;
+  margin-bottom: 44px;
+  border: 1px solid var(--cmpv2-line);
+  border-radius: var(--cmpv2-radius-sm);
+  background: var(--cmpv2-dark);
+  color: #fff;
+  padding: 26px;
+}
+
+body[data-public-page="add-property"] .review-handoff-card h3 {
+  margin: 4px 0 8px;
+  color: #fff;
+  font-size: 1.35rem;
+}
+
+body[data-public-page="add-property"] .review-handoff-card p {
+  margin: 0;
+  max-width: 48rem;
+  color: #d7e0ea;
+}
+
+body[data-public-page="add-property"] .review-handoff-card .section-kicker {
+  color: #9fc3ff;
+}
+
+body[data-public-page="add-property"] .review-handoff-card .service-journey-actions {
+  justify-content: end;
+  margin: 0;
+}
+
+body[data-public-page="add-property"] .review-handoff-card .button.secondary {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+body[data-public-page="services"] .service-directory-v2 {
+  width: min(var(--cmpv2-page-width), calc(100% - 48px));
+  max-width: var(--cmpv2-page-width);
+  margin-inline: auto;
+  padding-inline: 0;
+}
+
+body[data-public-page="services"] .service-category-block {
+  grid-template-columns: minmax(220px, 0.32fr) minmax(0, 1fr);
+}
+
+body[data-public-page="services"] .service-category-copy {
+  top: 92px;
+}
+
+body[data-public-page="services"] .service-category-copy h3 {
+  font-size: clamp(1.4rem, 2vw, 1.9rem);
+}
+
+body[data-public-page="services"] .service-category-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+  gap: 16px;
+}
+
+body[data-public-page="services"] .service-grid-card {
+  min-width: 0;
+  min-height: 0;
+  overflow-wrap: anywhere;
+}
+
+body[data-public-page="services"] .service-grid-card h3 {
+  font-size: 1.18rem;
+  line-height: 1.16;
+}
+
+body[data-public-page="services"] .service-grid-link {
+  max-width: 100%;
+  white-space: normal;
+  text-align: center;
+}
+
+@media (max-width: 1180px) {
+  body[data-public-page="services"] .service-category-block {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-public-page="services"] .service-category-copy {
+    position: static;
+    max-width: 58rem;
+    padding-bottom: 0;
+  }
+}
+
+@media (max-width: 1040px) {
+  body[data-public-page="add-property"] .add-property-bridge-hero,
+  body[data-public-page="add-property"] .add-property-flow,
+  body[data-public-page="add-property"] .review-handoff-card {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-public-page="add-property"] .page-hero-visual-add-property {
+    min-height: 260px;
+  }
+
+  body[data-public-page="add-property"] .add-property-flow [data-add-property-step="address"] {
+    grid-row: auto;
+  }
+
+  body[data-public-page="add-property"] .review-handoff-card .service-journey-actions {
+    justify-content: start;
+  }
+}
+
+@media (max-width: 760px) {
+  body[data-public-page="add-property"] .cmp-public-container,
+  body[data-public-page="services"] .service-directory-v2 {
+    width: calc(100% - 24px);
+  }
+
+  body[data-public-page="add-property"] .add-property-journey-shell {
+    padding-top: 16px;
+    padding-bottom: 48px;
+  }
+
+  body[data-public-page="add-property"] .add-property-bridge-hero {
+    padding: 24px 18px;
+  }
+
+  body[data-public-page="add-property"] .add-property-bridge-hero h1 {
+    max-width: 100%;
+    font-size: 2.35rem;
+  }
+
+  body[data-public-page="add-property"] .page-hero-visual-add-property {
+    order: 2;
+    min-height: 210px;
+  }
+
+  body[data-public-page="add-property"] .page-hero-visual-add-property .add-property-stage-choice,
+  body[data-public-page="add-property"] .page-hero-visual-add-property .add-property-stage-import {
+    display: none;
+  }
+
+  body[data-public-page="add-property"] .page-hero-visual-add-property .add-property-stage-search {
+    width: 100%;
+  }
+
+  body[data-public-page="add-property"] .add-property-progress {
+    grid-template-columns: 1fr;
+  }
+
+  body[data-public-page="add-property"] .add-property-progress .step-pill {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  body[data-public-page="add-property"] .address-card {
+    grid-template-columns: 1fr;
+    align-items: start;
+  }
+
+  body[data-public-page="add-property"] .address-card .button {
+    width: 100%;
+    justify-self: stretch;
+  }
+
+  body[data-public-page="add-property"] .review-handoff-card {
+    padding: 22px;
+    margin-bottom: 36px;
+  }
+
+  body[data-public-page="add-property"] .review-handoff-card .service-journey-actions {
+    width: 100%;
+  }
+}
