@@ -36,10 +36,10 @@
   function getSuggestedAskCmpPrompts(context) {
     if (!context?.property?.id) return resultFail("Ask CMP context is required.");
     const prompts = [
-      prompt("found-automatically", "What did CMP find automatically?"),
-      prompt("unknowns", "What does CMP still not know?"),
+      prompt("found-automatically", "What did CMP find for this property?"),
+      prompt("unknowns", "What does CMP still need from me?"),
       prompt("next-best-action", "What should I fix first?"),
-      prompt("why-next-best-action", "Why is this my next best action?"),
+      prompt("why-next-best-action", "Why is this my Next action?"),
       prompt("evidence-needed", "What evidence do I need?"),
       prompt("recommended-services", "What services are recommended and why?"),
       prompt("monitoring-next", "What should I monitor next?"),
@@ -94,7 +94,7 @@
 
   function formatGaps(context) {
     const gaps = context.evidenceGaps || [];
-    if (!gaps.length) return "No open evidence gap is currently ranked by the rules engine.";
+    if (!gaps.length) return "No open evidence gap is currently prioritised from the property file.";
     return gaps.slice(0, 4).map((gap) => {
       const type = String(gap.evidenceType || "evidence").replace(/_/g, " ");
       return `${type} is ${gap.proofStatus || "unknown"}; ${gap.recommendedNextStep || "prepare it for review"}`;
@@ -113,7 +113,7 @@
     if (actions.length) {
       return actions.slice(0, 3).map((action) => `Recommended because ${action.reason}`).join("; ");
     }
-    return "No mapped service is currently recommended by the selected-property rules output.";
+    return "No mapped service is currently recommended from the selected property information.";
   }
 
   function answerAskCmpPrompt(context, promptIdOrText) {
@@ -121,11 +121,11 @@
     const id = promptIdFor(context, promptIdOrText);
     const address = context.property.displayAddress || "this property";
     const base = `Based on current information for ${address}, `;
-    const caveat = " Guidance, not legal advice. Source and Confidence labels should be reviewed before acting.";
+    const caveat = " Guidance, not legal advice. Source and confidence labels should be reviewed before acting.";
     let body = "";
 
     if (id === "found-automatically") {
-      body = `${base}CMP found: ${formatFacts(context.knownFacts, "no confirmed automatic facts yet")}. Smart Checks use available and example information in this prototype. Review the source and confidence labels before relying on them.`;
+      body = `${base}CMP found for this property: ${formatFacts(context.knownFacts, "no confirmed facts yet")}. Smart Checks use available and example information. No live official lookup has been performed. Review the source and confidence labels before relying on them.`;
     } else if (id === "unknowns" || id === "gas-confirmation") {
       body = `${base}CMP still needs confirmation for: ${formatFacts(context.unknownFacts, "no open unknowns are listed")}. Missing data stays unknown until you answer or add proof.`;
     } else if (id === "evidence-needed" || id === "eicr-proof" || id === "epc-missing") {
@@ -136,12 +136,12 @@
       const monitoring = (context.monitoringItems || []).slice(0, 3).map((item) => `${item.title || item.monitoringType}: ${item.reason || ""} ${item.nextAction || ""}`.trim()).join("; ");
       body = `${base}monitoring should focus on ${monitoring || "annual review and unresolved evidence gaps"}.`;
     } else if (id === "property-summary-report") {
-      body = `${base}CMP can prepare a report preview from the Property Brain without re-entering data. It remains a prototype snapshot with source, confidence and capability caveats.`;
+      body = `${base}CMP can prepare a report preview from the Property Brain without re-entering data. It is guidance, not legal advice, and should be reviewed against the source, confidence and capability notes.`;
     } else {
       const action = context.nextBestAction;
       body = action
-        ? `${base}the next best action is ${action.title}. ${action.reason} Priority reason: ${action.priorityExplanation || "ranked by CMP rules"}.`
-        : `${base}no single action is currently ranked. Continue reviewing found data and unknowns.`;
+        ? `${base}the Next action is ${action.title}. ${action.reason} Priority reason: ${action.priorityExplanation || "prioritised from current property information"}.`
+        : `${base}no single action is currently ranked. Continue reviewing found data and property questions.`;
     }
 
     return resultOk({

@@ -3595,12 +3595,12 @@ function renderCanonicalAskReportPanel() {
       <span class="source-badge">Ask CMP</span>
       <h3>Property-aware guidance</h3>
       <p>Based on current information from this Property Brain. Guidance, not legal advice.</p>
-      ${promptButtons || `<button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Explain next best action</button>`}
+      ${promptButtons || `<button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Explain the Next action</button>`}
     </article>
     <article class="portfolio-upcoming-card" data-canonical-report-panel>
       <span class="source-badge">Report preview</span>
       <h3>Generate from Property Brain</h3>
-      <p>Report preview uses the selected property, rules output, source labels and confidence status.</p>
+      <p>Report preview uses the selected property, current status, source labels and confidence status. Guidance, not legal advice.</p>
       <button class="text-button" type="button" data-canonical-report-preview="property_summary">Property Summary</button>
       <button class="text-button" type="button" data-canonical-report-preview="evidence_gap_summary">Evidence Gap Summary</button>
     </article>
@@ -3685,17 +3685,24 @@ function canonicalScoreValue(derivedState, key) {
 function canonicalStage6ScoreCards(derivedState) {
   if (!derivedState?.scores) {
     return [
-      { label: "Legal Compliance", value: 0, help: "Compliance derivation is prepared for this property." },
-      { label: "Evidence Strength", value: 0, help: "Evidence gaps will appear as setup continues." }
+      { label: "Current status", value: 0, help: "CMP has prepared an initial property view." },
+      { label: "Evidence", value: 0, help: "Evidence gaps will appear as setup continues." }
     ];
   }
+  const labelMap = {
+    "Legal Compliance": "Current status",
+    "Legal compliance": "Current status",
+    "Evidence Strength": "Evidence",
+    "Future Readiness": "Monitoring",
+    Confidence: "Source confidence"
+  };
   return [
     derivedState.scores.legalCompliance,
     derivedState.scores.evidenceStrength,
     derivedState.scores.futureReadiness,
     derivedState.scores.confidence
   ].filter(Boolean).map((score) => ({
-    label: score.label,
+    label: labelMap[score.label] || score.label,
     value: score.value,
     help: score.explanation
   }));
@@ -3787,7 +3794,7 @@ function focusCanonicalEvidenceIntake(targetId = "") {
   window.setTimeout(() => {
     scrollToPanel(targetId ? `[data-stage-e-focus-id="${selectorValue(targetId)}"]` : "[data-evidence-intake-panel]");
   }, 80);
-  showToast("Evidence Vault intake is ready. Files added here are prepared for review; no permanent storage or legal verification is implied.");
+  showToast("Evidence Vault intake is ready. Files added here are prepared for review; no permanent storage or official verification is implied.");
   return true;
 }
 
@@ -4376,6 +4383,10 @@ const newPropertyAskPrompts = [
 ];
 
 function currentGlobalAskPrompts() {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    return canonicalAskPrompts().slice(0, 6).map((prompt) => prompt.label);
+  }
+
   if (isEmptyPortfolioMode()) {
     return emptyGlobalAskPrompts;
   }
@@ -4502,7 +4513,7 @@ const assistantResponses = {
   "What details are still missing?": "CMP already has the address, postcode, property type, bedroom count and occupancy status. Optional details such as heating type, property age and access notes can be added later.",
   "Where did this information come from?": "CMP separates matched records, uploaded evidence and landlord-provided details so you can see why each item appears in the property file.",
   "Why does CMP need property details?": "Property details help CMP ask more relevant questions, organise the right evidence and adapt the workspace to the property situation.",
-  "What is Property Memory?": "Property Memory is a CMP Labs concept for keeping room-by-room observations and follow-up notes connected to the property file."
+  "What is Property Memory?": "Property Memory keeps room-by-room observations and follow-up notes connected to the property file."
 };
 
 const postEicrAssistantMessage = "Your EICR has been verified and your property file is stronger. The next useful step is to review your latest inspection record.";
@@ -4552,14 +4563,14 @@ const complianceCentrePostEicrAssistantResponses = {
 const evidenceVaultAssistantResponses = {
   "What evidence is missing?": "CMP has EPC and Gas Safety evidence for 57 The Butts. The clearest missing item is an EICR, with inspection evidence also still useful to add.",
   "Which documents are verified?": "EPC is confirmed from an official record. Gas Safety is verified from an uploaded document. After the EICR is added, Electrical Safety also becomes verified from an uploaded document.",
-  "How should I upload paperwork?": "You can forward paperwork to the Evidence Inbox or use Smart Upload. CMP Labs will simulate classifying and linking it to the correct property.",
+  "How should I upload paperwork?": "You can forward paperwork to the Evidence Inbox or add evidence from the Evidence Vault. CMP prepares it for review against the correct property.",
   "Summarise my evidence vault": "Your portfolio evidence vault contains two verified items and one key missing certificate for 57 The Butts."
 };
 
 const evidenceVaultPostEicrAssistantResponses = {
   "What evidence is missing?": "CMP has EPC, Gas Safety and EICR evidence for 57 The Butts. The next useful upload is a recent property-inspection record.",
   "Which documents are verified?": "EPC is confirmed from an official record. Gas Safety is verified from an uploaded document. Electrical Safety is also verified from an uploaded document.",
-  "How should I upload paperwork?": "You can forward paperwork to the Evidence Inbox or use Smart Upload. CMP Labs will simulate classifying and linking it to the correct property.",
+  "How should I upload paperwork?": "You can forward paperwork to the Evidence Inbox or add evidence from the Evidence Vault. CMP prepares it for review against the correct property.",
   "Summarise my evidence vault": "Your portfolio evidence vault contains three verified evidence items for 57 The Butts. Inspection evidence is now the main useful next upload."
 };
 
@@ -4593,14 +4604,14 @@ const activityPostEicrAssistantResponses = {
 
 const propertiesAssistantResponses = {
   "Which property needs attention?": "57 The Butts needs attention because Electrical Safety evidence is still missing. Open the workspace or upload an existing EICR.",
-  "Summarise my properties": "You currently have one property in this CMP Labs portfolio: 57 The Butts in Coventry. CMP has EPC and Gas Safety evidence recorded, with the next priority shown on the property card.",
+  "Summarise my properties": "You currently have one property in CMP: 57 The Butts in Coventry. CMP has EPC and Gas Safety evidence recorded, with the next priority shown on the property card.",
   "What should I open first?": "Open 57 The Butts and review the Electrical Safety action. That is the clearest evidence gap.",
   "How do I add another property?": "Use Add property to preview the future onboarding flow: postcode entry, address selection, EPC import and workspace creation."
 };
 
 const propertiesPostEicrAssistantResponses = {
   "Which property needs attention?": "57 The Butts is still the active property. Electrical Safety evidence is now recorded, so inspection evidence is the next useful focus.",
-  "Summarise my properties": "You currently have one property in this CMP Labs portfolio: 57 The Butts in Coventry. CMP has EPC and Gas Safety evidence recorded, with the next priority shown on the property card.",
+  "Summarise my properties": "You currently have one property in CMP: 57 The Butts in Coventry. CMP has EPC and Gas Safety evidence recorded, with the next priority shown on the property card.",
   "What should I open first?": "Open 57 The Butts and review inspection evidence. It is now the next useful item.",
   "How do I add another property?": "Use Add property to preview the future onboarding flow: postcode entry, address selection, EPC import and workspace creation."
 };
@@ -4829,7 +4840,7 @@ function openPropertyFromPortfolio(propertyId = "the-butts") {
   if (propertyId !== "the-butts") {
     const property = getPortfolioPropertyById(propertyId);
     openTimelineModal("[data-second-property-modal]");
-    setAssistantResponse(`${property.address} is shown as a portfolio-level preview in CMP Labs. Use Properties, Compliance Centre, Evidence Vault and Book a Service to review its scores and actions while the full workspace remains focused on 57 The Butts.`);
+    setAssistantResponse(`${property.address} is shown as a property preview in CMP. Use My Properties, Action Plan, Evidence Vault and Services to review its status and actions while the full workspace remains focused on 57 The Butts.`);
     return;
   }
 
@@ -4930,26 +4941,26 @@ function renderOverviewNextAction() {
   card.innerHTML = labsState.eicrAdded
     ? `
       <div>
-        <p class="section-kicker">Your next best step</p>
+        <p class="section-kicker">Next action</p>
         <h2>Add recent property inspection evidence</h2>
         <p>Electrical Safety evidence is now recorded. The next useful improvement is your latest property inspection record.</p>
       </div>
       <div class="action-controls">
-        <button class="primary-button" type="button" data-global-service-action="uploadInspection">Upload inspection evidence</button>
+        <button class="primary-button" type="button" data-global-service-action="uploadInspection">Add inspection evidence</button>
         <button class="secondary-button" type="button" data-toast="Inspection status recorded locally for this walkthrough.">Mark as not yet completed</button>
-        <button class="text-button" type="button" data-assistant-message="Your EICR is now verified. The next useful improvement is inspection evidence, because it helps keep the property file current.">Ask CMP why this matters</button>
+        <button class="text-button" type="button" data-assistant-message="Your EICR proof is accepted for review. The next useful improvement is inspection evidence, because it helps keep the property file current.">Ask CMP why this matters</button>
       </div>
     `
     : `
       <div>
-        <p class="section-kicker">Your next best step</p>
+        <p class="section-kicker">Next action</p>
         <h2>Check whether this property has a current EICR</h2>
         <p>Electrical safety is the highest-priority unknown area in this property file.</p>
       </div>
       <div class="action-controls">
-        <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-        <button class="secondary-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
-        <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
+        <button class="primary-button" type="button" data-upload-trigger>Add evidence</button>
+        <button class="secondary-button" type="button" data-toast="Preview only - manual certificate entry is not connected in this preview.">Enter details manually</button>
+        <button class="secondary-button" type="button" data-open-global-service>Prepare EICR request</button>
         <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
       </div>
     `;
@@ -4979,7 +4990,7 @@ function renderDocumentsState() {
   document.querySelector("[data-verified-count]").textContent = labsState.eicrAdded ? "3 documents" : "2 documents";
   document.querySelector("[data-review-count]").textContent = labsState.eicrAdded ? "0 documents" : "1 document";
   document.querySelector("[data-next-upload]").textContent = labsState.eicrAdded ? "Inspection evidence" : "EICR";
-  document.querySelector("[data-next-upload-note]").textContent = labsState.eicrAdded ? "Latest inspection record is the next useful item" : "Electrical Safety is still unverified";
+  document.querySelector("[data-next-upload-note]").textContent = labsState.eicrAdded ? "Latest inspection record is the next useful item" : "Electrical Safety evidence is still missing";
   document.querySelector("[data-vault-state]").textContent = labsState.eicrAdded ? "3 accepted, 0 missing" : "2 accepted, 1 missing";
 
   document.querySelector("[data-eicr-source]").textContent = labsState.eicrAdded ? "Uploaded document" : "No evidence uploaded";
@@ -4991,12 +5002,12 @@ function renderDocumentsState() {
   document.querySelector("[data-eicr-document-row]")?.classList.toggle("is-missing", !labsState.eicrAdded);
   document.querySelector("[data-eicr-actions]").innerHTML = labsState.eicrAdded
     ? `
-      <button class="text-button" type="button" data-toast="Preview only — document viewing is not connected to live storage.">View</button>
+      <button class="text-button" type="button" data-toast="Preview only - document viewing is not connected to live storage.">View</button>
       <button class="text-button" type="button" data-upload-trigger>Replace</button>
     `
     : `
-      <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-      <button class="text-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
+      <button class="primary-button" type="button" data-upload-trigger>Add evidence</button>
+      <button class="text-button" type="button" data-toast="Preview only - manual certificate entry is not connected in this preview.">Enter details manually</button>
     `;
 }
 
@@ -5021,13 +5032,13 @@ function renderComplianceState() {
     : "CMP does not yet have a current EICR stored for this property.";
   document.querySelector("[data-compliance-eicr-actions]").innerHTML = labsState.eicrAdded
     ? `
-      <button class="secondary-button" type="button" data-toast="Preview only — certificate viewing is not connected to live storage.">View certificate</button>
+      <button class="secondary-button" type="button" data-toast="Preview only - certificate viewing is not connected to live storage.">View certificate</button>
       <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
     `
     : `
-      <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-      <button class="secondary-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
-      <button class="text-button" type="button" data-open-global-service>Arrange an EICR</button>
+      <button class="primary-button" type="button" data-upload-trigger>Add evidence</button>
+      <button class="secondary-button" type="button" data-toast="Preview only - manual certificate entry is not connected in this preview.">Enter details manually</button>
+      <button class="text-button" type="button" data-open-global-service>Prepare EICR request</button>
     `;
 }
 
@@ -5105,7 +5116,7 @@ function renderSelectedCanonicalWorkspaceShell() {
     if (propertyMeta) {
       propertyMeta.innerHTML = `
         <span>No selected property</span>
-        <span>Canonical ID required</span>
+        <span>Select property first</span>
         <span>Workspace not loaded</span>
       `;
     }
@@ -5183,7 +5194,7 @@ function renderSelectedCanonicalWorkspaceShell() {
         <article class="portfolio-upcoming-card">
           <span class="source-badge">Setup</span>
           <h3>Open a listed property</h3>
-          <p>Workspace selection now requires a canonical property ID.</p>
+          <p>Open a property from My Properties so CMP can load the right workspace.</p>
           <a class="text-button" href="my-properties.html">Open My Properties</a>
         </article>
       `;
@@ -5258,7 +5269,7 @@ function renderSelectedCanonicalWorkspaceShell() {
   setText("[data-home-property-count]", "1");
   setText("[data-home-property-count-detail]", "property tracked");
   setText("[data-home-priority-count]", String(derivedState?.actionItems?.length || 0));
-  setText("[data-home-priority-detail]", nextBestAction ? "ranked by rules" : "setup step");
+  setText("[data-home-priority-detail]", nextBestAction ? "prioritised from this property file" : "setup step");
   setText("[data-home-verified-count]", String((derivedState?.evidenceState || []).filter((item) => ["accepted", "held"].includes(item.proofStatus)).length));
   setText("[data-home-review-count]", String(evidenceGaps.length || (shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0)));
   setText("[data-home-review-detail]", evidenceGaps.length ? "evidence gaps" : "items to review");
@@ -5270,7 +5281,7 @@ function renderSelectedCanonicalWorkspaceShell() {
   if (propertyHeadingBlock) {
     propertyHeadingBlock.querySelector(".section-kicker").textContent = "Selected property";
     propertyHeading.textContent = "Property workspace";
-    propertyHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "This is the canonical property record opened from My Properties or Add Property.";
+    propertyHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "This is the selected property opened from My Properties or Add Property.";
   }
   if (upcomingHeadingBlock) {
     upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Next action path";
@@ -5301,9 +5312,9 @@ function renderSelectedCanonicalWorkspaceShell() {
     rankList.innerHTML = actionItems.length
       ? actionItems.map((item, index) => `
         <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
-          <span>${index === 0 ? "Next best action" : `Priority ${index + 1}`}</span>
+          <span>${index === 0 ? "Next action" : `Priority ${index + 1}`}</span>
           <strong>${escapeHtml(item.title)}</strong>
-          <p>${escapeHtml(item.reason)} · ${escapeHtml(item.priorityExplanation || "Ranked by CMP rules.")}</p>
+          <p>${escapeHtml(item.reason)} · ${escapeHtml(item.priorityExplanation || "Prioritised from current property information.")}</p>
         </article>
       `).join("")
       : foundItems.length
@@ -5318,7 +5329,7 @@ function renderSelectedCanonicalWorkspaceShell() {
         <article class="priority-rank-item is-primary">
           <span>Prepared</span>
           <strong>Review found data</strong>
-          <p>CMP has prepared a selected-property workspace shell from the canonical record.</p>
+          <p>CMP has prepared the selected property workspace from the property file.</p>
         </article>
       `;
   }
@@ -5341,7 +5352,7 @@ function renderSelectedCanonicalWorkspaceShell() {
           </div>
         </div>
         <div class="portfolio-property-progress">
-          <span>Legal Compliance</span>
+          <span>Current status</span>
           <strong>${canonicalScoreValue(derivedState, "legalCompliance")}% ready</strong>
           <div class="strength-meter score-compliance"><span style="width: ${canonicalScoreValue(derivedState, "legalCompliance")}%"></span></div>
           <span>Evidence Strength</span>
@@ -5370,7 +5381,7 @@ function renderSelectedCanonicalWorkspaceShell() {
         const statusCopy = request.supplierJobPackData?.statusCopy || "Service request prepared. No supplier contacted. No payment taken.";
         const evidenceCount = selectedCanonicalEvidenceForRequest(request.id).length;
         return {
-          badge: "Simulated request",
+        badge: "Request prepared",
           title: request.supplierJobPackData?.serviceLabel || request.serviceId,
           body: `${statusCopy} Evidence expected: ${(request.evidenceExpected || []).map((item) => String(item.evidenceType || "evidence").replace(/_/g, " ")).join(", ") || "evidence needs review"}.`,
           label: evidenceCount ? "Review evidence" : "Open request",
@@ -5398,7 +5409,7 @@ function renderSelectedCanonicalWorkspaceShell() {
         badge: "Needs confirmation",
         title: item.label,
         body: `${item.value} · Confidence: ${item.confidence}`,
-        label: "Answer unknowns"
+        label: "Answer property questions"
       })))
     ].slice(0, 4);
     upcomingGrid.innerHTML = (upcomingItems.length ? upcomingItems : [{
@@ -5419,7 +5430,7 @@ function renderSelectedCanonicalWorkspaceShell() {
           ? `<button class="text-button" type="button" data-canonical-focus="evidence" data-canonical-focus-id="${escapeHtml(item.targetId || item.requestId || "")}">${escapeHtml(item.label || "Open Evidence Vault")}</button>`
           : item.action === "focus-monitoring"
           ? `<button class="text-button" type="button" data-canonical-focus="monitoring" data-canonical-focus-id="${escapeHtml(item.targetId || "")}">${escapeHtml(item.label || "Open Monitoring")}</button>`
-          : `<button class="text-button" type="button" data-toast="This selected-property preview is derived from the canonical record.">${escapeHtml(item.label || "Review")}</button>`
+          : `<button class="text-button" type="button" data-toast="This selected-property preview is derived from the property file.">${escapeHtml(item.label || "Review")}</button>`
         }
       </article>
     `).join("") + canonicalAskReportPanelMarkup + renderGuidedCanonicalDemoPanel();
@@ -5818,7 +5829,7 @@ function getEvidenceVaultAssistantResponse(prompt) {
     const responses = {
       "What evidence is missing?": labsState.eicrAdded ? "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts mainly needs inspection evidence now." : "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts still needs EICR evidence.",
       "Which documents are verified?": "EPC and EICR are confirmed for Willow Brook, while 57 The Butts has EPC and Gas Safety recorded plus EICR once the after-EICR state is active.",
-      "How should I upload paperwork?": "Use Smart Upload for the 57 The Butts EICR flow. Gas Safety upload for Willow Brook is shown as a Labs prototype action.",
+      "How should I upload paperwork?": "Use Add evidence for the 57 The Butts EICR flow. Gas Safety proof for Willow Brook is prepared for review.",
       "Summarise my evidence vault": "The Evidence Vault now includes records and gaps for both properties, with each row labelled by address so portfolio evidence is easier to scan."
     };
     return responses[prompt] || defaultAssistantResponse;
@@ -5927,6 +5938,10 @@ function getGlobalAskDefaultResponse() {
 }
 
 function getGlobalAskAssistantResponse(prompt) {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    return answerCanonicalAskPrompt(prompt);
+  }
+
   if (isEmptyPortfolioMode()) {
     const responses = {
       "How do I get started?": "Start by adding your first property. CMP will then help organise compliance checks, evidence, tasks and support around that address.",
@@ -12891,7 +12906,7 @@ function renderPortfolioComplianceState() {
   if (forecastHeading) {
     forecastHeading.querySelector(".section-kicker").textContent = "Next 90 days";
     forecastTitle.textContent = "Portfolio forecast";
-    forecastHeading.querySelector("p:not(.section-kicker)").textContent = "Short-range watch items based on the information currently in CMP Labs.";
+    forecastHeading.querySelector("p:not(.section-kicker)").textContent = "Short-range watch items based on the information currently in the property file.";
   }
 
   if (!properties.length) {
@@ -13976,7 +13991,7 @@ function azCardsForSection(sectionId, property) {
       azCard(sectionId, { id: "rating", eyebrow: "EPC data", label: "Current EPC rating", value: facts.epcRating, source: facts.epcRating === "Missing" ? "Evidence missing" : "EPC data pulled automatically", action: facts.epcRating === "Missing" ? "Add" : "Review", control: "select", options: ["A", "B", "C", "D", "E", "F", "G", "Missing", "Not sure"] }),
       azCard(sectionId, { id: "expiry", eyebrow: "EPC data", label: "EPC expiry", value: facts.epcExpiry, source: azSourceForValue(facts.epcExpiry, "EPC data pulled automatically"), action: "Edit", control: "date" }),
       azCard(sectionId, { id: "reference", eyebrow: "Certificate", label: "Certificate reference", value: facts.epcRef, source: azSourceForValue(facts.epcRef, "EPC data pulled automatically"), action: "Review", control: "note", helper: "Correct the reference if the automatic record does not match the certificate." }),
-      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Upload EPC certificate", value: facts.epcRating === "Missing" ? "Evidence missing" : `Rating ${facts.epcRating} · expires ${facts.epcExpiry}`, source: facts.epcRating === "Missing" ? "Evidence Vault" : "EPC data pulled automatically", action: facts.epcRating === "Missing" ? "Upload" : "Replace", control: "upload", helper: "Upload is simulated in this Labs prototype." })
+      azCard(sectionId, { id: "upload", eyebrow: "Evidence", label: "Add EPC certificate", value: facts.epcRating === "Missing" ? "Evidence missing" : `Rating ${facts.epcRating} · expires ${facts.epcExpiry}`, source: facts.epcRating === "Missing" ? "Evidence Vault" : "EPC data pulled automatically", action: facts.epcRating === "Missing" ? "Add evidence" : "Replace", control: "upload", helper: "Evidence added here is prepared for review." })
     ],
     "gas-safety": [
       azCard(sectionId, { id: "appliances", eyebrow: "Landlord answer", label: "Does the property have gas appliances?", value: facts.gasAppliances, source: azSourceForValue(facts.gasAppliances, "Confirmed by answer"), action: "Answer" }),
@@ -15940,7 +15955,7 @@ function selectedCanonicalEvidenceRows() {
       id: item.id,
       title: canonicalEvidenceLabel(item.evidenceType),
       document: [
-        status.label === "Accepted proof" ? "Accepted into this prototype property record for review." : "Evidence is prepared for review.",
+        status.label === "Accepted proof" ? "Accepted proof in this property file for review. This is not official verification." : "Evidence is prepared for review.",
         item.extractedFields?.liveDocumentStored === false ? "No permanent file storage is implied." : "",
         item.extractedFields?.guidance || "Guidance, not legal advice."
       ].filter(Boolean).join(" "),
@@ -15983,14 +15998,14 @@ function selectedCanonicalEvidenceRows() {
     property: `${address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
     source: gap.capabilityStatus === "simulated" ? "Smart Check" : gap.capabilityStatus || "Property file",
     sourceClass: "status-review-text",
-    status: gap.proofStatus === "missing" ? "Missing" : "Needs review",
+    status: gap.proofStatus === "missing" ? "Missing evidence" : "Needs review",
     statusClass: "status-review-text",
     keyDate: gap.expiryDate || "No date confirmed",
     filters: ["missing", "review"],
     search: `${gap.evidenceType} ${gap.reason} ${address}`,
     actions: [
-      { label: "Add proof", action: `canonicalEvidenceIntake:${gap.gapId}`, primary: gap.linkedActionId === derivedState?.nextBestAction?.actionId },
-      { label: "Prepare service request", action: "canonicalServiceRequest", primary: gap.linkedActionId === derivedState?.nextBestAction?.actionId },
+      { label: "Add proof later", action: `canonicalEvidenceIntake:${gap.gapId}`, primary: gap.linkedActionId === derivedState?.nextBestAction?.actionId },
+      { label: "Prepare request", action: "canonicalServiceRequest", primary: gap.linkedActionId === derivedState?.nextBestAction?.actionId },
       { label: "Ask CMP", action: "canonicalAskEvidence" }
     ]
   }));
@@ -16059,7 +16074,7 @@ function renderSelectedCanonicalEvidenceState() {
   if (evidenceMissingHeading) {
     evidenceMissingHeading.querySelector(".section-kicker").textContent = "Selected property";
     evidenceMissingTitle.textContent = `What CMP still needs for ${address}`;
-    evidenceMissingHeading.querySelector("p:not(.section-kicker)").textContent = "Issue, action, evidence and monitoring stay connected to this selected property.";
+    evidenceMissingHeading.querySelector("p:not(.section-kicker)").textContent = "Official record, Accepted proof, Needs review and Missing evidence labels stay connected to this selected property.";
   }
   const searchInput = document.querySelector("[data-evidence-search]");
   if (searchInput && searchInput.value !== labsState.evidenceSearch) searchInput.value = labsState.evidenceSearch;
@@ -16101,7 +16116,7 @@ function renderSelectedCanonicalEvidenceState() {
             <p>${escapeHtml(gap.reason || "Evidence needs review")} ${escapeHtml(gap.recommendedNextStep || "")}</p>
           </div>
           <div class="compliance-gap-actions">
-            <button class="primary-button" type="button" data-canonical-service-request>Prepare service request</button>
+            <button class="primary-button" type="button" data-canonical-service-request>Prepare request</button>
             <button class="text-button" type="button" data-canonical-ask-prompt="evidence-needed">Ask CMP</button>
           </div>
         </article>
@@ -16904,7 +16919,7 @@ function renderSelectedCanonicalActionPlanState() {
     startActions.innerHTML = next
       ? `
         <button class="primary-button" type="button" data-canonical-focus="evidence" data-canonical-focus-id="${escapeHtml(next.linkedIssueId || next.actionId)}">Open Evidence Vault</button>
-        <button class="secondary-button" type="button" data-canonical-service-request>${escapeHtml(openRequest ? "Open service request" : "Prepare service request")}</button>
+        <button class="secondary-button" type="button" data-canonical-service-request>${escapeHtml(openRequest ? "Open service request" : "Prepare request")}</button>
         <button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Ask CMP why</button>
       `
       : `<button class="secondary-button" type="button" data-canonical-focus="monitoring">Open Monitoring</button>`;
@@ -16947,7 +16962,7 @@ function renderSelectedCanonicalActionPlanState() {
           <p class="property-card-label">${escapeHtml(shell?.address || "Selected property")}</p>
           <p>${escapeHtml(action.reason || action.nextStep || "Review this selected-property action.")}</p>
           <div class="task-chip-row">
-            <span>${index === 0 ? "Next best action" : `Priority ${index + 1}`}</span>
+            <span>${index === 0 ? "Next action" : `Priority ${index + 1}`}</span>
             <span>${escapeHtml(action.priorityExplanation || "Ranked by CMP rules")}</span>
             <span>${escapeHtml(action.sourceConfidenceSummary || "Source confidence to review")}</span>
             ${request ? `<span>Request prepared</span>` : ""}
@@ -16955,7 +16970,7 @@ function renderSelectedCanonicalActionPlanState() {
         </div>
         <div class="task-card-actions">
           <button class="${evidencePrimary ? "primary-button" : "text-button"}" type="button" data-canonical-focus="evidence" data-canonical-focus-id="${escapeHtml(action.linkedIssueId || action.actionId)}">Open Evidence Vault</button>
-          <button class="${!evidencePrimary ? "primary-button" : "secondary-button"}" type="button" data-canonical-service-request>${escapeHtml(request ? "Open request" : "Prepare service request")}</button>
+          <button class="${!evidencePrimary ? "primary-button" : "secondary-button"}" type="button" data-canonical-service-request>${escapeHtml(request ? "Open request" : "Prepare request")}</button>
           <button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Why this action?</button>
         </div>
       </article>
@@ -16978,7 +16993,7 @@ function renderSelectedCanonicalActionPlanState() {
       priority: (action.priorityScore || 0) >= 70 ? "High" : "Medium",
       source: "CMP priority rules",
       body: action.reason,
-      status: index === 0 ? "Next best action" : "Unresolved",
+      status: index === 0 ? "Next action" : "Unresolved",
       suggestedAction: action.nextStep,
       board: index === 0 ? "todo" : "progress",
       filters: ["evidence"],
@@ -17004,7 +17019,7 @@ function renderSelectedCanonicalActionPlanState() {
           <strong>${escapeHtml(request.supplierJobPackData?.serviceLabel || request.serviceId)}</strong>
           <span>${escapeHtml(request.supplierJobPackData?.statusCopy || "Service request prepared. No supplier contacted. No payment taken.")}</span>
           <p>No supplier contacted. No payment taken.</p>
-          <small>Services owns request status.</small>
+          <small>Request status appears in Services.</small>
         </article>
       `).join("")
       : `
@@ -17430,7 +17445,7 @@ function getActivityEvents() {
       category: "Property setup",
       title: "Property file created",
       property,
-      body: "57 The Butts was added to the CMP Labs workspace.",
+      body: "57 The Butts was added to the CMP property workspace.",
       source: "Property setup",
       status: "Recorded",
       statusClass: "status-neutral-text",
@@ -17615,7 +17630,7 @@ function renderSelectedCanonicalMonitoringState() {
   if (badge) badge.textContent = "Selected property";
   const headerBody = document.querySelector("[data-portfolio-activity] .portfolio-activity-header p:not(.section-kicker)");
   if (headerBody) {
-    headerBody.textContent = "Monitoring is derived from evidence dates, unresolved gaps, action priority and prepared request state.";
+    headerBody.textContent = "Monitoring is future follow-up for this selected property, derived from evidence dates, unresolved gaps, action priority and prepared request state. Dates may be unknown.";
   }
   const ask = document.querySelector("[data-activity-ask]");
   if (ask) ask.textContent = "Ask CMP what to monitor";
@@ -18163,14 +18178,14 @@ function portfolioServiceCards() {
     {
       title: "EICR support",
       propertyLabel: butts.label,
-      body: labsState.eicrAdded ? "Electrical Safety evidence is verified for 57 The Butts." : "Electrical Safety evidence is still missing for 57 The Butts.",
-      status: labsState.eicrAdded ? "Verified / uploaded" : buttsEicrRequest ? "Request open" : "Evidence gap",
+      body: labsState.eicrAdded ? "Electrical Safety proof is accepted for review for 57 The Butts." : "Electrical Safety evidence is still missing for 57 The Butts.",
+      status: labsState.eicrAdded ? "Accepted proof" : buttsEicrRequest ? "Request open" : "Evidence gap",
       statusClass: labsState.eicrAdded ? "status-good-text" : "status-review-text",
       why: labsState.eicrAdded ? "It can move down the list while inspection evidence becomes the follow-up." : "It remains a core certificate gap after the Gas Safety renewal priority.",
       primaryAction: labsState.eicrAdded ? "viewEicr" : buttsEicrRequest ? "openRequests" : "request:eicr:the-butts",
-      primaryLabel: labsState.eicrAdded ? "View evidence" : buttsEicrRequest ? "View open request" : "Request EICR support",
+      primaryLabel: labsState.eicrAdded ? "View evidence" : buttsEicrRequest ? "View open request" : "Prepare EICR request",
       secondaryAction: labsState.eicrAdded ? null : "uploadEicr",
-      secondaryLabel: labsState.eicrAdded ? "" : "Upload existing EICR"
+      secondaryLabel: labsState.eicrAdded ? "" : "Add evidence"
     },
     {
       title: "Inspection evidence",
@@ -18212,6 +18227,10 @@ function portfolioServiceCards() {
 }
 
 function askChatStatusChips() {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    return ["Property file checked", "Evidence Vault checked", "Action Plan checked", "Monitoring reviewed", "Services checked"];
+  }
+
   const activeRequest = activeSupportRequestForActivity();
 
   if (activeRequest) {
@@ -18241,13 +18260,17 @@ function askChatStatusChips() {
   }
 
   if (labsState.eicrAdded) {
-    return ["EICR verified", "Inspection evidence missing", "Licensing still watching", "Tasks checked", "Support requests checked"];
+    return ["EICR accepted for review", "Inspection evidence missing", "Licensing still watching", "Action Plan checked", "Support requests checked"];
   }
 
   return ["Evidence Vault checked", "Compliance Centre checked", "Tasks checked", "Activity reviewed", "Support requests checked"];
 }
 
 function askContextSequenceItems() {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    return ["Property file", "Evidence Vault", "Action Plan", "Services", "Monitoring"];
+  }
+
   if (isEmptyPortfolioMode()) {
     return ["Setup route", "Evidence checklist", "First property needed"];
   }
@@ -18271,13 +18294,25 @@ function askContextSequenceItems() {
   }
 
   if (labsState.eicrAdded) {
-    return ["EICR verified", "Inspection gap checked", "Tasks reviewed", "Activity matched"];
+    return ["EICR accepted for review", "Inspection gap checked", "Action Plan reviewed", "Timeline matched"];
   }
 
   return ["Evidence checked", "Compliance matched", "Tasks prioritised", "Support requests checked"];
 }
 
 function askContextSources() {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    const shell = canonicalWorkspaceShell();
+    const derivedState = canonicalDerivedState();
+    return [
+      { name: "Property file", body: `${shell?.address || "Selected property"}${shell?.postcode ? ` · ${shell.postcode}` : ""}`, state: "Selected property" },
+      { name: "Evidence Vault", body: "Uses accepted proof, missing evidence and items needing review.", state: `${(derivedState?.evidenceGaps || []).length} open gaps` },
+      { name: "Action Plan", body: "Uses the current Next action and secondary actions.", state: derivedState?.nextBestAction ? "Next action ready" : "No action ranked" },
+      { name: "Services", body: "Uses prepared request status only. No supplier contacted and no payment taken.", state: selectedCanonicalServiceRequests().length ? "Request prepared" : "No request prepared" },
+      { name: "Monitoring", body: "Uses future follow-up from evidence dates, gaps and prepared requests.", state: `${(derivedState?.monitoringItems || []).length} follow-up items` }
+    ];
+  }
+
   if (isEmptyPortfolioMode()) {
     return [
       { name: "Property details", body: "No address or postcode is connected yet.", state: "Empty" },
@@ -18294,12 +18329,12 @@ function askContextSources() {
       { name: "Evidence Vault", body: summary.evidenceConfidenceHelp, state: summary.evidenceConfidenceLabel },
       { name: "Compliance Centre", body: "Uses confirmed setup answers before treating compliance scoring as reliable.", state: summary.readinessLabel },
       { name: "Tasks", body: "Setup tasks are generated from the property profile state.", state: `${tasks.length} setup ${tasks.length === 1 ? "task" : "tasks"}` },
-      { name: "Book a Service", body: "Support recommendations wait until evidence gaps are confirmed.", state: "Not recommended yet" }
+      { name: "Services", body: "Service recommendations wait until evidence gaps are confirmed.", state: "Not recommended yet" }
     ];
   }
 
   const activeRequest = activeSupportRequestForActivity();
-  const evidenceState = isFivePropertyMode() ? `${portfolioEvidenceScore()}% portfolio score` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 verified / 3 gaps" : "5 verified / 4 gaps") : labsState.eicrAdded ? "3 verified / inspection missing" : "2 verified / 1 missing";
+  const evidenceState = isFivePropertyMode() ? `${portfolioEvidenceScore()}% portfolio score` : isTwoPropertyMode() ? (labsState.eicrAdded ? "6 accepted / 3 gaps" : "5 accepted / 4 gaps") : labsState.eicrAdded ? "3 accepted / inspection missing" : "2 accepted / 1 missing";
   const complianceState = isFivePropertyMode() ? `${portfolioComplianceScore()}% portfolio score` : isTwoPropertyMode() ? "Gas renewal first" : labsState.eicrAdded ? "Inspection next" : "EICR priority";
   const taskState = activeRequest ? "Support review open" : isFivePropertyMode() ? "Portfolio actions" : isTwoPropertyMode() ? "Gas renewal task" : labsState.eicrAdded ? "Inspection task" : "EICR task";
   const supportState = activeRequest ? "Awaiting review" : "No open requests";
@@ -18328,7 +18363,7 @@ function askContextSources() {
     {
       name: "Activity history",
       body: "Uses recent evidence, support and landlord-answer events.",
-      state: isFivePropertyMode() ? "Portfolio sweep" : isTwoPropertyMode() ? "Both properties" : labsState.eicrAdded ? "EICR verified" : "EICR gap identified"
+      state: isFivePropertyMode() ? "Portfolio sweep" : isTwoPropertyMode() ? "Both properties" : labsState.eicrAdded ? "EICR accepted" : "EICR gap identified"
     },
     {
       name: "Support requests",
@@ -18336,7 +18371,7 @@ function askContextSources() {
       state: supportState
     },
     {
-      name: "Book a Service",
+      name: "Services",
       body: "Uses the recommended support pathway for this property.",
       state: isFivePropertyMode() ? "Grouped by property" : isTwoPropertyMode() ? "Gas Safety support" : labsState.eicrAdded ? "Inspection support" : "EICR support"
     }
@@ -18344,6 +18379,17 @@ function askContextSources() {
 }
 
 function askContextHighlight() {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    const derivedState = canonicalDerivedState();
+    const next = derivedState?.nextBestAction;
+    return {
+      title: next ? "Next action is ready" : "Property file is ready for review",
+      body: next
+        ? `${next.title}. ${next.reason || "Review the Action Plan for the selected property."}`
+        : "Ask CMP can explain the selected property, but the main route remains the Action Plan."
+    };
+  }
+
   const activeRequest = activeSupportRequestForActivity();
 
   if (activeRequest) {
@@ -18505,7 +18551,9 @@ function renderPortfolioUtilityState() {
     `).join("");
   }
   if (chatTitle) {
-    chatTitle.textContent = isEmptyPortfolioMode()
+    chatTitle.textContent = isNormalSelectedCanonicalWorkspace()
+      ? `Property-aware guidance for ${canonicalWorkspaceShell()?.address || "this property"}`
+      : isEmptyPortfolioMode()
       ? "Setup assistant"
       : isNewPropertyMode()
       ? "Ask CMP about 57 The Butts"
@@ -18514,24 +18562,32 @@ function renderPortfolioUtilityState() {
         : isTwoPropertyMode() ? "Portfolio intelligence for 2 properties" : "Portfolio intelligence for 57 The Butts";
   }
   if (chatState) {
-    chatState.textContent = isEmptyPortfolioMode() ? "Setup guidance" : isNewPropertyMode() ? "New profile" : "Demo data only";
+    chatState.textContent = isNormalSelectedCanonicalWorkspace()
+      ? "Property context"
+      : isEmptyPortfolioMode() ? "Setup guidance" : isNewPropertyMode() ? "New profile" : "Preview";
   }
   if (utilityAskInput) {
-    utilityAskInput.placeholder = isEmptyPortfolioMode()
+    utilityAskInput.placeholder = isNormalSelectedCanonicalWorkspace()
+      ? "Ask CMP about this property..."
+      : isEmptyPortfolioMode()
       ? "What should I prepare before adding a property?"
       : isNewPropertyMode()
       ? "Ask CMP about 57 The Butts..."
       : "Ask CMP anything about your portfolio...";
   }
   if (askHeaderBody) {
-    askHeaderBody.textContent = isEmptyPortfolioMode()
+    askHeaderBody.textContent = isNormalSelectedCanonicalWorkspace()
+      ? "Ask CMP explains this property file, evidence, Action Plan, Timeline, Monitoring and prepared service requests. It does not replace the Next action."
+      : isEmptyPortfolioMode()
       ? "Ask CMP what to prepare before adding your first property."
       : isNewPropertyMode()
       ? "Ask CMP about what it found for 57 The Butts and what still needs landlord confirmation."
       : "Ask CMP to read the property file, evidence, tasks, activity and support requests, then explain the next step.";
   }
   if (askCheckChips) {
-    askCheckChips.innerHTML = (isEmptyPortfolioMode()
+    askCheckChips.innerHTML = (isNormalSelectedCanonicalWorkspace()
+      ? ["property file", "Evidence Vault", "Action Plan", "Timeline", "Monitoring", "Services"]
+      : isEmptyPortfolioMode()
       ? ["property setup", "documents to prepare", "first property", "A-Z preview"]
       : isNewPropertyMode()
       ? ["address match", "EPC context", "setup tasks", "missing certificates"]
@@ -18710,7 +18766,7 @@ function renderGlobalServiceState() {
           <h2>Choose where CMP should focus</h2>
           <span>CMP can show support across the portfolio or focus on one property at a time.</span>
         </div>
-        <div class="service-focus-tabs" aria-label="Choose Book a Service scope">
+        <div class="service-focus-tabs" aria-label="Choose Services scope">
           <button class="${isAllMode ? "is-active" : ""}" type="button" data-service-property-select="all">
             <strong>All properties</strong>
             <small>Portfolio view</small>
@@ -19322,7 +19378,7 @@ function bindPortfolioHome() {
 
   document.querySelector("[data-home-quick-win-open]")?.addEventListener("click", openHomeAlarmModal);
   document.querySelector("[data-home-quick-remind]")?.addEventListener("click", () => {
-    showToast("Preview only — reminders are not scheduled in this demo.");
+    showToast("Preview only - reminders are not scheduled in this preview.");
   });
   document.querySelector("[data-home-alarm-save]")?.addEventListener("click", saveHomeAlarmAnswer);
   document.querySelectorAll("[data-home-alarm-close]").forEach((button) => {
@@ -21375,11 +21431,11 @@ function renderSelectedCanonicalServicesState() {
   const serviceBody = serviceOption?.recommendedBecause || next?.reason || "No selected-property service request is needed from the current information.";
   title.textContent = serviceTitle;
   setText("[data-service-primary-body]", `${serviceBody} Preparing a request does not contact a supplier and does not take payment.`);
-  setText("[data-service-primary-reason]", next?.priorityExplanation || "Services owns prepared, open and completed request status only.");
+  setText("[data-service-primary-reason]", next?.priorityExplanation || "Services shows prepared, open and completed request status for this selected property.");
 
   const primaryAction = document.querySelector("[data-service-primary-action]");
   if (primaryAction) {
-    primaryAction.textContent = requests.length ? "Open prepared request" : "Prepare service request";
+    primaryAction.textContent = requests.length ? "Open prepared request" : "Prepare request";
     primaryAction.removeAttribute("data-service-request-open");
     primaryAction.setAttribute("data-canonical-service-request", "");
   }
@@ -21654,7 +21710,7 @@ function cancelSupportRequest(id) {
     type: "service-cancel",
     category: "Service request",
     title: "Support request cancelled",
-    body: `The ${request.type.toLowerCase()} request was marked as cancelled in CMP Labs.`,
+    body: `The ${request.type.toLowerCase()} request was marked as cancelled in CMP.`,
     badge: "Cancelled",
     badgeClass: "status-neutral-text",
     activityLabel: "Support request cancelled",
@@ -21666,7 +21722,7 @@ function cancelSupportRequest(id) {
         ["Status", "Cancelled"],
         ["Updated", "Just now"]
       ],
-      note: "Prototype service history for layout testing."
+      note: "Service history preview for review."
     }
   });
   showToast("Support request cancelled");
@@ -21700,7 +21756,7 @@ function saveHandledStatus() {
         ["Answer", selected],
         ["Status", "Recorded"]
       ],
-      note: "Prototype support status for layout testing."
+      note: "Support status preview for review."
     }
   });
   closeTimelineModals();
@@ -21724,7 +21780,7 @@ function createCallbackRequest() {
         ["Created", "Just now"],
         ["Source", "Services tab"]
       ],
-      note: "Prototype callback request for layout testing."
+      note: "Callback request preview for review."
     }
   });
   closeTimelineModals();
@@ -21752,7 +21808,7 @@ function createSupportMessage() {
         ["Created", "Just now"],
         ["Source", "Services tab"]
       ],
-      note: "Prototype support message for layout testing."
+      note: "Support message preview for review."
     }
   });
   closeTimelineModals();
@@ -21947,13 +22003,13 @@ function savePropertyBasics() {
     addPropertyTimelineEvent({
       type: "property-update",
       title: "Property details updated",
-      body: "The property profile was updated in CMP Labs.",
+      body: "The property profile was updated in CMP.",
       badge: "Landlord updated",
       activityLabel: "Property details updated",
       details: {
         title: "Changed fields",
         rows: [...changedRows, ["Created", "Just now"]],
-        note: "Prototype property update for layout testing."
+        note: "Property update preview for review."
       }
     });
   } else {
@@ -22017,13 +22073,13 @@ function saveOptionalDetails() {
     addPropertyTimelineEvent({
       type: "optional-details",
       title: "Optional property details added",
-      body: "Additional property context was saved in CMP Labs.",
+      body: "Additional property context was saved in CMP.",
       badge: "Landlord updated",
       activityLabel: "Optional property details saved",
       details: {
         title: "Optional details",
         rows: [...addedRows, ["Created", "Just now"]],
-        note: "Prototype optional property details for layout testing."
+        note: "Optional property details preview for review."
       }
     });
   }
@@ -22425,7 +22481,7 @@ function getTimelineEvents() {
       icon: "building",
       category: "Property setup",
       title: "Property file created",
-      body: "57 The Butts was added to the CMP Labs workspace.",
+      body: "57 The Butts was added to the CMP property workspace.",
       badge: "Recorded",
       badgeClass: "status-neutral-text",
       actions: [],
@@ -22540,7 +22596,7 @@ function selectedCanonicalTimelineEvents() {
       group: "Now",
       filter: "actions",
       icon: "check",
-      category: "Next best action",
+      category: "Next action",
       title: next.title,
       badge: "Recommended",
       badgeClass: "status-review-text",
@@ -22995,7 +23051,7 @@ function renderSmartUploadState() {
     : "Property: 57 The Butts";
   actions.innerHTML = labsState.eicrAdded
     ? `
-      <button class="secondary-button" type="button" data-toast="EICR evidence is already stored in this demo.">View current evidence</button>
+      <button class="secondary-button" type="button" data-toast="EICR evidence is already in the property file.">View current evidence</button>
       <button class="text-button" type="button" data-upload-trigger>Replace evidence</button>
       <button class="text-button" type="button" data-modal-close>Close</button>
     `
@@ -23014,7 +23070,7 @@ function showScanResults() {
 
 function showEicrReview() {
   if (labsState.eicrAdded) {
-    showToast("EICR evidence is already stored in this demo.");
+    showToast("EICR evidence is already in the property file.");
     return;
   }
 

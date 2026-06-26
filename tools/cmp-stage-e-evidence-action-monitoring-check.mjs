@@ -438,9 +438,12 @@ test("Stage E changed only allowed product and test files", () => {
     "dashboard-labs.html",
     "dashboard-labs.js",
     "dashboard-labs.css",
+    "public-pages.js",
+    "core/cmp-ask-response.js",
     "core/cmp-evidence-lifecycle.js",
     "core/cmp-service-lifecycle.js",
     "core/cmp-monitoring-derivation.js",
+    "tools/cmp-stage-c1-public-journey-acceptance-check.mjs",
     "tools/cmp-stage-e-evidence-action-monitoring-check.mjs",
   ]);
   assert.deepEqual(changed.filter((file) => !allowed.has(file)), []);

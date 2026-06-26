@@ -162,11 +162,11 @@
         <div class="utility-bar">
           <div>
             <div class="breadcrumb">Properties / Selected property</div>
-            <span class="prototype-badge">Prototype mode · demo data</span>
+            <span class="prototype-badge">Property workspace · Preview</span>
           </div>
           <div class="utility-actions">
-            <button class="secondary-button" type="button" data-toast="Preview only — property editing is not connected in this demo.">Edit property</button>
-            <button class="icon-button" type="button" aria-label="More actions" data-toast="Preview only — extra property actions are not connected in this demo.">
+            <button class="secondary-button" type="button" data-toast="Preview only - property editing is not connected in this preview.">Edit property</button>
+          <button class="icon-button" type="button" aria-label="More actions" data-toast="Preview only - extra property actions are not connected in this preview.">
               <span class="nav-icon" data-icon="more"></span>
             </button>
           </div>
@@ -271,8 +271,8 @@
               <p data-home-priority-body>CMP could not find a current EICR for Selected property. Upload an existing report or request help arranging an inspection.</p>
             </div>
             <div class="home-priority-actions">
-              <button class="primary-button" type="button" data-home-upload-priority>Upload EICR</button>
-              <button class="secondary-button" type="button" data-home-arrange-priority>Arrange an EICR</button>
+              <button class="primary-button" type="button" data-home-upload-priority>Add evidence</button>
+              <button class="secondary-button" type="button" data-home-arrange-priority>Prepare EICR request</button>
               <button class="text-button" type="button" data-home-open-workspace>Open property workspace</button>
             </div>
           </article>
@@ -579,7 +579,7 @@
               <p data-compliance-priority-body>CMP has EPC and Gas Safety evidence recorded, but no current EICR is stored for this property.</p>
             </div>
             <div class="compliance-start-actions">
-              <button class="primary-button" type="button" data-compliance-priority-upload>Upload EICR</button>
+              <button class="primary-button" type="button" data-compliance-priority-upload>Add evidence</button>
               <button class="secondary-button" type="button" data-compliance-priority-support>Request EICR support</button>
               <button class="text-button" type="button" data-compliance-open-property>Open property</button>
             </div>
@@ -589,7 +589,7 @@
             <div class="az-checker-header">
               <div>
                 <p class="section-kicker">A-Z Compliance Check</p>
-                <h2 id="azCheckerTitle">A guided check for answers, evidence and next steps.</h2>
+                <h2 id="azCheckerTitle">A property check for answers, evidence and next steps.</h2>
                 <p>Use Single property for one address, or Portfolio sweep to answer shared questions once and only review exceptions. Prototype readiness logic only — this is not legal advice.</p>
               </div>
               <div class="az-mode-toggle" aria-label="A-Z checker mode">
@@ -652,7 +652,7 @@
             <div class="section-heading">
               <p class="section-kicker">Next 90 days</p>
               <h2 id="portfolioForecastTitle">Portfolio forecast</h2>
-              <p>Short-range watch items based on the information currently in CMP Labs.</p>
+              <p>Short-range watch items based on the information currently in the property file.</p>
             </div>
             <div class="compliance-forecast-grid" data-compliance-forecast-grid>
               <article>
@@ -699,7 +699,7 @@
               </ul>
               <div class="button-row">
                 <button class="secondary-button" type="button" data-prs-open>Preview readiness</button>
-                <button class="text-button" type="button" data-toast="CMP Labs tracks this as a future readiness concept only.">Why CMP tracks this</button>
+                <button class="text-button" type="button" data-toast="CMP tracks this as a future readiness concept only.">Why CMP tracks this</button>
               </div>
             </div>
           </article>
@@ -714,7 +714,7 @@
               <span class="prototype-badge" data-evidence-count-badge>1 property connected</span>
             </div>
             <div class="portfolio-header-actions">
-              <button class="primary-button" type="button" data-evidence-upload>Upload evidence</button>
+              <button class="primary-button" type="button" data-evidence-upload>Add evidence</button>
               <button class="secondary-button" type="button" data-evidence-copy-inbox>Copy inbox address</button>
               <button class="secondary-button" type="button" data-evidence-ask>Ask CMP what is missing</button>
             </div>
@@ -745,14 +745,14 @@
 
           <article class="evidence-inbox-panel" data-evidence-inbox-helper>
             <div>
-              <p class="section-kicker">EVIDENCE INBOX</p>
-              <h2>Forward paperwork once</h2>
-              <p>Forwarding is an intake helper for review. CMP can suggest the property and category, but forwarding does not mean legal verification or permanent file storage.</p>
+              <p class="section-kicker">EVIDENCE INTAKE</p>
+              <h2>Add proof for review</h2>
+              <p>Forwarding is an intake helper for review. CMP can suggest the property and category, but forwarding does not mean official verification or permanent file storage.</p>
               <div class="inbox-address" data-evidence-inbox-address>selected-property@inbox.complymyproperty.co.uk</div>
             </div>
             <div class="evidence-inbox-actions">
               <button class="secondary-button" type="button" data-evidence-copy-inbox>Copy inbox address</button>
-              <button class="primary-button" type="button" data-evidence-open-property-inbox>Open property inbox</button>
+              <button class="primary-button" type="button" data-evidence-open-property-inbox>Open Evidence Vault</button>
               <button class="text-button" type="button" data-evidence-forwarding-help>How forwarding works</button>
             </div>
           </article>
@@ -774,7 +774,7 @@
               <button type="button" data-evidence-filter="review">Needs review</button>
               <button type="button" data-evidence-filter="missing">Missing</button>
               <button type="button" data-evidence-filter="official">Official records</button>
-              <button type="button" data-evidence-filter="uploaded">Uploaded documents</button>
+              <button type="button" data-evidence-filter="uploaded">Added proof</button>
             </div>
             <div class="properties-view-toggle" aria-label="Evidence view">
               <button type="button" data-evidence-view="cards">Cards</button>
@@ -815,11 +815,11 @@
               <div>
                 <p class="section-kicker">ADD EVIDENCE</p>
                 <h2>Add paperwork for review</h2>
-                <p>Add certificates and records to this Evidence Vault intake. CMP prepares evidence for review; no legal verification or permanent file storage is implied.</p>
+                <p>Add certificates and records to this Evidence Vault intake. CMP prepares evidence for review; no official verification or permanent file storage is implied.</p>
               </div>
               <div class="button-row">
-                <button class="primary-button" type="button" data-evidence-demo-upload>Preview mixed paperwork demo</button>
-                <button class="secondary-button" type="button" data-evidence-open-documents>Open property Documents</button>
+                <button class="primary-button" type="button" data-evidence-demo-upload>Add proof later</button>
+                <button class="secondary-button" type="button" data-evidence-open-documents>Open property evidence</button>
               </div>
             </article>
 
@@ -837,7 +837,7 @@
               <div class="button-row">
                 <button class="secondary-button" type="button" data-evidence-open-documents>Open property evidence</button>
                 <button class="text-button" type="button" data-evidence-open-timeline>View timeline</button>
-                <button class="text-button" type="button" data-evidence-open-services>Request support</button>
+                <button class="text-button" type="button" data-evidence-open-services>Prepare request</button>
               </div>
             </article>
           </div>
@@ -931,21 +931,21 @@
         <section class="portfolio-utility-page portfolio-ask-page" data-portfolio-ask hidden aria-labelledby="portfolioAskTitle">
           <header class="portfolio-utility-header ask-command-header">
             <div>
-              <p class="section-kicker">CMP ASSISTANT</p>
+              <p class="section-kicker">ASK CMP</p>
               <h1 id="portfolioAskTitle">Ask CMP</h1>
-              <p>Ask CMP to read the property file, evidence, tasks, activity and support requests, then explain the next step.</p>
-              <span class="prototype-badge">Assistant command centre</span>
+              <p>Ask CMP reads this property file, Evidence Vault, Action Plan, Timeline, Monitoring and Services, then explains the next step.</p>
+              <span class="prototype-badge">Property-aware guidance</span>
             </div>
           </header>
 
-          <section class="ask-command-centre" aria-label="Ask CMP command centre">
+          <section class="ask-command-centre" aria-label="Ask CMP property guidance">
             <article class="ask-chat-panel">
               <div class="ask-chat-topline">
                 <div>
-                  <p class="section-kicker">AI COMMAND CENTRE</p>
-                  <h2>Portfolio intelligence for Selected property</h2>
+                  <p class="section-kicker">PROPERTY CONTEXT</p>
+                  <h2>Property-aware guidance for the selected property</h2>
                 </div>
-                <span class="doc-status status-watch-text" data-ask-chat-state>Demo data only</span>
+                <span class="doc-status status-watch-text" data-ask-chat-state>Property context</span>
               </div>
               <div class="ask-chat-surface">
                 <div class="ask-chat-status-row" data-ask-status-chips>
@@ -978,7 +978,7 @@
               <form class="ask-command-bar" data-utility-ask-form>
                 <label>
                   <span>Ask CMP</span>
-                  <input type="text" name="question" placeholder="Ask CMP anything about your portfolio…" autocomplete="off">
+                  <input type="text" name="question" placeholder="Ask CMP about this property..." autocomplete="off">
                 </label>
                 <button class="primary-button" type="submit" aria-label="Send Ask CMP question">
                   <span class="nav-icon" data-icon="send"></span>
@@ -1016,7 +1016,7 @@
                 <small>Get the next useful action for the active property.</small>
               </button>
               <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="Which property needs attention?">
-                <span class="source-badge">Portfolio</span>
+                <span class="source-badge">Property</span>
                 <strong>Which property needs attention?</strong>
                 <small>See where CMP would focus first.</small>
               </button>
@@ -1032,8 +1032,8 @@
               </button>
               <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="Summarise my portfolio">
                 <span class="source-badge">Summary</span>
-                <strong>Summarise my portfolio</strong>
-                <small>Turn portfolio status into plain English.</small>
+                <strong>Summarise My Properties</strong>
+                <small>Turn saved property status into plain English.</small>
               </button>
               <button class="utility-prompt-card ask-command-prompt-card" type="button" data-utility-ask-prompt="What can wait until later?">
                 <span class="source-badge">Priorities</span>
@@ -1092,7 +1092,7 @@
           <article class="utility-hero-card service-recommendation-card">
             <div>
               <p class="section-kicker">RECOMMENDED NEXT SUPPORT</p>
-              <h2 data-global-service-title>Arrange an EICR</h2>
+              <h2 data-global-service-title>Prepare EICR request</h2>
               <p data-global-service-body>Electrical Safety evidence is currently missing for Selected property.</p>
             </div>
             <div class="button-row" data-global-service-actions>
@@ -1189,7 +1189,7 @@
             <div>
               <p class="section-kicker">ACCOUNT</p>
               <h1 id="portfolioSettingsTitle">Settings</h1>
-              <p>Adjust local demo preferences and notification examples so the walkthrough matches the story you want to show.</p>
+              <p>Adjust preview preferences and notification examples so the walkthrough matches the story you want to show.</p>
             </div>
           </header>
 
@@ -1282,7 +1282,7 @@
               </div>
             </div>
             <div class="tasks-start-actions" data-tasks-start-actions>
-              <button class="primary-button" type="button" data-task-action="uploadEicr">Upload EICR</button>
+              <button class="primary-button" type="button" data-task-action="uploadEicr">Add evidence</button>
               <button class="secondary-button" type="button" data-task-action="requestSupport">Request EICR support</button>
               <button class="text-button" type="button" data-task-action="openProperty">Open property</button>
             </div>
@@ -1346,7 +1346,7 @@
               </div>
               <p class="confidence-line">Evidence confidence: building</p>
               <div class="button-row">
-                <button class="primary-button" type="button" data-toast="Preview only — guided checks are not connected to a live workflow.">Continue guided check</button>
+                <button class="primary-button" type="button" data-toast="Preview only - property questions are not connected to a live official lookup.">Answer property questions</button>
                 <button class="secondary-button" type="button" data-findings-open>See what CMP found</button>
               </div>
             </div>
@@ -1365,20 +1365,20 @@
               <div class="strength-meter" aria-label="Property file evidence completeness">
                 <span data-strength-meter style="width: 42%"></span>
               </div>
-              <p>Evidence completeness only. Not a legal compliance guarantee.</p>
+              <p>Evidence completeness only. Guidance, not legal advice.</p>
             </div>
           </article>
 
           <article class="next-action-card" data-next-best-step tabindex="-1">
             <div>
-              <p class="section-kicker">Your next best step</p>
+              <p class="section-kicker">Next action</p>
               <h2>Check whether this property has a current EICR</h2>
               <p>Electrical safety is the highest-priority unknown area in this property file.</p>
             </div>
             <div class="action-controls">
-              <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-              <button class="secondary-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
-              <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
+              <button class="primary-button" type="button" data-upload-trigger>Add evidence</button>
+              <button class="secondary-button" type="button" data-toast="Preview only - manual certificate entry is not connected in this preview.">Enter details manually</button>
+              <button class="secondary-button" type="button" data-open-global-service>Prepare EICR request</button>
               <button class="text-button" type="button" data-assistant-message="Electrical safety is treated as a priority because a valid EICR is core evidence before a property is let.">Ask CMP why this matters</button>
             </div>
           </article>
@@ -1459,7 +1459,7 @@
               </div>
               <small>Based on the evidence currently stored in CMP.</small>
               <div class="button-row">
-                <button class="primary-button" type="button" data-toast="Preview only — guided checks are not connected to a live workflow.">Continue guided check</button>
+                <button class="primary-button" type="button" data-toast="Preview only - property questions are not connected to a live official lookup.">Answer property questions</button>
                 <button class="secondary-button" type="button" data-assistant-message="Your clearest next step is to add or arrange an EICR. Your EPC and Gas Safety evidence are already recorded.">Ask CMP what matters most</button>
               </div>
             </div>
@@ -1550,9 +1550,9 @@
                 <strong class="status-review-text" data-compliance-eicr-status>Needs checking</strong>
                 <p data-compliance-eicr-details>CMP does not yet have a current EICR stored for this property.</p>
                 <div class="card-actions" data-compliance-eicr-actions>
-                  <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-                  <button class="secondary-button" type="button" data-toast="Preview only — manual certificate entry is not connected in this demo.">Enter details manually</button>
-                  <button class="text-button" type="button" data-open-global-service>Arrange an EICR</button>
+                  <button class="primary-button" type="button" data-upload-trigger>Add evidence</button>
+                  <button class="secondary-button" type="button" data-toast="Preview only - manual certificate entry is not connected in this preview.">Enter details manually</button>
+                  <button class="text-button" type="button" data-open-global-service>Prepare EICR request</button>
                 </div>
               </article>
               <article class="essential-card status-watch" data-compliance-licensing-card tabindex="-1">
@@ -1647,14 +1647,14 @@
               </ul>
               <div class="button-row">
                 <button class="secondary-button" type="button" data-prs-open>Preview readiness checklist</button>
-                <button class="text-button" type="button" data-toast="CMP Labs tracks this as a future readiness concept only.">Why CMP tracks this</button>
+                <button class="text-button" type="button" data-toast="CMP tracks this as a future readiness concept only.">Why CMP tracks this</button>
               </div>
             </article>
 
             <article class="what-if-panel" data-what-if-panel>
               <button class="what-if-toggle" type="button" data-what-if-toggle aria-expanded="false">
                 <span>
-                  <small>CMP Labs</small>
+                  <small>CMP</small>
                   <strong>What would happen if...</strong>
                   <em>Explore possible scenarios</em>
                   <b>See how a future tenancy, occupancy change or vacant period could alter the next questions CMP asks.</b>
@@ -1693,7 +1693,7 @@
               <p>Continue the step-by-step review when you are ready. You can answer what you know, skip uncertain questions and return later.</p>
             </div>
             <div class="button-row">
-              <button class="primary-button" type="button" data-toast="Preview only — guided checks are not connected to a live workflow.">Continue guided check</button>
+              <button class="primary-button" type="button" data-toast="Preview only - property questions are not connected to a live official lookup.">Answer property questions</button>
               <button class="text-button" type="button" data-toast="Preview only — the next question is shown as a demo step.">Preview the next question</button>
             </div>
           </article>
@@ -1737,7 +1737,7 @@
               <div>
                 <h3>Suggested next upload</h3>
                 <strong data-next-upload>EICR</strong>
-                <small data-next-upload-note>Electrical Safety is still unverified</small>
+                <small data-next-upload-note>Electrical Safety evidence is still missing</small>
               </div>
             </article>
           </section>
@@ -1763,7 +1763,7 @@
                 <input type="file" multiple hidden data-file-input>
                 <span class="tile-icon" data-icon="upload"></span>
                 <strong>Drop paperwork here</strong>
-                <small>Files stay local in this Labs prototype.</small>
+                <small>Files added here are prepared for review. No permanent storage is implied.</small>
               </label>
               <div class="button-row">
                 <button class="primary-button" type="button" data-upload-trigger>Choose documents</button>
@@ -1854,7 +1854,7 @@
                 <span><strong data-timeline-evidence-count>3</strong> evidence updates</span>
                 <span><strong data-timeline-open-count>1</strong> action still open</span>
               </div>
-              <small>Timeline entries reflect the information currently stored in this local demo.</small>
+              <small>Timeline entries reflect the information currently held in this property file preview.</small>
               <div class="button-row">
                 <button class="primary-button" type="button" data-summary-open>Generate evidence summary</button>
                 <button class="secondary-button" type="button" data-note-open>Add a note</button>
@@ -1893,8 +1893,8 @@
               <h3>One useful next step</h3>
               <p data-timeline-action-body>Add or arrange an EICR to strengthen the Electrical Safety record.</p>
               <div class="button-row" data-timeline-action-buttons>
-                <button class="primary-button" type="button" data-upload-trigger>Upload EICR</button>
-                <button class="secondary-button" type="button" data-open-global-service>Arrange an EICR</button>
+                <button class="primary-button" type="button" data-upload-trigger>Add evidence</button>
+                <button class="secondary-button" type="button" data-open-global-service>Prepare EICR request</button>
               </div>
             </aside>
           </div>
@@ -1929,7 +1929,7 @@
           <article class="primary-service-card" data-service-primary-card tabindex="-1">
             <div class="service-card-main">
               <p class="section-kicker">Highest-priority support</p>
-              <h2 data-service-primary-title>Arrange an EICR</h2>
+              <h2 data-service-primary-title>Prepare EICR request</h2>
               <p data-service-primary-body>Electrical Safety is the clearest missing evidence area in this property file. Add an existing report or request help arranging an inspection.</p>
               <div class="service-reason">
                 <strong>Why CMP is suggesting this</strong>
@@ -2118,7 +2118,7 @@
                   <div><dt>Current rating</dt><dd>C</dd></div>
                   <div><dt>Valid until</dt><dd>14 March 2031</dd></div>
                   <div><dt>Floor area</dt><dd>92 m&sup2;</dd></div>
-                  <div><dt>Certificate number</dt><dd>CMP-LABS-EPC-573B</dd></div>
+                  <div><dt>Certificate number</dt><dd>CMP-EPC-573B</dd></div>
                 </dl>
                 <div class="button-row">
                   <button class="secondary-button" type="button" data-toast="Preview only — official record viewing is not connected to live records.">View EPC record</button>
@@ -2175,7 +2175,7 @@
                   <ul data-details-eicr-list>
                     <li>No current EICR linked to this property file</li>
                   </ul>
-                  <button class="text-button" type="button" data-details-eicr-action data-upload-trigger>Upload EICR</button>
+                  <button class="text-button" type="button" data-details-eicr-action data-upload-trigger>Add evidence</button>
                 </div>
               </article>
             </div>
@@ -2209,7 +2209,7 @@
           <section class="property-memory-card" data-property-memory-section>
             <div class="passport-card-header">
               <div>
-                <p class="section-kicker">CMP Labs</p>
+                <p class="section-kicker">Property file</p>
                 <h2>Property Memory</h2>
                 <p>Keep useful room-by-room notes, inspection observations and recurring issues connected to this property file.</p>
                 <small>This could help future inspections, maintenance follow-ups and handovers feel less repetitive.</small>
@@ -2355,14 +2355,14 @@
               <span class="tile-icon" data-icon="alert"></span>
               <div>
                 <h3>Landlord details need review</h3>
-                <p>Registration-style contact details are not part of this Labs pass.</p>
+                <p>Registration-style contact details are not part of this preview.</p>
               </div>
             </article>
             <article>
               <span class="tile-icon" data-icon="clock"></span>
               <div>
                 <h3>Submission workflow not enabled</h3>
-                <p>This is a forward-looking concept only. CMP Labs does not submit anything to a government database.</p>
+                <p>This is a forward-looking concept only. CMP does not submit anything to a government database.</p>
               </div>
             </article>
           </div>
@@ -2386,7 +2386,7 @@
             <span data-scan-fill></span>
           </div>
           <h3 data-scan-title>Reading documents...</h3>
-          <p data-scan-body>Preparing a local demo review. No files are uploaded or inspected.</p>
+          <p data-scan-body>Preparing a preview review. No files are uploaded or inspected.</p>
           <ol class="scan-steps" data-scan-steps>
             <li class="is-active">Reading documents...</li>
             <li>Identifying document types...</li>
@@ -2766,7 +2766,7 @@
           </section>
           <section>
             <h3>Suggested next action</h3>
-            <p data-task-detail-action>Upload EICR</p>
+            <p data-task-detail-action>Add evidence</p>
           </section>
         </div>
         <div class="button-row">
@@ -2812,7 +2812,7 @@
           </section>
           <section>
             <h3>Suggested next action</h3>
-            <p data-activity-detail-action>Upload EICR or ask CMP for help.</p>
+            <p data-activity-detail-action>Add evidence or ask CMP for help.</p>
           </section>
         </div>
         <div class="button-row">
@@ -2831,7 +2831,7 @@
             <span class="nav-icon" data-icon="close"></span>
           </button>
         </div>
-        <p class="modal-note">A review-ready summary of recent portfolio changes in CMP Labs.</p>
+        <p class="modal-note">A review-ready summary of recent property changes in CMP.</p>
         <div class="summary-sections">
           <section>
             <h3>Evidence updates</h3>
@@ -3227,7 +3227,7 @@
       <section class="timeline-modal memory-modal" role="dialog" aria-modal="true" aria-labelledby="memoryModalTitle" data-memory-modal hidden>
         <div class="modal-header">
           <div>
-            <p class="section-kicker">CMP Labs</p>
+            <p class="section-kicker">Property file</p>
             <h2 id="memoryModalTitle">Property Memory</h2>
             <p>Selected property · Coventry, CV1 3BJ</p>
           </div>

@@ -1072,7 +1072,7 @@
           <strong>Property intelligence starts here.</strong>
         </article>
         <article class="home-flagship-float home-flagship-float-right">
-          <span class="status-pill good">Guided check</span>
+          <span class="status-pill good">Property check</span>
           <strong>One calm next step at a time.</strong>
         </article>
       </div>
@@ -1187,7 +1187,7 @@
           <div class="cmp-v2-hero-copy">
             <span class="cmp-v2-kicker">Check My Property</span>
             <h1 id="cmp-v2-hero-title">Property intelligence that turns unknowns into one clear next action.</h1>
-            <p>ComplyMyProperty organises property identity, found facts, landlord answers, evidence gaps and monitoring into a calm Property Brain for private landlords.</p>
+            <p>ComplyMyProperty organises one property record, Smart Checks, Evidence Vault, Services, Monitoring and landlord answers into a calm Property Brain for private landlords.</p>
             <div class="cmp-v2-actions">
               <a class="button primary cmp-v2-button-primary" href="add-property.html"><i data-lucide="search-check"></i>Check My Property</a>
               <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="file-check-2"></i>Request service</a>
@@ -1198,7 +1198,9 @@
               <span>Evidence-led</span>
               <span>Unknown remains unknown</span>
               <span>Guidance, not legal advice</span>
-              <span>No supplier contacted until requested</span>
+              <span>Not a legal compliance decision</span>
+              <span>No supplier contacted</span>
+              <span>No payment taken</span>
             </div>
           </div>
           <div class="cmp-v2-hero-proof" aria-label="Readable Property Brain product preview">
@@ -1210,7 +1212,7 @@
               </div>
               <div class="cmp-v2-property-head">
                 <div>
-                  <span class="cmp-v2-kicker">Demo property record</span>
+                  <span class="cmp-v2-kicker">Example property record</span>
                   <strong>14 King Street</strong>
                   <small>Birmingham B13 · private rental</small>
                 </div>
@@ -1259,7 +1261,7 @@
             <a class="cmp-v2-begin-card" href="my-properties.html">
               <span>Existing workspace</span>
               <strong>Continue from My Properties</strong>
-              <p>Return to saved evidence, renewals, property notes and support context without starting again.</p>
+              <p>Return to Evidence Vault, renewals, property notes and support context without starting again.</p>
               <em>Open My Properties</em>
             </a>
           </div>
@@ -1269,7 +1271,7 @@
           <div class="cmp-v2-split">
             <div>
               <span class="cmp-v2-kicker">Property Brain</span>
-              <h2 id="cmp-v2-brain-title">A readable product proof, not a miniature fake dashboard.</h2>
+              <h2 id="cmp-v2-brain-title">A readable property file built from what CMP knows and what still needs review.</h2>
               <p>The Property Brain separates found facts, landlord answers, missing evidence and human-review moments. It does not pretend all facts are known.</p>
               <div class="cmp-v2-symbol-row" aria-label="Property Brain stages">
                 <span><b>I</b>Identity</span>
@@ -1284,7 +1286,7 @@
               <div><strong>EPC</strong><span>Rating C found. Expiry visible for review.</span><i class="cmp-v2-status cmp-v2-status-held"></i></div>
               <div><strong>Gas Safety</strong><span>Certificate date not yet supplied.</span><i class="cmp-v2-status cmp-v2-status-gap"></i></div>
               <div><strong>Licence position</strong><span>Needs review against local requirement.</span><i class="cmp-v2-status"></i></div>
-              <div><strong>Boundary</strong><span>Guidance, not legal advice. No supplier contacted until requested.</span><i class="cmp-v2-status cmp-v2-status-monitor"></i></div>
+              <div><strong>Boundary</strong><span>Guidance, not legal advice. No supplier contacted. No payment taken.</span><i class="cmp-v2-status cmp-v2-status-monitor"></i></div>
             </div>
           </div>
         </section>
@@ -1306,7 +1308,7 @@
         <section class="cmp-v2-section cmp-v2-service-preview" aria-labelledby="cmp-v2-service-title">
           <div class="cmp-v2-section-split-head">
             <div>
-              <span class="cmp-v2-kicker">Curated service preview</span>
+              <span class="cmp-v2-kicker">Services</span>
               <h2 id="cmp-v2-service-title">Service routes keep their job identity.</h2>
               <p>Certificate-led routes, issue-led routes and preparation routes can stay focused while still connecting back to the same property record.</p>
             </div>
@@ -1351,7 +1353,7 @@
           <div>
             <span class="cmp-v2-kicker">Human support and resources</span>
             <h2 id="cmp-v2-support-title">Support is a credible layer, not a panic button.</h2>
-            <p>Automation organises the record and names the next action. Human support appears where evidence needs review or the landlord needs confidence before proceeding.</p>
+            <p>CMP organises the record and names the next action. Human support appears where evidence needs review or the landlord needs confidence before proceeding.</p>
             <div class="cmp-v2-resource-list">
               <article><strong>Understanding evidence states</strong><p>Held, missing, landlord supplied, review needed.</p></article>
               <article><strong>When to request a certificate</strong><p>How a focused route can start from the property record.</p></article>
@@ -1499,7 +1501,7 @@
           <div>
             <span class="eyebrow">Property bridge</span>
             <h2>Not sure which route fits? Start with the address.</h2>
-            <p>A full property check runs Smart Checks first, then shows Review Found Data before the Property Brain opens.</p>
+            <p>A full property check runs Smart Checks first, then shows Review found data before the Property Brain opens.</p>
           </div>
           <div class="hero-actions">
             <a class="button primary" href="add-property.html">Check My Property</a>
@@ -2358,7 +2360,7 @@
         state.addProperty.message = "Importing property details...";
         renderAddPropertyPage();
         await wait(450);
-        state.addProperty.stage = "Preparing Review Found Data...";
+        state.addProperty.stage = "Preparing Review found data...";
         state.addProperty.message = "Address matched. Preparing the property file and Smart Checks...";
         renderAddPropertyPage();
         await wait(550);
@@ -2423,6 +2425,11 @@
         title: "Review found data",
         detail: "Confirm what is known, missing or needs review.",
         state: reviewed ? "current" : "upcoming"
+      },
+      {
+        title: "Answer property questions",
+        detail: "Answer only what CMP still needs from you.",
+        state: "upcoming"
       },
       {
         title: "Open Property Brain",
@@ -2510,7 +2517,7 @@
       },
       {
         title: "What still needs your answer",
-        body: "Only unknowns and landlord-owned property questions stay here before the Property Brain is completed.",
+        body: "Only remaining landlord-owned property questions stay here before the Property Brain is completed.",
         items: landlordQuestionItems
       }
     ].filter((group) => group.items.length);
@@ -2565,7 +2572,7 @@
       copy: hasPropertyQuestions
         ? "Answer the remaining property questions so CMP can complete the Property Brain and recommend one clear next action."
         : "Open the Property Brain to review the property position and one clear next action.",
-      primaryLabel: hasPropertyQuestions ? "Continue to property questions" : "Open Property Brain",
+      primaryLabel: hasPropertyQuestions ? "Answer property questions" : "Open Property Brain",
       href: review.handoffHref
     };
   }
@@ -2689,7 +2696,7 @@
           <div>
             <span class="eyebrow">My Properties</span>
             <h1>${isMultiProperty ? "See what needs attention across your properties." : isOneProperty ? "Keep your property check moving." : "Your property workspace starts here."}</h1>
-            <p>${isMultiProperty ? "Portfolio Sweep helps prioritise evidence gaps, expiries and service opportunities across saved properties." : isOneProperty ? "Use this page to reopen the property workspace, review the next action, or add another property." : "Add the first property and CMP will build from Smart Checks to Review found data and the Property Brain."}</p>
+            <p>${isMultiProperty ? "Portfolio Sweep helps prioritise evidence gaps, expiries and service opportunities across saved properties." : isOneProperty ? "Use this page to reopen the property workspace, review the Next action, or add another property." : "Add the first property and CMP will build from Smart Checks to Review found data and the Property Brain."}</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property</a>
               ${propertyCount ? `<a class="button secondary" href="${escapeHtml(isMultiProperty ? "dashboard-labs.html?portfolio=guest" : "#property-list")}">${isMultiProperty ? "Open Portfolio Sweep" : "Open property"}</a>` : qaDemoCta("button tertiary")}
@@ -2697,7 +2704,7 @@
             <div class="hero-metrics">
               <span><strong>${escapeHtml(String(propertyCount))}</strong> ${propertyCount === 1 ? "property" : "properties"}</span>
               <span>Current status</span>
-              <span>Next best action</span>
+              <span>Next action</span>
             </div>
           </div>
           <div class="page-hero-visual page-hero-visual-portfolio">
@@ -2735,7 +2742,7 @@
                       </div>
                     </div>
                     <h3>${escapeHtml(property.address)}</h3>
-                    <span class="property-summary-label">Next best action</span>
+                    <span class="property-summary-label">Next action</span>
                     <p class="property-summary-lead">${escapeHtml(property.sourceKind === "canonical" ? "Open property workspace" : nextActionForProperty(property.record || property))}</p>
                     <div class="property-summary-meta">
                       <span>${escapeHtml(property.type || "Property type to confirm")}</span>

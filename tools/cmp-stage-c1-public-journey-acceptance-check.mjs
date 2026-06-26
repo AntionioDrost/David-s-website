@@ -465,7 +465,9 @@ test("source edits stay inside the C.1 allowed implementation scope", () => {
     "dashboard-labs.js",
     "dashboard-labs.css",
     "dashboard-labs.html",
+    "core/cmp-ask-response.js",
     "tools/cmp-stage-c1-public-journey-acceptance-check.mjs",
+    "tools/cmp-stage-e-evidence-action-monitoring-check.mjs",
   ]);
   const unexpected = changedFiles().filter((file) => !allowed.has(file));
   assert.deepEqual(unexpected, []);
@@ -509,7 +511,7 @@ test("Review-to-workspace handoff has state-derived labels and clear next-step c
   const renderCanonicalReview = functionSlice(code, "renderCanonicalReview", 12000);
   const handoffState = functionSlice(code, "reviewHandoffState", 4000);
 
-  assert.match(handoffState, /Continue to property questions/);
+  assert.match(handoffState, /Answer property questions/);
   assert.match(handoffState, /Open Property Brain/);
   assert.match(handoffState, /Answer the remaining property questions/);
   assert.match(handoffState, /Open the Property Brain to review/);
@@ -924,7 +926,7 @@ test("browser acceptance: public pages meet C.1 layout, copy, storage and route 
   assert.deepEqual(copyFailures, []);
 
   const reviewCopies = result.copyResults.filter((entry) => entry.label === "review-handoff-actions");
-  assert.ok(reviewCopies.some((entry) => entry.ctas.includes("Continue to property questions") || entry.ctas.includes("Open Property Brain")));
+  assert.ok(reviewCopies.some((entry) => entry.ctas.includes("Answer property questions") || entry.ctas.includes("Open Property Brain")));
   assert.ok(reviewCopies.every((entry) => entry.ctas.includes("Save and return to My Properties")));
 
   const handoffLayouts = allLayout.filter((entry) => entry.label === "review-handoff-actions");
