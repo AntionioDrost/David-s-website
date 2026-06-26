@@ -183,6 +183,15 @@
     return SERVICE_CATALOG.find((service) => service.serviceId === canonicalId) || null;
   }
 
+  function stableRequestId(propertyRecord, serviceOption, fields = {}) {
+    const stableParts = [
+      propertyRecord?.id,
+      serviceOption?.serviceId || fields.serviceId,
+      fields.sourceIntentId || fields.actionId || fields.issueId || fields.source || "request",
+    ].filter(Boolean).map(slug);
+    return `svc_${stableParts.join("_") || "request"}`;
+  }
+
   function issueForAction(actionItem, derivedState = {}) {
     return (derivedState.issues || []).find((issue) => issue.issueId === actionItem?.linkedIssueId) || null;
   }
@@ -247,7 +256,9 @@
 
   function requestBase(propertyRecord, serviceOption, fields, options = {}) {
     const timestamp = nowIso(options);
-    const id = fields.id || `svc_${String(randomPart(options) || "request").trim()}`;
+    const id = fields.id || (typeof options.randomId === "function"
+      ? `svc_${String(randomPart(options) || "request").trim()}`
+      : stableRequestId(propertyRecord, serviceOption, fields));
     const expected = clone(serviceOption?.evidenceExpected || fields.evidenceExpected || []);
     return {
       id,
@@ -295,12 +306,13 @@
 
   function addOrReplaceRequest(propertyRecord, serviceRequest) {
     const nextRecord = clone(propertyRecord);
+    const timelineId = `timeline_${serviceRequest.id}_${serviceRequest.requestStatus}`;
     nextRecord.serviceRequests = (nextRecord.serviceRequests || []).filter((request) => request.id !== serviceRequest.id);
     nextRecord.serviceRequests.push(serviceRequest);
     nextRecord.timeline = [
-      ...(nextRecord.timeline || []),
+      ...(nextRecord.timeline || []).filter((event) => event.id !== timelineId),
       {
-        id: `timeline_${serviceRequest.id}_${serviceRequest.requestStatus}`,
+        id: timelineId,
         propertyId: nextRecord.id,
         eventType: "service_request_prepared",
         sourceEntityType: "service_request",

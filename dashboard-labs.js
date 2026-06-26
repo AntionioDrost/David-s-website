@@ -3729,13 +3729,75 @@ function selectedCanonicalServiceRequests() {
   return (record?.serviceRequests || []).filter((request) => request.propertyId === record.id);
 }
 
+function isCanonicalServiceRequestClosed(request) {
+  return ["cancelled", "completed", "closed"].includes(String(request?.requestStatus || request?.status || "").toLowerCase());
+}
+
+function findCanonicalServiceRequest({ serviceId, actionId, issueId, sourceIntentId } = {}) {
+  return selectedCanonicalServiceRequests().find((request) => {
+    if (isCanonicalServiceRequestClosed(request)) return false;
+    const requestIntentId = request.supplierJobPackData?.sourceServiceIntentId;
+    if (sourceIntentId && requestIntentId === sourceIntentId) return true;
+    return (!serviceId || request.serviceId === serviceId)
+      && (!actionId || request.actionId === actionId)
+      && (!issueId || request.issueId === issueId);
+  }) || null;
+}
+
+function selectorValue(value) {
+  return String(value || "").replace(/\\/g, "\\\\").replace(/"/g, "\\\"");
+}
+
+function focusCanonicalSurface(surface = "evidence", targetId = "") {
+  if (!isCanonicalWorkspaceValid()) return;
+  const targetSelector = targetId ? `[data-stage-e-focus-id="${selectorValue(targetId)}"]` : "";
+  const focusAfterRender = (fallbackSelector) => {
+    window.setTimeout(() => scrollToPanel(targetSelector || fallbackSelector), 80);
+  };
+
+  if (surface === "action") {
+    showPortfolioTasks({ scroll: true });
+    focusAfterRender("[data-tasks-start-card]");
+    return;
+  }
+
+  if (surface === "services") {
+    openPropertyWorkspace("services", targetSelector || "[data-open-requests-panel]");
+    return;
+  }
+
+  if (surface === "timeline") {
+    openPropertyWorkspace("timeline", targetSelector || "[data-timeline-list]");
+    return;
+  }
+
+  if (surface === "monitoring") {
+    showPortfolioActivity({ scroll: true });
+    focusAfterRender("[data-activity-feed]");
+    return;
+  }
+
+  showPortfolioEvidence({ scroll: true });
+  focusAfterRender("[data-evidence-list-card]");
+}
+
+function focusCanonicalEvidenceIntake(targetId = "") {
+  if (!isCanonicalWorkspaceValid()) return false;
+  showPortfolioEvidence({ scroll: true });
+  window.setTimeout(() => {
+    scrollToPanel(targetId ? `[data-stage-e-focus-id="${selectorValue(targetId)}"]` : "[data-evidence-intake-panel]");
+  }, 80);
+  showToast("Evidence Vault intake is ready. Files added here are prepared for review; no permanent storage or legal verification is implied.");
+  return true;
+}
+
 function selectedCanonicalPrimaryAction() {
   const shell = canonicalWorkspaceShell();
   const derivedState = canonicalDerivedState();
   const record = labsState.selectedCanonicalProperty?.record;
   const setupStage = record?.currentSetupStage || "";
   const nextBestAction = derivedState?.nextBestAction || null;
-  const openServiceRequest = selectedCanonicalServiceRequests().find((request) => !["Cancelled", "Complete", "Completed"].includes(request.status));
+  const openServiceRequest = selectedCanonicalServiceRequests().find((request) => !isCanonicalServiceRequestClosed(request));
   const hasUnknowns = Boolean((shell?.missingUnknownSummary || []).length || (shell?.needsConfirmationSummary || []).length);
   const setupIncomplete = ["add_property", "smart_checks", "review_found_data", "answer_unknowns"].includes(setupStage) || hasUnknowns || derivedState?.overallStatus === "setup_incomplete";
 
@@ -3823,6 +3885,17 @@ function createCanonicalServiceRequest() {
     showToast("No mapped service option for this selected property action.");
     return;
   }
+  const existing = findCanonicalServiceRequest({
+    serviceId: option.serviceId,
+    actionId: action.actionId,
+    issueId: action.linkedIssueId
+  });
+  if (existing) {
+    renderAllState();
+    focusCanonicalSurface("services", existing.id);
+    showToast("Existing service request opened. No duplicate request created.");
+    return;
+  }
   const created = serviceLifecycle.createServiceRequestFromAction(record, action, option);
   if (!created.ok) {
     showToast(created.errors?.[0] || "Could not prepare service request.");
@@ -3834,6 +3907,7 @@ function createCanonicalServiceRequest() {
     return;
   }
   renderAllState();
+  focusCanonicalSurface("services", created.value.serviceRequest.id);
   showToast("Service request prepared. No supplier contacted. No payment taken.");
 }
 
@@ -3856,6 +3930,16 @@ function createCanonicalServiceIntentRequest() {
     showToast("The public service intent could not be loaded for this property.");
     return;
   }
+  const existing = findCanonicalServiceRequest({
+    serviceId: intent.serviceId,
+    sourceIntentId: intent.id
+  });
+  if (existing) {
+    renderAllState();
+    focusCanonicalSurface("services", existing.id);
+    showToast("Existing service request opened. No duplicate request created.");
+    return;
+  }
   const created = serviceLifecycle.createServiceRequestFromServiceIntent(record, intent);
   if (!created.ok) {
     showToast(created.errors?.[0] || "Could not prepare service request.");
@@ -3867,6 +3951,7 @@ function createCanonicalServiceIntentRequest() {
     return;
   }
   renderAllState();
+  focusCanonicalSurface("services", created.value.serviceRequest.id);
   showToast("Service request prepared. No supplier contacted. No payment taken.");
 }
 
@@ -3882,6 +3967,14 @@ function completeCanonicalServiceEvidence(serviceRequestId, mode = "accepted") {
     showToast("Could not find the selected service request.");
     return;
   }
+  const existingEvidence = selectedCanonicalEvidenceForRequest(serviceRequestId);
+  const acceptedEvidence = existingEvidence.find((item) => item.proofStatus === "accepted");
+  if ((mode === "placeholder" && existingEvidence.length) || (mode !== "placeholder" && acceptedEvidence)) {
+    renderAllState();
+    focusCanonicalSurface("evidence", (acceptedEvidence || existingEvidence[0]).id);
+    showToast(mode === "placeholder" ? "Evidence placeholder already exists." : "Evidence already added for review.");
+    return;
+  }
   const lifecycleResult = mode === "placeholder"
     ? evidenceLifecycle.createEvidencePlaceholderFromServiceRequest(record, serviceRequest)
     : evidenceLifecycle.createSimulatedEvidenceFromServiceRequest(record, serviceRequest, { confirmationState: "confirmed" });
@@ -3895,6 +3988,7 @@ function completeCanonicalServiceEvidence(serviceRequestId, mode = "accepted") {
     return;
   }
   renderAllState();
+  focusCanonicalSurface("evidence", lifecycleResult.value.evidenceItem.id);
   showToast(mode === "placeholder" ? "Evidence needs review. No document stored." : "Simulated evidence received. Evidence needs review.");
 }
 
@@ -5268,8 +5362,9 @@ function renderSelectedCanonicalWorkspaceShell() {
         badge: "Service recommendation",
         title: serviceOption.label,
         body: `${serviceOption.recommendedBecause || "Recommended because this property has an open gap."} No supplier contacted. No payment taken.`,
-        label: "Prepare service request",
-        action: "create-service-request"
+        label: "Review in Action Plan",
+        action: "focus-action",
+        targetId: nextBestAction?.actionId || ""
       }] : []),
       ...serviceRequests.slice(0, 2).map((request) => {
         const statusCopy = request.supplierJobPackData?.statusCopy || "Service request prepared. No supplier contacted. No payment taken.";
@@ -5278,8 +5373,8 @@ function renderSelectedCanonicalWorkspaceShell() {
           badge: "Simulated request",
           title: request.supplierJobPackData?.serviceLabel || request.serviceId,
           body: `${statusCopy} Evidence expected: ${(request.evidenceExpected || []).map((item) => String(item.evidenceType || "evidence").replace(/_/g, " ")).join(", ") || "evidence needs review"}.`,
-          label: evidenceCount ? "Review evidence" : "Evidence needs review",
-          action: "service-request",
+          label: evidenceCount ? "Review evidence" : "Open request",
+          action: evidenceCount ? "focus-evidence" : "focus-services",
           requestId: request.id
         };
       }),
@@ -5287,13 +5382,17 @@ function renderSelectedCanonicalWorkspaceShell() {
         badge: "Evidence gap",
         title: String(gap.evidenceType || "evidence").replace(/_/g, " "),
         body: `${gap.reason || "Evidence is missing or needs review"} ${gap.recommendedNextStep || ""}`.trim(),
-        label: gap.recommendedNextStep || "Add proof later"
+        label: "Open Evidence Vault",
+        action: "focus-evidence",
+        targetId: gap.gapId
       })),
       ...monitoringItems.slice(0, 2).map((item) => ({
         badge: "Monitoring",
         title: item.title || item.monitoringType || "Monitoring item",
         body: `${item.reason || ""} ${item.nextAction || ""}`.trim(),
-        label: item.nextAction || "Review"
+        label: "Open Monitoring",
+        action: "focus-monitoring",
+        targetId: item.id
       })),
       ...((shell.needsConfirmationSummary || []).slice(0, 1).map((item) => ({
         badge: "Needs confirmation",
@@ -5312,13 +5411,14 @@ function renderSelectedCanonicalWorkspaceShell() {
         <span class="source-badge">${escapeHtml(item.badge)}</span>
         <h3>${escapeHtml(item.title)}</h3>
         <p>${escapeHtml(item.body)}</p>
-        ${item.action === "create-service-request"
-          ? `<button class="text-button" type="button" data-canonical-service-request>${escapeHtml(item.label || "Prepare service request")}</button>`
-          : item.action === "service-request"
-          ? `
-            <button class="text-button" type="button" data-canonical-service-evidence-placeholder="${escapeHtml(item.requestId)}">Evidence needs review</button>
-            <button class="text-button" type="button" data-canonical-service-evidence-complete="${escapeHtml(item.requestId)}">Mark evidence received</button>
-          `
+        ${item.action === "focus-action"
+          ? `<button class="text-button" type="button" data-canonical-focus="action" data-canonical-focus-id="${escapeHtml(item.targetId || "")}">${escapeHtml(item.label || "Open Action Plan")}</button>`
+          : item.action === "focus-services"
+          ? `<button class="text-button" type="button" data-canonical-focus="services" data-canonical-focus-id="${escapeHtml(item.requestId || item.targetId || "")}">${escapeHtml(item.label || "Open Services")}</button>`
+          : item.action === "focus-evidence"
+          ? `<button class="text-button" type="button" data-canonical-focus="evidence" data-canonical-focus-id="${escapeHtml(item.targetId || item.requestId || "")}">${escapeHtml(item.label || "Open Evidence Vault")}</button>`
+          : item.action === "focus-monitoring"
+          ? `<button class="text-button" type="button" data-canonical-focus="monitoring" data-canonical-focus-id="${escapeHtml(item.targetId || "")}">${escapeHtml(item.label || "Open Monitoring")}</button>`
           : `<button class="text-button" type="button" data-toast="This selected-property preview is derived from the canonical record.">${escapeHtml(item.label || "Review")}</button>`
         }
       </article>
@@ -15657,7 +15757,7 @@ function renderEvidenceRow(row) {
   `).join("");
 
   return `
-    <article class="evidence-row" data-evidence-row="${escapeHtml(row.id)}">
+    <article class="evidence-row" data-evidence-row="${escapeHtml(row.id)}" data-stage-e-focus-id="${escapeHtml(row.id)}" tabindex="-1">
       <div>
         <h3>${escapeHtml(row.title)}</h3>
         <p>${escapeHtml(row.document)}</p>
@@ -15798,11 +15898,68 @@ function canonicalEvidenceLabel(value) {
   return String(value || "evidence").replace(/_/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
 }
 
+function canonicalEvidenceStatus(item = {}) {
+  const proofStatus = String(item.proofStatus || item.verificationStatus || "").toLowerCase();
+  if (proofStatus === "accepted" || proofStatus === "held") {
+    return { label: "Accepted proof", className: "status-good-text", filters: ["verified", "uploaded"] };
+  }
+  if (proofStatus === "missing") {
+    return { label: "Missing evidence", className: "status-review-text", filters: ["missing"] };
+  }
+  if (proofStatus === "held_no_proof") {
+    return { label: "Add proof later", className: "status-watch-text", filters: ["review"] };
+  }
+  return { label: "Needs review", className: "status-watch-text", filters: ["review", "uploaded"] };
+}
+
+function canonicalEvidenceSource(item = {}) {
+  const reference = item.sourceReferences?.[0] || {};
+  const source = String(item.source || reference.sourceType || "");
+  if (/official|epc_register|land_registry/i.test(source)) {
+    return { label: reference.sourceLabel || "Official record", className: "status-good-text", filters: ["official"] };
+  }
+  if (/supplier|service/i.test(source)) {
+    return { label: reference.sourceLabel || "Service outcome", className: "status-watch-text", filters: ["uploaded"] };
+  }
+  return { label: reference.sourceLabel || "Property file", className: "status-watch-text", filters: [] };
+}
+
 function selectedCanonicalEvidenceRows() {
   const shell = canonicalWorkspaceShell();
+  const record = labsState.selectedCanonicalProperty?.record;
   const derivedState = canonicalDerivedState();
   const serviceRequests = selectedCanonicalServiceRequests();
   const address = shell?.address || "Selected property";
+  const evidenceRows = (record?.evidence || derivedState?.evidenceState || []).filter((item) => item.propertyId === shell?.propertyId).map((item) => {
+    const status = canonicalEvidenceStatus(item);
+    const source = canonicalEvidenceSource(item);
+    const linkedRequest = item.linkedServiceRequestId
+      ? serviceRequests.find((request) => request.id === item.linkedServiceRequestId)
+      : null;
+    return {
+      id: item.id,
+      title: canonicalEvidenceLabel(item.evidenceType),
+      document: [
+        status.label === "Accepted proof" ? "Accepted into this prototype property record for review." : "Evidence is prepared for review.",
+        item.extractedFields?.liveDocumentStored === false ? "No permanent file storage is implied." : "",
+        item.extractedFields?.guidance || "Guidance, not legal advice."
+      ].filter(Boolean).join(" "),
+      propertyId: shell.propertyId,
+      property: `${address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
+      source: source.label,
+      sourceClass: source.className,
+      status: status.label,
+      statusClass: status.className,
+      keyDate: item.expiryDate || item.issuedDate || item.sourceReferences?.[0]?.checkedDate || "No date confirmed",
+      filters: [...new Set([...status.filters, ...source.filters])],
+      search: `${item.evidenceType} ${status.label} ${source.label} ${address}`,
+      actions: [
+        ...(linkedRequest ? [{ label: "Open service request", action: `canonicalFocus:services:${linkedRequest.id}` }] : []),
+        { label: "Ask CMP", action: "canonicalAskEvidence" }
+      ]
+    };
+  });
+  const evidenceIds = new Set(evidenceRows.map((row) => row.id));
   const foundRows = (shell?.foundDataSummary || []).slice(0, 4).map((item, index) => ({
     id: `canonical-found-${index}`,
     title: item.label,
@@ -15818,7 +15975,7 @@ function selectedCanonicalEvidenceRows() {
     search: `${item.label} ${item.value} ${address}`,
     actions: [{ label: "Ask CMP", action: "canonicalAskNext" }]
   }));
-  const gapRows = (derivedState?.evidenceGaps || []).map((gap) => ({
+  const gapRows = (derivedState?.evidenceGaps || []).filter((gap) => !gap.evidenceId || !evidenceIds.has(gap.evidenceId)).map((gap) => ({
     id: gap.gapId,
     title: canonicalEvidenceLabel(gap.evidenceType),
     document: `${gap.reason || "Evidence needs review"} ${gap.recommendedNextStep || ""}`.trim(),
@@ -15832,8 +15989,9 @@ function selectedCanonicalEvidenceRows() {
     filters: ["missing", "review"],
     search: `${gap.evidenceType} ${gap.reason} ${address}`,
     actions: [
+      { label: "Add proof", action: `canonicalEvidenceIntake:${gap.gapId}`, primary: gap.linkedActionId === derivedState?.nextBestAction?.actionId },
       { label: "Prepare service request", action: "canonicalServiceRequest", primary: gap.linkedActionId === derivedState?.nextBestAction?.actionId },
-      { label: "Ask CMP", action: "canonicalAskNext" }
+      { label: "Ask CMP", action: "canonicalAskEvidence" }
     ]
   }));
   const requestRows = serviceRequests.map((request) => ({
@@ -15849,9 +16007,12 @@ function selectedCanonicalEvidenceRows() {
     keyDate: "No supplier contacted",
     filters: ["review"],
     search: `${request.serviceId} ${address}`,
-    actions: [{ label: "Ask CMP", action: "canonicalAskNext" }]
+    actions: [
+      { label: "Mark evidence received", action: `canonicalEvidenceComplete:${request.id}` },
+      { label: "Ask CMP", action: "canonicalAskEvidence" }
+    ]
   }));
-  return [...gapRows, ...requestRows, ...foundRows];
+  return [...evidenceRows, ...gapRows, ...requestRows, ...foundRows];
 }
 
 function renderSelectedCanonicalEvidenceState() {
@@ -15860,6 +16021,7 @@ function renderSelectedCanonicalEvidenceState() {
   const rows = selectedCanonicalEvidenceRows().filter(evidenceMatchesCurrentView);
   const evidenceGaps = derivedState?.evidenceGaps || [];
   const acceptedCount = (derivedState?.evidenceState || []).filter((item) => ["accepted", "held"].includes(item.proofStatus)).length;
+  const needsReviewCount = selectedCanonicalEvidenceRows().filter((row) => row.filters.includes("review")).length;
   const address = shell?.address || "Selected property";
   const inbox = `${String(address).toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "property"}@inbox.complymyproperty.co.uk`;
   const evidenceKicker = document.querySelector("[data-portfolio-evidence] .section-kicker");
@@ -15867,8 +16029,10 @@ function renderSelectedCanonicalEvidenceState() {
   const evidenceMissingTitle = document.querySelector("#evidenceMissingTitle");
   const evidenceMissingHeading = evidenceMissingTitle?.closest(".section-heading");
   if (evidenceKicker) evidenceKicker.textContent = "Property evidence";
+  const uploadButton = document.querySelector("[data-evidence-upload]");
+  if (uploadButton) uploadButton.textContent = "Add evidence";
   if (evidenceAsk) evidenceAsk.textContent = "Ask CMP what evidence matters";
-  document.querySelector("[data-evidence-upload]")?.removeAttribute("hidden");
+  uploadButton?.removeAttribute("hidden");
   document.querySelectorAll("[data-evidence-copy-inbox]").forEach((button) => button.removeAttribute("hidden"));
   document.querySelector(".evidence-inbox-panel")?.removeAttribute("hidden");
   document.querySelector(".evidence-toolbar")?.removeAttribute("hidden");
@@ -15877,7 +16041,7 @@ function renderSelectedCanonicalEvidenceState() {
   setText("#portfolioEvidenceTitle", `Evidence for ${address}`);
   setText("[data-evidence-count-badge]", "Selected property");
   setText("[data-evidence-verified-count]", String(acceptedCount));
-  setText("[data-evidence-review-count]", String(rows.length));
+  setText("[data-evidence-review-count]", String(needsReviewCount));
   setText("[data-evidence-review-detail]", "items to review");
   setText("[data-evidence-missing-count]", String(evidenceGaps.length));
   setText("[data-evidence-missing-detail]", evidenceGaps.length === 1 ? "open evidence gap" : "open evidence gaps");
@@ -16687,13 +16851,181 @@ function renderCompletedTasks() {
           <h3>No completed or dismissed tasks</h3>
           <p>Completed support, evidence and landlord-answer actions will appear here during the walkthrough.</p>
         </article>
+    `;
+}
+
+function renderSelectedCanonicalActionPlanState() {
+  const page = document.querySelector("[data-portfolio-tasks]");
+  if (!page) return;
+  const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const actionItems = (derivedState?.actionItems || []).filter((action) => action.propertyId === shell?.propertyId);
+  const next = derivedState?.nextBestAction || actionItems[0] || null;
+  const secondary = actionItems.filter((action) => action.actionId !== next?.actionId).slice(0, 5);
+  const serviceRequests = selectedCanonicalServiceRequests();
+  const openRequest = next ? findCanonicalServiceRequest({
+    actionId: next.actionId,
+    issueId: next.linkedIssueId
+  }) : null;
+
+  const tasksAsk = document.querySelector("[data-tasks-ask]");
+  const tasksKicker = document.querySelector("[data-portfolio-tasks] .section-kicker");
+  if (tasksAsk) tasksAsk.textContent = "Ask CMP why this is first";
+  if (tasksKicker) tasksKicker.textContent = "Action Plan";
+
+  setText("#portfolioTasksTitle", "Action Plan");
+  const headerBody = document.querySelector("[data-portfolio-tasks] .portfolio-tasks-header p:not(.section-kicker)");
+  if (headerBody) {
+    headerBody.textContent = "One prioritised action list for this selected property. Evidence, service and monitoring links open their owning surfaces.";
+  }
+  setText("[data-tasks-active-pill]", `${actionItems.length} unresolved ${actionItems.length === 1 ? "action" : "actions"}`);
+  setText("[data-tasks-active-count]", String(actionItems.length));
+  setText("[data-tasks-priority-label]", next ? canonicalEvidenceLabel(next.primaryCtaType || next.title) : "None");
+  setText("[data-tasks-due-count]", String((derivedState?.monitoringItems || []).filter((item) => item.currentState === "open").length));
+  setText("[data-tasks-completed-count]", String(serviceRequests.filter(isCanonicalServiceRequestClosed).length));
+  setText("[data-tasks-start-title]", next?.title || "No unresolved action");
+  const startProperty = document.querySelector(".tasks-start-card .property-card-label");
+  if (startProperty) startProperty.textContent = `${shell?.address || "Selected property"}${shell?.postcode ? ` · ${shell.postcode}` : ""}`;
+  setText("[data-tasks-start-body]", next?.reason || "Based on current information, CMP has no unresolved selected-property action to prioritise.");
+  setText("[data-tasks-start-source]", next ? `Source: ${next.sourceConfidenceSummary || "CMP priority rules"}` : "Source: CMP priority rules");
+  const startStatus = document.querySelector("[data-tasks-start-status]");
+  if (startStatus) {
+    startStatus.textContent = openRequest ? "Service request prepared" : next ? "Unresolved" : "Ready";
+    startStatus.classList.toggle("status-review-text", Boolean(next && !openRequest));
+    startStatus.classList.toggle("status-watch-text", Boolean(openRequest || !next));
+  }
+  const supportIndicator = document.querySelector("[data-tasks-support-indicator]");
+  if (supportIndicator) {
+    supportIndicator.hidden = !openRequest;
+    supportIndicator.textContent = "Request prepared";
+  }
+  const startActions = document.querySelector("[data-tasks-start-actions]");
+  if (startActions) {
+    startActions.innerHTML = next
+      ? `
+        <button class="primary-button" type="button" data-canonical-focus="evidence" data-canonical-focus-id="${escapeHtml(next.linkedIssueId || next.actionId)}">Open Evidence Vault</button>
+        <button class="secondary-button" type="button" data-canonical-service-request>${escapeHtml(openRequest ? "Open service request" : "Prepare service request")}</button>
+        <button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Ask CMP why</button>
+      `
+      : `<button class="secondary-button" type="button" data-canonical-focus="monitoring">Open Monitoring</button>`;
+  }
+
+  document.querySelector("[data-tasks-review-completed]")?.toggleAttribute("hidden", true);
+  document.querySelector(".tasks-toolbar")?.toggleAttribute("hidden", false);
+  document.querySelector(".tasks-completed-section")?.toggleAttribute("hidden", false);
+
+  const searchInput = document.querySelector("[data-task-search]");
+  if (searchInput && searchInput.value !== labsState.taskSearch) searchInput.value = labsState.taskSearch;
+  document.querySelectorAll("[data-task-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.taskFilter === labsState.taskFilter);
+  });
+  document.querySelectorAll("[data-task-view]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.taskView === labsState.taskView);
+  });
+
+  const query = labsState.taskSearch.trim().toLowerCase();
+  const actionMatches = (action) => {
+    const text = `${action.title} ${action.reason} ${action.primaryCtaType} ${action.primaryCtaLabel} ${action.priorityExplanation}`.toLowerCase();
+    const matchesSearch = !query || text.includes(query);
+    const matchesFilter = labsState.taskFilter === "all"
+      || (labsState.taskFilter === "high" && (action.priorityScore || 0) >= 70)
+      || (labsState.taskFilter === "evidence" && /evidence|proof/i.test(`${action.primaryCtaType} ${action.primaryCtaLabel} ${action.title}`))
+      || (labsState.taskFilter === "inspection" && /inspection/i.test(`${action.title} ${action.reason}`))
+      || (labsState.taskFilter === "licensing" && /licensing|hmo/i.test(`${action.title} ${action.reason}`));
+    return matchesSearch && matchesFilter;
+  };
+  const visibleActions = [next, ...secondary].filter(Boolean).filter(actionMatches);
+  const renderAction = (action, index) => {
+    const request = findCanonicalServiceRequest({ actionId: action.actionId, issueId: action.linkedIssueId });
+    const evidencePrimary = /evidence|proof|upload/i.test(`${action.primaryCtaType} ${action.primaryCtaLabel}`);
+    return `
+      <article class="task-card${index === 0 ? " is-primary" : ""}" data-stage-e-focus-id="${escapeHtml(action.actionId)}" tabindex="-1">
+        <div>
+          <button class="task-title-button" type="button" data-canonical-ask-prompt="next-best-action">
+            <h3>${escapeHtml(action.title)}</h3>
+          </button>
+          <p class="property-card-label">${escapeHtml(shell?.address || "Selected property")}</p>
+          <p>${escapeHtml(action.reason || action.nextStep || "Review this selected-property action.")}</p>
+          <div class="task-chip-row">
+            <span>${index === 0 ? "Next best action" : `Priority ${index + 1}`}</span>
+            <span>${escapeHtml(action.priorityExplanation || "Ranked by CMP rules")}</span>
+            <span>${escapeHtml(action.sourceConfidenceSummary || "Source confidence to review")}</span>
+            ${request ? `<span>Request prepared</span>` : ""}
+          </div>
+        </div>
+        <div class="task-card-actions">
+          <button class="${evidencePrimary ? "primary-button" : "text-button"}" type="button" data-canonical-focus="evidence" data-canonical-focus-id="${escapeHtml(action.linkedIssueId || action.actionId)}">Open Evidence Vault</button>
+          <button class="${!evidencePrimary ? "primary-button" : "secondary-button"}" type="button" data-canonical-service-request>${escapeHtml(request ? "Open request" : "Prepare service request")}</button>
+          <button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Why this action?</button>
+        </div>
+      </article>
+    `;
+  };
+  const list = document.querySelector("[data-task-list]");
+  const board = document.querySelector("[data-task-board]");
+  const empty = document.querySelector("[data-task-empty]");
+  if (list) {
+    list.hidden = labsState.taskView !== "list" || !visibleActions.length;
+    list.innerHTML = visibleActions.map(renderAction).join("");
+  }
+  if (board) {
+    board.hidden = labsState.taskView !== "board" || !visibleActions.length;
+    board.innerHTML = renderTaskBoard(visibleActions.map((action, index) => ({
+      id: action.actionId,
+      title: action.title,
+      property: shell?.address || "Selected property",
+      category: "Action",
+      priority: (action.priorityScore || 0) >= 70 ? "High" : "Medium",
+      source: "CMP priority rules",
+      body: action.reason,
+      status: index === 0 ? "Next best action" : "Unresolved",
+      suggestedAction: action.nextStep,
+      board: index === 0 ? "todo" : "progress",
+      filters: ["evidence"],
+      detail: action.priorityExplanation || "Ranked by CMP rules.",
+      search: `${action.title} ${action.reason}`,
+      actions: [{ label: "Open Evidence Vault", action: "canonicalOpenEvidence", primary: index === 0 }]
+    })));
+  }
+  if (empty) {
+    empty.innerHTML = `
+      <h2>${visibleActions.length ? "No action selected" : "No action matches this view"}</h2>
+      <p>Clear filters to return to the selected-property Action Plan.</p>
+      <button class="secondary-button" type="button" data-task-clear>Clear filters</button>
+    `;
+    empty.hidden = Boolean(visibleActions.length);
+  }
+  const completed = document.querySelector("[data-completed-task-list]");
+  if (completed) {
+    completed.classList.toggle("is-empty", !serviceRequests.length);
+    completed.innerHTML = serviceRequests.length
+      ? serviceRequests.map((request) => `
+        <article class="completed-task-card" data-stage-e-focus-id="${escapeHtml(request.id)}" tabindex="-1">
+          <strong>${escapeHtml(request.supplierJobPackData?.serviceLabel || request.serviceId)}</strong>
+          <span>${escapeHtml(request.supplierJobPackData?.statusCopy || "Service request prepared. No supplier contacted. No payment taken.")}</span>
+          <p>No supplier contacted. No payment taken.</p>
+          <small>Services owns request status.</small>
+        </article>
+      `).join("")
+      : `
+        <article class="completed-task-empty">
+          <span>No request history yet</span>
+          <h3>No completed or prepared requests</h3>
+          <p>Service request state appears here after a request is prepared from the Action Plan or Services.</p>
+        </article>
       `;
+  }
 }
 
 function renderPortfolioTasksState() {
   const page = document.querySelector("[data-portfolio-tasks]");
 
   if (!page) {
+    return;
+  }
+
+  if (isNormalSelectedCanonicalWorkspace()) {
+    renderSelectedCanonicalActionPlanState();
     return;
   }
 
@@ -17266,10 +17598,115 @@ function renderActivityEvent(event) {
   `;
 }
 
+function renderSelectedCanonicalMonitoringState() {
+  const page = document.querySelector("[data-portfolio-activity]");
+  if (!page) return;
+  const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const monitoringItems = (derivedState?.monitoringItems || []).filter((item) => item.propertyId === shell?.propertyId);
+  const serviceRequests = selectedCanonicalServiceRequests();
+  const evidenceItems = (derivedState?.evidenceState || []).filter((item) => item.propertyId === shell?.propertyId);
+  const openItems = monitoringItems.filter((item) => item.currentState === "open");
+
+  setText("#portfolioActivityTitle", "Monitoring");
+  const kicker = document.querySelector("[data-portfolio-activity] .section-kicker");
+  if (kicker) kicker.textContent = "Monitoring";
+  const badge = document.querySelector("[data-portfolio-activity] .prototype-badge");
+  if (badge) badge.textContent = "Selected property";
+  const headerBody = document.querySelector("[data-portfolio-activity] .portfolio-activity-header p:not(.section-kicker)");
+  if (headerBody) {
+    headerBody.textContent = "Monitoring is derived from evidence dates, unresolved gaps, action priority and prepared request state.";
+  }
+  const ask = document.querySelector("[data-activity-ask]");
+  if (ask) ask.textContent = "Ask CMP what to monitor";
+  document.querySelector("[data-activity-open-timeline]")?.removeAttribute("hidden");
+  document.querySelector(".activity-toolbar")?.removeAttribute("hidden");
+  document.querySelector("[data-activity-summary-open]")?.setAttribute("hidden", "");
+
+  setText("[data-activity-event-count]", String(monitoringItems.length));
+  setText("[data-activity-evidence-count]", String(evidenceItems.length));
+  setText("[data-activity-action-count]", String((derivedState?.actionItems || []).length + serviceRequests.length));
+  setText("[data-activity-open-count]", String(openItems.length));
+  setText("[data-activity-open-detail]", openItems.length === 1 ? "open item" : "open items");
+  setText("[data-activity-visit-title]", monitoringItems.length ? `${monitoringItems.length} monitoring items` : "No monitoring items");
+  const visitList = document.querySelector("[data-activity-visit-list]");
+  if (visitList) {
+    visitList.innerHTML = monitoringItems.slice(0, 4).map((item) => `<li>${escapeHtml(item.reason || item.monitoringType)}</li>`).join("")
+      || "<li>No derived monitoring items for this selected property.</li>";
+  }
+  const watchList = document.querySelector("[data-activity-watch-list]");
+  if (watchList) {
+    watchList.innerHTML = monitoringItems.slice(0, 4).map((item) => `<li>${escapeHtml(item.nextAction || item.reason || "Review")}</li>`).join("")
+      || "<li>No future review item is currently derived.</li>";
+  }
+
+  const searchInput = document.querySelector("[data-activity-search]");
+  if (searchInput && searchInput.value !== labsState.activitySearch) searchInput.value = labsState.activitySearch;
+  document.querySelectorAll("[data-activity-filter]").forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.activityFilter === labsState.activityFilter);
+  });
+
+  const query = labsState.activitySearch.trim().toLowerCase();
+  const matches = (item) => {
+    const text = `${item.monitoringType} ${item.reason} ${item.nextAction} ${item.currentState}`.toLowerCase();
+    const filter = item.linkedEvidenceId ? "evidence" : item.linkedActionId ? "tasks" : item.monitoringType === "service_request_follow_up" ? "support" : "details";
+    return (!query || text.includes(query)) && (labsState.activityFilter === "all" || labsState.activityFilter === filter);
+  };
+  const visibleItems = monitoringItems.filter(matches);
+  const feed = document.querySelector("[data-activity-feed]");
+  const empty = document.querySelector("[data-activity-empty]");
+  if (feed) {
+    feed.hidden = !visibleItems.length;
+    feed.innerHTML = visibleItems.length ? `
+      <section class="activity-day">
+        <span class="activity-day-label">Derived from current state</span>
+        <div class="activity-events">
+          ${visibleItems.map((item) => {
+            const focus = item.linkedEvidenceId ? "evidence" : item.linkedActionId ? "action" : "monitoring";
+            const targetId = item.linkedEvidenceId || item.linkedActionId || item.id;
+            return `
+              <article class="activity-event${item.currentState === "open" ? " is-open" : ""}" data-stage-e-focus-id="${escapeHtml(item.id)}" tabindex="-1">
+                <div class="activity-event-top">
+                  <div>
+                    <span class="timeline-event-kicker"><span class="nav-icon" data-icon="clock"></span>Monitoring</span>
+                    <h3>${escapeHtml(canonicalEvidenceLabel(item.monitoringType))}</h3>
+                    <span class="activity-property-label">${escapeHtml(shell?.address || "Selected property")}</span>
+                  </div>
+                  <span class="doc-status ${item.currentState === "open" ? "status-review-text" : "status-watch-text"}">${escapeHtml(item.currentState === "open" ? "Open" : "Watching")}</span>
+                </div>
+                <p>${escapeHtml(`${item.reason || ""} ${item.nextAction || ""}`.trim() || "Keep this item under review.")}</p>
+                <div class="activity-source-row">
+                  <span>Owner: ${escapeHtml(item.linkedEvidenceId ? "Evidence Vault" : item.linkedActionId ? "Action Plan" : "Monitoring")}</span>
+                  <span>${escapeHtml(item.dueDate || item.cadence || "No date confirmed")}</span>
+                </div>
+                <div class="activity-event-actions">
+                  <button class="text-button" type="button" data-canonical-focus="${escapeHtml(focus)}" data-canonical-focus-id="${escapeHtml(targetId)}">${escapeHtml(item.linkedEvidenceId ? "Open Evidence Vault" : item.linkedActionId ? "Open Action Plan" : "Review Monitoring")}</button>
+                </div>
+              </article>
+            `;
+          }).join("")}
+        </div>
+      </section>
+    ` : "";
+  }
+  if (empty) {
+    empty.hidden = Boolean(visibleItems.length);
+    empty.querySelector("h2").textContent = "No monitoring items match this view";
+    empty.querySelector("p").textContent = "Clear filters to return to the selected-property monitoring list.";
+    empty.querySelector("[data-activity-clear]")?.removeAttribute("hidden");
+  }
+  hydrateIcons();
+}
+
 function renderPortfolioActivityState() {
   const page = document.querySelector("[data-portfolio-activity]");
 
   if (!page) {
+    return;
+  }
+
+  if (isNormalSelectedCanonicalWorkspace()) {
+    renderSelectedCanonicalMonitoringState();
     return;
   }
 
@@ -19011,6 +19448,12 @@ function bindPortfolioHome() {
       return;
     }
 
+    const canonicalFocusButton = event.target.closest("[data-canonical-focus]");
+    if (canonicalFocusButton) {
+      focusCanonicalSurface(canonicalFocusButton.dataset.canonicalFocus, canonicalFocusButton.dataset.canonicalFocusId || "");
+      return;
+    }
+
     if (event.target.closest("[data-canonical-service-request]")) {
       createCanonicalServiceRequest();
       return;
@@ -19656,6 +20099,14 @@ function bindAzChecker() {
 }
 
 function openPropertySmartUpload({ previewDemo = false } = {}) {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    focusCanonicalEvidenceIntake();
+    if (previewDemo) {
+      window.setTimeout(openSmartModal, 120);
+    }
+    return;
+  }
+
   openPropertyWorkspace("documents", "[data-document-upload-panel]");
 
   if (previewDemo) {
@@ -19675,8 +20126,17 @@ function handleEvidenceAction(action) {
     openFakeUpload();
   } else if (action === "canonicalServiceRequest") {
     createCanonicalServiceRequest();
+  } else if (action?.startsWith("canonicalEvidenceIntake:")) {
+    focusCanonicalEvidenceIntake(action.split(":")[1] || "");
+  } else if (action?.startsWith("canonicalEvidenceComplete:")) {
+    completeCanonicalServiceEvidence(action.split(":")[1], "accepted");
+  } else if (action?.startsWith("canonicalFocus:")) {
+    const [, surface, targetId] = action.split(":");
+    focusCanonicalSurface(surface, targetId || "");
   } else if (action === "canonicalAskNext") {
     openAssistant(answerCanonicalAskPrompt("next-best-action"), { flash: true });
+  } else if (action === "canonicalAskEvidence") {
+    openAssistant(answerCanonicalAskPrompt("evidence-needed"), { flash: true });
   } else if (action === "journeyActionPlan") {
     setJourneyStage("actionPlan", "actionPlan");
     showJourneyOs({ scroll: true });
@@ -19694,6 +20154,8 @@ function handleEvidenceAction(action) {
     openNewPropertyFindings();
   } else if (action === "startGuidedCheck") {
     startNewPropertyGuidedCheck();
+  } else if (action === "canonicalOpenEvidence") {
+    focusCanonicalSurface("evidence");
   } else if (action?.startsWith("az:")) {
     labsState.azMode = "single";
     labsState.azPropertyId = action.split(":")[1] || "the-butts";
@@ -19752,6 +20214,10 @@ function bindPortfolioEvidence() {
   document.querySelector("[data-evidence-upload]")?.addEventListener("click", () => {
     if (isEmptyPortfolioMode()) {
       openAddPropertyModal();
+      return;
+    }
+    if (isNormalSelectedCanonicalWorkspace()) {
+      focusCanonicalEvidenceIntake();
       return;
     }
     if (hasJourneyPropertyBrainActivity()) {
@@ -20896,7 +21362,96 @@ function renderChoiceList(container, options, name) {
   `).join("");
 }
 
+function renderSelectedCanonicalServicesState() {
+  const shell = canonicalWorkspaceShell();
+  const derivedState = canonicalDerivedState();
+  const next = derivedState?.nextBestAction || null;
+  const serviceOption = canonicalPrimaryServiceOption();
+  const requests = selectedCanonicalServiceRequests();
+  const title = document.querySelector("[data-service-primary-title]");
+  if (!title) return;
+
+  const serviceTitle = serviceOption?.label || next?.title || "Review service path";
+  const serviceBody = serviceOption?.recommendedBecause || next?.reason || "No selected-property service request is needed from the current information.";
+  title.textContent = serviceTitle;
+  setText("[data-service-primary-body]", `${serviceBody} Preparing a request does not contact a supplier and does not take payment.`);
+  setText("[data-service-primary-reason]", next?.priorityExplanation || "Services owns prepared, open and completed request status only.");
+
+  const primaryAction = document.querySelector("[data-service-primary-action]");
+  if (primaryAction) {
+    primaryAction.textContent = requests.length ? "Open prepared request" : "Prepare service request";
+    primaryAction.removeAttribute("data-service-request-open");
+    primaryAction.setAttribute("data-canonical-service-request", "");
+  }
+  const uploadAction = document.querySelector("[data-service-upload-action], [data-canonical-service-upload-action]");
+  if (uploadAction) {
+    uploadAction.textContent = "Open Evidence Vault";
+    uploadAction.setAttribute("data-canonical-focus", "evidence");
+    uploadAction.setAttribute("data-canonical-service-upload-action", "");
+    uploadAction.removeAttribute("data-service-upload-action");
+  }
+  const handledAction = document.querySelector("[data-service-handled-action], [data-canonical-service-handled-action]");
+  if (handledAction) {
+    handledAction.textContent = "Open Action Plan";
+    handledAction.setAttribute("data-canonical-focus", "action");
+    handledAction.setAttribute("data-canonical-service-handled-action", "");
+    handledAction.removeAttribute("data-handled-open");
+  }
+
+  const headerButton = document.querySelector(".services-header [data-assistant-message]");
+  if (headerButton) {
+    headerButton.dataset.assistantMessage = answerCanonicalAskPrompt("recommended-services");
+  }
+
+  const empty = document.querySelector("[data-open-requests-empty]");
+  const note = document.querySelector("[data-open-requests-note]");
+  const list = document.querySelector("[data-request-list]");
+  if (!list) return;
+
+  if (!requests.length) {
+    if (empty) {
+      empty.hidden = false;
+      empty.textContent = "No service request is prepared for this selected property.";
+    }
+    if (note) {
+      note.hidden = false;
+      note.textContent = "Prepare one request from the Action Plan or Services. No supplier is contacted and no payment is taken.";
+    }
+    list.innerHTML = "";
+    return;
+  }
+
+  if (empty) empty.hidden = true;
+  if (note) note.hidden = true;
+  list.innerHTML = requests.map((request) => `
+    <article class="request-card" data-request-id="${escapeHtml(request.id)}" data-stage-e-focus-id="${escapeHtml(request.id)}" tabindex="-1">
+      <div class="request-card-top">
+        <h3>${escapeHtml(request.supplierJobPackData?.serviceLabel || request.serviceId)}</h3>
+        <span class="doc-status status-watch-text">${escapeHtml(request.supplierJobPackData?.statusCopy || "Service request prepared. No supplier contacted. No payment taken.")}</span>
+      </div>
+      <dl>
+        <div><dt>Property</dt><dd>${escapeHtml(shell?.address || request.propertyAccessDetails?.address || "Selected property")}</dd></div>
+        <div><dt>Status</dt><dd>${escapeHtml(request.requestStatus || "draft")}</dd></div>
+        <div><dt>Origin</dt><dd>${escapeHtml(request.actionId ? "Action Plan" : request.source || "Selected property")}</dd></div>
+        <div><dt>Evidence expected</dt><dd>${escapeHtml((request.evidenceExpected || []).map((item) => canonicalEvidenceLabel(item.evidenceType)).join(", ") || "Evidence needs review")}</dd></div>
+      </dl>
+      <div class="button-row">
+        <button class="text-button" type="button" data-canonical-focus="evidence">Open Evidence Vault</button>
+        <button class="text-button" type="button" data-canonical-ask-prompt="recommended-services">Ask CMP</button>
+      </div>
+    </article>
+  `).join("");
+}
+
 function renderServicesState() {
+  if (isNormalSelectedCanonicalWorkspace()) {
+    renderSelectedCanonicalServicesState();
+    return;
+  }
+  renderLegacyServicesState();
+}
+
+function renderLegacyServicesState() {
   const copy = serviceCopy();
 
   const title = document.querySelector("[data-service-primary-title]");
@@ -21899,6 +22454,8 @@ function renderTimelineEvent(event) {
       ? "data-upload-trigger"
       : action.assistant
         ? `data-assistant-message="${escapeHtml(action.assistant)}"`
+        : action.focus
+          ? `data-canonical-focus="${escapeHtml(action.focus)}" data-canonical-focus-id="${escapeHtml(action.targetId || "")}"`
         : `data-toast="${escapeHtml(action.toast || "Preview only — this action is not connected to a live workflow.")}"`;
     const className = action.primary ? "primary-button" : "text-button";
     return `<button class="${className}" type="button" ${attrs}>${escapeHtml(action.label)}</button>`;
@@ -21939,6 +22496,7 @@ function renderTimelineEvent(event) {
 
 function selectedCanonicalTimelineEvents() {
   const shell = canonicalWorkspaceShell();
+  const record = labsState.selectedCanonicalProperty?.record;
   const derivedState = canonicalDerivedState();
   const address = shell?.address || "Selected property";
   const next = derivedState?.nextBestAction;
@@ -21946,6 +22504,36 @@ function selectedCanonicalTimelineEvents() {
   const serviceRequests = selectedCanonicalServiceRequests();
   const monitoring = derivedState?.monitoringItems || [];
   const events = [];
+  (record?.timeline || []).slice().sort((a, b) => String(b.timestamp || "").localeCompare(String(a.timestamp || ""))).forEach((event) => {
+    const isEvidence = event.sourceEntityType === "evidence";
+    const isService = event.sourceEntityType === "service_request";
+    events.push({
+      id: event.id,
+      group: "History",
+      filter: isEvidence ? "evidence" : isService ? "actions" : "details",
+      icon: isEvidence ? "file" : isService ? "calendar" : "clock",
+      category: isEvidence ? "Evidence" : isService ? "Service" : "Property",
+      title: event.summary || event.eventType || "Property event",
+      badge: isEvidence ? "Evidence event" : isService ? "Request event" : "Recorded",
+      badgeClass: "status-watch-text",
+      body: event.summary || "Recorded against this selected property.",
+      actions: [{
+        label: isEvidence ? "Open Evidence Vault" : isService ? "Open Services" : "Open Action Plan",
+        focus: isEvidence ? "evidence" : isService ? "services" : "action",
+        targetId: event.sourceEntityId || ""
+      }],
+      details: {
+        title: "Lifecycle event",
+        rows: [
+          ["Property", address],
+          ["Source", event.sourceEntityType || "property"],
+          ["Recorded", event.timestamp || "Unknown"]
+        ],
+        note: "Timeline is read-only history. Opening this link does not change stored state."
+      }
+    });
+  });
+
   if (next) {
     events.push({
       id: "canonical-next-action",
@@ -21959,7 +22547,7 @@ function selectedCanonicalTimelineEvents() {
       body: `${next.reason} ${next.nextStep || ""}`.trim(),
       open: true,
       actions: [
-        { label: next.primaryCtaLabel || "Prepare service request", primary: true, toast: `${next.title}: ${next.reason}` },
+        { label: "Open Action Plan", primary: true, focus: "action", targetId: next.actionId },
         { label: "Ask CMP why", assistant: answerCanonicalAskPrompt("next-best-action") }
       ],
       details: {
@@ -21986,7 +22574,7 @@ function selectedCanonicalTimelineEvents() {
       body: `${gap.reason || "Evidence needs review"} ${gap.recommendedNextStep || ""}`.trim(),
       open: true,
       actions: [
-        { label: "Prepare service request", primary: gap.linkedActionId === next?.actionId, toast: "Request prepared. No supplier contacted. No payment taken." },
+        { label: "Open Evidence Vault", primary: gap.linkedActionId === next?.actionId, focus: "evidence", targetId: gap.gapId },
         { label: "Ask CMP", assistant: answerCanonicalAskPrompt("evidence-needed") }
       ]
     });
@@ -22002,7 +22590,7 @@ function selectedCanonicalTimelineEvents() {
       badge: "Request prepared",
       badgeClass: "status-watch-text",
       body: request.supplierJobPackData?.statusCopy || "Request prepared. No supplier contacted. No payment taken.",
-      actions: [{ label: "Review evidence", toast: "Evidence needs review before any supplier contact." }]
+      actions: [{ label: "Open Services", focus: "services", targetId: request.id }]
     });
   });
   monitoring.slice(0, 4).forEach((item) => {
@@ -22016,7 +22604,12 @@ function selectedCanonicalTimelineEvents() {
       badge: item.currentState === "open" ? "Open" : "Watching",
       badgeClass: item.currentState === "open" ? "status-review-text" : "status-watch-text",
       body: `${item.reason || ""} ${item.nextAction || ""}`.trim() || "Keep this item under review.",
-      open: item.currentState === "open"
+      open: item.currentState === "open",
+      actions: [{
+        label: item.linkedEvidenceId ? "Open Evidence Vault" : item.linkedActionId ? "Open Action Plan" : "Open Monitoring",
+        focus: item.linkedEvidenceId ? "evidence" : item.linkedActionId ? "action" : "monitoring",
+        targetId: item.linkedEvidenceId || item.linkedActionId || item.id
+      }]
     });
   });
   if (!events.length) {
@@ -22069,7 +22662,8 @@ function renderSelectedCanonicalTimelineState() {
   if (actionButtons) {
     actionButtons.innerHTML = next
       ? `
-        <button class="primary-button" type="button" data-canonical-service-request>${escapeHtml(next.primaryCtaLabel || "Prepare service request")}</button>
+        <button class="primary-button" type="button" data-canonical-focus="action" data-canonical-focus-id="${escapeHtml(next.actionId || "")}">Open Action Plan</button>
+        <button class="secondary-button" type="button" data-canonical-focus="evidence" data-canonical-focus-id="${escapeHtml(next.linkedIssueId || next.actionId || "")}">Open Evidence Vault</button>
         <button class="secondary-button" type="button" data-canonical-ask-prompt="next-best-action">Ask CMP why</button>
       `
       : `<button class="secondary-button" type="button" data-canonical-ask-prompt="monitoring">Ask CMP what to monitor</button>`;
@@ -22435,6 +23029,10 @@ function bindSmartUpload() {
 
   document.addEventListener("click", (event) => {
     if (event.target.closest("[data-upload-trigger]")) {
+      if (isNormalSelectedCanonicalWorkspace()) {
+        focusCanonicalEvidenceIntake();
+        return;
+      }
       input?.click();
     }
 

@@ -116,6 +116,7 @@
   function addOrReplaceEvidence(propertyRecord, evidenceItem, serviceRequest, options = {}) {
     const timestamp = nowIso(options);
     const nextRecord = clone(propertyRecord);
+    const timelineId = `timeline_${evidenceItem.id}`;
     nextRecord.evidence = (nextRecord.evidence || []).filter((item) => item.id !== evidenceItem.id);
     nextRecord.evidence.push(evidenceItem);
     if (serviceRequest?.id) {
@@ -140,9 +141,9 @@
       });
     }
     nextRecord.timeline = [
-      ...(nextRecord.timeline || []),
+      ...(nextRecord.timeline || []).filter((event) => event.id !== timelineId),
       {
-        id: `timeline_${evidenceItem.id}`,
+        id: timelineId,
         propertyId: nextRecord.id,
         eventType: evidenceItem.proofStatus === "accepted" ? "simulated_evidence_received" : "evidence_placeholder_prepared",
         sourceEntityType: "evidence",
