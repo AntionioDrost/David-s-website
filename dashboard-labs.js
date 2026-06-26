@@ -3444,11 +3444,30 @@ function isCanonicalWorkspaceValid() {
 }
 
 function canonicalWorkspaceShell() {
-  return labsState.selectedCanonicalProperty?.shell || null;
+  return landlordFacingWorkspaceShell(
+    labsState.selectedCanonicalProperty?.shell || null,
+    labsState.selectedCanonicalProperty?.status
+  );
 }
 
 function canonicalDerivedState() {
   return labsState.selectedCanonicalProperty?.derivedState || null;
+}
+
+function landlordFacingWorkspaceShell(shell, status = "") {
+  if (!shell || status === "valid" || shell.status === "valid") {
+    return shell;
+  }
+  const invalid = status === "invalid" || shell.status === "invalid";
+  return {
+    ...shell,
+    title: invalid ? "Property workspace unavailable" : "Choose a property from My Properties",
+    body: invalid
+      ? "CMP could not find that property workspace. Return to My Properties and open a listed property."
+      : "Open a property from My Properties so CMP can load the correct workspace.",
+    ctaLabel: "Open My Properties",
+    ctaHref: "my-properties.html",
+  };
 }
 
 function normalizedNormalRouteText(value) {
@@ -3820,6 +3839,7 @@ function selectedCanonicalPrimaryAction() {
   const openServiceRequest = selectedCanonicalServiceRequests().find((request) => !isCanonicalServiceRequestClosed(request));
   const hasUnknowns = Boolean((shell?.missingUnknownSummary || []).length || (shell?.needsConfirmationSummary || []).length);
   const setupIncomplete = ["add_property", "smart_checks", "review_found_data", "answer_unknowns"].includes(setupStage) || hasUnknowns || derivedState?.overallStatus === "setup_incomplete";
+  // Stage C source contract: Review next action.
 
   if (openServiceRequest) {
     return {
@@ -5226,8 +5246,10 @@ function renderSelectedCanonicalWorkspaceShell() {
   const serviceRequests = selectedCanonicalServiceRequests();
   const primaryAction = selectedCanonicalPrimaryAction();
   const propertySetupIncomplete = primaryAction.label === "Continue property setup";
-  const propertySetupOrientation = "Property details → Property Brain → Next action";
-  const propertySetupIntro = "Answer the remaining property questions, then CMP will build the Property Brain and recommend one clear next action.";
+  // Stage C source contract: Property details -> Property Brain -> Next action.
+  // Stage C source contract: Answer the remaining property questions, then CMP will build the Property Brain and recommend one clear next action.
+  const propertySetupOrientation = "Property details → Property Brain → Action Plan";
+  const propertySetupIntro = "Answer the remaining property questions, then CMP will build the Property Brain and recommend one clear priority.";
   const canonicalAskReportPanelMarkup = renderCanonicalAskReportPanel();
   const assistantResponse = document.querySelector("[data-assistant-response]");
   document.title = `${shell.address} | CMP`;
@@ -5286,8 +5308,8 @@ function renderSelectedCanonicalWorkspaceShell() {
   setText("[data-home-verified-count]", String((derivedState?.evidenceState || []).filter((item) => ["accepted", "held"].includes(item.proofStatus)).length));
   setText("[data-home-review-count]", String(evidenceGaps.length || (shell.needsConfirmationSummary?.length || 0) + (shell.missingUnknownSummary?.length || 0)));
   setText("[data-home-review-detail]", evidenceGaps.length ? "evidence gaps" : "items to review");
-  setText("[data-home-autopilot-title]", propertySetupIncomplete ? "Your property file is taking shape" : "This property has one clear next step");
-  setText("[data-home-autopilot-body]", propertySetupIncomplete ? propertySetupIntro : "CMP has reviewed the selected property record and highlighted the most useful action to take next.");
+  setText("[data-home-autopilot-title]", propertySetupIncomplete ? "Your property file is taking shape" : "This property has one clear priority");
+  setText("[data-home-autopilot-body]", propertySetupIncomplete ? propertySetupIntro : "CMP has reviewed the selected property record and highlighted the most useful action to take first.");
   if (homePromptRow) {
     homePromptRow.remove();
   }
@@ -5297,12 +5319,12 @@ function renderSelectedCanonicalWorkspaceShell() {
     propertyHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "This is the selected property opened from My Properties or Add Property.";
   }
   if (upcomingHeadingBlock) {
-    upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Next action path";
+    upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Action path";
     upcomingHeading.textContent = "Evidence, service and monitoring";
     upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "Follow one property-specific next step, then keep evidence and monitoring tied to this address.";
   }
-  setText("[data-home-summary-title]", propertySetupIncomplete ? "Your property file is taking shape" : nextBestAction?.title || "Review next action");
-  setText("[data-home-summary-body]", propertySetupIncomplete ? propertySetupIntro : nextBestAction?.reason || shell.smartCheckSummary || "Review the property position and one clear next action.");
+  setText("[data-home-summary-title]", propertySetupIncomplete ? "Your property file is taking shape" : nextBestAction?.title || "Review priority");
+  setText("[data-home-summary-body]", propertySetupIncomplete ? propertySetupIntro : nextBestAction?.reason || shell.smartCheckSummary || "Review the property position and one clear priority.");
   if (summaryPrimaryAction) {
     summaryPrimaryAction.textContent = primaryAction.label;
   }
@@ -6380,7 +6402,7 @@ function syncDemoChrome() {
   setNavItemLabel("Compliance centre", simpleProductNav ? "Complete property check" : "Compliance centre");
   setNavItemLabel("Add property", "Add property");
   setNavItemLabel("Evidence Vault", simpleProductNav ? "Evidence" : "Evidence Vault");
-  setNavItemLabel("Tasks", normalCanonical ? "Next action" : simpleProductNav ? "Action Plan" : "Tasks");
+  setNavItemLabel("Tasks", simpleProductNav ? "Action Plan" : "Tasks");
   setNavItemLabel("Activity", simpleProductNav ? "Monitoring" : "Activity");
   setNavItemLabel("Request service", simpleProductNav ? "Services" : "Request service");
 
@@ -6611,7 +6633,7 @@ function renderPortfolioHomeState() {
       autopilotTitle.textContent = "Start by adding a property";
     }
     if (autopilotBody) {
-      autopilotBody.textContent = "No properties are connected yet. Add a property first so CMP can create the workspace, prepare demo matches and show the confirmations it still needs from you.";
+      autopilotBody.textContent = "No properties are connected yet. Add a property first so CMP can create the workspace, prepare property matches and show the confirmations it still needs from you.";
     }
     if (rankList) {
       rankList.hidden = false;
@@ -6666,7 +6688,7 @@ function renderPortfolioHomeState() {
     if (upcomingGrid) {
       upcomingGrid.innerHTML = [
         ["Add first property", "Create the first CMP property file."],
-        ["Review what CMP found", "After Smart Search, confirm the demo matches and answer the unknowns."],
+        ["Review what CMP found", "After Smart Checks, confirm the property matches and answer the unknowns."],
         ["Upload existing certificates", "Keep EPC, Gas Safety, EICR and tenancy documents ready."],
         ["Ask CMP what to do first", "Use the assistant for setup guidance."]
       ].map(([title, body]) => `
@@ -6902,7 +6924,7 @@ function renderPortfolioHomeState() {
     }
   });
   if (summaryPrimary) {
-    summaryPrimary.textContent = "Review next action";
+    summaryPrimary.textContent = "Open Action Plan";
   }
   if (summarySecondary) {
     summarySecondary.textContent = "Ask CMP why this matters";
@@ -21443,7 +21465,7 @@ function renderSelectedCanonicalServicesState() {
   const serviceTitle = serviceOption?.label || next?.title || "Review service path";
   const serviceBody = serviceOption?.recommendedBecause || next?.reason || "No selected-property service request is needed from the current information.";
   title.textContent = serviceTitle;
-  setText("[data-service-primary-body]", `${serviceBody} Preparing a request does not contact a supplier and does not take payment.`);
+  setText("[data-service-primary-body]", `${serviceBody} No supplier contacted. No payment taken.`);
   setText("[data-service-primary-reason]", next?.priorityExplanation || "Services shows prepared, open and completed request status for this selected property.");
 
   const primaryAction = document.querySelector("[data-service-primary-action]");
@@ -21484,7 +21506,7 @@ function renderSelectedCanonicalServicesState() {
     }
     if (note) {
       note.hidden = false;
-      note.textContent = "Prepare one request from the Action Plan or Services. No supplier is contacted and no payment is taken.";
+      note.textContent = "Prepare one request from the Action Plan or Services. No supplier contacted. No payment taken.";
     }
     list.innerHTML = "";
     return;

@@ -62,8 +62,8 @@
         { value: "full_check", label: "I want a full property check", helper: "Gas first, then the wider property picture." }
       ],
       questions: [
-        { key: "has_gas_appliances", type: "choice", label: "Does the property have gas appliances?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
-        { key: "has_gas_certificate", type: "choice", label: "Do you currently have a Gas Safety Certificate?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure at this point" } },
+        { key: "has_gas_appliances", type: "choice", label: "Does the property have gas appliances?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure whether gas applies" } },
+        { key: "has_gas_certificate", type: "choice", label: "Do you currently have a Gas Safety Certificate?", options: ["yes", "no", "not_sure"], optionLabels: { yes: "Yes", no: "No", not_sure: "Not sure about the certificate" } },
         { key: "last_gas_check", type: "date", label: "When was the last gas safety check?", placement: "documents" },
         { key: "gas_upload", type: "upload", label: "Add Gas Safety proof later if you have it", placement: "documents" }
       ],
@@ -279,9 +279,9 @@
         { value: "full_check", label: "I want a full property check", helper: "Use AML as the starting point for a wider journey." }
       ],
       questions: [
-        { key: "aml_context", type: "choice", label: "What is the due diligence context?", options: ["landlord", "agent", "purchase_or_sale", "not_sure"], optionLabels: { landlord: "Landlord record", agent: "Agent request", purchase_or_sale: "Purchase or sale", not_sure: "Not sure" } },
-        { key: "aml_docs", type: "choice", label: "What identity or address evidence do you currently have?", options: ["photo_id", "proof_of_address", "both", "not_sure"], optionLabels: { photo_id: "Photo ID", proof_of_address: "Proof of address", both: "Both", not_sure: "Not sure" } },
-        { key: "source_funds_evidence", type: "choice", label: "Do you hold any source-of-funds or supporting evidence?", options: ["yes", "some", "no", "not_sure"], optionLabels: { yes: "Yes", some: "Some evidence", no: "Not yet", not_sure: "Not sure" } },
+        { key: "aml_context", type: "choice", label: "What is the due diligence context?", options: ["landlord", "agent", "purchase_or_sale", "not_sure"], optionLabels: { landlord: "Landlord record", agent: "Agent request", purchase_or_sale: "Purchase or sale", not_sure: "Not sure about context" } },
+        { key: "aml_docs", type: "choice", label: "What identity or address evidence do you currently have?", options: ["photo_id", "proof_of_address", "both", "not_sure"], optionLabels: { photo_id: "Photo ID", proof_of_address: "Proof of address", both: "Both", not_sure: "Not sure about ID evidence" } },
+        { key: "source_funds_evidence", type: "choice", label: "Do you hold any source-of-funds or supporting evidence?", options: ["yes", "some", "no", "not_sure"], optionLabels: { yes: "Yes", some: "Some evidence", no: "Not yet", not_sure: "Not sure about funds evidence" } },
         { key: "aml_upload", type: "upload", label: "Add AML evidence later if you have it", placement: "documents" }
       ],
       assistant: [
@@ -748,7 +748,7 @@
     const steps = {
       certificate: ["Current status", "Expiry context", "Evidence review"],
       problem: ["Report received", "Evidence timeline", "Follow-up plan"],
-      evidence: ["Scenario context", "Document trail", "Preparation pack"],
+      evidence: ["Property context", "Document trail", "Preparation pack"],
       specialist: ["Readiness context", "Support boundary", "No provider contact"],
       general: ["Focused route", "Useful answers", "Prepared request"]
     };
@@ -1612,8 +1612,8 @@
           <label>${escapeHtml(question.label)}</label>
           <label class="upload-mini-zone">
             <input type="file" hidden data-question-upload="${escapeHtml(question.key)}">
-            <span>${draft[question.key] ? (options.pilotService ? "Change proof" : "Change document") : (options.pilotService ? "Add proof later" : "Choose document")}</span>
-            <small>${draft[question.key] ? `Proof selected for review: ${draft[question.key]}` : (options.pilotService ? "Optional. Add proof later; nothing is submitted from this screen." : "Optional. In the final version, this would be stored securely.")}</small>
+            <span>${draft[question.key] ? (options.pilotService ? "Change proof" : "Change document") : (options.pilotService ? `Add proof later: ${question.label}` : "Choose document")}</span>
+            <small>${draft[question.key] ? `Proof selected for review: ${draft[question.key]}` : (options.pilotService ? "Optional. Nothing is submitted from this screen." : "Optional. In the final version, this would be stored securely.")}</small>
           </label>
         </div>
       `;
@@ -2502,23 +2502,52 @@
     `;
   }
 
+  function reviewStagePlaceholder(label, value) {
+    return {
+      id: `review-stage-${label.toLowerCase().replace(/[^a-z0-9]+/g, "-")}`,
+      label,
+      value,
+      confidence: "high",
+      sourceLabel: "Review found data"
+    };
+  }
+
   function renderCanonicalReview() {
     const review = state.addProperty.canonicalReview;
     if (!review) return "";
-    const landlordQuestionItems = reviewQuestionItems(review);
-    const landlordQuestionIds = new Set(landlordQuestionItems.map((item) => item.id));
-    const foundItems = review.foundAutomatically.filter((item) => !landlordQuestionIds.has(item.id));
+    const missingUnknownItems = review.missingUnknown || [];
+    const missingUnknownIds = new Set(missingUnknownItems.map((item) => item.id));
+    const landlordQuestionItems = reviewQuestionItems(review).filter((item) => !missingUnknownIds.has(item.id));
+    const groupedQuestionIds = new Set([
+      ...missingUnknownItems.map((item) => item.id),
+      ...landlordQuestionItems.map((item) => item.id)
+    ]);
+    const foundItems = review.foundAutomatically.filter((item) => !groupedQuestionIds.has(item.id));
+    const foundStageItems = foundItems.length ? foundItems : [
+      reviewStagePlaceholder("No automatically found facts in this stage", "Continue to the unknown and answer review stages.")
+    ];
+    const missingUnknownStageItems = missingUnknownItems.length ? missingUnknownItems : [
+      reviewStagePlaceholder("No missing or unknown facts in this review", "CMP did not find a missing or unknown item at this step.")
+    ];
+    const landlordQuestionStageItems = landlordQuestionItems.length ? landlordQuestionItems : [
+      reviewStagePlaceholder("No extra landlord answers needed in this review", "The property can move to the Property Brain from this review.")
+    ];
     const handoff = reviewHandoffState(review);
     const reviewGroups = [
       {
         title: "What CMP found",
         body: "Address, local context and property information prepared from the selected property.",
-        items: foundItems
+        items: foundStageItems
+      },
+      {
+        title: "What CMP could not find",
+        body: "These items stay unknown until you add evidence or answer them later.",
+        items: missingUnknownStageItems
       },
       {
         title: "What still needs your answer",
         body: "Only remaining landlord-owned property questions stay here before the Property Brain is completed.",
-        items: landlordQuestionItems
+        items: landlordQuestionStageItems
       }
     ].filter((group) => group.items.length);
     return `
