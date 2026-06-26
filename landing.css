@@ -12928,3 +12928,42 @@ body[data-public-page="services"] .service-grid-link {
     width: 100%;
   }
 }
+
+/* CMP Stage G: public visual-system and tap-target convergence. */
+body[data-public-page] .public-v2-nav .brand,
+body[data-public-page] .site-footer a,
+body[data-public-page] .footer-brand-lockup,
+body[data-public-page] .footer-trust-pills span,
+body[data-public-page] .footer-social-links a {
+  min-height: 44px;
+}
+
+body[data-public-page] .public-v2-nav .brand,
+body[data-public-page] .site-footer a,
+body[data-public-page] .footer-brand-lockup,
+body[data-public-page] .footer-trust-pills span,
+body[data-public-page] .footer-social-links a {
+  display: inline-flex;
+  align-items: center;
+}
+
+body[data-public-page] .site-footer a {
+  width: fit-content;
+  min-width: 44px;
+  padding-block: 8px;
+  color: #e8eef5;
+  line-height: 1.25;
+}
+
+body[data-public-page] .site-footer a:hover,
+body[data-public-page] .site-footer a:focus-visible {
+  color: #ffffff;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+body[data-public-page] .footer-trust-pills span,
+body[data-public-page] .footer-social-links a {
+  min-width: 44px;
+  padding: 8px 11px;
+}

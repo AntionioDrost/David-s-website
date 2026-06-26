@@ -19882,3 +19882,386 @@ body.canonical-property-route .assistant-rail .prompt-stack button {
     grid-template-columns: 1fr;
   }
 }
+
+/* CMP Stage G: workspace visual-system convergence with the public CMP V2 surface. */
+:root {
+  --labs-bg: #f6f5f1;
+  --labs-bg-soft: #eef3f6;
+  --labs-surface: #ffffff;
+  --labs-surface-soft: #faf9f5;
+  --labs-ink: #101418;
+  --labs-muted: #65717c;
+  --labs-soft: #87919b;
+  --labs-border: rgba(16, 20, 24, 0.12);
+  --labs-border-strong: rgba(16, 20, 24, 0.2);
+  --labs-green: #1f7a59;
+  --labs-green-dark: #14563f;
+  --labs-green-soft: #e8f3ed;
+  --labs-amber: #a46420;
+  --labs-amber-soft: #fff3dc;
+  --labs-blue: #245c73;
+  --labs-blue-soft: #e7f0f4;
+  --labs-neutral-soft: #eef1f3;
+  --labs-shadow: 0 18px 46px rgba(16, 20, 24, 0.1);
+  --labs-card-shadow: 0 1px 2px rgba(16, 20, 24, 0.07);
+  --labs-radius-lg: 18px;
+  --labs-radius-md: 14px;
+  --labs-radius-sm: 10px;
+  --sidebar-width: 252px;
+  --rail-width: 316px;
+}
+
+body {
+  color: var(--labs-ink);
+  background:
+    linear-gradient(rgba(16, 20, 24, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16, 20, 24, 0.026) 1px, transparent 1px),
+    linear-gradient(180deg, #fbfaf6 0%, var(--labs-bg) 54%, #eef3f6 100%);
+  background-size: 44px 44px, 44px 44px, auto;
+}
+
+.labs-shell {
+  gap: clamp(18px, 2vw, 28px);
+  padding: 22px;
+}
+
+.labs-sidebar,
+.assistant-rail,
+.property-header,
+.autopilot-card,
+.next-action-card,
+.small-card,
+.placeholder-panel,
+.status-tile,
+.documents-header,
+.summary-card,
+.inbox-panel,
+.upload-panel,
+.vault-list-card,
+.missing-evidence-card,
+.strengthened-panel,
+.smart-modal,
+.drawer-panel,
+.compliance-header,
+.scenario-panel,
+.essential-card,
+.forecast-section,
+.prs-card,
+.what-if-panel,
+.guided-card,
+.timeline-header,
+.timeline-visit-card,
+.timeline-event,
+.timeline-actions-panel,
+.timeline-modal,
+.services-header,
+.primary-service-card,
+.open-requests-panel,
+.service-option-card,
+.human-support-panel,
+.portfolio-home-header,
+.portfolio-properties-header,
+.portfolio-compliance-header,
+.portfolio-evidence-header,
+.portfolio-tasks-header,
+.portfolio-activity-header,
+.portfolio-autopilot-card,
+.portfolio-summary-panel,
+.portfolio-pulse-card,
+.home-priority-card,
+.compliance-start-card,
+.compliance-matrix-wrap,
+.compliance-gap-card,
+.compliance-forecast-grid article,
+.compliance-readiness-card,
+.evidence-inbox-panel,
+.evidence-toolbar,
+.evidence-list-card,
+.smart-upload-shortcut,
+.property-evidence-health-card,
+.tasks-start-card,
+.tasks-toolbar,
+.activity-toolbar,
+.activity-event,
+.activity-visit-card,
+.utility-hero-card,
+.utility-prompt-card,
+.utility-response-card,
+.utility-list-card,
+.service-option-preview,
+.learn-guide-card,
+.task-card,
+.task-board-column,
+.tasks-completed-section,
+.portfolio-property-card,
+.portfolio-upcoming-card,
+.home-secondary-card,
+.home-quick-win-card,
+.properties-grow-card,
+.passport-header,
+.passport-summary-card,
+.passport-card,
+.record-card,
+.property-memory-card,
+.room-card {
+  border-color: var(--labs-border);
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: var(--labs-card-shadow);
+}
+
+.portfolio-autopilot-card,
+.portfolio-summary-panel,
+.property-brain-card,
+.property-memory-card {
+  background: linear-gradient(180deg, #ffffff 0%, #f7fafb 100%);
+}
+
+.labs-sidebar,
+.assistant-rail {
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 48px rgba(16, 20, 24, 0.08);
+}
+
+.brand-mark {
+  color: #ffffff;
+  background: #101418;
+  box-shadow: none;
+}
+
+.nav-item,
+.quiet-add,
+.primary-button,
+.secondary-button,
+.text-button,
+.icon-button,
+.demo-state-button,
+.assistant-fab,
+.tab-button,
+.portfolio-prompt-row button,
+.properties-filter-row button,
+.properties-view-toggle button,
+.evidence-property-filter button,
+.timeline-filter-row button,
+.service-focus-tabs button,
+.task-title-button,
+.task-card-actions button,
+.evidence-row-actions .primary-button,
+.evidence-row-actions .secondary-button,
+.evidence-row-actions .text-button,
+.primary-service-card .button-row button,
+.service-option-card .button-row button,
+.portfolio-header-actions button,
+.home-priority-actions button,
+.mobile-brand {
+  min-height: 44px;
+}
+
+.icon-button,
+.assistant-fab {
+  min-width: 44px;
+}
+
+input,
+select,
+textarea {
+  min-height: 44px;
+}
+
+.task-title-button {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0;
+  text-align: left;
+}
+
+.primary-button,
+.secondary-button,
+.text-button {
+  align-items: center;
+  justify-content: center;
+  line-height: 1.2;
+}
+
+.primary-button {
+  border-color: #101418;
+  background: #101418;
+  color: #ffffff;
+}
+
+.primary-button:hover,
+.primary-button:focus-visible {
+  background: #245c73;
+  border-color: #245c73;
+}
+
+.secondary-button,
+.text-button {
+  border-color: rgba(16, 20, 24, 0.14);
+  color: #101418;
+  background: rgba(255, 255, 255, 0.9);
+}
+
+.secondary-button:hover,
+.secondary-button:focus-visible,
+.text-button:hover,
+.text-button:focus-visible {
+  border-color: rgba(36, 92, 115, 0.34);
+  color: #143e50;
+  background: #eef6f9;
+}
+
+.nav-item.is-active {
+  color: #101418;
+  background: #eef3f6;
+  box-shadow: inset 3px 0 0 #245c73, inset 0 0 0 1px rgba(36, 92, 115, 0.14);
+}
+
+.section-kicker,
+.portfolio-pulse-card span,
+.service-card-property-row span,
+.evidence-row-meta span,
+.evidence-row-date span {
+  color: #65717c;
+}
+
+.portfolio-tasks-header,
+.portfolio-evidence-header,
+.portfolio-activity-header,
+.services-header,
+.timeline-header,
+.portfolio-home-header {
+  border-color: rgba(16, 20, 24, 0.14);
+}
+
+.tasks-start-card {
+  border-color: rgba(36, 92, 115, 0.22);
+  background: linear-gradient(180deg, #ffffff 0%, #f2f8fb 100%);
+  box-shadow: 0 18px 40px rgba(36, 92, 115, 0.1);
+}
+
+.tasks-start-card .section-kicker,
+.task-card.is-primary .task-chip-row span:first-child {
+  color: #143e50;
+}
+
+.task-card.is-primary {
+  border-color: rgba(36, 92, 115, 0.24);
+  background: #f8fcfd;
+}
+
+.doc-status,
+.source-badge,
+.prototype-badge,
+.service-property-label {
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid rgba(16, 20, 24, 0.12);
+  color: #45525e;
+  background: #eef1f3;
+}
+
+.status-good-text {
+  border-color: rgba(31, 122, 89, 0.25);
+  color: #14563f;
+  background: #e8f3ed;
+}
+
+.status-review-text {
+  border-color: rgba(164, 100, 32, 0.3);
+  color: #7c4b18;
+  background: #fff3dc;
+}
+
+.status-watch-text {
+  border-color: rgba(36, 92, 115, 0.28);
+  color: #143e50;
+  background: #e7f0f4;
+}
+
+.status-neutral-text {
+  border-color: rgba(16, 20, 24, 0.14);
+  color: #45525e;
+  background: #eef1f3;
+}
+
+.source-badge {
+  color: #143e50;
+  background: #e7f0f4;
+}
+
+.evidence-list-card,
+.open-requests-panel,
+.timeline-event,
+.activity-event,
+.primary-service-card,
+.service-option-card {
+  border-color: rgba(16, 20, 24, 0.13);
+}
+
+.primary-service-card,
+.service-option-card,
+.service-option-preview {
+  min-width: 0;
+}
+
+.commercial-service-card,
+.primary-service-card {
+  grid-template-rows: auto auto auto minmax(104px, 1fr) auto;
+}
+
+.assistant-rail .prompt-stack button {
+  min-height: 44px;
+}
+
+@media (max-width: 1240px) {
+  .labs-shell {
+    padding: 14px;
+  }
+}
+
+@media (max-width: 760px) {
+  .labs-shell {
+    padding: 12px;
+  }
+
+  .mobile-bar {
+    min-height: 64px;
+  }
+}
+
+/* CMP Stage G: final target-size guard for route-specific controls. */
+body .labs-sidebar .nav-item,
+body.canonical-property-route .labs-sidebar .nav-item,
+body.normal-canonical-workspace .labs-sidebar .nav-item,
+body .workspace .primary-button,
+body .workspace .secondary-button,
+body .workspace .text-button,
+body .workspace .icon-button,
+body .workspace .tab-button,
+body .workspace .task-title-button,
+body .workspace .task-card-actions button,
+body .workspace .assistant-rail .prompt-stack button,
+body .assistant-rail .prompt-stack button,
+body .timeline-filter-row button,
+body .properties-filter-row button,
+body .properties-view-toggle button,
+body .evidence-property-filter button,
+body .service-focus-tabs button {
+  min-height: 44px !important;
+}
+
+body .workspace input,
+body .workspace select,
+body .workspace textarea,
+body .assistant-rail input {
+  min-height: 44px !important;
+}
+
+body .workspace .icon-button,
+body .workspace .properties-filter-row button,
+body .workspace .evidence-property-filter button,
+body .workspace .timeline-filter-row button,
+body .workspace .properties-view-toggle button {
+  min-width: 44px !important;
+}

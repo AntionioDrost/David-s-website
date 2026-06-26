@@ -2496,7 +2496,7 @@ function newPropertyActivityEvents(setup = newPropertySetup()) {
       status: "Matched",
       statusClass: "status-good-text",
       search: "address matched flat 42 57 butts coventry cv1",
-      why: "CMP recorded this because address matching anchors checks, evidence and tasks to the correct property.",
+      why: "CMP recorded this because address matching anchors checks, evidence and actions to the correct property.",
       nextAction: "Confirm the found details once.",
       route: "details",
       actions: [
@@ -2662,7 +2662,7 @@ const evidenceVaultPrompts = [
 const tasksPrompts = [
   "What should I do first?",
   "Why is this a task?",
-  "Which tasks are evidence-related?",
+  "Which actions are evidence-related?",
   "What can I leave for later?"
 ];
 
@@ -3524,12 +3524,25 @@ function canonicalAskCmpContext() {
   return result.ok ? result.value : null;
 }
 
+function canonicalAskDisplayCopy(value) {
+  return String(value || "")
+    .replace(/Why is this my Next action\?/g, "Why is this the priority?")
+    .replace(/\bthe Next action is\b/g, "the main action is")
+    .replace(/\bThe Next action is\b/g, "The main action is")
+    .replace(/\bNext action is\b/g, "Main action is")
+    .replace(/\bnext action is\b/g, "main action is")
+    .replace(/\bNext action\b/g, "main action")
+    .replace(/\bnext action\b/g, "main action");
+}
+
 function canonicalAskPrompts() {
   const context = canonicalAskCmpContext();
   const askResponse = askResponseApi();
   if (!context || !askResponse?.getSuggestedAskCmpPrompts) return [];
   const result = askResponse.getSuggestedAskCmpPrompts(context);
-  return result.ok ? result.value : [];
+  return result.ok
+    ? result.value.map((prompt) => ({ ...prompt, label: canonicalAskDisplayCopy(prompt.label) }))
+    : [];
 }
 
 function answerCanonicalAskPrompt(promptIdOrText) {
@@ -3540,7 +3553,7 @@ function answerCanonicalAskPrompt(promptIdOrText) {
   }
   const result = askResponse.answerAskCmpPrompt(context, promptIdOrText);
   return result.ok
-    ? result.value.answerText
+    ? canonicalAskDisplayCopy(result.value.answerText)
     : "Based on current information, CMP could not answer that for the selected property. Guidance, not legal advice.";
 }
 
@@ -3595,7 +3608,7 @@ function renderCanonicalAskReportPanel() {
       <span class="source-badge">Ask CMP</span>
       <h3>Property-aware guidance</h3>
       <p>Based on current information from this Property Brain. Guidance, not legal advice.</p>
-      ${promptButtons || `<button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Explain the Next action</button>`}
+      ${promptButtons || `<button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Explain the priority</button>`}
     </article>
     <article class="portfolio-upcoming-card" data-canonical-report-panel>
       <span class="source-badge">Report preview</span>
@@ -4322,7 +4335,7 @@ const utilityAskPromptMeta = {
   },
   "How does CMP help landlords?": {
     category: "CMP",
-    helper: "Understand checks, evidence, tasks and support."
+    helper: "Understand checks, evidence, actions and support."
   },
   "What happens after I add my first property?": {
     category: "Next",
@@ -4563,42 +4576,42 @@ const complianceCentrePostEicrAssistantResponses = {
 const evidenceVaultAssistantResponses = {
   "What evidence is missing?": "CMP has EPC and Gas Safety evidence for 57 The Butts. The clearest missing item is an EICR, with inspection evidence also still useful to add.",
   "Which documents are verified?": "EPC is confirmed from an official record. Gas Safety is verified from an uploaded document. After the EICR is added, Electrical Safety also becomes verified from an uploaded document.",
-  "How should I upload paperwork?": "You can forward paperwork to the Evidence Inbox or add evidence from the Evidence Vault. CMP prepares it for review against the correct property.",
+  "How should I upload paperwork?": "You can forward paperwork to the evidence intake address or add evidence from the Evidence Vault. CMP prepares it for review against the correct property.",
   "Summarise my evidence vault": "Your portfolio evidence vault contains two verified items and one key missing certificate for 57 The Butts."
 };
 
 const evidenceVaultPostEicrAssistantResponses = {
   "What evidence is missing?": "CMP has EPC, Gas Safety and EICR evidence for 57 The Butts. The next useful upload is a recent property-inspection record.",
   "Which documents are verified?": "EPC is confirmed from an official record. Gas Safety is verified from an uploaded document. Electrical Safety is also verified from an uploaded document.",
-  "How should I upload paperwork?": "You can forward paperwork to the Evidence Inbox or add evidence from the Evidence Vault. CMP prepares it for review against the correct property.",
+  "How should I upload paperwork?": "You can forward paperwork to the evidence intake address or add evidence from the Evidence Vault. CMP prepares it for review against the correct property.",
   "Summarise my evidence vault": "Your portfolio evidence vault contains three verified evidence items for 57 The Butts. Inspection evidence is now the main useful next upload."
 };
 
 const tasksAssistantResponses = {
-  "What should I do first?": "Your first task is to upload or arrange an EICR for 57 The Butts. Electrical Safety is the clearest missing evidence area.",
-  "Why is this a task?": "CMP creates tasks from missing evidence, compliance checks, upcoming reviews and support requests so you can act without reading every section manually.",
-  "Which tasks are evidence-related?": "The evidence-related tasks are EICR and inspection evidence for 57 The Butts.",
+  "What should I do first?": "Your first action is to upload or arrange an EICR for 57 The Butts. Electrical Safety is the clearest missing evidence area.",
+  "Why is this a task?": "CMP creates actions from missing evidence, compliance checks, upcoming reviews and support requests so you can act without reading every section manually.",
+  "Which actions are evidence-related?": "The evidence-related actions are EICR and inspection evidence for 57 The Butts.",
   "What can I leave for later?": "Licensing is still under review, so it can be monitored unless you need to let or alter the property soon. Inspection evidence is the more useful next action."
 };
 
 const tasksPostEicrAssistantResponses = {
-  "What should I do first?": "Your EICR is now verified. The next useful task is to add inspection evidence or record that no recent inspection has been completed.",
-  "Why is this a task?": "CMP creates tasks from missing evidence, compliance checks, upcoming reviews and support requests so you can act without reading every section manually.",
-  "Which tasks are evidence-related?": "The main evidence-related task is inspection evidence for 57 The Butts.",
+  "What should I do first?": "Your EICR is now verified. The next useful action is to add inspection evidence or record that no recent inspection has been completed.",
+  "Why is this a task?": "CMP creates actions from missing evidence, compliance checks, upcoming reviews and support requests so you can act without reading every section manually.",
+  "Which actions are evidence-related?": "The main evidence-related action is inspection evidence for 57 The Butts.",
   "What can I leave for later?": "Licensing is still under review, so it can be monitored unless you need to let or alter the property soon. Inspection evidence is the more useful next action."
 };
 
 const activityAssistantResponses = {
   "What changed recently?": "CMP recently verified Gas Safety evidence and identified Electrical Safety evidence as the clearest gap for 57 The Butts.",
   "What still needs attention?": "Electrical Safety evidence still needs attention. Inspection evidence and licensing review are also worth monitoring.",
-  "Summarise portfolio activity": "The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
+  "Summarise portfolio activity": "The portfolio activity feed shows imported records, uploaded evidence, landlord answers, action changes and support events for 57 The Butts.",
   "Why was this recorded?": "CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
 };
 
 const activityPostEicrAssistantResponses = {
   "What changed recently?": "Your EICR was verified and the Electrical Safety item moved to evidence accepted. The next useful item is inspection evidence.",
   "What still needs attention?": "Inspection evidence is now the main useful upload. Licensing review is still in progress.",
-  "Summarise portfolio activity": "The portfolio activity feed shows imported records, uploaded evidence, landlord answers, task changes and support events for 57 The Butts.",
+  "Summarise portfolio activity": "The portfolio activity feed shows imported records, uploaded evidence, landlord answers, action changes and support events for 57 The Butts.",
   "Why was this recorded?": "CMP records activity so landlords can understand what changed, when it changed and which property file was affected."
 };
 
@@ -4680,7 +4693,7 @@ function formatControlledAssistantResponse(message) {
 
   return [
     `Summary: ${response}`,
-    "Based on: Current local property information, Evidence, Action Plan, tasks and service context.",
+    "Based on: Current local property information, Evidence, Action Plan, actions and service context.",
     "What this means: Treat this as source-backed guidance for prioritising review, evidence and support steps.",
     "Suggested next action: Check the linked evidence or action before booking, uploading or deferring anything.",
     "Limits: No live lookup performed. Guidance, not legal advice."
@@ -5312,7 +5325,7 @@ function renderSelectedCanonicalWorkspaceShell() {
     rankList.innerHTML = actionItems.length
       ? actionItems.map((item, index) => `
         <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
-          <span>${index === 0 ? "Next action" : `Priority ${index + 1}`}</span>
+          <span>${index === 0 ? "Priority action" : `Priority ${index + 1}`}</span>
           <strong>${escapeHtml(item.title)}</strong>
           <p>${escapeHtml(item.reason)} · ${escapeHtml(item.priorityExplanation || "Prioritised from current property information.")}</p>
         </article>
@@ -5684,11 +5697,11 @@ function openCreatedPropertyWorkspace() {
 function getPortfolioAssistantResponse(prompt) {
   if (isEmptyPortfolioMode()) {
     const responses = {
-      "Summarise my portfolio": "The portfolio is empty. Add your first property so CMP can create a compliance workspace and start organising evidence, tasks and support.",
+      "Summarise my portfolio": "The portfolio is empty. Add your first property so CMP can create a compliance workspace and start organising evidence, actions and support.",
       "What should I do today?": "Add your first property. CMP will use the address to build the workspace, prepare checks and show what evidence to gather.",
       "Which property needs attention?": "No property needs attention yet because no properties have been added.",
       "What evidence am I missing?": "CMP cannot identify missing evidence until a property is added. You can prepare EPC, Gas Safety, EICR, inspection and tenancy records if you already have them.",
-      "Ask CMP why this matters": "A property address gives CMP the anchor it needs to organise checks, evidence, tasks and service support.",
+      "Ask CMP why this matters": "A property address gives CMP the anchor it needs to organise checks, evidence, actions and service support.",
       "Ask CMP what I need": "Start with address and postcode, then gather any existing certificates or tenancy records you already hold."
     };
     return responses[prompt] || getGlobalAskDefaultResponse();
@@ -5841,7 +5854,7 @@ function getEvidenceVaultAssistantResponse(prompt) {
 
 function getTasksAssistantResponse(prompt) {
   if (isEmptyPortfolioMode()) {
-    return "There are no tasks yet because no properties are connected. Add a property and run the A-Z Checker to create tasks.";
+    return "There are no actions yet because no properties are connected. Add a property and run the A-Z Checker to create actions.";
   }
 
   if (isNewPropertyMode()) {
@@ -5852,7 +5865,7 @@ function getTasksAssistantResponse(prompt) {
     const responses = {
       "What should I do first?": "Start with 3 Station Road: run the onboarding A-Z check and collect missing certificates, alarms and tenancy setup evidence.",
       "Why is this a task?": "CMP created these from the five-property scores and grouped them by the property-specific gaps.",
-      "Which tasks are evidence-related?": "Station Road onboarding, Willow Brook renewal evidence and Canal View licensing evidence are the main evidence-related tasks.",
+      "Which actions are evidence-related?": "Station Road onboarding, Willow Brook renewal evidence and Canal View licensing evidence are the main evidence-related actions.",
       "What can I leave for later?": "24 Maple Court only needs monitoring. Lower-risk review items can wait until Station Road, Willow Brook and Canal View are handled."
     };
     return responses[prompt] || defaultAssistantResponse;
@@ -5860,9 +5873,9 @@ function getTasksAssistantResponse(prompt) {
 
   if (isTwoPropertyMode()) {
     const responses = {
-      "What should I do first?": "Do the Gas Safety renewal task for 18 Willow Brook Drive first. It is the most time-sensitive item in the two-property portfolio.",
-      "Why is this a task?": "CMP created the task because Gas Safety renewal is approaching and the evidence needs to stay tied to the correct property.",
-      "Which tasks are evidence-related?": "Evidence tasks include Willow Brook Gas Safety renewal, alarm evidence and inspection evidence, plus 57 The Butts EICR or inspection evidence.",
+      "What should I do first?": "Do the Gas Safety renewal action for 18 Willow Brook Drive first. It is the most time-sensitive item in the two-property portfolio.",
+      "Why is this a task?": "CMP created the action because Gas Safety renewal is approaching and the evidence needs to stay tied to the correct property.",
+      "Which actions are evidence-related?": "Evidence actions include Willow Brook Gas Safety renewal, alarm evidence and inspection evidence, plus 57 The Butts EICR or inspection evidence.",
       "What can I leave for later?": "Local licensing can stay on watch while Gas Safety renewal and missing core evidence are handled first."
     };
     return responses[prompt] || defaultAssistantResponse;
@@ -5907,7 +5920,7 @@ function getActivityAssistantResponse(prompt) {
 
 function getGlobalAskDefaultResponse() {
   if (isEmptyPortfolioMode()) {
-    return "No properties are connected yet. Add a property first, then CMP can personalise the A-Z Checker, compliance score, evidence score, tasks and service recommendations.";
+    return "No properties are connected yet. Add a property first, then CMP can personalise the A-Z Checker, compliance score, evidence score, actions and service recommendations.";
   }
 
   if (isNewPropertyMode()) {
@@ -5944,15 +5957,15 @@ function getGlobalAskAssistantResponse(prompt) {
 
   if (isEmptyPortfolioMode()) {
     const responses = {
-      "How do I get started?": "Start by adding your first property. CMP will then help organise compliance checks, evidence, tasks and support around that address.",
+      "How do I get started?": "Start by adding your first property. CMP will then help organise compliance checks, evidence, actions and support around that address.",
       "What documents should I prepare?": "Useful starting documents include any EPC, Gas Safety certificate, EICR, inspection records, tenancy paperwork, deposit records, alarm evidence and licensing information you already have.",
       "What information do I need to add a property?": "Start with the property address and postcode. CMP can then build the workspace and ask for details such as occupancy, property type, landlord goal and existing evidence.",
-      "How does CMP help landlords?": "CMP turns a property address into a workspace for checks, evidence, tasks, activity and support requests, so a landlord can see what is known and what still needs attention.",
-      "What happens after I add my first property?": "CMP will create the property workspace, prepare the A-Z Compliance Checker, organise Evidence Vault around the address and create tasks when evidence or checks need attention.",
+      "How does CMP help landlords?": "CMP turns a property address into a workspace for checks, evidence, actions, activity and support requests, so a landlord can see what is known and what still needs attention.",
+      "What happens after I add my first property?": "CMP will create the property workspace, prepare the A-Z Compliance Checker, organise Evidence Vault around the address and create actions when evidence or checks need attention.",
       "What should I do today?": "Add your first property, then run the A-Z Compliance Checker. If you already have certificates, keep them ready for Evidence Vault upload after setup.",
       "Which property needs attention?": "No property needs attention yet because the portfolio is empty.",
       "What evidence is missing?": "CMP cannot identify missing evidence until a property and scenario are added. Typical starting evidence includes EPC, Gas Safety, EICR, alarms, tenancy documents and licensing answers.",
-      "Explain this property file": "There is no property file yet. CMP will create one from the first address and then attach evidence, answers, tasks and services to it.",
+      "Explain this property file": "There is no property file yet. CMP will create one from the first address and then attach evidence, answers, actions and services to it.",
       "Summarise my portfolio": "The portfolio currently has 0 properties. Scores and readiness checks will appear after setup.",
       "What can wait until later?": "Detailed service recommendations can wait until the first property is added. Start with address, occupancy/scenario and any certificates you already hold."
     };
@@ -6001,7 +6014,7 @@ function getGlobalAskAssistantResponse(prompt) {
         ? "18 Willow Brook Drive needs attention first because Gas Safety renewal is due soon. 57 The Butts should add inspection evidence next."
         : "18 Willow Brook Drive needs attention first because Gas Safety renewal is due soon. 57 The Butts still needs EICR evidence.",
       "What evidence is missing?": labsState.eicrAdded ? "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts mainly needs inspection evidence now." : "Willow Brook needs Gas Safety renewal evidence, alarm evidence and inspection evidence. 57 The Butts needs EICR evidence until it is verified.",
-      "Explain this property file": "CMP is comparing 57 The Butts and 18 Willow Brook Drive using property details, evidence, compliance status, tasks, activity and support requests.",
+      "Explain this property file": "CMP is comparing 57 The Butts and 18 Willow Brook Drive using property details, evidence, compliance status, actions, activity and support requests.",
       "Summarise my portfolio": labsState.eicrAdded ? "Your two-property portfolio has one urgent renewal item and one follow-up evidence gap: Willow Brook Gas Safety renewal and 57 The Butts inspection evidence." : "Your two-property portfolio has one urgent renewal item and one core evidence gap: Willow Brook Gas Safety renewal and 57 The Butts EICR evidence.",
       "What can wait until later?": labsState.eicrAdded
         ? "Local licensing and tenancy document review can stay on watch while Gas Safety renewal and the 57 The Butts inspection follow-up are handled first."
@@ -6021,7 +6034,7 @@ function getGlobalAskAssistantResponse(prompt) {
     "What evidence is missing?": labsState.eicrAdded
       ? "Core certificates are recorded. Inspection evidence is still useful to add."
       : "The main missing evidence is an EICR. Inspection evidence is also useful to add when available.",
-    "Explain this property file": "57 The Butts has matched EPC information, verified Gas Safety evidence, landlord alarm information, tasks and activity history in this demo.",
+    "Explain this property file": "57 The Butts has matched EPC information, verified Gas Safety evidence, landlord alarm information, actions and activity history in this demo.",
     "Summarise my portfolio": labsState.eicrAdded
       ? "Your portfolio has one property. EPC, Gas Safety and EICR evidence are recorded; inspection evidence and licensing review remain useful follow-up items."
       : "Your portfolio has one property. EPC and Gas Safety evidence are recorded; Electrical Safety is the clearest gap.",
@@ -6118,7 +6131,7 @@ function getGlobalServiceAssistantResponse(prompt) {
 }
 
 function getLearnAssistantResponse(prompt) {
-  return learnAssistantResponses[prompt] || "CMP Learn gives plain-English previews connected to the property evidence and tasks in this Labs workspace.";
+  return learnAssistantResponses[prompt] || "CMP Learn gives plain-English previews connected to the property evidence and actions in this workspace.";
 }
 
 function getSettingsAssistantResponse(prompt) {
@@ -6553,7 +6566,7 @@ function renderPortfolioHomeState() {
       homeTitle.textContent = "Welcome to ComplyMyProperty";
     }
     if (homeIntro) {
-      homeIntro.textContent = "CMP helps landlords build a property compliance workspace, organise evidence, track tasks and request support.";
+      homeIntro.textContent = "CMP helps landlords build a property compliance workspace, organise evidence, track actions and request support.";
     }
     if (homeBadge) {
       homeBadge.textContent = "New landlord setup";
@@ -6627,7 +6640,7 @@ function renderPortfolioHomeState() {
     if (upcomingHeadingBlock) {
       upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Setup";
       upcomingHeading.textContent = "What happens after adding a property";
-      upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "CMP starts with the address, then organises checks, evidence, tasks and support around that property.";
+      upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "CMP starts with the address, then organises checks, evidence, actions and support around that property.";
     }
     const homePromptRow = document.querySelector(".portfolio-prompt-row");
     if (homePromptRow) {
@@ -6641,7 +6654,7 @@ function renderPortfolioHomeState() {
         <article class="empty-portfolio-card">
           <span class="tile-icon" data-icon="building"></span>
           <h3>No properties yet</h3>
-          <p>Add your first property to unlock compliance scoring, evidence tracking, tasks and service recommendations.</p>
+          <p>Add your first property to unlock compliance scoring, evidence tracking, actions and service recommendations.</p>
           <div class="button-row">
             <button class="primary-button" type="button" data-home-add-property>Add your first property</button>
             <button class="secondary-button is-locked-preview" type="button" disabled aria-disabled="true">A-Z preview unlocks after property</button>
@@ -6720,7 +6733,7 @@ function renderPortfolioHomeState() {
     document.querySelector("[data-home-property-count]").textContent = "1";
     document.querySelector("[data-home-property-count-detail]").textContent = "new profile";
     document.querySelector("[data-home-priority-count]").textContent = String(tasks.length);
-    document.querySelector("[data-home-priority-detail]").textContent = tasks.length === 1 ? "setup task" : "setup tasks";
+    document.querySelector("[data-home-priority-detail]").textContent = tasks.length === 1 ? "setup action" : "setup actions";
     document.querySelector("[data-home-verified-count]").textContent = String(summary.evidenceConfidenceScore > 0 ? 1 : 0);
     document.querySelector("[data-home-review-count]").textContent = String(summary.missingEvidence.length);
     document.querySelector("[data-home-review-detail]").textContent = summary.evidenceConfidenceLabel;
@@ -6824,7 +6837,7 @@ function renderPortfolioHomeState() {
     if (upcomingHeadingBlock) {
       upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Confirm next";
       upcomingHeading.textContent = "The setup path";
-      upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "CMP needs these landlord confirmations before scores, tasks and recommendations become reliable.";
+      upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "CMP needs these landlord confirmations before scores, actions and recommendations become reliable.";
     }
     const upcomingGrid = document.querySelector("[data-home-upcoming-grid]");
     if (upcomingGrid) {
@@ -6862,7 +6875,7 @@ function renderPortfolioHomeState() {
     homeTitle.textContent = "Welcome to ComplyMyProperty";
   }
   if (homeIntro) {
-    homeIntro.textContent = "CMP helps landlords build a property compliance workspace, organise evidence, track tasks and request support.";
+    homeIntro.textContent = "CMP helps landlords build a property compliance workspace, organise evidence, track actions and request support.";
   }
   if (homeBadge) {
     homeBadge.textContent = "New landlord setup";
@@ -12558,7 +12571,7 @@ function renderPortfolioPropertiesState() {
     document.querySelector("[data-properties-count]").textContent = "1";
     document.querySelector("[data-properties-count-detail]").textContent = "new profile";
     document.querySelector("[data-properties-attention-count]").textContent = String(tasks.length);
-    document.querySelector("[data-properties-attention-detail]").textContent = tasks.length === 1 ? "setup task" : "setup tasks";
+    document.querySelector("[data-properties-attention-detail]").textContent = tasks.length === 1 ? "setup action" : "setup actions";
     document.querySelector("[data-properties-summary-strength]").textContent = `${summary.profileSetupScore}% setup`;
     document.querySelector("[data-properties-open-requests]").textContent = "0";
     document.querySelector(".properties-toolbar")?.setAttribute("hidden", "");
@@ -13930,7 +13943,7 @@ function azCardsForSection(sectionId, property) {
   if (isNewPropertyMode()) {
     const newPropertySections = {
       "property-basics": [
-        azCard(sectionId, { id: "address", eyebrow: "Found automatically", label: "Address matched", value: "Flat 42, 57 The Butts, Coventry, CV1 3BJ", source: "Address lookup", action: "Confirm", control: "note", helper: "Confirm this is the property you want CMP to use for checks, evidence and tasks." }),
+        azCard(sectionId, { id: "address", eyebrow: "Found automatically", label: "Address matched", value: "Flat 42, 57 The Butts, Coventry, CV1 3BJ", source: "Address lookup", action: "Confirm", control: "note", helper: "Confirm this is the property you want CMP to use for checks, evidence and actions." }),
         azCard(sectionId, { id: "epc-signal", eyebrow: "Found automatically", label: "EPC record prepared for review", value: "Prepared for review", source: "EPC-style lookup", action: "Review", control: "note", helper: "Review before relying on this. CMP has prepared a starting signal, not legal verification." }),
         azCard(sectionId, { id: "type", eyebrow: "Needs confirmation", label: "Property type", value: facts.type, source: "Landlord confirmation needed", action: "Edit", control: "select", options: ["Flat / apartment", "Terraced house", "Semi-detached house", "Detached house", "HMO / shared house", "Not sure"], helper: "Confirm or correct what CMP should use before scoring the property." }),
         azCard(sectionId, { id: "bedrooms", eyebrow: "Needs confirmation", label: "Bedrooms", value: facts.bedrooms, source: "Landlord confirmation needed", action: "Answer", control: "range", min: 0, max: 8, suffix: " bedrooms", helper: "Use 0 if you want CMP to keep this open for later." }),
@@ -14665,7 +14678,7 @@ function renderSmartSearchResults() {
         <div>
           <p class="section-kicker">Early property workspace</p>
           <h3>57 The Butts workspace</h3>
-          <p>This is where CMP will store evidence, tasks, reminders and property-specific compliance guidance.</p>
+          <p>This is where CMP will store evidence, actions, reminders and property-specific compliance guidance.</p>
         </div>
         <div class="smart-workspace-grid">
           <article>
@@ -16733,7 +16746,7 @@ function completedTaskItems() {
           id: "inspection-recorded",
           title: "Inspection status recorded",
           status: "Deferred - still open",
-          source: "Tasks · Demo action",
+          source: "Action Plan · Demo action",
           body: "Marked as not completed during the walkthrough. CMP keeps the inspection evidence gap visible.",
           property: "57 The Butts · CV1 3BJ",
           propertyId: "the-butts",
@@ -16836,7 +16849,7 @@ function renderTaskBoard(tasks) {
         <h3>${column.title}</h3>
         ${columnTasks.length
           ? columnTasks.map((task) => renderTaskCard(task, { compact: true })).join("")
-          : `<p>No tasks sit in this column for the current view.</p>`}
+          : `<p>No actions sit in this column for the current view.</p>`}
       </section>
     `;
   }).join("");
@@ -16863,7 +16876,7 @@ function renderCompletedTasks() {
     : `
         <article class="completed-task-empty">
           <span>Nothing recorded yet</span>
-          <h3>No completed or dismissed tasks</h3>
+          <h3>No completed or dismissed actions</h3>
           <p>Completed support, evidence and landlord-answer actions will appear here during the walkthrough.</p>
         </article>
     `;
@@ -16962,7 +16975,7 @@ function renderSelectedCanonicalActionPlanState() {
           <p class="property-card-label">${escapeHtml(shell?.address || "Selected property")}</p>
           <p>${escapeHtml(action.reason || action.nextStep || "Review this selected-property action.")}</p>
           <div class="task-chip-row">
-            <span>${index === 0 ? "Next action" : `Priority ${index + 1}`}</span>
+            <span>${index === 0 ? "Priority action" : `Priority ${index + 1}`}</span>
             <span>${escapeHtml(action.priorityExplanation || "Ranked by CMP rules")}</span>
             <span>${escapeHtml(action.sourceConfidenceSummary || "Source confidence to review")}</span>
             ${request ? `<span>Request prepared</span>` : ""}
@@ -16993,7 +17006,7 @@ function renderSelectedCanonicalActionPlanState() {
       priority: (action.priorityScore || 0) >= 70 ? "High" : "Medium",
       source: "CMP priority rules",
       body: action.reason,
-      status: index === 0 ? "Next action" : "Unresolved",
+      status: index === 0 ? "Priority action" : "Unresolved",
       suggestedAction: action.nextStep,
       board: index === 0 ? "todo" : "progress",
       filters: ["evidence"],
@@ -17055,13 +17068,13 @@ function renderPortfolioTasksState() {
   const tasksAsk = document.querySelector("[data-tasks-ask]");
   const tasksKicker = document.querySelector("[data-portfolio-tasks] .section-kicker");
   if (tasksAsk) {
-    tasksAsk.textContent = isEmptyTaskState ? "Ask CMP how tasks work" : "Ask CMP what to do first";
+    tasksAsk.textContent = isEmptyTaskState ? "Ask CMP how actions work" : "Ask CMP what to do first";
   }
   if (tasksKicker) {
-    tasksKicker.textContent = isEmptyTaskState || isNewPropertyMode() ? "Tasks" : "PORTFOLIO TASKS";
+    tasksKicker.textContent = isEmptyTaskState || isNewPropertyMode() ? "Action Plan" : "ACTION PLAN";
   }
 
-  document.querySelector("[data-tasks-active-pill]").textContent = `${activeTasks.length} active ${activeTasks.length === 1 ? "task" : "tasks"}`;
+  document.querySelector("[data-tasks-active-pill]").textContent = `${activeTasks.length} active ${activeTasks.length === 1 ? "action" : "actions"}`;
   document.querySelector("[data-tasks-active-count]").textContent = String(activeTasks.length);
   document.querySelector("[data-tasks-priority-label]").textContent = highestPriority
     ? isNewPropertyMode()
@@ -17076,12 +17089,12 @@ function renderPortfolioTasksState() {
     : "Setup";
   document.querySelector("[data-tasks-due-count]").textContent = highestPriority ? "1" : "0";
   document.querySelector("[data-tasks-completed-count]").textContent = String(completedTasks.length);
-  document.querySelector("[data-tasks-start-title]").textContent = highestPriority?.title || "No property tasks yet";
+  document.querySelector("[data-tasks-start-title]").textContent = highestPriority?.title || "No property actions yet";
   const startProperty = document.querySelector(".tasks-start-card .property-card-label");
   if (startProperty) {
     startProperty.textContent = highestPriority?.property || "No property selected";
   }
-  document.querySelector("[data-tasks-start-body]").textContent = highestPriority?.body || "Add your first property to create property-specific compliance and evidence tasks.";
+  document.querySelector("[data-tasks-start-body]").textContent = highestPriority?.body || "Add your first property to create property-specific compliance and evidence actions.";
   document.querySelector("[data-tasks-start-source]").textContent = highestPriority ? `Source: ${highestPriority.source}` : "Source: CMP";
   document.querySelector("[data-tasks-start-status]").textContent = highestPriority?.status || "Setup";
   document.querySelector("[data-tasks-start-status]").classList.toggle("status-review-text", ["eicr", "willow-alarm-check", "willow-inspection"].includes(highestPriority?.id));
@@ -17144,13 +17157,13 @@ function renderPortfolioTasksState() {
   if (empty) {
     empty.innerHTML = isEmptyTaskState
       ? `
-        <h2>No tasks yet</h2>
-        <p>Tasks will appear after you add a property and CMP identifies missing evidence, upcoming renewals or checks that need attention.</p>
+        <h2>No actions yet</h2>
+        <p>Actions will appear after you add a property and CMP identifies missing evidence, upcoming renewals or checks that need attention.</p>
         <button class="primary-button" type="button" data-properties-add>Add your first property</button>
       `
       : `
-        <h2>No tasks match this view</h2>
-        <p>No task matches those filters. Clear the view to return to the active action list.</p>
+        <h2>No actions match this view</h2>
+        <p>No action matches those filters. Clear the view to return to the active action list.</p>
         <button class="secondary-button" type="button" data-task-clear>Clear filters</button>
       `;
     empty.hidden = hasTasks;
@@ -17163,7 +17176,7 @@ function showPortfolioTasks({ scroll = false } = {}) {
   activatePortfolioPage({
     selector: "[data-portfolio-tasks]",
     view: "tasks",
-    navLabel: "Tasks",
+    navLabel: "Action Plan",
     bodyClass: "portfolio-tasks-active",
     response: getTasksAssistantResponse("What should I do first?"),
     scroll
@@ -17220,16 +17233,16 @@ function getActivityEvents() {
       id: "inspection-status-recorded",
       group: "Today",
       filter: "tasks",
-      category: "Tasks",
+      category: "Action Plan",
       title: "Inspection status recorded",
       property,
       body: "Inspection evidence was marked as not yet completed during the walkthrough.",
-      source: "Tasks",
+      source: "Action Plan",
       status: "Recorded",
       statusClass: "status-neutral-text",
       search: "inspection task evidence status recorded not completed 57 butts",
       why: "CMP recorded this because the inspection evidence task was marked as not yet completed.",
-      nextAction: "Return to Tasks when inspection evidence is available.",
+      nextAction: "Return to Action Plan when inspection evidence is available.",
       route: "tasks",
       actions: [
         makeActivityAction("Open task", "openTask"),
@@ -17323,11 +17336,11 @@ function getActivityEvents() {
       id: "inspection-follow-up",
       group: "Today",
       filter: "tasks",
-      category: "Tasks",
+      category: "Action Plan",
       title: "Inspection follow-up prepared",
       property,
       body: "CMP prepared inspection evidence as a useful follow-up item for this vacant property.",
-      source: "Tasks",
+      source: "Action Plan",
       status: "Prepared",
       statusClass: "status-watch-text",
       search: "inspection follow up prepared task evidence 57 butts vacant",
@@ -17515,7 +17528,7 @@ function getActivityEvents() {
         statusClass: "status-neutral-text",
         search: "tenanted property review created 18 willow brook drive b37",
         why: "CMP recorded this so global pages can compare two property files in the demo.",
-        nextAction: "Use Properties, Tasks or Book a Service to review the portfolio-level preview.",
+        nextAction: "Use Properties, Action Plan or Services to review the portfolio-level preview.",
         route: "properties",
         actions: [
           makeActivityAction("Open Properties", "openProperties"),
@@ -18256,14 +18269,14 @@ function askChatStatusChips() {
   }
 
   if (isTwoPropertyMode()) {
-    return ["2 properties compared", "Gas renewal soon", "EICR gap checked", "Tasks checked", "Support requests checked"];
+    return ["2 properties compared", "Gas renewal soon", "EICR gap checked", "Action Plan checked", "Support requests checked"];
   }
 
   if (labsState.eicrAdded) {
     return ["EICR accepted for review", "Inspection evidence missing", "Licensing still watching", "Action Plan checked", "Support requests checked"];
   }
 
-  return ["Evidence Vault checked", "Compliance Centre checked", "Tasks checked", "Activity reviewed", "Support requests checked"];
+  return ["Evidence Vault checked", "Compliance Centre checked", "Action Plan checked", "Activity reviewed", "Support requests checked"];
 }
 
 function askContextSequenceItems() {
@@ -18297,7 +18310,7 @@ function askContextSequenceItems() {
     return ["EICR accepted for review", "Inspection gap checked", "Action Plan reviewed", "Timeline matched"];
   }
 
-  return ["Evidence checked", "Compliance matched", "Tasks prioritised", "Support requests checked"];
+  return ["Evidence checked", "Compliance matched", "Action Plan prioritised", "Support requests checked"];
 }
 
 function askContextSources() {
@@ -18307,7 +18320,7 @@ function askContextSources() {
     return [
       { name: "Property file", body: `${shell?.address || "Selected property"}${shell?.postcode ? ` · ${shell.postcode}` : ""}`, state: "Selected property" },
       { name: "Evidence Vault", body: "Uses accepted proof, missing evidence and items needing review.", state: `${(derivedState?.evidenceGaps || []).length} open gaps` },
-      { name: "Action Plan", body: "Uses the current Next action and secondary actions.", state: derivedState?.nextBestAction ? "Next action ready" : "No action ranked" },
+      { name: "Action Plan", body: "Uses the current priority and secondary actions.", state: derivedState?.nextBestAction ? "Priority ready" : "No action ranked" },
       { name: "Services", body: "Uses prepared request status only. No supplier contacted and no payment taken.", state: selectedCanonicalServiceRequests().length ? "Request prepared" : "No request prepared" },
       { name: "Monitoring", body: "Uses future follow-up from evidence dates, gaps and prepared requests.", state: `${(derivedState?.monitoringItems || []).length} follow-up items` }
     ];
@@ -18328,7 +18341,7 @@ function askContextSources() {
       { name: "Property details", body: summary.statusLine, state: summary.profileSetupLabel },
       { name: "Evidence Vault", body: summary.evidenceConfidenceHelp, state: summary.evidenceConfidenceLabel },
       { name: "Compliance Centre", body: "Uses confirmed setup answers before treating compliance scoring as reliable.", state: summary.readinessLabel },
-      { name: "Tasks", body: "Setup tasks are generated from the property profile state.", state: `${tasks.length} setup ${tasks.length === 1 ? "task" : "tasks"}` },
+      { name: "Action Plan", body: "Setup actions are generated from the property profile state.", state: `${tasks.length} setup ${tasks.length === 1 ? "action" : "actions"}` },
       { name: "Services", body: "Service recommendations wait until evidence gaps are confirmed.", state: "Not recommended yet" }
     ];
   }
@@ -18356,7 +18369,7 @@ function askContextSources() {
       state: complianceState
     },
     {
-      name: "Tasks",
+      name: "Action Plan",
       body: "Uses open actions and completed demo updates.",
       state: taskState
     },
@@ -18383,7 +18396,7 @@ function askContextHighlight() {
     const derivedState = canonicalDerivedState();
     const next = derivedState?.nextBestAction;
     return {
-      title: next ? "Next action is ready" : "Property file is ready for review",
+      title: next ? "Priority is ready" : "Property file is ready for review",
       body: next
         ? `${next.title}. ${next.reason || "Review the Action Plan for the selected property."}`
         : "Ask CMP can explain the selected property, but the main route remains the Action Plan."
@@ -18437,7 +18450,7 @@ function askContextHighlight() {
 
   return {
     title: "Electrical Safety is the clearest next step",
-    body: "CMP has checked evidence, compliance status and tasks for 57 The Butts."
+    body: "CMP has checked evidence, compliance status and Action Plan for 57 The Butts."
   };
 }
 
@@ -18577,12 +18590,12 @@ function renderPortfolioUtilityState() {
   }
   if (askHeaderBody) {
     askHeaderBody.textContent = isNormalSelectedCanonicalWorkspace()
-      ? "Ask CMP explains this property file, evidence, Action Plan, Timeline, Monitoring and prepared service requests. It does not replace the Next action."
+      ? "Ask CMP explains this property file, evidence, Action Plan, Timeline, Monitoring and prepared service requests. It does not replace the main action."
       : isEmptyPortfolioMode()
       ? "Ask CMP what to prepare before adding your first property."
       : isNewPropertyMode()
       ? "Ask CMP about what it found for 57 The Butts and what still needs landlord confirmation."
-      : "Ask CMP to read the property file, evidence, tasks, activity and support requests, then explain the next step.";
+      : "Ask CMP to read the property file, evidence, actions, activity and support requests, then explain the next step.";
   }
   if (askCheckChips) {
     askCheckChips.innerHTML = (isNormalSelectedCanonicalWorkspace()
@@ -18590,7 +18603,7 @@ function renderPortfolioUtilityState() {
       : isEmptyPortfolioMode()
       ? ["property setup", "documents to prepare", "first property", "A-Z preview"]
       : isNewPropertyMode()
-      ? ["address match", "EPC context", "setup tasks", "missing certificates"]
+      ? ["address match", "EPC context", "setup actions", "missing certificates"]
       : ["property file", "certificates", "missing evidence", "upcoming reviews", "support requests", "activity history"]
     ).map((chip) => `<span>${escapeHtml(chip)}</span>`).join("");
   }
@@ -18883,7 +18896,7 @@ function renderGlobalServiceState() {
           </div>
         </article>
       `).join("")
-      : "<p>No support request is open for this view. Use a recommended service when you want CMP to help coordinate support.</p>";
+      : "<p>No support request is open for this view. Use a recommended service when you want CMP to help coordinate support. No supplier contacted. No payment taken.</p>";
   }
 }
 
@@ -19158,7 +19171,7 @@ function recordNewPropertyEvidenceUpload(type) {
 function openPropertyWorkspace(tab = "overview", focusSelector = null) {
   if (isEmptyPortfolioMode()) {
     showPortfolioHome({ scroll: true });
-    setAssistantResponse("There is no property workspace yet. Add your first property to create a workspace, then CMP can show property-specific checks, evidence, tasks and activity.");
+    setAssistantResponse("There is no property workspace yet. Add your first property to create a workspace, then CMP can show property-specific checks, evidence, actions and activity.");
     showToast("Add your first property before opening a workspace.");
     return;
   }
@@ -20395,7 +20408,7 @@ function markInspectionTaskNotCompleted() {
         ["Property", "57 The Butts"],
         ["Area", "Property inspection"],
         ["Status", "Marked as not completed"],
-        ["Source", "Portfolio Tasks"]
+        ["Source", "Portfolio Action Plan"]
       ],
       note: "Prototype task action for layout testing."
     }
@@ -22958,9 +22971,9 @@ async function copyInboxAddress(addressOverride) {
 
   try {
     await navigator.clipboard.writeText(address);
-    showToast("Evidence Inbox address copied");
+    showToast("Evidence intake address copied");
   } catch {
-    showToast(`Evidence Inbox: ${address}`);
+    showToast(`Evidence intake: ${address}`);
   }
 }
 

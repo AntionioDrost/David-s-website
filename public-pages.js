@@ -136,9 +136,9 @@
       entryService: "eviction",
       title: "Possession & Eviction Preparation",
       eyebrow: "Evidence pack",
-      promise: "Choose the scenario first, then let CMP organise the evidence trail around it.",
+      promise: "Choose the closest situation first, then let CMP organise the evidence trail around it.",
       heroTitle: "Build the possession evidence pack before you chase the next step.",
-      heroCopy: "Use the scenario cards to tell CMP what is happening. The aim is to organise facts, documents, notices, communications and timelines calmly before you widen the process.",
+      heroCopy: "Use the situation cards to tell CMP what is happening. The aim is to organise facts, documents, notices, communications and timelines calmly before you widen the process.",
       description: "Choose the possession situation, organise the evidence pack, and keep related checks optional until they help.",
       cardCta: "Prepare evidence pack",
       intentHeading: "Which situation sounds closest?",
@@ -167,7 +167,7 @@
       ],
       assistant: [
         "CMP helps organise your information and evidence. It does not replace legal advice.",
-        "If you are not sure where to start, choose the closest scenario and keep moving."
+        "If you are not sure where to start, choose the closest situation and keep moving."
       ]
     },
     mould: {
@@ -988,7 +988,7 @@
       gas: "Start with gas appliances and certificate status.",
       mortgage: "Organise property finance context for review.",
       insurance: "Prepare policy details and property risk context.",
-      possession_preparation: "Build a calmer evidence pack around the scenario.",
+      possession_preparation: "Build a calmer evidence pack around the situation.",
       rent_guarantee: "Prepare tenancy and rent records for support.",
       mould: "Record reports, repairs, and communication history.",
       licensing: "Check if licensing applies before chasing paperwork.",
