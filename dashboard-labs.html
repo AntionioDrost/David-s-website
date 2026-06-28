@@ -3,10 +3,10 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>CMP | Property workspace prototype</title>
+    <title>CMP | Property workspace</title>
     <meta
       name="description"
-      content="A CMP property workspace prototype for connected property checks, evidence, actions and monitoring."
+      content="A CMP property workspace for connected property checks, evidence, actions and monitoring."
     >
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="dashboard-labs.css">
@@ -162,7 +162,7 @@
         <div class="utility-bar">
           <div>
             <div class="breadcrumb">Properties / Selected property</div>
-            <span class="prototype-badge">Property workspace · Preview</span>
+            <span class="prototype-badge">Property workspace</span>
           </div>
           <div class="utility-actions">
             <button class="secondary-button" type="button" data-toast="Preview only - property editing is not connected in this preview.">Edit property</button>
@@ -359,7 +359,7 @@
                 <button class="secondary-button" type="button" data-home-copy-inbox>Copy inbox address</button>
                 <button class="text-button" type="button" data-home-open-vault>Open Evidence Vault</button>
               </div>
-              <small>Preview only — forwarding is simulated locally.</small>
+              <small>Prepared intake only — no live forwarding or permanent storage is active.</small>
             </article>
 
             <article class="home-secondary-card">
@@ -1752,7 +1752,7 @@
                 <button class="secondary-button" type="button" data-copy-inbox>Copy inbox address</button>
                 <button class="text-button" type="button" data-toast="Forwarding will accept PDFs, photos and emails in a future CMP workflow.">How forwarding works</button>
               </div>
-              <small>Preview only — forwarding is simulated locally.</small>
+              <small>Prepared intake only — no live forwarding or permanent storage is active.</small>
             </article>
 
             <article class="upload-panel" data-document-upload-panel tabindex="-1">
@@ -1767,7 +1767,7 @@
               </label>
               <div class="button-row">
                 <button class="primary-button" type="button" data-upload-trigger>Choose documents</button>
-                <button class="secondary-button" type="button" data-demo-scan>Preview mixed paperwork demo</button>
+                <button class="secondary-button" type="button" data-demo-scan>Review mixed paperwork</button>
               </div>
             </article>
           </div>
@@ -1854,7 +1854,7 @@
                 <span><strong data-timeline-evidence-count>3</strong> evidence updates</span>
                 <span><strong data-timeline-open-count>1</strong> action still open</span>
               </div>
-              <small>Timeline is read-only history. Entries reflect the information currently held in this property file preview.</small>
+              <small>Timeline is read-only history. Entries reflect the information currently held in this property file.</small>
               <div class="button-row">
                 <button class="primary-button" type="button" data-summary-open>Generate evidence summary</button>
                 <button class="secondary-button" type="button" data-note-open>Add a note</button>
@@ -1921,7 +1921,7 @@
             <div>
               <p class="section-kicker">Global support hub</p>
               <h3>Use Request service for the full support pathway</h3>
-              <p>This property tab keeps the immediate workspace action visible. The global Request service page shows service cards, bundle previews and open request context for the selected property.</p>
+              <p>This property tab keeps the immediate workspace action visible. The global Request service page shows practical service cards, prepared request details and open request context for the selected property.</p>
             </div>
             <button class="text-button" type="button" data-open-global-service>Open the hub</button>
           </article>
@@ -1974,7 +1974,7 @@
                 <h3>Prepare for a future tenancy</h3>
                 <p>Build a clear checklist for evidence, alarm testing and tenant-facing documents before move-in.</p>
                 <div class="button-row">
-                  <button class="secondary-button" type="button" data-global-service-action="previewBundle">Preview tenancy checklist</button>
+                  <button class="secondary-button" type="button" data-global-service-action="previewBundle">Prepare tenancy checklist</button>
                   <button class="text-button" type="button" data-assistant-message="Before letting, CMP would help review EICR evidence, alarm-test confirmation and tenancy-document readiness.">Ask CMP</button>
                 </div>
               </article>
@@ -1984,7 +1984,7 @@
                 <p>Ask for a human review when you want extra reassurance about the evidence already stored in CMP.</p>
                 <div class="button-row">
                   <button class="secondary-button" type="button" data-global-service-action="request:review">Request a review</button>
-                  <button class="text-button" type="button" data-assistant-message="A property-file review would look at the evidence and next steps shown in this prototype. No legal approval is implied.">What will be reviewed?</button>
+                  <button class="text-button" type="button" data-assistant-message="A property-file review would look at the evidence and next steps shown for this property. No legal approval is implied.">What will be reviewed?</button>
                 </div>
               </article>
             </div>
@@ -2241,7 +2241,7 @@
         </section>
       </main>
 
-      <aside class="assistant-rail" aria-label="Ask CMP assistant" data-assistant>
+      <aside class="assistant-rail" aria-label="Ask CMP assistant" data-assistant data-assistant-panel>
         <div class="assistant-header">
           <div>
             <h2>Ask CMP</h2>
@@ -2269,11 +2269,11 @@
         <div class="assistant-response" data-assistant-response>
           <span>Ask CMP response</span>
           <small class="assistant-update-label" data-assistant-update-label hidden>Assistant updated</small>
-          <p>During setup, CMP explains what the simulated checks found. After the brain is built, it highlights the next best action for the current property.</p>
+          <p>During setup, CMP explains what Smart Checks found. After the property file is built, it highlights the next action for this property. Guidance, not legal advice.</p>
         </div>
 
         <div class="recent-activity">
-          <h3>Portfolio recent activity</h3>
+          <h3>Recent property activity</h3>
           <ul data-assistant-activity>
             <li>EPC record imported</li>
             <li>Gas Safety proof accepted</li>

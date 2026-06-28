@@ -20265,3 +20265,289 @@ body .workspace .timeline-filter-row button,
 body .workspace .properties-view-toggle button {
   min-width: 44px !important;
 }
+
+/* CMP Stage G.3: premium British landlord workspace visual layer. */
+:root {
+  --workspace-ink: #0b1f19;
+  --workspace-muted: #53625d;
+  --workspace-paper: #f5f7f2;
+  --workspace-surface: #ffffff;
+  --workspace-line: rgba(11, 31, 25, 0.14);
+  --workspace-line-strong: rgba(11, 31, 25, 0.24);
+  --workspace-green: #1f6b4d;
+  --workspace-green-dark: #164a38;
+  --workspace-blue: #315f70;
+  --workspace-amber: #8c5a17;
+  --workspace-sidebar: #08261f;
+  --workspace-sidebar-ink: #f6fff9;
+  --workspace-sidebar-muted: #c7d8d0;
+  --workspace-sidebar-line: rgba(246, 255, 249, 0.16);
+  --workspace-shadow: 0 16px 36px rgba(12, 29, 24, 0.08);
+}
+
+body.normal-canonical-workspace {
+  color: var(--workspace-ink);
+  background:
+    linear-gradient(rgba(11, 31, 25, 0.026) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(11, 31, 25, 0.026) 1px, transparent 1px),
+    linear-gradient(180deg, #fbfcf8 0%, var(--workspace-paper) 52%, #edf2ea 100%);
+  background-size: 46px 46px, 46px 46px, auto;
+}
+
+body.normal-canonical-workspace .workspace {
+  color: var(--workspace-ink);
+}
+
+body.normal-canonical-workspace .labs-sidebar {
+  border-color: var(--workspace-sidebar-line);
+  color: var(--workspace-sidebar-ink);
+  background: var(--workspace-sidebar) linear-gradient(180deg, #0b3027 0%, var(--workspace-sidebar) 100%);
+  box-shadow: 0 24px 48px rgba(5, 20, 16, 0.18);
+}
+
+body.normal-canonical-workspace .brand-mark {
+  color: var(--workspace-sidebar);
+  background: #f7fff8;
+  box-shadow: inset 0 0 0 1px rgba(246, 255, 249, 0.64);
+}
+
+body.normal-canonical-workspace .brand-lockup strong,
+body.normal-canonical-workspace .labs-sidebar,
+body.normal-canonical-workspace .labs-sidebar button,
+body.normal-canonical-workspace .labs-sidebar a {
+  color: var(--workspace-sidebar-ink);
+}
+
+body.normal-canonical-workspace .brand-lockup small,
+body.normal-canonical-workspace .nav-group h2,
+body.normal-canonical-workspace .property-switcher span,
+body.normal-canonical-workspace .property-option p,
+body.normal-canonical-workspace .quiet-add {
+  color: var(--workspace-sidebar-muted);
+}
+
+body.normal-canonical-workspace .nav-group h2 {
+  letter-spacing: 0.06em;
+}
+
+body.normal-canonical-workspace .nav-item {
+  min-height: 44px;
+  color: #e9f7ef;
+  border: 1px solid transparent;
+}
+
+body.normal-canonical-workspace .labs-sidebar .nav-item {
+  color: #e9f7ef;
+}
+
+body.normal-canonical-workspace .nav-item:hover,
+body.normal-canonical-workspace .nav-item:focus-visible {
+  color: #ffffff;
+  border-color: rgba(246, 255, 249, 0.16);
+  background: rgba(246, 255, 249, 0.09);
+}
+
+body.normal-canonical-workspace .nav-item.is-active {
+  color: #ffffff;
+  border-color: rgba(246, 255, 249, 0.3);
+  background: rgba(246, 255, 249, 0.16);
+  box-shadow: none;
+}
+
+body.normal-canonical-workspace .labs-sidebar .nav-item.is-active {
+  color: #ffffff;
+}
+
+body.normal-canonical-workspace .property-switcher {
+  border-color: rgba(246, 255, 249, 0.18);
+  background: rgba(246, 255, 249, 0.08);
+}
+
+body.normal-canonical-workspace .property-option {
+  color: var(--workspace-sidebar-ink);
+}
+
+body.normal-canonical-workspace .property-option.is-active {
+  background: rgba(246, 255, 249, 0.12);
+  box-shadow: inset 0 0 0 1px rgba(246, 255, 249, 0.2);
+}
+
+body.normal-canonical-workspace .quiet-add {
+  border-color: rgba(246, 255, 249, 0.2);
+  background: rgba(246, 255, 249, 0.08);
+}
+
+body.normal-canonical-workspace .property-header,
+body.normal-canonical-workspace .portfolio-home-header,
+body.normal-canonical-workspace .portfolio-autopilot-card,
+body.normal-canonical-workspace .home-priority-card,
+body.normal-canonical-workspace .portfolio-upcoming-card,
+body.normal-canonical-workspace .evidence-list-card,
+body.normal-canonical-workspace .tasks-start-card,
+body.normal-canonical-workspace .task-card,
+body.normal-canonical-workspace .services-header,
+body.normal-canonical-workspace .primary-service-card,
+body.normal-canonical-workspace .service-option-card,
+body.normal-canonical-workspace .open-requests-panel,
+body.normal-canonical-workspace .timeline-header,
+body.normal-canonical-workspace .timeline-event,
+body.normal-canonical-workspace .timeline-visit-card,
+body.normal-canonical-workspace .timeline-actions-panel,
+body.normal-canonical-workspace .assistant-rail {
+  border-color: var(--workspace-line);
+  border-radius: 8px;
+  background: var(--workspace-surface);
+  box-shadow: var(--workspace-shadow);
+}
+
+body.normal-canonical-workspace .property-header h1,
+body.normal-canonical-workspace .portfolio-home-header h2,
+body.normal-canonical-workspace .home-priority-card h3,
+body.normal-canonical-workspace .tasks-start-card h2,
+body.normal-canonical-workspace .task-card h3,
+body.normal-canonical-workspace .services-header h2,
+body.normal-canonical-workspace .primary-service-card h2,
+body.normal-canonical-workspace .service-option-card h3,
+body.normal-canonical-workspace .timeline-header h2,
+body.normal-canonical-workspace .timeline-event h3,
+body.normal-canonical-workspace .assistant-rail h2,
+body.normal-canonical-workspace .assistant-rail h3 {
+  color: var(--workspace-ink);
+}
+
+body.normal-canonical-workspace p,
+body.normal-canonical-workspace small,
+body.normal-canonical-workspace li,
+body.normal-canonical-workspace dd,
+body.normal-canonical-workspace .timeline-header p:not(.section-kicker),
+body.normal-canonical-workspace .services-header p:not(.section-kicker) {
+  color: var(--workspace-muted);
+}
+
+body.normal-canonical-workspace .section-kicker {
+  color: var(--workspace-green-dark);
+  letter-spacing: 0.05em;
+}
+
+body.normal-canonical-workspace .prototype-badge,
+body.normal-canonical-workspace .source-badge,
+body.normal-canonical-workspace .doc-status,
+body.normal-canonical-workspace .matrix-pill,
+body.normal-canonical-workspace .confidence-pill,
+body.normal-canonical-workspace .service-property-label {
+  min-height: 30px;
+  border-color: rgba(31, 107, 77, 0.24);
+  color: var(--workspace-green-dark);
+  background: #edf7f0;
+  font-weight: 760;
+}
+
+body.normal-canonical-workspace .status-review-text {
+  border-color: rgba(140, 90, 23, 0.32);
+  color: #69430f;
+  background: #fff4dd;
+}
+
+body.normal-canonical-workspace .status-watch-text,
+body.normal-canonical-workspace .source-badge {
+  border-color: rgba(49, 95, 112, 0.28);
+  color: #244e5e;
+  background: #e8f2f5;
+}
+
+body.normal-canonical-workspace .primary-button {
+  border-color: var(--workspace-green-dark);
+  background: var(--workspace-green-dark);
+  color: #ffffff;
+}
+
+body.normal-canonical-workspace .primary-button:hover,
+body.normal-canonical-workspace .primary-button:focus-visible {
+  border-color: #0e3b2d;
+  background: #0e3b2d;
+}
+
+body.normal-canonical-workspace .secondary-button,
+body.normal-canonical-workspace .text-button,
+body.normal-canonical-workspace .tab-button,
+body.normal-canonical-workspace .timeline-filter-row button {
+  border-color: var(--workspace-line);
+  color: var(--workspace-ink);
+  background: #ffffff;
+}
+
+body.normal-canonical-workspace .secondary-button:hover,
+body.normal-canonical-workspace .secondary-button:focus-visible,
+body.normal-canonical-workspace .text-button:hover,
+body.normal-canonical-workspace .text-button:focus-visible,
+body.normal-canonical-workspace .tab-button:hover,
+body.normal-canonical-workspace .tab-button:focus-visible,
+body.normal-canonical-workspace .timeline-filter-row button:hover,
+body.normal-canonical-workspace .timeline-filter-row button:focus-visible,
+body.normal-canonical-workspace .timeline-filter-row button.is-active {
+  border-color: rgba(31, 107, 77, 0.28);
+  color: var(--workspace-green-dark);
+  background: #edf7f0;
+}
+
+body.normal-canonical-workspace .portfolio-score-grid,
+body.normal-canonical-workspace .pulse-grid,
+body.normal-canonical-workspace .service-grid,
+body.normal-canonical-workspace .timeline-workbench,
+body.normal-canonical-workspace .tasks-board {
+  gap: 16px;
+}
+
+body.normal-canonical-workspace .service-grid {
+  align-items: stretch;
+}
+
+body.normal-canonical-workspace .service-option-card,
+body.normal-canonical-workspace .task-card,
+body.normal-canonical-workspace .timeline-event {
+  min-width: 0;
+}
+
+body.normal-canonical-workspace .assistant-rail {
+  color: var(--workspace-ink);
+  background: #ffffff;
+}
+
+body.normal-canonical-workspace .assistant-response {
+  border-color: rgba(31, 107, 77, 0.18);
+  background: #f5fbf6;
+}
+
+body.normal-canonical-workspace .assistant-response p {
+  color: var(--workspace-ink);
+}
+
+body.normal-canonical-workspace .prompt-stack button {
+  border-color: var(--workspace-line);
+  color: var(--workspace-ink);
+  background: #ffffff;
+}
+
+body.normal-canonical-workspace .prompt-stack button:hover,
+body.normal-canonical-workspace .prompt-stack button:focus-visible {
+  border-color: rgba(31, 107, 77, 0.28);
+  background: #edf7f0;
+}
+
+@media (max-width: 1020px) {
+  body.normal-canonical-workspace .labs-sidebar {
+    border-radius: 0 8px 8px 0;
+  }
+}
+
+@media (max-width: 760px) {
+  body.normal-canonical-workspace .property-header,
+  body.normal-canonical-workspace .portfolio-home-header,
+  body.normal-canonical-workspace .portfolio-autopilot-card,
+  body.normal-canonical-workspace .home-priority-card,
+  body.normal-canonical-workspace .tasks-start-card,
+  body.normal-canonical-workspace .services-header,
+  body.normal-canonical-workspace .timeline-header {
+    border-radius: 8px;
+  }
+}

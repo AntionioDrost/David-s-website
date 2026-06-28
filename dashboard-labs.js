@@ -3554,6 +3554,22 @@ function canonicalAskDisplayCopy(value) {
     .replace(/\bnext action\b/g, "main action");
 }
 
+function landlordWorkspaceDisplayCopy(value) {
+  return String(value || "")
+    .replace(/\bReview found data\b/g, "Review what CMP found")
+    .replace(/\breview_found_data\b/g, "review")
+    .replace(/\bSimulated Smart Check\b/g, "Smart Check")
+    .replace(/\bSimulated EPC preview\b/g, "Example EPC information")
+    .replace(/\bSimulated property preview\b/g, "Example property information")
+    .replace(/\bSimulated EPC data prepared for landlord review\./g, "Example EPC information is shown for landlord review.")
+    .replace(/\bPrepared for review from prototype data\./g, "Prepared for landlord review.")
+    .replace(/\bin this prototype\b/g, "for review")
+    .replace(/\bprototype\b/gi, "example")
+    .replace(/\bsimulated\b/gi, "prepared")
+    .replace(/\bDemo\b/g, "Example")
+    .replace(/\bdemo\b/g, "example");
+}
+
 function canonicalAskPrompts() {
   const context = canonicalAskCmpContext();
   const askResponse = askResponseApi();
@@ -3626,13 +3642,13 @@ function renderCanonicalAskReportPanel() {
     <article class="portfolio-upcoming-card" data-canonical-ask-panel>
       <span class="source-badge">Ask CMP</span>
       <h3>Property-aware guidance</h3>
-      <p>Based on current information from this Property Brain. Guidance, not legal advice.</p>
+      <p>Based on current information from this property file. Guidance, not legal advice.</p>
       ${promptButtons || `<button class="text-button" type="button" data-canonical-ask-prompt="next-best-action">Explain the priority</button>`}
     </article>
     <article class="portfolio-upcoming-card" data-canonical-report-panel>
-      <span class="source-badge">Report preview</span>
-      <h3>Generate from Property Brain</h3>
-      <p>Report preview uses the selected property, current status, source labels and confidence status. Guidance, not legal advice.</p>
+      <span class="source-badge">Prepared report</span>
+      <h3>Generate from property file</h3>
+      <p>The report uses the selected property, current status, source labels and confidence status. Guidance, not legal advice.</p>
       <button class="text-button" type="button" data-canonical-report-preview="property_summary">Property Summary</button>
       <button class="text-button" type="button" data-canonical-report-preview="evidence_gap_summary">Evidence Gap Summary</button>
     </article>
@@ -4053,10 +4069,10 @@ function canonicalSelectedPortfolioProperty() {
     strength: canonicalScoreValue(derivedState, "confidence"),
     evidenceScore: canonicalScoreValue(derivedState, "evidenceStrength"),
     complianceScore: canonicalScoreValue(derivedState, "legalCompliance"),
-    focus: nextBestAction?.title || "Review found data",
+    focus: nextBestAction?.title || "Review what CMP found",
     focusArea: nextBestAction?.primaryCtaLabel || "Smart Checks",
     state: canonicalStatusLabel(derivedState?.overallStatus),
-    statusDetail: nextBestAction?.reason || shell.smartCheckSummary || "Review prepared",
+    statusDetail: landlordWorkspaceDisplayCopy(nextBestAction?.reason || shell.smartCheckSummary || "Review prepared"),
     priority: nextBestAction?.title || "Continue property setup",
     priorityBody: nextBestAction?.reason || shell.intro,
     serviceType: "review",
@@ -4096,7 +4112,7 @@ function canonicalPortfolioItemToProperty(item, topPropertyId) {
     state: canonicalStatusLabel(item.overallStatus),
     statusDetail: item.priorityExplanation,
     priority: action.title || "Review property",
-    priorityBody: action.reason || item.priorityExplanation,
+    priorityBody: landlordWorkspaceDisplayCopy(action.reason || item.priorityExplanation),
     serviceType: service?.category || "review",
     verifiedEvidence: (item.derivedState?.evidenceState || []).filter((evidence) => ["accepted", "held"].includes(evidence.proofStatus)).length,
     reviewCount: item.evidenceGapsCount,
@@ -4106,7 +4122,7 @@ function canonicalPortfolioItemToProperty(item, topPropertyId) {
     workspaceAvailable: true,
     mostUrgent: item.propertyId === topPropertyId,
     nextRenewal: item.upcomingExpiryCount ? `${item.upcomingExpiryCount} expiry item${item.upcomingExpiryCount === 1 ? "" : "s"}` : "",
-    search: `${item.address} ${item.postcode} canonical portfolio ${item.priorityExplanation} ${action.title || ""}`
+    search: `${item.address} ${item.postcode} property review ${landlordWorkspaceDisplayCopy(item.priorityExplanation)} ${action.title || ""}`
   };
 }
 
@@ -4541,7 +4557,7 @@ const assistantResponses = {
   "Why is this event important?": "Timeline events help explain where each status came from, what changed and which evidence still needs attention.",
   "What should I arrange first?": "Electrical Safety is your clearest unresolved evidence area. You can upload an existing EICR or request help arranging an inspection.",
   "Why is this being recommended?": "CMP is recommending EICR support because there is no current Electrical Safety evidence stored against this property.",
-  "Can someone review my property file?": "Yes. CMP can record a request for a human review of the evidence and next steps shown in this prototype.",
+  "Can someone review my property file?": "Yes. CMP can record a request for a human review of the evidence and next steps shown for this property.",
   "What can CMP help with?": "CMP can help organise evidence, explain the next priority and record a support request when you want help arranging the next step.",
   "What details are still missing?": "CMP already has the address, postcode, property type, bedroom count and occupancy status. Optional details such as heating type, property age and access notes can be added later.",
   "Where did this information come from?": "CMP separates matched records, uploaded evidence and landlord-provided details so you can see why each item appears in the property file.",
@@ -5246,10 +5262,11 @@ function renderSelectedCanonicalWorkspaceShell() {
   const serviceRequests = selectedCanonicalServiceRequests();
   const primaryAction = selectedCanonicalPrimaryAction();
   const propertySetupIncomplete = primaryAction.label === "Continue property setup";
-  // Stage C source contract: Property details -> Property Brain -> Next action.
-  // Stage C source contract: Answer the remaining property questions, then CMP will build the Property Brain and recommend one clear next action.
-  const propertySetupOrientation = "Property details → Property Brain → Action Plan";
-  const propertySetupIntro = "Answer the remaining property questions, then CMP will build the Property Brain and recommend one clear priority.";
+  // Legacy Stage C marker: Property details -> Property Brain -> Next action.
+  // Legacy Stage C marker: Answer the remaining property questions, then CMP will build the Property Brain and recommend one clear next action.
+  // Stage C source contract still derives the same selected-property state; only the rendered label changes.
+  const propertySetupOrientation = "Property details → Property file → Action Plan";
+  const propertySetupIntro = "Answer the remaining property questions, then CMP will build the property file and recommend one clear priority.";
   const canonicalAskReportPanelMarkup = renderCanonicalAskReportPanel();
   const assistantResponse = document.querySelector("[data-assistant-response]");
   document.title = `${shell.address} | CMP`;
@@ -5324,7 +5341,7 @@ function renderSelectedCanonicalWorkspaceShell() {
     upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "Follow one property-specific next step, then keep evidence and monitoring tied to this address.";
   }
   setText("[data-home-summary-title]", propertySetupIncomplete ? "Your property file is taking shape" : nextBestAction?.title || "Review priority");
-  setText("[data-home-summary-body]", propertySetupIncomplete ? propertySetupIntro : nextBestAction?.reason || shell.smartCheckSummary || "Review the property position and one clear priority.");
+  setText("[data-home-summary-body]", propertySetupIncomplete ? propertySetupIntro : landlordWorkspaceDisplayCopy(nextBestAction?.reason || shell.smartCheckSummary || "Review the property position and one clear priority."));
   if (summaryPrimaryAction) {
     summaryPrimaryAction.textContent = primaryAction.label;
   }
@@ -5332,7 +5349,7 @@ function renderSelectedCanonicalWorkspaceShell() {
   setText("[data-home-priority-status]", canonicalStatusLabel(derivedState?.overallStatus));
   setText("[data-home-priority-body]", nextBestAction?.reason || "Workspace connected to this property. Detailed compliance sections remain transitional while CMP completes setup.");
   setText("[data-home-upload-priority]", nextBestAction?.primaryCtaLabel || "Continue setup");
-  setText("[data-home-arrange-priority]", nextBestAction?.secondaryCtaLabel || "Review found data");
+  setText("[data-home-arrange-priority]", nextBestAction?.secondaryCtaLabel || "Review what CMP found");
   if (assistantResponse) {
     const label = assistantResponse.querySelector("span");
     const body = assistantResponse.querySelector("p");
@@ -5357,13 +5374,13 @@ function renderSelectedCanonicalWorkspaceShell() {
         <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
           <span>${index === 0 ? "Found" : "Check"}</span>
           <strong>${escapeHtml(item.label)}</strong>
-          <p>${escapeHtml(item.value)} · Source: ${escapeHtml(item.sourceLabel)} · Confidence: ${escapeHtml(item.confidence)}</p>
+          <p>${escapeHtml(landlordWorkspaceDisplayCopy(item.value))} · Source: ${escapeHtml(landlordWorkspaceDisplayCopy(item.sourceLabel))} · Confidence: ${escapeHtml(item.confidence)}</p>
         </article>
       `).join("")
       : `
         <article class="priority-rank-item is-primary">
           <span>Prepared</span>
-          <strong>Review found data</strong>
+          <strong>Review what CMP found</strong>
           <p>CMP has prepared the selected property workspace from the property file.</p>
         </article>
       `;
@@ -5381,7 +5398,7 @@ function renderSelectedCanonicalWorkspaceShell() {
             <p>${escapeHtml(shell.postcode || "Postcode to confirm")}</p>
             <div class="signal-row">
               <span>${escapeHtml(shell.setupStatus)}</span>
-              <span>${escapeHtml(shell.sourceCopy)}</span>
+              <span>${escapeHtml(landlordWorkspaceDisplayCopy(shell.sourceCopy))}</span>
               <span>Review prepared</span>
             </div>
           </div>
@@ -5393,7 +5410,7 @@ function renderSelectedCanonicalWorkspaceShell() {
           <span>Evidence Strength</span>
           <strong>${canonicalScoreValue(derivedState, "evidenceStrength")}% evidenced</strong>
           <div class="strength-meter"><span style="width: ${canonicalScoreValue(derivedState, "evidenceStrength")}%"></span></div>
-          <small>${escapeHtml(nextBestAction?.reason || shell.smartCheckSummary || "Smart Checks prepared for review")}</small>
+          <small>${escapeHtml(landlordWorkspaceDisplayCopy(nextBestAction?.reason || shell.smartCheckSummary || "Smart Checks prepared for review"))}</small>
         </div>
         <div class="button-row">
           <button class="primary-button" type="button" data-home-open-property-id="${escapeHtml(shell.propertyId)}">Open workspace</button>
@@ -5465,7 +5482,7 @@ function renderSelectedCanonicalWorkspaceShell() {
           ? `<button class="text-button" type="button" data-canonical-focus="evidence" data-canonical-focus-id="${escapeHtml(item.targetId || item.requestId || "")}">${escapeHtml(item.label || "Open Evidence Vault")}</button>`
           : item.action === "focus-monitoring"
           ? `<button class="text-button" type="button" data-canonical-focus="monitoring" data-canonical-focus-id="${escapeHtml(item.targetId || "")}">${escapeHtml(item.label || "Open Monitoring")}</button>`
-          : `<button class="text-button" type="button" data-toast="This selected-property preview is derived from the property file.">${escapeHtml(item.label || "Review")}</button>`
+          : `<button class="text-button" type="button" data-toast="This selected-property view is derived from the property file.">${escapeHtml(item.label || "Review")}</button>`
         }
       </article>
     `).join("") + canonicalAskReportPanelMarkup + renderGuidedCanonicalDemoPanel();
@@ -6397,7 +6414,7 @@ function syncDemoChrome() {
   document.body.classList.toggle("hide-prototype-machinery", shouldHidePrototypeMachinery());
   document.body.classList.toggle("simple-product-nav", simpleProductNav);
 
-  setNavItemLabel("Home", normalCanonical ? "Property Brain" : "Home");
+  setNavItemLabel("Home", normalCanonical ? "Property file" : "Home");
   setNavItemLabel("Properties", normalCanonical ? "My Properties" : simpleProductNav ? "Property" : "Properties");
   setNavItemLabel("Compliance centre", simpleProductNav ? "Complete property check" : "Compliance centre");
   setNavItemLabel("Add property", "Add property");
@@ -15966,12 +15983,12 @@ function canonicalEvidenceSource(item = {}) {
   const reference = item.sourceReferences?.[0] || {};
   const source = String(item.source || reference.sourceType || "");
   if (/official|epc_register|land_registry/i.test(source)) {
-    return { label: reference.sourceLabel || "Official record", className: "status-good-text", filters: ["official"] };
+    return { label: landlordWorkspaceDisplayCopy(reference.sourceLabel || "Official record"), className: "status-good-text", filters: ["official"] };
   }
   if (/supplier|service/i.test(source)) {
-    return { label: reference.sourceLabel || "Service outcome", className: "status-watch-text", filters: ["uploaded"] };
+    return { label: landlordWorkspaceDisplayCopy(reference.sourceLabel || "Service outcome"), className: "status-watch-text", filters: ["uploaded"] };
   }
-  return { label: reference.sourceLabel || "Property file", className: "status-watch-text", filters: [] };
+  return { label: landlordWorkspaceDisplayCopy(reference.sourceLabel || "Property file"), className: "status-watch-text", filters: [] };
 }
 
 function selectedCanonicalEvidenceRows() {
@@ -16013,10 +16030,10 @@ function selectedCanonicalEvidenceRows() {
   const foundRows = (shell?.foundDataSummary || []).slice(0, 4).map((item, index) => ({
     id: `canonical-found-${index}`,
     title: item.label,
-    document: item.value,
+    document: landlordWorkspaceDisplayCopy(item.value),
     propertyId: shell.propertyId,
     property: `${address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
-    source: item.sourceLabel || "Smart Check",
+    source: landlordWorkspaceDisplayCopy(item.sourceLabel || "Smart Check"),
     sourceClass: "status-watch-text",
     status: "Prepared for review",
     statusClass: "status-watch-text",
@@ -16028,10 +16045,10 @@ function selectedCanonicalEvidenceRows() {
   const gapRows = (derivedState?.evidenceGaps || []).filter((gap) => !gap.evidenceId || !evidenceIds.has(gap.evidenceId)).map((gap) => ({
     id: gap.gapId,
     title: canonicalEvidenceLabel(gap.evidenceType),
-    document: `${gap.reason || "Evidence needs review"} ${gap.recommendedNextStep || ""}`.trim(),
+    document: landlordWorkspaceDisplayCopy(`${gap.reason || "Evidence needs review"} ${gap.recommendedNextStep || ""}`.trim()),
     propertyId: shell.propertyId,
     property: `${address}${shell.postcode ? ` · ${shell.postcode}` : ""}`,
-    source: gap.capabilityStatus === "simulated" ? "Smart Check" : gap.capabilityStatus || "Property file",
+    source: gap.capabilityStatus === "simulated" ? "Smart Check" : landlordWorkspaceDisplayCopy(gap.capabilityStatus || "Property file"),
     sourceClass: "status-review-text",
     status: gap.proofStatus === "missing" ? "Missing evidence" : "Needs review",
     statusClass: "status-review-text",
@@ -16933,11 +16950,11 @@ function renderSelectedCanonicalActionPlanState() {
   setText("[data-tasks-priority-label]", next ? canonicalEvidenceLabel(next.primaryCtaType || next.title) : "None");
   setText("[data-tasks-due-count]", String((derivedState?.monitoringItems || []).filter((item) => item.currentState === "open").length));
   setText("[data-tasks-completed-count]", String(serviceRequests.filter(isCanonicalServiceRequestClosed).length));
-  setText("[data-tasks-start-title]", next?.title || "No unresolved action");
+  setText("[data-tasks-start-title]", landlordWorkspaceDisplayCopy(next?.title || "No unresolved action"));
   const startProperty = document.querySelector(".tasks-start-card .property-card-label");
   if (startProperty) startProperty.textContent = `${shell?.address || "Selected property"}${shell?.postcode ? ` · ${shell.postcode}` : ""}`;
-  setText("[data-tasks-start-body]", next?.reason || "Based on current information, CMP has no unresolved selected-property action to prioritise.");
-  setText("[data-tasks-start-source]", next ? `Source: ${next.sourceConfidenceSummary || "CMP priority rules"}` : "Source: CMP priority rules");
+  setText("[data-tasks-start-body]", landlordWorkspaceDisplayCopy(next?.reason || "Based on current information, CMP has no unresolved selected-property action to prioritise."));
+  setText("[data-tasks-start-source]", next ? `Source: ${landlordWorkspaceDisplayCopy(next.sourceConfidenceSummary || "CMP priority rules")}` : "Source: CMP priority rules");
   const startStatus = document.querySelector("[data-tasks-start-status]");
   if (startStatus) {
     startStatus.textContent = openRequest ? "Service request prepared" : next ? "Unresolved" : "Ready";
@@ -16975,7 +16992,7 @@ function renderSelectedCanonicalActionPlanState() {
 
   const query = labsState.taskSearch.trim().toLowerCase();
   const actionMatches = (action) => {
-    const text = `${action.title} ${action.reason} ${action.primaryCtaType} ${action.primaryCtaLabel} ${action.priorityExplanation}`.toLowerCase();
+    const text = landlordWorkspaceDisplayCopy(`${action.title} ${action.reason} ${action.primaryCtaType} ${action.primaryCtaLabel} ${action.priorityExplanation}`).toLowerCase();
     const matchesSearch = !query || text.includes(query);
     const matchesFilter = labsState.taskFilter === "all"
       || (labsState.taskFilter === "high" && (action.priorityScore || 0) >= 70)
@@ -16992,14 +17009,14 @@ function renderSelectedCanonicalActionPlanState() {
       <article class="task-card${index === 0 ? " is-primary" : ""}" data-stage-e-focus-id="${escapeHtml(action.actionId)}" tabindex="-1">
         <div>
           <button class="task-title-button" type="button" data-canonical-ask-prompt="next-best-action">
-            <h3>${escapeHtml(action.title)}</h3>
+            <h3>${escapeHtml(landlordWorkspaceDisplayCopy(action.title))}</h3>
           </button>
           <p class="property-card-label">${escapeHtml(shell?.address || "Selected property")}</p>
-          <p>${escapeHtml(action.reason || action.nextStep || "Review this selected-property action.")}</p>
+          <p>${escapeHtml(landlordWorkspaceDisplayCopy(action.reason || action.nextStep || "Review this selected-property action."))}</p>
           <div class="task-chip-row">
             <span>${index === 0 ? "Priority action" : `Priority ${index + 1}`}</span>
-            <span>${escapeHtml(action.priorityExplanation || "Ranked by CMP rules")}</span>
-            <span>${escapeHtml(action.sourceConfidenceSummary || "Source confidence to review")}</span>
+            <span>${escapeHtml(landlordWorkspaceDisplayCopy(action.priorityExplanation || "Ranked by CMP rules"))}</span>
+            <span>${escapeHtml(landlordWorkspaceDisplayCopy(action.sourceConfidenceSummary || "Source confidence to review"))}</span>
             ${request ? `<span>Request prepared</span>` : ""}
           </div>
         </div>
@@ -17022,18 +17039,18 @@ function renderSelectedCanonicalActionPlanState() {
     board.hidden = labsState.taskView !== "board" || !visibleActions.length;
     board.innerHTML = renderTaskBoard(visibleActions.map((action, index) => ({
       id: action.actionId,
-      title: action.title,
+      title: landlordWorkspaceDisplayCopy(action.title),
       property: shell?.address || "Selected property",
       category: "Action",
       priority: (action.priorityScore || 0) >= 70 ? "High" : "Medium",
       source: "CMP priority rules",
-      body: action.reason,
+      body: landlordWorkspaceDisplayCopy(action.reason),
       status: index === 0 ? "Priority action" : "Unresolved",
-      suggestedAction: action.nextStep,
+      suggestedAction: landlordWorkspaceDisplayCopy(action.nextStep),
       board: index === 0 ? "todo" : "progress",
       filters: ["evidence"],
-      detail: action.priorityExplanation || "Ranked by CMP rules.",
-      search: `${action.title} ${action.reason}`,
+      detail: landlordWorkspaceDisplayCopy(action.priorityExplanation || "Ranked by CMP rules."),
+      search: landlordWorkspaceDisplayCopy(`${action.title} ${action.reason}`),
       actions: [{ label: "Open Evidence Vault", action: "canonicalOpenEvidence", primary: index === 0 }]
     })));
   }

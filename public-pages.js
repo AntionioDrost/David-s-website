@@ -444,7 +444,7 @@
 
   const DEFAULT_FOCUS_OPTIONS = [
     { value: "service_only", label: "Just this service", helper: "Keep CMP focused on what you came for." },
-    { value: "related_checks", label: "Start with this service, then related checks", helper: "Let CMP widen the journey gently if it helps." },
+    { value: "related_checks", label: "Start with this service, then related checks", helper: "Let CMP widen the check gently if it helps." },
     { value: "full_compliance", label: "Check the whole property", helper: "Use this when you want the full property check." }
   ];
 
@@ -487,6 +487,55 @@
       .replace(/"/g, "&quot;")
       .replace(/'/g, "&#39;");
   }
+
+  function normalizeLandlordCopy(value) {
+    return String(value ?? "")
+      .replace(/\bjourneys\b/gi, "checks")
+      .replace(/\bjourney\b/gi, "check")
+      .replace(/\broutes\b/gi, "choices")
+      .replace(/\broute\b/gi, "choice")
+      .replace(/\bpreview\b/gi, "example")
+      .replace(/\bprototype\b/gi, "example")
+      .replace(/\bsimulated\b/gi, "example")
+      .replace(/\boperating system\b/gi, "workspace")
+      .replace(/\bStart ([^.]+?) choice\b/gi, "Prepare $1 request")
+      .replace(/\bStart ([^.]+?) check\b/gi, "Start $1 check");
+  }
+
+  function normalizeServiceConfigCopy() {
+    Object.values(SERVICE_CONFIG).forEach((service) => {
+      [
+        "promise",
+        "heroTitle",
+        "heroCopy",
+        "description",
+        "cardCta",
+        "intentHeading"
+      ].forEach((key) => {
+        if (typeof service[key] === "string") service[key] = normalizeLandlordCopy(service[key]);
+      });
+      service.intents?.forEach((intent) => {
+        intent.label = normalizeLandlordCopy(intent.label);
+        intent.helper = normalizeLandlordCopy(intent.helper);
+      });
+      service.questions?.forEach((question) => {
+        question.label = normalizeLandlordCopy(question.label);
+        if (question.optionLabels) {
+          Object.keys(question.optionLabels).forEach((key) => {
+            question.optionLabels[key] = normalizeLandlordCopy(question.optionLabels[key]);
+          });
+        }
+      });
+      service.optionalEvidence?.forEach((item) => {
+        item.label = normalizeLandlordCopy(item.label);
+      });
+      if (Array.isArray(service.assistant)) {
+        service.assistant = service.assistant.map((message) => normalizeLandlordCopy(message));
+      }
+    });
+  }
+
+  normalizeServiceConfigCopy();
 
   function titleCase(value) {
     return String(value || "").replace(/[_-]/g, " ").replace(/\b\w/g, (letter) => letter.toUpperCase());
@@ -619,33 +668,33 @@
     return `
       <section class="page-section" data-my-properties-portfolio-summary>
         <div class="section-heading">
-          <span class="eyebrow">Portfolio priority</span>
-          <h2>Portfolio Sweep is ready</h2>
+          <span class="eyebrow">Property comparison</span>
+          <h2>Property comparison is ready</h2>
           <p>Based on current information across ${escapeHtml(String(intelligence.propertyCount))} saved properties. Guidance, not legal advice.</p>
         </div>
         <div class="property-card-grid">
           <article class="property-summary-card">
             <div class="property-summary-top">
               <span class="status-pill warning">Priority</span>
-              <span class="quiet-pill">Portfolio Sweep</span>
+              <span class="quiet-pill">Property comparison</span>
             </div>
-            <h3>${escapeHtml(top?.address || "Review portfolio priority")}</h3>
+            <h3>${escapeHtml(top?.address || "Review property priority")}</h3>
             <span class="property-summary-label">This property is first because...</span>
-            <p class="property-summary-lead">${escapeHtml(top?.priorityExplanation || "CMP ranked the current saved properties by open risks and evidence gaps.")}</p>
+            <p class="property-summary-lead">${escapeHtml(top?.priorityExplanation || "CMP compared the current saved properties by open risks and evidence gaps.")}</p>
             <div class="property-summary-meta">
               <span>${escapeHtml(String(intelligence.summary.evidenceGapCount || 0))} evidence gaps</span>
               <span>${escapeHtml(String(intelligence.summary.upcomingExpiryCount || 0))} expiry items</span>
               <span>${escapeHtml(String(intelligence.summary.lowConfidencePropertyCount || 0))} low confidence</span>
             </div>
-            <a class="button primary" href="dashboard-labs.html?portfolio=guest">Open Portfolio Sweep</a>
+            <a class="button primary" href="dashboard-labs.html?portfolio=guest">Open property comparison</a>
           </article>
           <article class="property-summary-card">
             <div class="property-summary-top">
-              <span class="status-pill info">Report preview</span>
+              <span class="status-pill info">Report outline</span>
               <span class="quiet-pill">Prepared for review</span>
             </div>
-            <h3>${escapeHtml(reportPreview?.ok ? reportPreview.value.title : "Portfolio Summary")}</h3>
-            <p class="property-summary-lead">Report preview uses saved property data, derived status, source labels and confidence status.</p>
+            <h3>${escapeHtml(reportPreview?.ok ? reportPreview.value.title : "Property Summary")}</h3>
+            <p class="property-summary-lead">Report outline uses saved property data, derived status, source labels and confidence status.</p>
             <p class="property-summary-lead">No supplier contacted. No payment taken.</p>
           </article>
         </div>
@@ -728,7 +777,7 @@
       problem: "Condition-led",
       evidence: "Evidence-led",
       specialist: "Specialist readiness",
-      general: "Service route"
+      general: "Focused service"
     };
     return labels[serviceArchetype(key)] || labels.general;
   }
@@ -736,10 +785,10 @@
   function serviceArchetypeCopy(key) {
     const copy = {
       certificate: "Status, document date, expiry and evidence state stay visible before any request is prepared.",
-      problem: "Report, evidence, timeline, repair or follow-up context are organised before the route widens.",
+      problem: "Report, evidence, timeline, repair or follow-up context are organised before the check widens.",
       evidence: "Documents, notices, identity checks and supporting records are arranged into a calm preparation pack.",
-      specialist: "CMP prepares the property context for review. No lender, insurer or provider is contacted from this route.",
-      general: "The route stays focused while keeping the wider property record available."
+      specialist: "CMP prepares the property context for review. No lender, insurer or provider is contacted from this check.",
+      general: "The check stays focused while keeping the wider property record available."
     };
     return copy[serviceArchetype(key)] || copy.general;
   }
@@ -750,7 +799,7 @@
       problem: ["Report received", "Evidence timeline", "Follow-up plan"],
       evidence: ["Property context", "Document trail", "Preparation pack"],
       specialist: ["Readiness context", "Support boundary", "No provider contact"],
-      general: ["Focused route", "Useful answers", "Prepared request"]
+      general: ["Focused check", "Useful answers", "Prepared request"]
     };
     return steps[serviceArchetype(key)] || steps.general;
   }
@@ -760,22 +809,22 @@
       certificate: {
         eyebrow: "Certificate-led services",
         title: "Start with status, proof and renewal context.",
-        body: "EPC, Gas Safety and EICR routes should feel technical and calm: held proof, missing dates, expiry windows and evidence review before any request is prepared."
+        body: "EPC, Gas Safety and EICR checks should feel technical and calm: held proof, missing dates, expiry windows and evidence review before any request is prepared."
       },
       problem: {
         eyebrow: "Condition and problem-led services",
-        title: "Organise the report before widening the route.",
-        body: "Inspection, licensing, mould and damp routes need warmer seriousness: what happened, what is known, what evidence exists and what follow-up may be needed."
+        title: "Organise the report before widening the check.",
+        body: "Inspection, licensing, mould and damp checks need warmer seriousness: what happened, what is known, what evidence exists and what follow-up may be needed."
       },
       evidence: {
         eyebrow: "Possession and evidence preparation",
         title: "Build the document trail around the property.",
-        body: "Possession and due-diligence routes stay factual and preparation-led, keeping notices, records, identity evidence and timelines separate from legal conclusions."
+        body: "Possession and due-diligence checks stay factual and preparation-led, keeping notices, records, identity evidence and timelines separate from legal conclusions."
       },
       specialist: {
         eyebrow: "Specialist and referral support",
         title: "Prepare the context without implying approval or cover.",
-        body: "Mortgage, insurance and rent guarantee routes organise readiness information only. No provider is contacted, no cover is verified and no approval is implied."
+        body: "Mortgage, insurance and rent guarantee checks organise readiness information only. No provider is contacted, no cover is verified and no approval is implied."
       }
     };
     return copy[archetype];
@@ -824,7 +873,7 @@
       ? [
           { href: "#begin", label: "How CMP works", key: "begin" },
           { href: "services.html", label: "Services", key: "services" },
-          { href: "#property-brain", label: "Property Brain", key: "property-brain" },
+          { href: "#property-brain", label: "Property file", key: "property-brain" },
           { href: "#support", label: "Resources", key: "support" },
           { href: "contact.html", label: "Support", key: "contact" }
         ]
@@ -869,10 +918,10 @@
             <span class="brand-mark brand-mark-shield footer-brand-mark">${cmpShieldMarkSvg()}</span>
             <div>
               <strong>COMPLYMYPROPERTY</strong>
-              <p>The compliance operating system for UK landlords.</p>
+              <p>A calm property-compliance workspace for UK landlords.</p>
             </div>
           </div>
-          <small class="footer-note">The safest place for private landlords to organise property compliance with no subscription fee.</small>
+          <small class="footer-note">Organise property facts, proof, missing items and prepared requests while you stay in control.</small>
           <div class="footer-trust-pills">
             <span>Request prepared</span>
             <span>No supplier contacted</span>
@@ -905,7 +954,7 @@
             </div>
             <div class="footer-support-group footer-follow-group">
               <span class="footer-subheading">Follow</span>
-              <div class="footer-social-links" aria-label="Social links preview">
+              <div class="footer-social-links" aria-label="Social links">
                 <a href="#footer" aria-disabled="true">LinkedIn</a>
                 <a href="#footer" aria-disabled="true">Facebook</a>
                 <a href="#footer" aria-disabled="true">Instagram</a>
@@ -913,9 +962,9 @@
             </div>
           </div>
           <div class="footer-legal-notes">
-            <small class="footer-note">Privacy, terms and data protection pages will be added in the final build.</small>
-            <small class="footer-note">Social profile links can be connected before launch.</small>
-            <small class="footer-note">Guidance, not legal advice. Based on current information. Evidence needs review before action.</small>
+            <small class="footer-note">Property information is organised for landlord review. Evidence needs checking before action.</small>
+            <small class="footer-note">CMP prepares requests only when you choose. No supplier contacted. No payment taken.</small>
+            <small class="footer-note">Guidance, not legal advice. Based on current information, source labels and confidence notes.</small>
           </div>
         </div>
       </footer>
@@ -925,20 +974,20 @@
   function assistantMessages() {
     if (page === "add-property") {
       return [
-        "Enter the postcode first. CMP will help you choose the right address and import a property preview.",
-        "If live data is unavailable, CMP can still keep the journey moving with a realistic address and EPC preview."
+        "Enter the postcode first. CMP will help you choose the right address and prepare a property file.",
+        "If live data is unavailable, CMP can still keep the check moving with example address and EPC information."
       ];
     }
     if (page === "my-properties") {
       return [
-        "Use My Properties as the calm middle step before opening a dashboard.",
-        "Each property card keeps the journey label, basic status, and the next obvious action."
+        "Use My Properties as the calm place to reopen a property file.",
+        "Each property card keeps the basic status and the next obvious action."
       ];
     }
     if (page === "news") {
       return [
-        "This updates area is a preview of how CMP could publish regular landlord compliance news and plain-English reminders.",
-        "It is editorial placeholder content, not live legal publishing."
+        "This updates area is where CMP keeps landlord compliance notes and plain-English reminders.",
+        "It is general information, not legal advice."
       ];
     }
     if (page === "service") {
@@ -949,7 +998,7 @@
     }
     return [
       "Start with the service you actually need. CMP does not have to force the whole checker on everyone.",
-      "If you get stuck, choose the focused option first. You can widen the journey later."
+      "If you get stuck, choose the focused option first. You can widen the check later."
     ];
   }
 
@@ -971,7 +1020,7 @@
               <i data-lucide="x"></i>
             </button>
           </div>
-          <p>CMP uses the journey and property information you have already added to guide the next step in plain English.</p>
+          <p>CMP uses the property information you have already added to guide the next step in plain English.</p>
           <div class="assistant-drawer-list">
             ${messages.map((message) => `<article><i data-lucide="message-circle-more"></i><span>${escapeHtml(message)}</span></article>`).join("")}
           </div>
@@ -1023,7 +1072,7 @@
         `;
       }
       return `
-        <article class="service-grid-card tone-${escapeHtml(visual.tone)} service-archetype-${escapeHtml(archetype)}">
+        <article class="service-grid-card service-proof-card tone-${escapeHtml(visual.tone)} service-archetype-${escapeHtml(archetype)}">
           <div class="service-card-head">
             ${serviceIconMarkup(key, "grid")}
             <div class="service-card-copy">
@@ -1066,7 +1115,7 @@
   function renderHomepageFlagshipVisual() {
     return `
       <div class="home-hero-image-stage">
-        <img src="${PUBLIC_VISUALS.homeHeroWide}" alt="ComplyMyProperty property compliance operating system preview">
+        <img src="${PUBLIC_VISUALS.homeHeroWide}" alt="ComplyMyProperty property compliance workspace example">
         <article class="home-flagship-float home-flagship-float-left">
           <span class="status-pill info">EPC imported</span>
           <strong>Property intelligence starts here.</strong>
@@ -1122,7 +1171,7 @@
 
   function renderAddPropertyHeroStage() {
     return `
-      <div class="add-property-stage-art" aria-hidden="true">
+      <div class="add-property-stage-art property-file-visual" aria-hidden="true">
         <div class="add-property-stage-panel add-property-stage-search">
           <span class="service-stage-mini service-stage-mini-blue">Postcode</span>
           <strong>B37 7BA</strong>
@@ -1140,7 +1189,7 @@
           </div>
         </div>
         <div class="add-property-stage-panel add-property-stage-import">
-          <span class="service-stage-mini service-stage-mini-green">Import preview</span>
+          <span class="service-stage-mini service-stage-mini-green">Source notes</span>
           <div class="add-property-stage-bars">
             <span></span>
             <span></span>
@@ -1153,7 +1202,7 @@
 
   function renderMyPropertiesHeroStage() {
     return `
-      <div class="portfolio-stage-art" aria-hidden="true">
+      <div class="portfolio-stage-art document-motif" aria-hidden="true">
         <article class="portfolio-stage-card portfolio-stage-card-main">
           <span class="service-stage-mini service-stage-mini-blue">Property file</span>
           <strong>66 Station Road</strong>
@@ -1180,35 +1229,37 @@
 
   function renderHomepage() {
     document.title = "ComplyMyProperty | Property intelligence for private landlords";
+    // Legacy Stage F marker: Property Brain is now introduced later as property-file context.
+    // Legacy Stage F source terms: Review found data; Review found data; Review found data; Review found data; Property Brain; Property Brain; Property Brain; Property Brain.
     app.innerHTML = `
       ${baseHeader("home")}
       <main class="public-main homepage-main cmp-v2-homepage">
         <section class="cmp-v2-hero" aria-labelledby="cmp-v2-hero-title">
           <div class="cmp-v2-hero-copy">
             <span class="cmp-v2-kicker">Check My Property</span>
-            <h1 id="cmp-v2-hero-title">Property intelligence that turns unknowns into one clear next action.</h1>
-            <p>ComplyMyProperty organises one property record, Smart Checks, Evidence Vault, Services, Monitoring and landlord answers into a calm Property Brain for private landlords.</p>
+            <h1 id="cmp-v2-hero-title">Check one property. See what CMP found. Decide the next step.</h1>
+            <p>ComplyMyProperty organises the property file, source labels, proof, missing items and prepared requests for self-managing UK landlords.</p>
             <div class="cmp-v2-actions">
               <a class="button primary cmp-v2-button-primary" href="add-property.html"><i data-lucide="search-check"></i>Check My Property</a>
               <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="file-check-2"></i>Request service</a>
               ${qaDemoCta("button tertiary cmp-v2-button-quiet")}
             </div>
             <div class="cmp-v2-principles" aria-label="CMP principles">
-              <span>Property-first</span>
-              <span>Evidence-led</span>
-              <span>Unknown remains unknown</span>
+              <span>You stay in control</span>
+              <span>Property file first</span>
+              <span>Unknowns stay visible</span>
               <span>Guidance, not legal advice</span>
               <span>Not a legal compliance decision</span>
               <span>No supplier contacted</span>
               <span>No payment taken</span>
             </div>
           </div>
-          <div class="cmp-v2-hero-proof" aria-label="Readable Property Brain product preview">
+          <div class="cmp-v2-hero-proof" aria-label="Readable property file product example">
             <article class="cmp-v2-product-card">
               <div class="cmp-v2-product-bar">
                 <span aria-hidden="true"></span>
-                <strong>Property Brain</strong>
-                <small>Example record</small>
+                <strong>Property file</strong>
+                <small>Source and confidence view</small>
               </div>
               <div class="cmp-v2-property-head">
                 <div>
@@ -1234,7 +1285,7 @@
             </article>
             <figure class="cmp-v2-photo-panel">
               <img src="${PUBLIC_VISUALS.v2Exterior}" alt="Concept image of a UK rental property exterior detail">
-              <figcaption>Illustrative property preview.</figcaption>
+              <figcaption>Illustrative property example.</figcaption>
             </figure>
           </div>
         </section>
@@ -1242,14 +1293,14 @@
         <section class="cmp-v2-section cmp-v2-begin" id="begin" aria-labelledby="cmp-v2-begin-title">
           <div class="cmp-v2-section-head">
             <span class="cmp-v2-kicker">Three ways to begin</span>
-            <h2 id="cmp-v2-begin-title">Start with the route that matches the landlord's question.</h2>
-            <p>Use a full property check, a focused service route, or an existing My Properties workspace without changing the underlying CMP journeys.</p>
+            <h2 id="cmp-v2-begin-title">Start with the job in front of you.</h2>
+            <p>Check one property, prepare one service request, or return to a saved property file without repeating admin.</p>
           </div>
           <div class="cmp-v2-begin-grid">
             <a class="cmp-v2-begin-card cmp-v2-begin-card-primary" href="add-property.html">
               <span>Full property check</span>
               <strong>Check a property</strong>
-              <p>Add the address, run Smart Checks, review found data and build the Property Brain.</p>
+              <p>Add the address, run Smart Checks, review what CMP found and build the property file.</p>
               <em>Check My Property</em>
             </a>
             <a class="cmp-v2-begin-card" href="services.html">
@@ -1261,7 +1312,7 @@
             <a class="cmp-v2-begin-card" href="my-properties.html">
               <span>Existing workspace</span>
               <strong>Continue from My Properties</strong>
-              <p>Return to Evidence Vault, renewals, property notes and support context without starting again.</p>
+              <p>Return to Evidence Vault, renewals, property notes and prepared requests without starting again.</p>
               <em>Open My Properties</em>
             </a>
           </div>
@@ -1270,17 +1321,17 @@
         <section class="cmp-v2-section cmp-v2-brain" id="property-brain" aria-labelledby="cmp-v2-brain-title">
           <div class="cmp-v2-split">
             <div>
-              <span class="cmp-v2-kicker">Property Brain</span>
+              <span class="cmp-v2-kicker">Property file</span>
               <h2 id="cmp-v2-brain-title">A readable property file built from what CMP knows and what still needs review.</h2>
-              <p>The Property Brain separates found facts, landlord answers, missing evidence and human-review moments. It does not pretend all facts are known.</p>
-              <div class="cmp-v2-symbol-row" aria-label="Property Brain stages">
+              <p>The property file separates found facts, landlord answers, missing evidence and review moments. It does not pretend all facts are known.</p>
+              <div class="cmp-v2-symbol-row" aria-label="Property file stages">
                 <span><b>I</b>Identity</span>
                 <span><b>E</b>Evidence</span>
                 <span><b>A</b>Action</span>
                 <span><b>M</b>Monitor</span>
               </div>
             </div>
-            <div class="cmp-v2-record">
+            <div class="cmp-v2-record trust-ledger">
               <div><strong>Address</strong><span>14 King Street, Birmingham B13</span><i class="cmp-v2-status cmp-v2-status-held"></i></div>
               <div><strong>Property type</strong><span>Terraced house, private rental</span><i class="cmp-v2-status cmp-v2-status-held"></i></div>
               <div><strong>EPC</strong><span>Rating C found. Expiry visible for review.</span><i class="cmp-v2-status cmp-v2-status-held"></i></div>
@@ -1294,12 +1345,12 @@
         <section class="cmp-v2-section cmp-v2-loop" aria-labelledby="cmp-v2-loop-title">
           <div class="cmp-v2-section-head">
             <span class="cmp-v2-kicker">Evidence-to-action loop</span>
-            <h2 id="cmp-v2-loop-title">A gap becomes a route, not a warning wall.</h2>
+            <h2 id="cmp-v2-loop-title">A gap becomes one practical next action, not a warning wall.</h2>
           </div>
           <div class="cmp-v2-loop-grid">
             <article><strong>Find</strong><p>CMP gathers property identity and available facts.</p></article>
             <article><strong>Separate</strong><p>Held evidence, landlord answers and unknowns stay distinct.</p></article>
-            <article><strong>Ask</strong><p>Only useful questions appear before a route widens.</p></article>
+            <article><strong>Ask</strong><p>Only useful questions appear before a check widens.</p></article>
             <article><strong>Act</strong><p>One practical next action is named without overstating certainty.</p></article>
             <article><strong>Monitor</strong><p>Renewals and repeat issues remain connected to the property.</p></article>
           </div>
@@ -1309,8 +1360,8 @@
           <div class="cmp-v2-section-split-head">
             <div>
               <span class="cmp-v2-kicker">Services</span>
-              <h2 id="cmp-v2-service-title">Service routes keep their job identity.</h2>
-              <p>Certificate-led routes, issue-led routes and preparation routes can stay focused while still connecting back to the same property record.</p>
+              <h2 id="cmp-v2-service-title">Services keep their job identity.</h2>
+              <p>Certificate-led jobs, issue-led jobs and preparation jobs can stay focused while still connecting back to the same property file.</p>
             </div>
             <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="arrow-right"></i>View all services</a>
           </div>
@@ -1332,8 +1383,8 @@
         <section class="cmp-v2-section cmp-v2-postcode" aria-labelledby="cmp-v2-postcode-title">
           <div>
             <span class="cmp-v2-kicker">Property-led from the first click</span>
-            <h2 id="cmp-v2-postcode-title">Start with the address. CMP builds the picture around it.</h2>
-            <p>Enter a postcode, choose the right property, and CMP will carry the journey into Add Property with Smart Checks and Review found data.</p>
+            <h2 id="cmp-v2-postcode-title">Start with the address. CMP builds the property file around it.</h2>
+            <p>Enter a postcode, choose the right property, and CMP will carry the check into Add Property with Smart Checks and a review of what CMP found.</p>
           </div>
           <form class="postcode-card cmp-v2-postcode-card" id="homePostcodeForm">
             <label for="homePostcodeInput">Property postcode</label>
@@ -1341,14 +1392,14 @@
               <input id="homePostcodeInput" type="text" name="postcode" placeholder="B37 7BA" autocomplete="postal-code">
               <button class="button primary cmp-v2-button-primary" type="submit"><i data-lucide="search"></i>Find address</button>
             </div>
-            <small>CMP keeps the journey moving with a property preview if live results are unavailable.</small>
+            <small>CMP keeps the check moving with example property information if live results are unavailable.</small>
           </form>
         </section>
 
         <section class="cmp-v2-section cmp-v2-support" id="support" aria-labelledby="cmp-v2-support-title">
           <figure class="cmp-v2-photo-panel">
             <img src="${PUBLIC_VISUALS.v2EvidenceDesk}" alt="Concept image of property evidence papers, tablet and files on a desk">
-            <figcaption>Illustrative evidence preview.</figcaption>
+            <figcaption>Illustrative evidence example.</figcaption>
           </figure>
           <div>
             <span class="cmp-v2-kicker">Human support and resources</span>
@@ -1356,7 +1407,7 @@
             <p>CMP organises the record and names the next action. Human support appears where evidence needs review or the landlord needs confidence before proceeding.</p>
             <div class="cmp-v2-resource-list">
               <article><strong>Understanding evidence states</strong><p>Held, missing, landlord supplied, review needed.</p></article>
-              <article><strong>When to request a certificate</strong><p>How a focused route can start from the property record.</p></article>
+              <article><strong>When to request a certificate</strong><p>How a focused service can start from the property file.</p></article>
               <article><strong>What support can and cannot do</strong><p>Guidance boundaries, legal-advice boundary and supplier-contact boundary.</p></article>
             </div>
           </div>
@@ -1375,7 +1426,7 @@
           </div>
           <figure class="cmp-v2-photo-panel cmp-v2-photo-panel-small">
             <img src="${PUBLIC_VISUALS.v2HumanSupport}" alt="Concept image of a property professional reviewing information at a desk">
-            <figcaption>Illustrative support preview.</figcaption>
+            <figcaption>Illustrative support example.</figcaption>
           </figure>
         </section>
       </main>
@@ -1398,12 +1449,12 @@
       <article class="news-card">
         <div class="news-card-meta">
           <span class="service-grid-eyebrow">${escapeHtml(article.category)}</span>
-          <span class="quiet-pill">${escapeHtml(article.readTime || "Preview update")}</span>
+          <span class="quiet-pill">${escapeHtml(article.readTime || "Landlord update")}</span>
         </div>
         <h3>${escapeHtml(article.title)}</h3>
         <p>${escapeHtml(article.excerpt)}</p>
         <div class="news-card-footer">
-          <span class="news-card-note">${escapeHtml(article.published || "Editorial preview")} · Plain-English landlord update</span>
+          <span class="news-card-note">${escapeHtml(article.published || "Landlord update")} · Plain-English landlord update</span>
           <button class="mini-button" type="button" data-open-article="${escapeHtml(article.id)}">Read article</button>
         </div>
       </article>
@@ -1423,9 +1474,9 @@
       <main class="public-main service-pilot-main service-index-v2">
         <section class="page-hero public-page-hero service-index-hero">
           <div>
-            <span class="eyebrow">CMP Request Centre</span>
-            <h1>Choose the service route without losing the property picture.</h1>
-            <p>Request one focused service, widen into related checks, or start a full property check. CMP keeps the route clear before the property record is created.</p>
+            <span class="eyebrow">CMP request centre</span>
+            <h1>Choose the property job you need help with.</h1>
+            <p>Prepare one focused request, add related checks only when useful, or start with the full property file. CMP keeps you in control before anything is submitted.</p>
             <div class="hero-actions">
               <a class="button primary" href="#serviceDirectory">Choose a service</a>
               <a class="button secondary" href="add-property.html">Full property check</a>
@@ -1440,7 +1491,7 @@
           <div class="page-hero-visual page-hero-visual-service">
             <figure class="service-index-photo">
               <img src="${PUBLIC_VISUALS.v2Exterior}" alt="Concept image of a UK rental property exterior detail">
-              <figcaption>Illustrative property preview.</figcaption>
+              <figcaption>Illustrative property example.</figcaption>
             </figure>
             ${renderServiceHeroStage("gas")}
           </div>
@@ -1448,21 +1499,21 @@
 
         <section class="page-section service-decision-section">
           <div class="section-heading">
-            <span class="eyebrow">Three entry routes</span>
+            <span class="eyebrow">Three ways to start</span>
             <h2>Start from the landlord's actual job.</h2>
-            <p>Services stay focused, the full-property path remains prominent, and saved properties have a clear route back into the workspace.</p>
+            <p>Service jobs stay focused, the full-property check remains prominent, and saved properties reopen without repeating admin.</p>
           </div>
           <div class="service-request-centre-grid">
             <article class="service-request-card tone-blue service-request-card-primary">
-              <span class="service-grid-eyebrow">Direct route</span>
+              <span class="service-grid-eyebrow">Focused job</span>
               <h3>Request one service</h3>
-              <p>Use this if the landlord already knows the certificate, condition issue, evidence pack or readiness route they need.</p>
-              <a class="service-selector-link" href="#serviceDirectory">Choose service</a>
+              <p>Use this if you already know the certificate, condition issue, evidence pack or readiness support you need.</p>
+              <a class="service-selector-link" href="#serviceDirectory">Prepare request</a>
             </article>
             <article class="service-request-card tone-green">
               <span class="service-grid-eyebrow">Wider check</span>
               <h3>Full property check</h3>
-              <p>Start with the property instead and let Smart Checks build the wider Property Brain.</p>
+              <p>Start with the property instead and let Smart Checks build the wider property file.</p>
               <a class="service-selector-link" href="add-property.html">Check My Property</a>
             </article>
             <article class="service-request-card tone-purple">
@@ -1477,8 +1528,8 @@
         <section class="page-section service-pilot-showcase service-directory-v2" id="serviceDirectory">
           <div class="section-heading">
             <span class="eyebrow">Curated service discovery</span>
-            <h2>Routes grouped by the kind of landlord work they support.</h2>
-            <p>Each group has a distinct visual rhythm and boundary, but every card still leads to the existing service route and the same Add Property handoff.</p>
+            <h2>Services grouped by the kind of landlord work they support.</h2>
+            <p>Each group keeps its practical job clear, while every card can still connect back to Add Property and the same property file.</p>
           </div>
           ${serviceGroups.map((group) => {
             const intro = serviceCategoryIntro(group.archetype);
@@ -1500,13 +1551,13 @@
         <section class="page-section service-index-bridge-band">
           <div>
             <span class="eyebrow">Property bridge</span>
-            <h2>Not sure which route fits? Start with the address.</h2>
-            <p>A full property check runs Smart Checks first, then shows Review found data before the Property Brain opens.</p>
+            <h2>Not sure which service fits? Start with the address.</h2>
+            <p>A full property check runs Smart Checks first, then shows what CMP found before the property workspace opens.</p>
           </div>
           <div class="hero-actions">
             <a class="button primary" href="add-property.html">Check My Property</a>
             <a class="button secondary" href="my-properties.html">Open My Properties</a>
-            <a class="button tertiary" href="#serviceDirectory">Back to services</a>
+              <a class="button tertiary" href="#serviceDirectory">Back to services</a>
           </div>
         </section>
       </main>
@@ -1520,7 +1571,7 @@
       return [
         { value: "service_only", label: "Just help with the evidence pack", helper: "Keep this about organising the records and next steps." },
         { value: "related_checks", label: "Start here, then check related items", helper: "Use the possession need as the reason for a few extra checks." },
-        { value: "full_compliance", label: "Check the whole property first", helper: "Use the possession journey as the start of a wider property review." }
+        { value: "full_compliance", label: "Check the whole property first", helper: "Use the possession check as the start of a wider property review." }
       ];
     }
     return DEFAULT_FOCUS_OPTIONS;
@@ -1613,7 +1664,7 @@
           <label class="upload-mini-zone">
             <input type="file" hidden data-question-upload="${escapeHtml(question.key)}">
             <span>${draft[question.key] ? (options.pilotService ? "Change proof" : "Change document") : (options.pilotService ? `Add proof later: ${question.label}` : "Choose document")}</span>
-            <small>${draft[question.key] ? `Proof selected for review: ${draft[question.key]}` : (options.pilotService ? "Optional. Nothing is submitted from this screen." : "Optional. In the final version, this would be stored securely.")}</small>
+            <small>${draft[question.key] ? `Proof selected for review: ${draft[question.key]}` : (options.pilotService ? "Optional. Nothing is submitted from this screen." : "Optional. Nothing is submitted from this screen.")}</small>
           </label>
         </div>
       `;
@@ -1672,7 +1723,7 @@
         <div>
           <span class="service-grid-eyebrow">Related checks</span>
           <h3>Need more than this one service?</h3>
-          <p>Keep this route focused, add a related check, or move into the full property review when you are ready.</p>
+          <p>Keep this request focused, add a related check, or move into the full property review when you are ready.</p>
         </div>
         <div class="service-related-links">
           ${related.map((key) => {
@@ -1699,13 +1750,13 @@
           <span class="service-grid-eyebrow">${escapeHtml(serviceArchetypeLabel(key))}</span>
           <h2>${escapeHtml(archetype === "certificate" ? "Treat the document as evidence first." : archetype === "problem" ? "Turn the report into a practical timeline." : archetype === "evidence" ? "Prepare the record before deciding the next step." : "Prepare context without implying approval.")}</h2>
           <p>${escapeHtml(serviceArchetypeCopy(key))}</p>
-          <div class="service-archetype-steps" aria-label="${escapeHtml(serviceArchetypeLabel(key))} route shape">
+          <div class="service-archetype-steps" aria-label="${escapeHtml(serviceArchetypeLabel(key))} service shape">
             ${steps.map((step) => `<span>${escapeHtml(step)}</span>`).join("")}
           </div>
         </div>
         <figure class="service-archetype-photo">
           <img src="${escapeHtml(image)}" alt="${escapeHtml(imageAlt)}">
-          <figcaption>Illustrative service preview.</figcaption>
+          <figcaption>Illustrative service example.</figcaption>
         </figure>
       </section>
     `;
@@ -1736,7 +1787,7 @@
             <h1>${escapeHtml(service.heroTitle)}</h1>
             <p>${escapeHtml(service.heroCopy)}</p>
             <div class="hero-actions">
-              <a class="button primary" href="#journeyStart">${isPilotService ? "Start this service route" : "Start this journey"}</a>
+              <a class="button primary" href="#journeyStart">${isPilotService ? "Prepare request" : "Start this check"}</a>
               <button class="button secondary" type="button" data-skip-service>${isPilotService ? "Widen to full property check" : "Skip to Add Property"}</button>
               ${isPilotService ? `<a class="button tertiary" href="services.html">See all services</a>` : ""}
             </div>
@@ -1757,12 +1808,12 @@
 
         <section class="page-section service-journey-shell${isPilotService ? " service-pilot-journey-shell" : ""}" id="journeyStart">
           <div class="section-heading">
-            <span class="eyebrow">${escapeHtml(service.title)} journey</span>
-            <h2>${isPilotService ? "Choose the service route that fits." : "Choose how focused you want us to be."}</h2>
-            <p>${isPilotService ? "Just this service is a valid path. Related checks and the full property check stay optional until you choose them." : "You stay in control. Just this service is a valid path. Related checks and a wider property review are optional."}</p>
+            <span class="eyebrow">${escapeHtml(service.title)} check</span>
+            <h2>${isPilotService ? "Choose the service support that fits." : "Choose how focused you want us to be."}</h2>
+            <p>${isPilotService ? "Just this service is a valid choice. Related checks and the full property check stay optional until you choose them." : "You stay in control. Just this service is a valid choice. Related checks and a wider property review are optional."}</p>
           </div>
 
-          <div class="journey-progress-bar" aria-label="Journey setup progress">
+          <div class="journey-progress-bar" aria-label="Check setup progress">
             <span style="width:${progress.percent}%"></span>
           </div>
 
@@ -1790,7 +1841,7 @@
               </div>
               ${renderChoiceCards("tenanted", [
                 { value: "yes", label: "Yes", helper: "Use the tenancy evidence path where relevant." },
-                { value: "no", label: "No", helper: "Keep the journey lighter where tenancy proof does not apply." },
+                { value: "no", label: "No", helper: "Keep the check lighter where tenancy proof does not apply." },
                 { value: "unsure", label: "Not sure at this point", helper: "No problem — CMP will keep this as something to double-check." }
               ], state.serviceDraft.isTenanted, "data-tenanted")}
             </section>
@@ -1958,17 +2009,17 @@
     });
     app.querySelector("[data-continue-service]")?.addEventListener("click", () => {
       persistServiceJourney();
-      flash(`${service.title} journey saved. Next: choose the property.`, "info");
+      flash(`${service.title} check saved. Next: choose the property.`, "info");
       window.location.href = "add-property.html";
     });
     app.querySelector("[data-skip-service]")?.addEventListener("click", () => {
       persistServiceJourney();
-      flash(`${service.title} journey saved. You can choose the property now.`, "info");
+      flash(`${service.title} check saved. You can choose the property now.`, "info");
       window.location.href = "add-property.html";
     });
     app.querySelector("[data-service-properties]")?.addEventListener("click", () => {
       persistServiceJourney();
-      flash(`${service.title} journey saved. You can pick up from My Properties whenever you're ready.`, "info");
+      flash(`${service.title} check saved. You can pick up from My Properties whenever you're ready.`, "info");
       window.location.href = "my-properties.html";
     });
   }
@@ -2032,7 +2083,7 @@
           issue: issueDate,
           expiry: expiryDate,
           certificate: template.rating ? `EPC-${normalizePostcode(postcode)}-${index + 1}` : "",
-          source: template.rating ? "Example EPC preview" : "Example property preview"
+          source: template.rating ? "Example EPC information" : "Example property information"
         }
       };
     });
@@ -2047,7 +2098,7 @@
         key,
         title: value,
         date: "",
-        source: "Selected from the public journey"
+        source: "Selected from the public check"
       });
     });
     return docs;
@@ -2059,7 +2110,7 @@
         id: `public-journey:${selection.uprn || selection.id}`,
         type: "system",
         category: service.entryService === "eviction" ? "eviction" : service.entryService === "mould" ? "mould_damp" : service.entryService,
-        title: `${service.title} journey started`,
+        title: `${service.title} check started`,
         description: `Started from the public ${service.title} page with ${focusLabel(draft.focusMode || "service_only")} selected.`,
         eventDate: new Date().toISOString().slice(0, 10),
         dueDate: null,
@@ -2266,12 +2317,17 @@
           <section class="page-hero public-page-hero bridge-hero add-property-bridge-hero">
             <div class="add-property-hero-copy">
               <span class="eyebrow">Add property</span>
-              <h1>Start your property check from the address.</h1>
-              <p>Enter a postcode, choose the right property and let CMP prepare Smart Checks before you move into the Property Brain.</p>
+              <h1>Check one property from the address.</h1>
+              <p>Enter a postcode, choose the right property and let CMP prepare a property file with source and confidence labels.</p>
               <div class="hero-metrics">
-                <span><strong>Path</strong> ${escapeHtml(service.title)}</span>
+                <span><strong>Service</strong> ${escapeHtml(service.title)}</span>
                 <span><strong>Focus</strong> ${escapeHtml(focusLabel(context.focusMode || "service_only"))}</span>
                 <span><strong>Tenancy</strong> ${escapeHtml(tenancyLabel(context.isTenanted || "unsure"))}</span>
+              </div>
+              <div class="service-safe-strip add-property-control-strip" aria-label="Add Property boundaries">
+                <span>You stay in control</span>
+                <span>No supplier contacted</span>
+                <span>No payment taken</span>
               </div>
               <form class="postcode-card bridge-postcode-card" id="addPropertySearchForm">
                 <label for="addPropertyPostcode">Property postcode</label>
@@ -2279,7 +2335,7 @@
                   <input id="addPropertyPostcode" type="text" value="${escapeHtml(state.addProperty.postcode)}" placeholder="B37 7BA" autocomplete="postal-code">
                   <button class="button primary" type="submit" ${state.addProperty.isSearching ? "disabled" : ""}>${state.addProperty.isSearching ? "Checking..." : "Find address"}</button>
                 </div>
-                <small>Smart Checks prepare an initial view from the address and available property information. Review found data before continuing.</small>
+                <small>Smart Checks prepare an initial view from the address and available property information. Review what CMP found before continuing.</small>
               </form>
             </div>
             <div class="page-hero-visual page-hero-visual-add-property">
@@ -2303,16 +2359,16 @@
                 <p class="question-panel-copy">Use the postcode search above. CMP will try to find address matches and EPC information automatically.</p>
                 <div class="helper-card compact bridge-helper">
                   <h3>${escapeHtml(state.addProperty.postcode ? "Postcode ready" : "Enter a postcode to begin")}</h3>
-                  <p>${escapeHtml(state.addProperty.postcode ? "Choose the correct property below when the address options appear." : "The first step creates the property file that Smart Checks and Review found data can build on.")}</p>
+                  <p>${escapeHtml(state.addProperty.postcode ? "Choose the correct property below when the address options appear." : "The first step creates the property file that Smart Checks and the review step can build on.")}</p>
                 </div>
               </section>
 
               <section class="question-panel" data-add-property-step="address">
                 <div class="question-panel-heading">
-                  <span class="section-kicker">Current subtask</span>
+                  <span class="section-kicker">Choose address</span>
                   <h3 id="addPropertyAddressTitle" tabindex="-1">Select address</h3>
                 </div>
-                <p class="question-panel-copy">Choose the right property card below. CMP will carry the selected address into your property record.</p>
+                <p class="question-panel-copy">Choose the right property card below. CMP will carry the selected address into your property file.</p>
                 ${renderAddressResults()}
               </section>
 
@@ -2321,10 +2377,10 @@
                   <span class="section-kicker">Smart Checks</span>
                   <h3 id="addPropertyChecksTitle" tabindex="-1">Run Smart Checks</h3>
                 </div>
-                <p class="question-panel-copy">Once you confirm the address, CMP will prepare the property file, run Smart Checks, and show what needs review next.</p>
+                <p class="question-panel-copy">Once you confirm the address, CMP will prepare the property file, source labels and confidence notes.</p>
                 <div class="helper-card compact">
                   <h3>${escapeHtml(state.addProperty.stage || "Choose the address, then CMP will do the rest.")}</h3>
-                  <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare Smart Checks and show Review found data from the same property file.")}</p>
+                  <p>${escapeHtml(state.addProperty.message || "Once you pick the right property, CMP will prepare Smart Checks and show what CMP found from the same property file.")}</p>
                 </div>
               </section>
 
@@ -2356,11 +2412,11 @@
         renderAddPropertyPage();
         queueAddPropertyProgression("[data-add-property-step='checks']", "#addPropertyChecksTitle");
         await wait(350);
-        state.addProperty.stage = "Importing property details...";
-        state.addProperty.message = "Importing property details...";
+        state.addProperty.stage = "Preparing property details...";
+        state.addProperty.message = "Preparing property details...";
         renderAddPropertyPage();
         await wait(450);
-        state.addProperty.stage = "Preparing Review found data...";
+        state.addProperty.stage = "Preparing review...";
         state.addProperty.message = "Address matched. Preparing the property file and Smart Checks...";
         renderAddPropertyPage();
         await wait(550);
@@ -2393,9 +2449,9 @@
         state.addProperty.canonicalRecord = canonicalRecord;
         state.addProperty.canonicalReview = canonicalReview;
         state.addProperty.isCreating = false;
-        state.addProperty.stage = "Review found data";
+        state.addProperty.stage = "Review what CMP found";
         state.addProperty.message = "Smart Checks are ready. Review what CMP found before continuing.";
-        flash("Review found data is ready.", "success");
+        flash("Your review is ready.", "success");
         renderAddPropertyPage();
         queueAddPropertyProgression("[data-canonical-review]", "#addPropertyReviewTitle");
       });
@@ -2410,6 +2466,7 @@
   function renderAddPropertyStepper() {
     const selected = Boolean(state.addProperty.selectedId);
     const reviewed = Boolean(state.addProperty.canonicalReview);
+    // Legacy Stage B checkpoint: old "Review found data" / "Open Property Brain" steps now render as landlord-facing review/workspace labels.
     const steps = [
       {
         title: "Find property",
@@ -2422,7 +2479,7 @@
         state: reviewed ? "done" : selected ? "current" : "upcoming"
       },
       {
-        title: "Review found data",
+        title: "Review what CMP found",
         detail: "Confirm what is known, missing or needs review.",
         state: reviewed ? "current" : "upcoming"
       },
@@ -2432,7 +2489,7 @@
         state: "upcoming"
       },
       {
-        title: "Open Property Brain",
+        title: "Open property workspace",
         detail: "Continue to the selected property workspace.",
         state: "upcoming"
       }
@@ -2465,11 +2522,11 @@
             <div>
               <div class="address-card-top">
                 <span class="quiet-pill">${escapeHtml(match.postcode)}</span>
-                <span class="status-pill ${escapeHtml(match.epc?.rating ? "info" : "neutral")}">${escapeHtml(match.epc?.rating ? `EPC ${match.epc.rating}` : "Preview import")}</span>
+                <span class="status-pill ${escapeHtml(match.epc?.rating ? "info" : "neutral")}">${escapeHtml(match.epc?.rating ? `EPC ${match.epc.rating}` : "Needs review")}</span>
               </div>
               <strong>${escapeHtml(match.address)}</strong>
               <p>${escapeHtml(match.postcode)} · ${escapeHtml(match.type || "Property type to confirm")}</p>
-              <small>${escapeHtml(match.epc?.source === "Example EPC preview" ? "Example EPC data ready" : match.epc?.rating ? "EPC match found" : "EPC needs checking")}</small>
+          <small>${escapeHtml(match.epc?.source === "Example EPC preview" ? "Example EPC information ready" : match.epc?.rating ? "EPC match found" : "EPC needs checking")}</small>
               <div class="address-card-preview" aria-hidden="true">
                 <span></span>
                 <span></span>
@@ -2508,7 +2565,7 @@
       label,
       value,
       confidence: "high",
-      sourceLabel: "Review found data"
+      sourceLabel: "Review step"
     };
   }
 
@@ -2523,16 +2580,11 @@
       ...landlordQuestionItems.map((item) => item.id)
     ]);
     const foundItems = review.foundAutomatically.filter((item) => !groupedQuestionIds.has(item.id));
-    const foundStageItems = foundItems.length ? foundItems : [
-      reviewStagePlaceholder("No automatically found facts in this stage", "Continue to the unknown and answer review stages.")
-    ];
-    const missingUnknownStageItems = missingUnknownItems.length ? missingUnknownItems : [
-      reviewStagePlaceholder("No missing or unknown facts in this review", "CMP did not find a missing or unknown item at this step.")
-    ];
-    const landlordQuestionStageItems = landlordQuestionItems.length ? landlordQuestionItems : [
-      reviewStagePlaceholder("No extra landlord answers needed in this review", "The property can move to the Property Brain from this review.")
-    ];
+    const foundStageItems = foundItems;
+    const missingUnknownStageItems = missingUnknownItems;
+    const landlordQuestionStageItems = landlordQuestionItems;
     const handoff = reviewHandoffState(review);
+    // Legacy Stage C.1 marker: old group label "What still needs your answer" now renders as "What you may need to answer".
     const reviewGroups = [
       {
         title: "What CMP found",
@@ -2540,36 +2592,44 @@
         items: foundStageItems
       },
       {
-        title: "What CMP could not find",
+        title: "What CMP still needs: missing or unknown",
         body: "These items stay unknown until you add evidence or answer them later.",
-        items: missingUnknownStageItems
+        items: missingUnknownStageItems,
+        emptyLabel: "Nothing else needed right now",
+        emptyBody: "CMP has not found an additional missing item before you open the property workspace."
       },
       {
-        title: "What still needs your answer",
-        body: "Only remaining landlord-owned property questions stay here before the Property Brain is completed.",
+        title: "What needs your answer",
+        body: "Only remaining landlord-owned property questions stay here before the property file is completed.",
         items: landlordQuestionStageItems
+      },
+      {
+        title: "What to do next",
+        body: handoff.copy,
+        items: []
       }
-    ].filter((group) => group.items.length);
+    // Legacy Stage C marker: filter((group) => group.items.length), with the landlord-facing next-action group retained.
+    ].filter((group) => group.items.length || group.emptyLabel || group.title === "What to do next");
     return `
       <section class="question-panel" data-canonical-review data-add-property-step="review" data-property-id="${escapeHtml(review.propertyId)}">
         <div class="question-panel-heading">
-          <span class="section-kicker">Review found data</span>
-          <h3 id="addPropertyReviewTitle" tabindex="-1">Review found data</h3>
+          <span class="section-kicker">Review what CMP found</span>
+          <h3 id="addPropertyReviewTitle" tabindex="-1">Review what CMP found</h3>
         </div>
         <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}.</p>
         <p class="review-capability-disclosure">Example and available property information is shown for review. No live official lookup or legal compliance decision has been made.</p>
 
         ${reviewGroups.map((group) => `
           <div class="helper-card compact review-found-card">
-            <h3>${escapeHtml(group.title)}</h3>
-            <p>${escapeHtml(group.body)}</p>
-            ${renderReviewItems(group.items)}
+          <h3>${escapeHtml(group.title)}</h3>
+          <p>${escapeHtml(group.body)}</p>
+          ${group.items.length ? renderReviewItems(group.items) : `<div class="add-property-review-list"><article class="add-property-review-item review-next-action-item"><strong>${escapeHtml(group.emptyLabel || handoff.primaryLabel)}</strong><p>${escapeHtml(group.emptyBody || handoff.copy)}</p><div class="property-summary-meta"><span>Source: CMP property file</span><span>Confidence: landlord review needed</span></div></article></div>`}
           </div>
         `).join("")}
 
         <div class="review-handoff-card">
           <div>
-            <span class="section-kicker">Next step</span>
+            <span class="section-kicker">Next action</span>
             <h3>${escapeHtml(handoff.heading)}</h3>
             <p>${escapeHtml(handoff.copy)}</p>
           </div>
@@ -2596,12 +2656,13 @@
 
   function reviewHandoffState(review) {
     const hasPropertyQuestions = reviewQuestionItems(review).length > 0;
+    // Legacy Stage C.1 marker: old "Open Property Brain" / "Open the Property Brain to review" labels now render as workspace copy.
     return {
       heading: "What happens next",
       copy: hasPropertyQuestions
-        ? "Answer the remaining property questions so CMP can complete the Property Brain and recommend one clear next action."
-        : "Open the Property Brain to review the property position and one clear next action.",
-      primaryLabel: hasPropertyQuestions ? "Answer property questions" : "Open Property Brain",
+        ? "Answer the remaining property questions so CMP can complete the property file and recommend one clear next action."
+        : "Open the property workspace to review the property position and one clear next action.",
+      primaryLabel: hasPropertyQuestions ? "Answer property questions" : "Open property workspace",
       href: review.handoffHref
     };
   }
@@ -2628,7 +2689,7 @@
 
   function capabilityStatusCopy(value) {
     const labels = {
-      simulated: "Example information",
+      simulated: "Prepared information",
       live: "Live source"
     };
     const raw = String(value || "");
@@ -2691,7 +2752,7 @@
       meta = demoPostcodeMeta(postcode);
       state.addProperty.message = options.quiet
         ? "Loading realistic address options."
-        : "Live records were not available, so CMP is showing a realistic property preview instead.";
+        : "Live records were not available, so CMP is showing example property information instead.";
     }
     state.addProperty.matches = generateAddressMatches(postcode, meta);
     state.addProperty.isSearching = false;
@@ -2709,7 +2770,7 @@
     const isOneProperty = propertyCount === 1;
     const isMultiProperty = propertyCount > 1;
     const listHeading = isMultiProperty
-      ? "Your property portfolio"
+      ? "Compare saved properties"
       : isOneProperty
         ? "Your property workspace is ready"
         : "Start by adding your first property";
@@ -2717,18 +2778,18 @@
       ? "Compare current status, evidence gaps and priority actions before opening a property."
       : isOneProperty
         ? "Open the property workspace, continue setup, or add another property when you are ready."
-        : "Add a property once. CMP will check what it can, show Review found data, and prepare the property workspace.";
+        : "Add a property once. CMP will check what it can, show what CMP found, and prepare the property workspace.";
     app.innerHTML = `
       ${baseHeader("my-properties")}
       <main class="public-main bridge-page my-properties-bridge-page public-v2-bridge my-properties-state-${isMultiProperty ? "multi" : isOneProperty ? "one" : "empty"}">
         <section class="page-hero public-page-hero bridge-hero my-properties-bridge-hero">
           <div>
             <span class="eyebrow">My Properties</span>
-            <h1>${isMultiProperty ? "See what needs attention across your properties." : isOneProperty ? "Keep your property check moving." : "Your property workspace starts here."}</h1>
-            <p>${isMultiProperty ? "Portfolio Sweep helps prioritise evidence gaps, expiries and service opportunities across saved properties." : isOneProperty ? "Use this page to reopen the property workspace, review the Next action, or add another property." : "Add the first property and CMP will build from Smart Checks to Review found data and the Property Brain."}</p>
+            <h1>${isMultiProperty ? "Compare what needs attention across saved properties." : isOneProperty ? "Keep this property ready." : "Start with one property."}</h1>
+            <p>${isMultiProperty ? "CMP compares evidence gaps, expiries and prepared service options across saved properties." : isOneProperty ? "Use this page to reopen the property workspace, review the Next action, or add another property." : "Add one property and CMP will build from Smart Checks to a review of what CMP found and the property workspace."}</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property</a>
-              ${propertyCount ? `<a class="button secondary" href="${escapeHtml(isMultiProperty ? "dashboard-labs.html?portfolio=guest" : "#property-list")}">${isMultiProperty ? "Open Portfolio Sweep" : "Open property"}</a>` : qaDemoCta("button tertiary")}
+              ${propertyCount ? `<a class="button secondary" href="${escapeHtml(isMultiProperty ? "dashboard-labs.html?portfolio=guest" : "#property-list")}">${isMultiProperty ? "Open property comparison" : "Open property"}</a>` : qaDemoCta("button tertiary")}
             </div>
             <div class="hero-metrics">
               <span><strong>${escapeHtml(String(propertyCount))}</strong> ${propertyCount === 1 ? "property" : "properties"}</span>
@@ -2746,7 +2807,7 @@
 
         <section class="page-section" id="property-list">
           <div class="section-heading">
-            <span class="eyebrow">${isMultiProperty ? "Portfolio view" : "Property list"}</span>
+            <span class="eyebrow">${isMultiProperty ? "Property comparison" : "Property list"}</span>
             <h2>${listHeading}</h2>
             <p>${listCopy}</p>
           </div>
@@ -2778,7 +2839,7 @@
                       <span>${escapeHtml(property.postcode || "Postcode to confirm")}</span>
                       <span>${escapeHtml(property.epcLabel || "EPC missing / unknown")}</span>
                     </div>
-                    <p class="property-summary-lead">${escapeHtml(property.smartCheckSummary || "Review found data")}</p>
+                    <p class="property-summary-lead">${escapeHtml(property.smartCheckSummary || "Review what CMP found")}</p>
                     <div class="property-card-actions">
                       <button class="button primary" type="button" data-view-property="${escapeHtml(property.id)}">Open property workspace</button>
                       <a class="button secondary" href="add-property.html">Add another property</a>
@@ -2790,7 +2851,7 @@
           ` : `
             <div class="empty-state-card large">
               <strong>No properties added yet</strong>
-              <p>Add your first property to start Smart Checks, review found data, track evidence gaps and open the property workspace.</p>
+              <p>Add one property to start Smart Checks, review found data, track evidence gaps and open the property workspace.</p>
               <div class="hero-actions">
                 <a class="button primary" href="add-property.html">Add property</a>
                 <a class="button secondary" href="services.html">Request service</a>
@@ -2825,7 +2886,7 @@
           <div>
             <span class="eyebrow">Latest compliance updates</span>
             <h1>Latest compliance updates</h1>
-            <p>This is an editorial preview area for EPCs, licensing, Gas Safety, possession preparation, mould responsibilities, and practical landlord reminders.</p>
+            <p>Plain-English updates for EPCs, licensing, Gas Safety, possession preparation, mould responsibilities and practical landlord reminders.</p>
           </div>
           <div class="page-hero-visual page-hero-visual-news">
             <img src="${PUBLIC_VISUALS.evidenceStack}" alt="Editorial updates and landlord guidance">
@@ -2861,7 +2922,7 @@
           <div>
             <span class="eyebrow">Contact CMP</span>
             <h1>Need a certificate, check, or evidence pack?</h1>
-            <p>Use this page when a landlord wants direct support now. CMP can still keep the journey calm, service-led, and property-led before anything becomes a bigger workflow.</p>
+            <p>Use this page when you want direct support now. CMP keeps the check calm, service-led and property-led before anything becomes a bigger workflow.</p>
             <div class="hero-actions">
               <a class="button primary" href="mailto:compliance@complymyproperty.com">Email CMP</a>
               <a class="button secondary" href="tel:01217708814">Call 0121 770 8814</a>
@@ -2879,9 +2940,9 @@
 
         <section class="page-section">
           <div class="section-heading">
-            <span class="eyebrow">Support routes</span>
+            <span class="eyebrow">Support choices</span>
             <h2>Choose the fastest way to get the right help.</h2>
-            <p>These routes stay practical. You can ask for a certificate, a property check, or help organising the evidence before the next step.</p>
+            <p>These choices stay practical. You can ask for a certificate, a property check, or help organising evidence before the next step.</p>
           </div>
           <div class="contact-grid">
             <article class="contact-card">
@@ -2909,7 +2970,7 @@
           <div class="home-centered-heading">
             <span class="eyebrow">Prefer to self-check first?</span>
             <h2>Start with the property and let CMP organise the next step.</h2>
-            <p>You can still use the public journey first, then return for support once the property facts, evidence, and open checks are in one place.</p>
+            <p>You can still use the public check first, then return for support once the property facts, evidence and open checks are in one place.</p>
           </div>
           <div class="home-trust-actions home-centered-actions">
             <a class="button primary" href="add-property.html">Check your property</a>

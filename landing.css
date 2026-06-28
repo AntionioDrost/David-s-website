@@ -12967,3 +12967,184 @@ body[data-public-page] .footer-social-links a {
   min-width: 44px;
   padding: 8px 11px;
 }
+
+/* CMP Stage G.3: premium British landlord product direction. */
+:root {
+  --cmp-ink: #12211d;
+  --cmp-ink-soft: #33483f;
+  --cmp-muted: #5e7068;
+  --cmp-paper: #f6f8f5;
+  --cmp-surface: #ffffff;
+  --cmp-line: rgba(18, 33, 29, 0.14);
+  --cmp-line-strong: rgba(18, 33, 29, 0.24);
+  --cmp-green: #176b4b;
+  --cmp-green-soft: #e6f3eb;
+  --cmp-blue: #285f73;
+  --cmp-blue-soft: #e5eff3;
+  --cmp-amber: #8d5419;
+  --cmp-amber-soft: #f8ecd8;
+}
+
+body[data-public-page] {
+  background:
+    linear-gradient(180deg, #fbfcfa 0%, var(--cmp-paper) 48%, #eef4f0 100%);
+  color: var(--cmp-ink);
+}
+
+body[data-public-page] .site-nav,
+body[data-public-page] .public-page-hero,
+body[data-public-page] .page-section,
+body[data-public-page] .question-panel,
+body[data-public-page] .helper-card,
+body[data-public-page] .service-grid-card,
+body[data-public-page] .property-summary-card,
+body[data-public-page] .empty-state-card,
+body[data-public-page] .postcode-card,
+body[data-public-page] .address-card,
+body[data-public-page] .review-handoff-card,
+body[data-public-page] .site-footer {
+  border-color: var(--cmp-line);
+  box-shadow: 0 14px 34px rgba(18, 33, 29, 0.065);
+}
+
+body[data-public-page] .public-page-hero,
+body[data-public-page] .page-section,
+body[data-public-page] .question-panel,
+body[data-public-page] .helper-card,
+body[data-public-page] .service-grid-card,
+body[data-public-page] .property-summary-card,
+body[data-public-page] .empty-state-card,
+body[data-public-page] .postcode-card,
+body[data-public-page] .address-card,
+body[data-public-page] .review-handoff-card {
+  background: var(--cmp-surface);
+}
+
+body[data-public-page] h1,
+body[data-public-page] h2,
+body[data-public-page] h3,
+body[data-public-page] strong {
+  color: var(--cmp-ink);
+}
+
+body[data-public-page] p,
+body[data-public-page] small {
+  color: var(--cmp-muted);
+}
+
+body[data-public-page] .button.primary,
+body[data-public-page] .postcode-row .button.primary,
+body[data-public-page] .service-journey-actions .button.primary,
+body[data-public-page] .address-card .button.primary {
+  border-color: #0f4d36;
+  color: #ffffff;
+  background: #145d42;
+  box-shadow: 0 12px 24px rgba(20, 93, 66, 0.18);
+}
+
+body[data-public-page] .button.secondary,
+body[data-public-page] .button.tertiary,
+body[data-public-page] .nav-cta,
+body[data-public-page] .nav-link-secondary {
+  border-color: var(--cmp-line);
+  color: var(--cmp-ink);
+  background: #ffffff;
+}
+
+body[data-public-page] .section-kicker,
+body[data-public-page] .service-grid-eyebrow,
+body[data-public-page] .eyebrow,
+body[data-public-page] .quiet-pill,
+body[data-public-page] .status-pill,
+body[data-public-page] .service-stage-mini,
+body[data-public-page] .service-status {
+  border-color: var(--cmp-line-strong);
+  color: var(--cmp-ink);
+  background: #ffffff;
+}
+
+body[data-public-page] .status-pill.info,
+body[data-public-page] .service-stage-mini-blue {
+  color: #123f4f;
+  background: var(--cmp-blue-soft);
+}
+
+body[data-public-page] .status-pill.good,
+body[data-public-page] .service-stage-mini-green {
+  color: #0f4d36;
+  background: var(--cmp-green-soft);
+}
+
+body[data-public-page] .status-pill.warning,
+body[data-public-page] .status-pill.attention,
+body[data-public-page] .status-pill.urgent,
+body[data-public-page] .service-stage-mini-purple {
+  color: #5f340b;
+  background: var(--cmp-amber-soft);
+}
+
+body[data-public-page] .cmp-v2-principles span,
+body[data-public-page] .service-safe-strip span,
+body[data-public-page] .hero-metrics span,
+body[data-public-page] .property-summary-meta span,
+body[data-public-page] .footer-trust-pills span {
+  border-color: var(--cmp-line);
+  color: var(--cmp-ink-soft);
+  background: #ffffff;
+}
+
+body[data-public-page] .service-proof-card {
+  min-height: 430px;
+  border-radius: 8px;
+}
+
+body[data-public-page] .service-proof-card .service-card-preview,
+body[data-public-page] .property-file-visual,
+body[data-public-page] .document-motif,
+body[data-public-page] .trust-ledger {
+  border: 1px solid var(--cmp-line);
+  background:
+    linear-gradient(rgba(18, 33, 29, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18, 33, 29, 0.035) 1px, transparent 1px),
+    #fbfcfa;
+  background-size: 22px 22px;
+}
+
+body[data-public-page] .add-property-flow .question-panel,
+body[data-public-page] .review-found-card,
+body[data-public-page] .review-handoff-card,
+body[data-public-page] .address-card {
+  border-radius: 8px;
+}
+
+body[data-public-page="my-properties"] .my-properties-bridge-hero {
+  min-height: auto;
+  padding-block: clamp(28px, 5vw, 56px);
+}
+
+body[data-public-page="add-property"] .add-property-bridge-hero {
+  min-height: auto;
+}
+
+body[data-public-page="add-property"] .add-property-control-strip {
+  justify-content: flex-start;
+  margin: 16px 0 0;
+}
+
+body[data-public-page] .service-grid-card h3,
+body[data-public-page] .property-summary-card h3,
+body[data-public-page] .address-card strong {
+  line-height: 1.15;
+}
+
+@media (max-width: 680px) {
+  body[data-public-page] .service-proof-card {
+    min-height: 0;
+  }
+
+  body[data-public-page] .cmp-v2-principles,
+  body[data-public-page] .service-safe-strip {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+}
