@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CMP Prime V2</title>
+    <meta
+      name="description"
+      content="CMP Prime V2 prototype: A-Z rental compliance, evidence and service booking journey."
+    >
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='5' fill='%23087a53'/%3E%3Cpath d='M12 4 6.2 6.1v5.2c0 3.9 2.4 6.8 5.8 8.2 3.4-1.4 5.8-4.3 5.8-8.2V6.1L12 4Z' fill='none' stroke='white' stroke-width='1.8'/%3E%3Cpath d='m8.6 12 2.1 2 4.6-5' fill='none' stroke='white' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <div class="app-shell">
+      <header class="site-header" aria-label="CMP Prime header">
+        <button class="brand" type="button" data-action="home" aria-label="CMP Prime home">
+          <span class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" focusable="false">
+              <path d="M12 3.3 5.7 5.7v5.8c0 4.3 2.6 7.6 6.3 9.2 3.7-1.6 6.3-4.9 6.3-9.2V5.7L12 3.3Z"></path>
+              <path d="m8.8 12 2.1 2 4.4-4.7"></path>
+            </svg>
+          </span>
+          <span>
+            <strong>CMP Prime</strong>
+            <small>Property compliance checker</small>
+          </span>
+        </button>
+
+        <nav class="header-nav" aria-label="Primary">
+          <button type="button" data-action="route-home">Check</button>
+          <button type="button" data-action="services">Services</button>
+          <button type="button" data-action="properties">My Properties</button>
+        </nav>
+
+        <button class="header-cta" type="button" data-action="start-az">
+          <span class="btn-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M5 12h14"></path><path d="m13 6 6 6-6 6"></path></svg>
+          </span>
+          Check a property
+        </button>
+      </header>
+
+      <main id="app" tabindex="-1"></main>
+    </div>
+
+    <aside class="drawer" id="documentDrawer" aria-hidden="true" aria-labelledby="documentDrawerTitle">
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <div>
+            <p class="overline">Property File Scan</p>
+            <h2 id="documentDrawerTitle">Add documents</h2>
+          </div>
+          <button class="icon-button" type="button" data-action="close-documents" aria-label="Close document drawer">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6 6 18"></path></svg>
+          </button>
+        </div>
+        <div id="documentDrawerBody"></div>
+      </div>
+    </aside>
+
+    <aside class="drawer" id="askDrawer" aria-hidden="true" aria-labelledby="askDrawerTitle">
+      <div class="drawer-panel">
+        <div class="drawer-head">
+          <div>
+            <p class="overline">Ask CMP</p>
+            <h2 id="askDrawerTitle">Ask about this property</h2>
+          </div>
+          <button class="icon-button" type="button" data-action="close-ask" aria-label="Close Ask CMP">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12"></path><path d="M18 6 6 18"></path></svg>
+          </button>
+        </div>
+        <div id="askDrawerBody"></div>
+      </div>
+    </aside>
+
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+    <script src="app.js"></script>
+  </body>
+</html>
