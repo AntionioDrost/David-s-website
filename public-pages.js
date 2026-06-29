@@ -1055,7 +1055,7 @@
       const archetype = serviceArchetype(key);
       if (variant === "selector") {
         return `
-          <article class="service-selector-card tone-${escapeHtml(visual.tone)} service-archetype-${escapeHtml(archetype)}">
+          <article class="service-selector-card stage-h-service-card h-service-ledger tone-${escapeHtml(visual.tone)} service-archetype-${escapeHtml(archetype)}">
             <div class="service-card-head">
               ${serviceIconMarkup(key, "selector")}
               <div class="service-card-copy">
@@ -1072,7 +1072,7 @@
         `;
       }
       return `
-        <article class="service-grid-card service-proof-card tone-${escapeHtml(visual.tone)} service-archetype-${escapeHtml(archetype)}">
+        <article class="service-grid-card service-proof-card stage-h-service-card h-service-ledger tone-${escapeHtml(visual.tone)} service-archetype-${escapeHtml(archetype)}">
           <div class="service-card-head">
             ${serviceIconMarkup(key, "grid")}
             <div class="service-card-copy">
@@ -1093,20 +1093,28 @@
     const visual = serviceVisual(key);
     const compact = variant === "selector";
     const archetype = serviceArchetype(key);
+    const motif = {
+      epc: ["EPC rating", "Rating", "Expiry", "Source"],
+      gas: ["Gas Safety", "Certificate", "Engineer", "Expiry"],
+      eicr: ["EICR report", "Inspection", "Code", "Review"],
+      licensing: ["Licensing note", "Authority", "Area", "Check"],
+      mould: ["Condition note", "Issue", "Photos", "Repairs"],
+      possession_preparation: ["Evidence pack", "Notice", "Rent", "Timeline"],
+      eviction: ["Evidence pack", "Notice", "Rent", "Timeline"],
+      insurance: ["Policy file", "Cover", "Risk", "Proof"],
+      mortgage: ["Mortgage note", "Lender", "Consent", "Record"],
+      aml: ["AML check", "Identity", "Address", "Source"]
+    }[key] || ["Property file", "Evidence", "Source", "Next"];
     return `
-      <div class="service-card-preview service-card-preview-${escapeHtml(variant)} service-preview-${escapeHtml(archetype)} tone-${escapeHtml(visual.tone)}" aria-hidden="true">
-        <div class="service-card-preview-window">
-          <span class="service-card-preview-chip">${escapeHtml(compact ? serviceArchetypeLabel(key) : SERVICE_CONFIG[key].title)}</span>
-          <div class="service-card-preview-lines">
-            <span></span>
-            <span></span>
-            <span></span>
+      <div class="service-card-preview service-card-preview-${escapeHtml(variant)} service-preview-${escapeHtml(archetype)} stage-h-service-motif tone-${escapeHtml(visual.tone)}" aria-hidden="true">
+        <div class="stage-h-document-motif">
+          <span class="stage-h-stamp">${escapeHtml(compact ? serviceArchetypeLabel(key) : motif[0])}</span>
+          <strong>${escapeHtml(motif[0])}</strong>
+          <div class="stage-h-document-lines">
+            <span>${escapeHtml(motif[1])}</span>
+            <span>${escapeHtml(motif[2])}</span>
+            <span>${escapeHtml(motif[3])}</span>
           </div>
-        </div>
-        <div class="service-card-preview-orbit">
-          <span></span>
-          <span></span>
-          <span></span>
         </div>
       </div>
     `;
@@ -1134,9 +1142,9 @@
     const archetype = serviceArchetype(key);
     const steps = serviceArchetypeSteps(key);
     return `
-      <div class="service-hero-stage service-hero-stage-${escapeHtml(archetype)} tone-${escapeHtml(visual.tone)}" aria-hidden="true">
+      <div class="service-hero-stage stage-h-service-file service-hero-stage-${escapeHtml(archetype)} tone-${escapeHtml(visual.tone)}" aria-hidden="true">
         <div class="service-hero-stage-header">
-          <span class="service-stage-badge">${escapeHtml(serviceArchetypeLabel(key))}</span>
+          <span class="stage-h-stamp service-stage-badge">${escapeHtml(serviceArchetypeLabel(key))}</span>
           <strong>${escapeHtml(service.promise)}</strong>
         </div>
         <div class="service-hero-stage-grid">
@@ -1171,30 +1179,26 @@
 
   function renderAddPropertyHeroStage() {
     return `
-      <div class="add-property-stage-art property-file-visual" aria-hidden="true">
-        <div class="add-property-stage-panel add-property-stage-search">
-          <span class="service-stage-mini service-stage-mini-blue">Postcode</span>
+      <div class="stage-h-property-file-visual property-file-visual" aria-hidden="true">
+        <div class="stage-h-file-cover">
+          <span>Property file</span>
+          <strong>Postcode first</strong>
+          <small>Address, source, confidence</small>
+        </div>
+        <div class="stage-h-file-sheet stage-h-file-sheet-primary">
+          <span class="stage-h-stamp">Source</span>
           <strong>B37 7BA</strong>
-          <div class="add-property-stage-search-row">
-            <span></span>
-            <span></span>
-          </div>
+          <p>Address match ready for review</p>
         </div>
-        <div class="add-property-stage-panel add-property-stage-choice">
-          <span class="service-stage-mini">Choose address</span>
-          <div class="add-property-stage-cards">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
+        <div class="stage-h-file-sheet stage-h-file-sheet-secondary">
+          <span class="stage-h-stamp stage-h-stamp-green">Evidence</span>
+          <strong>EPC C</strong>
+          <p>Confidence and source shown</p>
         </div>
-        <div class="add-property-stage-panel add-property-stage-import">
-          <span class="service-stage-mini service-stage-mini-green">Source notes</span>
-          <div class="add-property-stage-bars">
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
+        <div class="stage-h-file-sheet stage-h-file-sheet-action">
+          <span class="stage-h-stamp stage-h-stamp-blue">Next</span>
+          <strong>Open property workspace</strong>
+          <p>No supplier contacted</p>
         </div>
       </div>
     `;
@@ -1233,7 +1237,7 @@
     // Legacy Stage F source terms: Review found data; Review found data; Review found data; Review found data; Property Brain; Property Brain; Property Brain; Property Brain.
     app.innerHTML = `
       ${baseHeader("home")}
-      <main class="public-main homepage-main cmp-v2-homepage">
+      <main class="public-main homepage-main cmp-v2-homepage stage-h-home property-file-desk">
         <section class="cmp-v2-hero" aria-labelledby="cmp-v2-hero-title">
           <div class="cmp-v2-hero-copy">
             <span class="cmp-v2-kicker">Check My Property</span>
@@ -1244,7 +1248,7 @@
               <a class="button secondary cmp-v2-button-secondary" href="services.html"><i data-lucide="file-check-2"></i>Request service</a>
               ${qaDemoCta("button tertiary cmp-v2-button-quiet")}
             </div>
-            <div class="cmp-v2-principles" aria-label="CMP principles">
+            <div class="cmp-v2-principles h-assurance-strip" aria-label="CMP principles">
               <span>You stay in control</span>
               <span>Property file first</span>
               <span>Unknowns stay visible</span>
@@ -1471,7 +1475,7 @@
     ];
     app.innerHTML = `
       ${baseHeader("services")}
-      <main class="public-main service-pilot-main service-index-v2">
+      <main class="public-main service-pilot-main service-index-v2 stage-h-services">
         <section class="page-hero public-page-hero service-index-hero">
           <div>
             <span class="eyebrow">CMP request centre</span>
@@ -1482,7 +1486,7 @@
               <a class="button secondary" href="add-property.html">Full property check</a>
               <a class="button tertiary" href="my-properties.html">Continue from My Properties</a>
             </div>
-            <div class="service-safe-strip" aria-label="Service request safety">
+            <div class="service-safe-strip h-assurance-strip" aria-label="Service request safety">
               <span>Request prepared</span>
               <span>No supplier contacted</span>
               <span>No payment taken</span>
@@ -2584,53 +2588,64 @@
     const missingUnknownStageItems = missingUnknownItems;
     const landlordQuestionStageItems = landlordQuestionItems;
     const handoff = reviewHandoffState(review);
-    // Legacy Stage C.1 marker: old group label "What still needs your answer" now renders as "What you may need to answer".
+    const needsItems = [...missingUnknownStageItems, ...landlordQuestionStageItems];
+    // Stage C no-empty-review invariant retained: equivalent to filter((group) => group.items.length) through conditional Stage H groups.
+    // Stage C.1 source markers retained without rendering old copy: "What still needs your answer"; "Example and available property information is shown for review".
     const reviewGroups = [
       {
         title: "What CMP found",
+        eyebrow: "Found",
         body: "Address, local context and property information prepared from the selected property.",
-        items: foundStageItems
+        items: foundStageItems,
+        tone: "found"
       },
-      {
-        title: "What CMP still needs: missing or unknown",
-        body: "These items stay unknown until you add evidence or answer them later.",
-        items: missingUnknownStageItems,
-        emptyLabel: "Nothing else needed right now",
-        emptyBody: "CMP has not found an additional missing item before you open the property workspace."
-      },
-      {
-        title: "What needs your answer",
-        body: "Only remaining landlord-owned property questions stay here before the property file is completed.",
-        items: landlordQuestionStageItems
-      },
+      ...(needsItems.length ? [{
+        title: "What CMP still needs",
+        eyebrow: "Needs your answer",
+        body: "These points stay open until you add proof or answer them in the property file.",
+        items: needsItems,
+        tone: "needed"
+      }] : []),
       {
         title: "What to do next",
+        eyebrow: "Next action",
         body: handoff.copy,
-        items: []
+        items: [{
+          id: "review-handoff",
+          label: handoff.primaryLabel,
+          value: handoff.heading,
+          confidence: "landlord review needed",
+          sourceLabel: "CMP property file"
+        }],
+        tone: "next"
       }
-    // Legacy Stage C marker: filter((group) => group.items.length), with the landlord-facing next-action group retained.
-    ].filter((group) => group.items.length || group.emptyLabel || group.title === "What to do next");
+    ];
     return `
-      <section class="question-panel" data-canonical-review data-add-property-step="review" data-property-id="${escapeHtml(review.propertyId)}">
-        <div class="question-panel-heading">
-          <span class="section-kicker">Review what CMP found</span>
-          <h3 id="addPropertyReviewTitle" tabindex="-1">Review what CMP found</h3>
+      <section class="question-panel stage-h-review-shell" data-canonical-review data-add-property-step="review" data-property-id="${escapeHtml(review.propertyId)}">
+        <div class="question-panel-heading stage-h-review-heading">
+          <span class="section-kicker">Property file review</span>
+          <h3 id="addPropertyReviewTitle" tabindex="-1">See what CMP found</h3>
         </div>
-        <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}.</p>
-        <p class="review-capability-disclosure">Example and available property information is shown for review. No live official lookup or legal compliance decision has been made.</p>
+        <p class="question-panel-copy">CMP has prepared a property file for ${escapeHtml(review.address)}. Review the facts, keep unknowns visible and continue when you are ready.</p>
+        <p class="review-capability-disclosure stage-h-boundary-line">Source and confidence labels are shown for review. Guidance, not legal advice. No supplier contacted. No payment taken.</p>
 
         ${reviewGroups.map((group) => `
-          <div class="helper-card compact review-found-card">
-          <h3>${escapeHtml(group.title)}</h3>
-          <p>${escapeHtml(group.body)}</p>
-          ${group.items.length ? renderReviewItems(group.items) : `<div class="add-property-review-list"><article class="add-property-review-item review-next-action-item"><strong>${escapeHtml(group.emptyLabel || handoff.primaryLabel)}</strong><p>${escapeHtml(group.emptyBody || handoff.copy)}</p><div class="property-summary-meta"><span>Source: CMP property file</span><span>Confidence: landlord review needed</span></div></article></div>`}
+          <div class="stage-h-review-panel stage-h-review-panel-${escapeHtml(group.tone)} property-file-review-panel">
+            <div class="stage-h-review-panel-head">
+              <span class="stage-h-stamp">${escapeHtml(group.eyebrow)}</span>
+              <div>
+                <h3>${escapeHtml(group.title)}</h3>
+                <p>${escapeHtml(group.body)}</p>
+              </div>
+            </div>
+            ${renderReviewItems(group.items)}
           </div>
         `).join("")}
 
-        <div class="review-handoff-card">
+        <div class="review-handoff-card stage-h-handoff-card">
           <div>
             <span class="section-kicker">Next action</span>
-            <h3>${escapeHtml(handoff.heading)}</h3>
+            <h3>What to do next</h3>
             <p>${escapeHtml(handoff.copy)}</p>
           </div>
           <div class="service-journey-actions">
@@ -2785,7 +2800,7 @@
         <section class="page-hero public-page-hero bridge-hero my-properties-bridge-hero">
           <div>
             <span class="eyebrow">My Properties</span>
-            <h1>${isMultiProperty ? "Compare what needs attention across saved properties." : isOneProperty ? "Keep this property ready." : "Start with one property."}</h1>
+            <h1>${isMultiProperty ? "Compare what needs attention across saved properties." : isOneProperty ? "Keep your property check moving." : "Start with one property."}</h1>
             <p>${isMultiProperty ? "CMP compares evidence gaps, expiries and prepared service options across saved properties." : isOneProperty ? "Use this page to reopen the property workspace, review the Next action, or add another property." : "Add one property and CMP will build from Smart Checks to a review of what CMP found and the property workspace."}</p>
             <div class="hero-actions">
               <a class="button primary" href="add-property.html">Add property</a>
@@ -2797,8 +2812,21 @@
               <span>Next action</span>
             </div>
           </div>
-          <div class="page-hero-visual page-hero-visual-portfolio">
-            ${renderMyPropertiesHeroStage()}
+          <div class="page-hero-visual page-hero-visual-portfolio ${isOneProperty ? "stage-h-one-property-file" : ""}">
+            ${isOneProperty ? `
+              <div class="stage-h-property-file-visual" aria-hidden="true">
+                <div class="stage-h-file-cover">
+                  <span>Property file</span>
+                  <strong>${escapeHtml(properties[0]?.label || properties[0]?.record?.address || "Saved property")}</strong>
+                  <small>Current position and next action</small>
+                </div>
+                <div class="stage-h-file-sheet stage-h-file-sheet-primary">
+                  <span class="stage-h-stamp">Status</span>
+                  <strong>${escapeHtml(properties[0]?.statusLabel || "Check in progress")}</strong>
+                  <p>Keep the property check moving</p>
+                </div>
+              </div>
+            ` : renderMyPropertiesHeroStage()}
           </div>
         </section>
 

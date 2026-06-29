@@ -20551,3 +20551,462 @@ body.normal-canonical-workspace .prompt-stack button:focus-visible {
     border-radius: 8px;
   }
 }
+
+/* CMP Stage H: selected-property workspace presentation rebuild, stage-h-workspace. */
+:root {
+  --h-workspace-ink: #10272b;
+  --h-workspace-ink-strong: #07181b;
+  --h-workspace-muted: #526766;
+  --h-workspace-paper: #fffdf7;
+  --h-workspace-bg: #f2eee5;
+  --h-workspace-surface: #ffffff;
+  --h-workspace-muted-surface: #f7f2e8;
+  --h-workspace-border: #d8cdb9;
+  --h-workspace-border-strong: #bcae95;
+  --h-workspace-accent: #14624d;
+  --h-workspace-blue: #315f70;
+  --h-sidebar: #10272b;
+  --h-sidebar-ink: #fff7e8;
+  --h-sidebar-muted: #d7ccb9;
+  --h-workspace-radius: 8px;
+  --h-workspace-shadow: 0 18px 38px rgba(16, 39, 43, 0.12);
+  --h-workspace-focus: 0 0 0 4px rgba(20, 98, 77, 0.22);
+}
+
+body.normal-canonical-workspace {
+  overflow-x: hidden;
+  color: var(--h-workspace-ink);
+  background:
+    linear-gradient(90deg, rgba(16, 39, 43, 0.035) 1px, transparent 1px),
+    linear-gradient(180deg, var(--h-workspace-paper) 0%, var(--h-workspace-bg) 54%, #eee7dc 100%);
+  background-size: 44px 44px, auto;
+}
+
+body.normal-canonical-workspace :focus-visible {
+  outline: 2px solid var(--h-workspace-accent);
+  outline-offset: 3px;
+  box-shadow: var(--h-workspace-focus);
+}
+
+body.normal-canonical-workspace .labs-shell {
+  grid-template-columns: 264px minmax(0, 1fr) 320px;
+  gap: 22px;
+  padding: 18px;
+}
+
+body.normal-canonical-workspace .labs-sidebar {
+  position: sticky;
+  top: 18px;
+  align-self: start;
+  max-height: calc(100vh - 36px);
+  overflow: auto;
+  border: 1px solid rgba(255, 247, 232, 0.18);
+  border-radius: var(--h-workspace-radius);
+  color: var(--h-sidebar-ink);
+  background:
+    linear-gradient(180deg, rgba(255, 247, 232, 0.05), transparent 36%),
+    var(--h-sidebar);
+  box-shadow: var(--h-workspace-shadow);
+}
+
+body.normal-canonical-workspace .brand-lockup,
+body.normal-canonical-workspace .brand-lockup span,
+body.normal-canonical-workspace .brand-lockup strong {
+  color: var(--h-sidebar-ink);
+}
+
+body.normal-canonical-workspace .sidebar-section-title,
+body.normal-canonical-workspace .property-option small,
+body.normal-canonical-workspace .quiet-add {
+  color: var(--h-sidebar-muted);
+}
+
+body.normal-canonical-workspace .labs-sidebar .nav-item {
+  min-height: 46px;
+  border: 1px solid transparent;
+  border-radius: var(--h-workspace-radius);
+  color: var(--h-sidebar-ink);
+  background: transparent;
+}
+
+body.normal-canonical-workspace .labs-sidebar .nav-item:hover,
+body.normal-canonical-workspace .labs-sidebar .nav-item:focus-visible {
+  border-color: rgba(255, 247, 232, 0.24);
+  color: #ffffff;
+  background: rgba(255, 247, 232, 0.1);
+}
+
+body.normal-canonical-workspace .labs-sidebar .nav-item.is-active {
+  border-color: rgba(255, 247, 232, 0.35);
+  color: #ffffff;
+  background: rgba(255, 247, 232, 0.18);
+  box-shadow: inset 4px 0 0 #d5b46a;
+}
+
+body.normal-canonical-workspace .property-switcher {
+  border: 1px solid rgba(255, 247, 232, 0.22);
+  border-radius: var(--h-workspace-radius);
+  background: rgba(255, 247, 232, 0.08);
+}
+
+body.normal-canonical-workspace .property-option {
+  min-height: 50px;
+  border-radius: var(--h-workspace-radius);
+  color: var(--h-sidebar-ink);
+}
+
+body.normal-canonical-workspace .property-option strong {
+  color: #ffffff;
+}
+
+body.normal-canonical-workspace .property-option.is-active {
+  border: 1px solid rgba(255, 247, 232, 0.26);
+  background: rgba(255, 247, 232, 0.14);
+}
+
+body.normal-canonical-workspace .quiet-add {
+  min-height: 44px;
+  border-color: rgba(255, 247, 232, 0.26);
+  border-radius: var(--h-workspace-radius);
+  background: rgba(255, 247, 232, 0.08);
+}
+
+body.normal-canonical-workspace .workspace {
+  min-width: 0;
+}
+
+body.normal-canonical-workspace .utility-bar,
+body.normal-canonical-workspace .property-header,
+body.normal-canonical-workspace .portfolio-home-header,
+body.normal-canonical-workspace .documents-header,
+body.normal-canonical-workspace .compliance-header,
+body.normal-canonical-workspace .services-header,
+body.normal-canonical-workspace .timeline-header,
+body.normal-canonical-workspace .autopilot-card,
+body.normal-canonical-workspace .next-action-card,
+body.normal-canonical-workspace .small-card,
+body.normal-canonical-workspace .placeholder-panel,
+body.normal-canonical-workspace .status-tile,
+body.normal-canonical-workspace .summary-card,
+body.normal-canonical-workspace .inbox-panel,
+body.normal-canonical-workspace .upload-panel,
+body.normal-canonical-workspace .vault-list-card,
+body.normal-canonical-workspace .missing-evidence-card,
+body.normal-canonical-workspace .strengthened-panel,
+body.normal-canonical-workspace .scenario-panel,
+body.normal-canonical-workspace .essential-card,
+body.normal-canonical-workspace .forecast-section,
+body.normal-canonical-workspace .prs-card,
+body.normal-canonical-workspace .what-if-panel,
+body.normal-canonical-workspace .guided-card,
+body.normal-canonical-workspace .timeline-visit-card,
+body.normal-canonical-workspace .timeline-event,
+body.normal-canonical-workspace .timeline-actions-panel,
+body.normal-canonical-workspace .services-header,
+body.normal-canonical-workspace .primary-service-card,
+body.normal-canonical-workspace .open-requests-panel,
+body.normal-canonical-workspace .service-option-card,
+body.normal-canonical-workspace .human-support-panel,
+body.normal-canonical-workspace .portfolio-evidence-header,
+body.normal-canonical-workspace .portfolio-tasks-header,
+body.normal-canonical-workspace .evidence-inbox-panel,
+body.normal-canonical-workspace .evidence-toolbar,
+body.normal-canonical-workspace .evidence-list-card,
+body.normal-canonical-workspace .evidence-row,
+body.normal-canonical-workspace .property-evidence-health-card,
+body.normal-canonical-workspace .tasks-start-card,
+body.normal-canonical-workspace .task-card,
+body.normal-canonical-workspace .task-board-column,
+body.normal-canonical-workspace .tasks-completed-section,
+body.normal-canonical-workspace .assistant-rail,
+body.normal-canonical-workspace .ask-chat-panel,
+body.normal-canonical-workspace .ask-context-panel,
+body.normal-canonical-workspace .ask-source-panel {
+  border: 1px solid var(--h-workspace-border);
+  border-radius: var(--h-workspace-radius);
+  background: var(--h-workspace-surface);
+  box-shadow: 0 1px 2px rgba(16, 39, 43, 0.08);
+}
+
+body.normal-canonical-workspace .property-header,
+body.normal-canonical-workspace .portfolio-home-header,
+body.normal-canonical-workspace .services-header,
+body.normal-canonical-workspace .timeline-header,
+body.normal-canonical-workspace .portfolio-evidence-header,
+body.normal-canonical-workspace .portfolio-tasks-header {
+  border-left: 5px solid var(--h-workspace-accent);
+  background:
+    linear-gradient(rgba(16, 39, 43, 0.04) 1px, transparent 1px),
+    var(--h-workspace-paper);
+  background-size: 100% 30px;
+}
+
+body.normal-canonical-workspace .home-priority-card,
+body.normal-canonical-workspace .next-action-card,
+body.normal-canonical-workspace .tasks-start-card {
+  border-left: 5px solid var(--h-workspace-accent);
+}
+
+body.normal-canonical-workspace .portfolio-autopilot-card,
+body.normal-canonical-workspace .home-priority-card {
+  color: var(--h-workspace-ink);
+  background:
+    linear-gradient(rgba(16, 39, 43, 0.04) 1px, transparent 1px),
+    var(--h-workspace-paper);
+  background-size: 100% 30px;
+}
+
+body.normal-canonical-workspace .portfolio-autopilot-card h2,
+body.normal-canonical-workspace .portfolio-autopilot-card h3,
+body.normal-canonical-workspace .portfolio-autopilot-card p,
+body.normal-canonical-workspace .portfolio-autopilot-card strong,
+body.normal-canonical-workspace .home-priority-card h2,
+body.normal-canonical-workspace .home-priority-card h3,
+body.normal-canonical-workspace .home-priority-card p,
+body.normal-canonical-workspace .home-priority-card strong {
+  color: var(--h-workspace-ink-strong) !important;
+}
+
+body.normal-canonical-workspace .property-header h1,
+body.normal-canonical-workspace .portfolio-home-header h2,
+body.normal-canonical-workspace .documents-header h1,
+body.normal-canonical-workspace .compliance-header h1,
+body.normal-canonical-workspace .services-header h2,
+body.normal-canonical-workspace .timeline-header h2,
+body.normal-canonical-workspace .home-priority-card h3,
+body.normal-canonical-workspace .next-action-card h3,
+body.normal-canonical-workspace .small-card h3,
+body.normal-canonical-workspace .status-tile h3,
+body.normal-canonical-workspace .task-card h3,
+body.normal-canonical-workspace .service-option-card h3,
+body.normal-canonical-workspace .timeline-event h3,
+body.normal-canonical-workspace .assistant-rail h2,
+body.normal-canonical-workspace .ask-chat-panel h2,
+body.normal-canonical-workspace .ask-context-panel h2 {
+  color: var(--h-workspace-ink-strong);
+  letter-spacing: 0;
+}
+
+body.normal-canonical-workspace p,
+body.normal-canonical-workspace li,
+body.normal-canonical-workspace dd,
+body.normal-canonical-workspace small {
+  color: var(--h-workspace-muted);
+  line-height: 1.58;
+}
+
+body.normal-canonical-workspace .property-meta span,
+body.normal-canonical-workspace .prototype-badge,
+body.normal-canonical-workspace .source-badge,
+body.normal-canonical-workspace .doc-status,
+body.normal-canonical-workspace .matrix-pill,
+body.normal-canonical-workspace .confidence-pill,
+body.normal-canonical-workspace .service-property-label,
+body.normal-canonical-workspace .task-chip-row span,
+body.normal-canonical-workspace .task-meta-row span:not(.doc-status),
+body.normal-canonical-workspace .evidence-pill-stack span,
+body.normal-canonical-workspace .ask-chat-status-row span,
+body.normal-canonical-workspace .ask-check-chip-row span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  border: 1px solid var(--h-workspace-border);
+  border-radius: var(--h-workspace-radius);
+  padding: 4px 9px;
+  color: var(--h-workspace-ink);
+  background: var(--h-workspace-paper);
+  font-weight: 720;
+  letter-spacing: 0;
+}
+
+body.normal-canonical-workspace .doc-status.status-accepted,
+body.normal-canonical-workspace .status-accepted,
+body.normal-canonical-workspace .status-good,
+body.normal-canonical-workspace .status-ok {
+  border-color: rgba(28, 108, 79, 0.28);
+  color: #15533e;
+  background: #e5f1ea;
+}
+
+body.normal-canonical-workspace .doc-status.status-review,
+body.normal-canonical-workspace .status-review-text,
+body.normal-canonical-workspace .status-review {
+  border-color: rgba(139, 90, 32, 0.32);
+  color: #6b4316;
+  background: #fbefd8;
+}
+
+body.normal-canonical-workspace .doc-status.status-missing,
+body.normal-canonical-workspace .status-missing,
+body.normal-canonical-workspace .missing-evidence-card {
+  border-color: rgba(143, 63, 52, 0.28);
+}
+
+body.normal-canonical-workspace .doc-status.status-missing,
+body.normal-canonical-workspace .status-missing {
+  color: #7a342c;
+  background: #f9e7e2;
+}
+
+body.normal-canonical-workspace .section-kicker {
+  color: var(--h-workspace-accent);
+  letter-spacing: 0.04em;
+}
+
+body.normal-canonical-workspace .tab-bar,
+body.normal-canonical-workspace .summary-grid,
+body.normal-canonical-workspace .portfolio-score-grid,
+body.normal-canonical-workspace .pulse-grid,
+body.normal-canonical-workspace .documents-grid,
+body.normal-canonical-workspace .service-grid,
+body.normal-canonical-workspace .timeline-workbench,
+body.normal-canonical-workspace .tasks-board,
+body.normal-canonical-workspace .evidence-lower-grid,
+body.normal-canonical-workspace .ask-command-centre {
+  gap: 16px;
+}
+
+body.normal-canonical-workspace .primary-button,
+body.normal-canonical-workspace .secondary-button,
+body.normal-canonical-workspace .text-button,
+body.normal-canonical-workspace .tab-button,
+body.normal-canonical-workspace .timeline-filter-row button,
+body.normal-canonical-workspace .prompt-stack button,
+body.normal-canonical-workspace input,
+body.normal-canonical-workspace select,
+body.normal-canonical-workspace textarea,
+body.normal-canonical-workspace button {
+  min-height: 44px;
+}
+
+body.normal-canonical-workspace .primary-button {
+  border: 1px solid #0d4538;
+  border-radius: var(--h-workspace-radius);
+  color: #ffffff;
+  background: var(--h-workspace-accent);
+  box-shadow: 0 12px 22px rgba(20, 98, 77, 0.18);
+}
+
+body.normal-canonical-workspace .secondary-button,
+body.normal-canonical-workspace .text-button,
+body.normal-canonical-workspace .tab-button,
+body.normal-canonical-workspace .timeline-filter-row button,
+body.normal-canonical-workspace .prompt-stack button {
+  border: 1px solid var(--h-workspace-border-strong);
+  border-radius: var(--h-workspace-radius);
+  color: var(--h-workspace-ink);
+  background: var(--h-workspace-paper);
+}
+
+body.normal-canonical-workspace .tab-button.is-active,
+body.normal-canonical-workspace .timeline-filter-row button.is-active {
+  border-color: rgba(20, 98, 77, 0.42);
+  background: #e5f1ea;
+}
+
+body.normal-canonical-workspace .evidence-row,
+body.normal-canonical-workspace .task-card,
+body.normal-canonical-workspace .service-option-card,
+body.normal-canonical-workspace .timeline-event {
+  border-left: 4px solid var(--h-workspace-border-strong);
+  background: var(--h-workspace-paper);
+}
+
+body.normal-canonical-workspace .evidence-row:has(.status-accepted),
+body.normal-canonical-workspace .task-card.is-complete {
+  border-left-color: #1c6c4f;
+}
+
+body.normal-canonical-workspace .evidence-row:has(.status-review),
+body.normal-canonical-workspace .task-card:not(.is-complete) {
+  border-left-color: #8b5a20;
+}
+
+body.normal-canonical-workspace .primary-service-card,
+body.normal-canonical-workspace .open-requests-panel {
+  border-left: 5px solid var(--h-workspace-blue);
+}
+
+body.normal-canonical-workspace .timeline-event {
+  border-left-color: var(--h-workspace-blue);
+}
+
+body.normal-canonical-workspace .assistant-rail,
+body.normal-canonical-workspace .ask-chat-panel,
+body.normal-canonical-workspace .ask-context-panel,
+body.normal-canonical-workspace .ask-source-panel {
+  background: var(--h-workspace-paper);
+}
+
+body.normal-canonical-workspace .assistant-response,
+body.normal-canonical-workspace .ask-chat-surface,
+body.normal-canonical-workspace .ask-context-highlight,
+body.normal-canonical-workspace .ask-command-prompt-card {
+  border: 1px solid var(--h-workspace-border);
+  border-radius: var(--h-workspace-radius);
+  background: #ffffff;
+}
+
+@media (max-width: 1180px) {
+  body.normal-canonical-workspace .labs-shell {
+    grid-template-columns: 248px minmax(0, 1fr);
+  }
+
+  body.normal-canonical-workspace .assistant-rail {
+    grid-column: 2;
+  }
+}
+
+@media (max-width: 920px) {
+  body.normal-canonical-workspace .labs-shell {
+    display: block;
+    padding: 12px;
+  }
+
+  body.normal-canonical-workspace .labs-sidebar {
+    position: relative;
+    top: 0;
+    max-height: none;
+    margin-bottom: 14px;
+  }
+
+  body.normal-canonical-workspace .sidebar-nav {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 8px;
+  }
+}
+
+@media (max-width: 620px) {
+  body.normal-canonical-workspace .labs-shell {
+    padding: 10px;
+  }
+
+  body.normal-canonical-workspace .sidebar-nav {
+    grid-template-columns: 1fr;
+  }
+
+  body.normal-canonical-workspace .property-header,
+  body.normal-canonical-workspace .portfolio-home-header,
+  body.normal-canonical-workspace .documents-header,
+  body.normal-canonical-workspace .compliance-header,
+  body.normal-canonical-workspace .services-header,
+  body.normal-canonical-workspace .timeline-header,
+  body.normal-canonical-workspace .assistant-rail,
+  body.normal-canonical-workspace .ask-chat-panel,
+  body.normal-canonical-workspace .ask-context-panel,
+  body.normal-canonical-workspace .ask-source-panel {
+    padding: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body.normal-canonical-workspace *,
+  body.normal-canonical-workspace *::before,
+  body.normal-canonical-workspace *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

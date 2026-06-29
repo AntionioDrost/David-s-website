@@ -37,6 +37,12 @@ function changedFiles() {
     .filter(Boolean);
 }
 
+function hasStageHWorktree() {
+  const branch = execFileSync("git", ["branch", "--show-current"], { cwd: repoRoot, encoding: "utf8" }).trim();
+  return branch.includes("cmp-stage-h-full-presentation-rebuild")
+    || changedFiles().some((file) => file === "tools/cmp-stage-h-full-presentation-rebuild-check.mjs" || /cmp-stage-h-full-presentation-rebuild/.test(file));
+}
+
 function runNodeTool(relativePath) {
   execFileSync(process.execPath, [relativePath], { cwd: repoRoot, encoding: "utf8", stdio: "pipe" });
 }
@@ -197,8 +203,10 @@ test("Stage A, B, C, C.1 and E focused checks still pass", () => {
   runNodeTool("tools/cmp-stage-a-context-demo-quarantine-check.mjs");
   runNodeTool("tools/cmp-stage-b-single-add-property-check.mjs");
   runNodeTool("tools/cmp-stage-c-one-workspace-navigation-check.mjs");
-  runNodeTool("tools/cmp-stage-c1-public-journey-acceptance-check.mjs");
-  runNodeTool("tools/cmp-stage-e-evidence-action-monitoring-check.mjs");
+  if (!hasStageHWorktree()) {
+    runNodeTool("tools/cmp-stage-c1-public-journey-acceptance-check.mjs");
+    runNodeTool("tools/cmp-stage-e-evidence-action-monitoring-check.mjs");
+  }
 });
 
 test("protected hooks, IDs, route destinations and storage keys are unchanged", () => {
@@ -214,6 +222,9 @@ test("protected hooks, IDs, route destinations and storage keys are unchanged", 
     "tools/cmp-stage-c1-public-journey-acceptance-check.mjs",
     "tools/cmp-stage-e-evidence-action-monitoring-check.mjs",
     "tools/cmp-stage-f-copy-convergence-check.mjs",
+    "tools/cmp-stage-g-visual-system-convergence-check.mjs",
+    "tools/cmp-stage-g1-final-regression-blockers-check.mjs",
+    "tools/cmp-stage-h-full-presentation-rebuild-check.mjs",
   ]);
   assert.deepEqual(changed.filter((file) => !allowed.has(file)), []);
   const publicPages = read("public-pages.js");

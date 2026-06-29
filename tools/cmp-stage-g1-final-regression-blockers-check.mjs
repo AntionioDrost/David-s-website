@@ -318,13 +318,13 @@ async function runAddPropertyReview(browser, origin, assertions, screenshots) {
   await page.waitForSelector("[data-canonical-review]", { timeout: 12000 });
   await page.waitForTimeout(300);
   const text = await bodyText(page);
-  const groups = await page.$$eval("[data-canonical-review] .review-found-card h3", (items) => items.map((item) => item.textContent.trim()));
+  const groups = await page.$$eval("[data-canonical-review] .stage-h-review-panel h3, [data-canonical-review] .review-found-card h3", (items) => items.map((item) => item.textContent.trim()));
   const hasFound = groups.some((item) => /what cmp found/i.test(item));
-  const hasMissing = groups.some((item) => /could not find|missing|unknown/i.test(item));
-  const hasAnswers = groups.some((item) => /needs your answer|confirm/i.test(item));
+  const hasNeeds = groups.some((item) => /what cmp still needs/i.test(item));
+  const hasNext = groups.some((item) => /what to do next/i.test(item));
   assertions.push({
-    name: "Add Property review shows found, missing/unknown and landlord-answer stages",
-    pass: hasFound && hasMissing && hasAnswers,
+    name: "Add Property review shows found, still-needed and next-action property-file sections",
+    pass: hasFound && hasNeeds && hasNext,
     detail: groups.join(" | "),
   });
   assertions.push({
@@ -664,4 +664,3 @@ async function main() {
 }
 
 await main();
-
