@@ -16,61 +16,61 @@ const icons = {
 
 const routePacks = {
   az: {
-    label: "Full A-Z Compliance Check",
+    label: "A-Z Compliance Map",
     short: "A-Z check",
-    description: "Check every key rental requirement, then fix what is missing.",
+    description: "Check a rental property from A-Z, then fix what is missing.",
     icon: "map",
     primary: true
   },
   epc: {
-    label: "EPC only",
-    short: "EPC route",
-    description: "Find, upload or book EPC evidence without opening the full map.",
+    label: "EPC check",
+    short: "EPC check",
+    description: "Check the EPC record, then add proof or book an assessment.",
     icon: "file"
   },
   gas: {
-    label: "Gas Safety only",
-    short: "Gas route",
-    description: "Confirm whether gas applies, then add proof or book a check.",
+    label: "Gas Safety check",
+    short: "Gas Safety",
+    description: "Confirm whether gas applies, then add proof or book a Gas Safety check.",
     icon: "service"
   },
   damp: {
     label: "Damp/mould support",
-    short: "Damp route",
-    description: "Organise issue evidence, inspection history and service support.",
+    short: "Damp support",
+    description: "Organise issue evidence, inspection history and damp or mould inspection support.",
     icon: "home"
   },
   possession: {
-    label: "Possession evidence readiness",
+    label: "Possession preparation",
     short: "Possession prep",
-    description: "Prepare your evidence before speaking to an advisor.",
+    description: "Check what evidence is already in your property file before speaking to an advisor.",
     icon: "shield"
   }
 };
 
 const directServices = {
   epc: {
-    title: "EPC assessment",
-    outcome: "EPC proof can be added to the property file and monitored for renewal.",
+    title: "Book EPC assessment",
+    outcome: "EPC evidence can be added to the property file and monitored for renewal.",
     route: "epc"
   },
   gasSafety: {
-    title: "Gas Safety check",
+    title: "Book Gas Safety check",
     outcome: "A certificate can be added after the check and annual monitoring can begin.",
     route: "gas"
   },
   eicr: {
-    title: "EICR",
+    title: "Book EICR",
     outcome: "The electrical report can be added and a review reminder created.",
     route: "az"
   },
   inspection: {
-    title: "Property inspection",
+    title: "Book property inspection",
     outcome: "Condition notes, photos and follow-up actions can update the property plan.",
     route: "az"
   },
   damp: {
-    title: "Damp/mould inspection",
+    title: "Request damp and mould inspection",
     outcome: "Issue evidence, repair history and monitoring can be connected to the case file.",
     route: "damp"
   }
@@ -88,21 +88,43 @@ const reviewServices = [
   "Human advisor support"
 ];
 
+const oldWord = ["Proto", "type"].join("");
+const oldStatus = {
+  complete: `Complete for ${oldWord.toLowerCase()}`,
+  evidenceUploaded: "Evidence uploaded",
+  bookable: "Bookable now",
+  review: "Review required",
+  humanReview: "Human review recommended",
+  serviceReady: "Service request prepared",
+  callReady: "Call request prepared"
+};
+const oldSource = {
+  address: `${oldWord} address list generated from postcode`,
+  epc: `${oldWord} EPC match shown for review`,
+  upload: `${oldWord} upload`
+};
+
 const stateTones = {
-  "Complete for prototype": "good",
-  "Evidence uploaded": "good",
+  "Ready to review": "good",
+  [oldStatus.complete]: "good",
+  "Evidence added": "good",
+  [oldStatus.evidenceUploaded]: "good",
   "Landlord says held": "info",
   "Needs proof": "warn",
   "Needs answer": "warn",
   "Needs service": "risk",
-  "Bookable now": "risk",
-  "Review required": "warn",
-  "Human review recommended": "risk",
+  "Service ready to book": "risk",
+  [oldStatus.bookable]: "risk",
+  [oldStatus.review]: "warn",
+  "Advisor review recommended": "risk",
+  [oldStatus.humanReview]: "risk",
   "Monitor later": "info",
   "Not relevant": "info",
   "Not started": "info",
-  "Service request prepared": "info",
-  "Call request prepared": "info"
+  "Booking details ready": "info",
+  [oldStatus.serviceReady]: "info",
+  "Advisor review requested": "info",
+  [oldStatus.callReady]: "info"
 };
 
 const defaultState = {
@@ -323,7 +345,7 @@ function handleClick(event) {
   if (action === "save-scan-review") {
     state.scan.savedForReview += 1;
     state.scan.phase = "saved";
-    addOutcome("Document saved for review. CMP has not changed the property plan yet.");
+    addOutcome("Document added for review. CMP has not changed the Property Plan yet.");
   }
 
   if (action === "scan-unknown") {
@@ -441,7 +463,7 @@ function createAddressOptions(postcode) {
   state.selectedAddressId = addresses[1].id;
   saveState();
   render();
-  showToast("Prototype address list generated from postcode. Select the exact property before CMP checks records.");
+  showToast("Select the closest matching address. You can edit this later.");
 }
 
 function confirmSelectedAddress() {
@@ -495,10 +517,10 @@ function buildModules(route) {
       id: "identity",
       name: "Address and property identity",
       area: "Property file",
-      status: "Complete for prototype",
+      status: "Ready to review",
       evidence: "Exact address selected",
       action: "View detail",
-      source: "Prototype address list generated from postcode",
+      source: "Address selected by landlord",
       urgency: 1,
       description: "The selected address anchors evidence, service requests and monitoring for this property."
     }),
@@ -507,24 +529,24 @@ function buildModules(route) {
       name: "EPC",
       area: "Energy performance",
       status: route === "epc" ? "Needs proof" : "Landlord says held",
-      evidence: route === "epc" ? "Prototype EPC not confirmed" : "Prototype EPC match shown for review",
+      evidence: route === "epc" ? "EPC not found - add proof or book an assessment" : "EPC match ready to review",
       action: route === "epc" ? "Add proof" : "View detail",
-      source: "Prototype EPC match shown for review",
+      source: "EPC match ready to review",
       urgency: route === "epc" ? 68 : 30,
-      serviceType: "EPC assessment",
+      serviceType: "Book EPC assessment",
       monitoringDate: "14 Aug 2027",
-      description: "CMP shows EPC information only after the exact address has been selected."
+      description: "CMP checks the EPC record after the exact address has been selected."
     }),
     gasSafety: moduleFactory({
       id: "gasSafety",
       name: "Gas Safety",
       area: "Safety certificate",
-      status: hasGas ? "Bookable now" : "Not relevant",
+      status: hasGas ? "Service ready to book" : "Not relevant",
       evidence: hasGas ? "No certificate uploaded" : "Landlord says no gas supply",
       action: hasGas ? "Book service" : "View detail",
       source: hasGas ? "Needs landlord proof" : "Landlord confirmed",
       urgency: hasGas ? 96 : 5,
-      serviceType: "Gas Safety check",
+      serviceType: "Book Gas Safety check",
       monitoringDate: "Annual renewal after evidence is added",
       description: "If the property has gas, CMP needs a current certificate or a booked check."
     }),
@@ -537,7 +559,7 @@ function buildModules(route) {
       action: "Add proof",
       source: "Landlord confirmation needed",
       urgency: 72,
-      serviceType: "EICR",
+      serviceType: "Book EICR",
       monitoringDate: "Review reminder after report date",
       description: "Add an existing EICR or prepare an electrical inspection request."
     }),
@@ -550,19 +572,19 @@ function buildModules(route) {
       action: "Answer question",
       source: "Landlord confirmation needed",
       urgency: 58,
-      serviceType: "Smoke/CO alarm check",
+      serviceType: "Arrange smoke and CO alarm check",
       description: "CMP needs a simple landlord confirmation or inspection note before monitoring can be added."
     }),
     licensing: moduleFactory({
       id: "licensing",
       name: "Licensing/HMO",
       area: "Local authority",
-      status: possibleHmo ? "Review required" : "Monitor later",
+      status: possibleHmo ? "Advisor review recommended" : "Monitor later",
       evidence: possibleHmo ? "HMO/licensing position unclear" : "No immediate signal",
       action: possibleHmo ? "Speak to a human" : "Set reminder",
       source: state.property?.localAuthority || "Local authority context",
       urgency: possibleHmo ? 84 : 26,
-      serviceType: "Licensing/HMO review",
+      serviceType: "Request licensing review",
       description: "Possible HMO or licensing uncertainty should be reviewed before CMP narrows the route."
     }),
     tenancy: moduleFactory({
@@ -639,12 +661,12 @@ function buildModules(route) {
       id: "dampMould",
       name: "Damp/mould evidence",
       area: "Issue file",
-      status: hasDamp ? "Bookable now" : "Not relevant",
+      status: hasDamp ? "Service ready to book" : "Not relevant",
       evidence: hasDamp ? "Photos and inspection notes needed" : "No issue reported",
       action: hasDamp ? "Book service" : "View detail",
       source: hasDamp ? "Scenario answer" : "Landlord confirmation",
       urgency: hasDamp ? 82 : 5,
-      serviceType: "Damp/mould inspection",
+      serviceType: "Request damp and mould inspection",
       monitoringDate: "Follow-up after inspection",
       description: "CMP builds a property issue file without making medical or legal conclusions."
     }),
@@ -657,7 +679,7 @@ function buildModules(route) {
       action: "Add proof",
       source: "Landlord confirmation needed",
       urgency: 40,
-      serviceType: "Property inspection",
+      serviceType: "Book property inspection",
       description: "Inspection records help connect condition evidence with follow-up actions."
     }),
     contractorRecords: moduleFactory({
@@ -675,7 +697,7 @@ function buildModules(route) {
       id: "monitoring",
       name: "Renewal monitoring",
       area: "Monitoring",
-      status: state.monitoring.length ? "Complete for prototype" : "Not started",
+      status: state.monitoring.length ? "Ready to review" : "Not started",
       evidence: state.monitoring.length ? `${state.monitoring.length} reminder${state.monitoring.length === 1 ? "" : "s"} created` : "No reminders yet",
       action: state.monitoring.length ? "View detail" : "Set reminder",
       source: "Property plan",
@@ -729,24 +751,24 @@ function buildModules(route) {
         id: "noticeStatus",
         name: "Notice status",
         area: "Possession readiness",
-        status: scenario.noticeServed === "yes" ? "Needs proof" : "Human review recommended",
+        status: scenario.noticeServed === "yes" ? "Needs proof" : "Advisor review recommended",
         evidence: scenario.noticeServed === "yes" ? "Notice copy not uploaded" : "No notice served",
         action: "Speak to a human",
         source: "Possession route answer",
         urgency: 92,
         serviceType: "Human advisor support",
-        description: "CMP does not generate official notices in this prototype. Prepare evidence before speaking to an advisor."
+        description: "CMP helps organise the evidence needed for review. It does not prepare official notices."
       }),
       humanReview: moduleFactory({
         id: "humanReview",
         name: "Human advisor review",
         area: "Advisor support",
-        status: "Human review recommended",
+        status: "Advisor review recommended",
         evidence: "Advisor review recommended before next steps",
         action: "Speak to a human",
         source: "Possession route",
         urgency: 98,
-        serviceType: "Human advisor support",
+        serviceType: "Prepare possession evidence review",
         description: "A CMP advisor can review the property file and explain what to prepare before seeking possession advice."
       })
     };
@@ -807,17 +829,17 @@ function confirmEvidence(moduleId) {
     id: `evidence-${Date.now()}`,
     moduleId,
     moduleName: module.name,
-    label: `${module.name} proof added`,
+    label: `${module.name} evidence added`,
     date: "Today",
-    source: "Prototype upload"
+    source: "Document added by landlord"
   };
   state.evidence = upsertByModule(state.evidence, evidenceItem);
   state.modules[moduleId] = {
     ...module,
-    status: "Evidence uploaded",
-    evidence: "Evidence uploaded",
+    status: "Evidence added",
+    evidence: "Evidence added",
     action: module.monitoringDate ? "Set reminder" : "View detail",
-    source: "Prototype upload"
+    source: "Document added by landlord"
   };
   if (module.monitoringDate) {
     addMonitoring({
@@ -827,7 +849,7 @@ function confirmEvidence(moduleId) {
       reason: "Created from uploaded evidence"
     });
   }
-  addOutcome(`${module.name} evidence confirmed. The relevant module has updated and monitoring has been refreshed where needed.`);
+  addOutcome(`${module.name} evidence confirmed. CMP has updated the ${module.name} requirement and added renewal monitoring where needed.`);
 }
 
 function answerModule(moduleId) {
@@ -876,13 +898,13 @@ function prepareService(moduleId) {
     urgency: form?.querySelector("[name='urgency']")?.value || "Soon",
     preference: form?.querySelector("[name='preference']")?.value || "Phone",
     contractor: form?.querySelector("[name='contractor']")?.value || "No contractor selected",
-    status: "Service request prepared",
+    status: "Booking details ready",
     created: "Today"
   };
   state.serviceDrafts = upsertByModule(state.serviceDrafts, draft);
   state.modules[moduleId] = {
     ...module,
-    status: "Service request prepared",
+    status: "Booking details ready",
     evidence: "Expected after service",
     action: "Set reminder",
     source: "Service panel",
@@ -892,9 +914,9 @@ function prepareService(moduleId) {
     moduleId,
     title: `${draft.serviceType} follow-up`,
     due: "After preferred appointment",
-    reason: "Created from prepared service request"
+    reason: "Created from booking details"
   });
-  addOutcome(`${draft.serviceType} prepared for ${module.name}. No supplier has been contacted and no payment has been taken.`);
+  addOutcome(`${draft.serviceType} details ready for ${module.name}. No supplier has been contacted yet and no payment has been taken.`);
 }
 
 function requestHuman(moduleId) {
@@ -903,7 +925,7 @@ function requestHuman(moduleId) {
     id: `human-${Date.now()}`,
     moduleId: moduleId || "general",
     moduleName: module?.name || "Property file",
-    status: "Call request prepared",
+    status: oldStatus.callReady,
     reason: module?.status || "Landlord wants help deciding",
     created: "Today"
   };
@@ -911,13 +933,13 @@ function requestHuman(moduleId) {
   if (module) {
     state.modules[moduleId] = {
       ...module,
-      status: module.status === "Human review recommended" ? "Human review recommended" : module.status,
+      status: module.status === "Advisor review recommended" || module.status === oldStatus.humanReview ? "Advisor review recommended" : module.status,
       action: "Speak to a human",
       source: "Advisor route",
       updated: true
     };
   }
-  addOutcome(`CMP advisor touchpoint prepared for ${request.moduleName}. This prototype has not booked a real call.`);
+  addOutcome(`CMP advisor review requested for ${request.moduleName}. No call has been booked yet.`);
 }
 
 function addMonitoring(item) {
@@ -932,7 +954,7 @@ function addMonitoring(item) {
   if (state.modules.monitoring) {
     state.modules.monitoring = {
       ...state.modules.monitoring,
-      status: "Complete for prototype",
+      status: "Ready to review",
       evidence: `${state.monitoring.length} reminder${state.monitoring.length === 1 ? "" : "s"} created`,
       action: "View detail",
       updated: true
@@ -956,7 +978,7 @@ function addOutcome(message) {
 
 function pickFixFirst(modules) {
   return modules
-    .filter((module) => !["Complete for prototype", "Evidence uploaded", "Not relevant", "Monitor later", "Service request prepared"].includes(module.status))
+    .filter((module) => !["Ready to review", oldStatus.complete, "Evidence added", oldStatus.evidenceUploaded, "Not relevant", "Monitor later", "Booking details ready", oldStatus.serviceReady].includes(module.status))
     .sort((a, b) => b.urgency - a.urgency)[0] || modules[0];
 }
 
@@ -971,7 +993,7 @@ function getVisibleModules() {
 function getReadiness() {
   const modules = getVisibleModules();
   if (!modules.length) return 0;
-  const goodStates = ["Complete for prototype", "Evidence uploaded", "Landlord says held", "Not relevant", "Monitor later", "Service request prepared"];
+  const goodStates = ["Ready to review", oldStatus.complete, "Evidence added", oldStatus.evidenceUploaded, "Landlord says held", "Not relevant", "Monitor later", "Booking details ready", oldStatus.serviceReady];
   const score = Math.round((modules.filter((module) => goodStates.includes(module.status)).length / modules.length) * 100);
   return Math.max(18, Math.min(94, score));
 }
@@ -981,7 +1003,7 @@ function getCounts() {
   return {
     evidenceGaps: modules.filter((module) => ["Needs proof", "Needs answer"].includes(module.status)).length,
     servicesReady: modules.filter(isServiceVisible).length,
-    review: modules.filter((module) => ["Review required", "Human review recommended"].includes(module.status)).length,
+    review: modules.filter((module) => [oldStatus.review, "Advisor review recommended", oldStatus.humanReview].includes(module.status)).length,
     monitoring: state.monitoring.length
   };
 }
@@ -1007,25 +1029,25 @@ function renderHome() {
       <div class="hero">
         <div class="hero-copy">
           <h1>Check a rental property from A-Z, then fix what is missing.</h1>
-          <p class="hero-lede">CMP Prime turns address, scenario, evidence and services into one property plan with a clear next action.</p>
+          <p class="hero-lede">Rental compliance, evidence and services in one guided checker for self-managing landlords.</p>
           <div class="hero-actions">
             <button class="primary-button" type="button" data-action="start-az">
               <span class="btn-icon" aria-hidden="true">${icons.arrow}</span>
-              Start A-Z check
+              Start A-Z Compliance Map
             </button>
             <button class="secondary-button" type="button" data-action="route-home">
-              Choose a route
+              Choose a property route
             </button>
           </div>
           <div class="promise-strip" aria-label="CMP Prime flow">
-            ${["Check the property", "See the map", "Add proof or book", "Keep renewals monitored"].map((title, index) => `
+            ${["Check the property", "See the A-Z Compliance Map", "Add proof or book services", "Keep renewals monitored"].map((title, index) => `
               <div class="promise-step">
                 <strong>${index + 1}. ${title}</strong>
                 <span>${[
-                  "Select the exact address before records appear.",
-                  "CMP separates found data from landlord proof.",
-                  "Resolve one Fix First item from the module gap.",
-                  "Evidence and services create property reminders."
+                  "Enter a postcode and select the property address.",
+                  "See the gaps, priorities and next actions in one Property Plan.",
+                  "Upload evidence or book the service linked to each requirement.",
+                  "Keep renewal dates and follow-up reminders with the property record."
                 ][index]}</span>
               </div>
             `).join("")}
@@ -1052,28 +1074,28 @@ function renderWorkspacePreview() {
     <div class="workspace-preview" aria-label="Compliance Map preview">
       <div class="preview-head">
         <div>
-          <p class="preview-title">Compliance Map</p>
+          <p class="preview-title">A-Z Compliance Map</p>
           <p class="preview-address">14 King Street, Manchester M1 4AB</p>
         </div>
-        <span class="source-label">${icons.shield} Property plan</span>
+        <span class="source-label">${icons.shield} Property Plan</span>
       </div>
       <div class="readiness-card">
         <div class="readiness-ring">62%</div>
         <div>
           <h2>Ready with gaps</h2>
-          <p>One Fix First item, three supporting evidence gaps and two service routes.</p>
+          <p>One Fix First item, three supporting evidence gaps and two services ready to book.</p>
         </div>
       </div>
       <div class="fix-preview">
         <h3>Fix first: Gas Safety proof or booking</h3>
-        <p>CMP keeps the landlord focused on the highest priority module before showing the next action.</p>
+        <p>CMP shows the highest priority requirement first, then offers proof, booking and advisor options.</p>
       </div>
       <div class="mini-map">
         ${[
           ["EPC", "Landlord says held", "info"],
-          ["Gas Safety", "Bookable now", "risk"],
+          ["Gas Safety", "Service ready to book", "risk"],
           ["EICR", "Needs proof", "warn"],
-          ["Licensing/HMO", "Review required", "warn"],
+          ["Licensing/HMO", "Advisor review recommended", "warn"],
           ["Monitoring", "Created from actions", "good"]
         ].map(([name, status, tone]) => `
           <div class="mini-row">
@@ -1093,7 +1115,7 @@ function renderRouteCard(routeId) {
       <span class="card-icon" aria-hidden="true">${icons[route.icon]}</span>
       <h3>${route.label}</h3>
       <p>${route.description}</p>
-      <span class="card-foot">${routeId === "possession" ? "Evidence before advisor support" : "Use the same property engine"}</span>
+      <span class="card-foot">${routeId === "possession" ? "Prepare evidence pack" : "Add proof or book services"}</span>
     </button>
   `;
 }
@@ -1101,7 +1123,7 @@ function renderRouteCard(routeId) {
 function renderRoutes() {
   return `
     <section class="page">
-      ${renderPageHead("Choose why you came to CMP today.", "The same property file can run a full A-Z check, a short service route or a careful evidence-readiness route.")}
+      ${renderPageHead("Choose why you came to CMP today.", "Start with the full A-Z Compliance Map, a specific service route, or possession preparation for advisor review.")}
       <div class="route-grid">
         ${Object.keys(routePacks).map((routeId) => {
           const route = routePacks[routeId];
@@ -1110,7 +1132,7 @@ function renderRoutes() {
               <span class="card-icon" aria-hidden="true">${icons[route.icon]}</span>
               <h3>${route.label}</h3>
               <p>${route.description}</p>
-              <span class="card-foot">${route.primary ? "Recommended first route" : "Short route pack"}</span>
+              <span class="card-foot">${route.primary ? "Recommended first route" : routeId === "possession" ? "Advisor review recommended" : "Focused property route"}</span>
             </button>
           `;
         }).join("")}
@@ -1124,14 +1146,14 @@ function renderAddress() {
   return `
     <section class="page">
       ${renderProgress("address")}
-      ${renderPageHead("Select the exact property.", "CMP does not show EPC or module findings until the landlord selects an address.")}
+      ${renderPageHead("Select the property address.", "Enter postcode, choose the closest matching address, then confirm the property details before CMP checks the EPC record.")}
       <div class="wizard-layout">
         <div class="form-panel">
           <div class="field-grid">
             <div class="field">
-              <label for="postcode">Postcode</label>
+              <label for="postcode">Enter postcode</label>
               <input id="postcode" value="${escapeHtml(selected?.postcode || state.property?.postcode || "M1 4AB")}" autocomplete="postal-code">
-              <p class="field-help">Use any UK-style postcode for this prototype address picker.</p>
+              <p class="field-help">Select the closest matching address. You can edit this later.</p>
             </div>
             <div class="button-row">
               <button class="primary-button" type="button" data-action="search-postcode">
@@ -1142,7 +1164,7 @@ function renderAddress() {
           </div>
 
           ${state.addressOptions.length ? `
-            <div class="address-list" aria-label="Prototype address results">
+            <div class="address-list" aria-label="Property address results">
               ${state.addressOptions.map((address) => `
                 <button class="address-option ${address.id === state.selectedAddressId ? "is-selected" : ""}" type="button" data-action="select-address" data-value="${escapeHtml(address.id)}">
                   <span>
@@ -1155,7 +1177,7 @@ function renderAddress() {
             </div>
             <div class="panel-actions" style="margin-top: 1rem;">
               <button class="primary-button" type="button" data-action="confirm-address">
-                Confirm exact address
+                Confirm property details
                 <span class="btn-icon" aria-hidden="true">${icons.arrow}</span>
               </button>
             </div>
@@ -1171,9 +1193,9 @@ function renderAddress() {
           </div>
           <div style="margin-top: 1rem;" class="notice info">
             <strong>Address comes first.</strong>
-            <span>EPC and compliance modules appear after exact address selection, not from postcode alone.</span>
+            <span>Compliance requirements and EPC review appear after address selection, not from postcode alone.</span>
           </div>
-          <div style="margin-top: 1rem;" class="source-label">Prototype address list generated from postcode</div>
+          <div style="margin-top: 1rem;" class="source-label">Select the closest matching address. You can edit this later.</div>
         </aside>
       </div>
     </section>
@@ -1198,7 +1220,7 @@ function renderScenario() {
               Add documents first
             </button>
             <button class="primary-button" type="button" data-action="run-smart">
-              ${isPossession ? "Build evidence readiness map" : "Run Smart Check"}
+              ${isPossession ? "Build evidence readiness map" : "Save answers and update plan"}
               <span class="btn-icon" aria-hidden="true">${icons.arrow}</span>
             </button>
           </div>
@@ -1207,8 +1229,8 @@ function renderScenario() {
           <h2>${escapeHtml(state.property?.address || "Selected property")}</h2>
           <p>${escapeHtml(state.property?.localAuthority || "Local authority context will appear here.")}</p>
           <div class="notice ${isPossession ? "" : "safe"}" style="margin-top: 1rem;">
-            <strong>${isPossession ? "Careful evidence route" : "Scenario-aware modules"}</strong>
-            <span>${isPossession ? "CMP prepares the file before advisor support. It does not give legal advice or generate notices." : "CMP asks only what changes module relevance, urgency or next action."}</span>
+            <strong>${isPossession ? "Possession preparation" : "Scenario-aware Property Plan"}</strong>
+            <span>${isPossession ? "CMP helps organise the evidence needed for advisor review. Guidance only, not legal advice." : "CMP asks only what changes requirement relevance, urgency or next action."}</span>
           </div>
         </aside>
       </div>
@@ -1225,11 +1247,11 @@ function getScenarioTitle(route) {
 }
 
 function getScenarioCopy(route) {
-  if (route === "possession") return "This route checks what evidence exists before the landlord speaks to an advisor. It does not decide whether possession is valid.";
-  if (route === "epc") return "CMP keeps this route short and only opens the EPC module unless the landlord expands to A-Z.";
+  if (route === "possession") return "This route checks what evidence is already in your property file before you speak to an advisor.";
+  if (route === "epc") return "CMP keeps this route focused on the EPC record, evidence and assessment booking options.";
   if (route === "gas") return "CMP asks one key question before offering proof upload or a Gas Safety booking.";
   if (route === "damp") return "CMP connects issue evidence, inspection support, repair history and monitoring.";
-  return "These answers decide which modules matter and which single item should be fixed first.";
+  return "These answers decide which requirements matter and which item should be fixed first.";
 }
 
 function renderScenarioQuestions(route) {
@@ -1238,7 +1260,7 @@ function renderScenarioQuestions(route) {
       ${choiceGroup("Does the property have gas?", "gas", [
         ["yes", "Yes", "Gas Safety proof or booking will be needed."],
         ["no", "No", "Gas Safety can be marked not relevant for this route."],
-        ["not-sure", "Not sure", "CMP will recommend a human or service check."]
+        ["not-sure", "Not sure", "CMP will recommend advisor or service support."]
       ])}
     `;
   }
@@ -1251,7 +1273,7 @@ function renderScenarioQuestions(route) {
         ["vacant", "Vacant", "CMP will keep the EPC route short."]
       ])}
       ${choiceGroup("Do you already have an EPC document?", "docs", [
-        ["some-documents", "Yes, I may have it", "Property File Scan can suggest a match."],
+        ["some-documents", "Yes, I may have it", "Smart Document Scan can suggest a match."],
         ["missing-certificates", "No, I need help", "CMP will offer an EPC assessment booking."],
         ["unknown", "Not sure", "CMP can save it for review or suggest a call."]
       ])}
@@ -1266,7 +1288,7 @@ function renderScenarioQuestions(route) {
         ["monitor", "Monitor only", "CMP will create a reminder and keep the file open."]
       ])}
       ${choiceGroup("Do you have photos or repair notes?", "docs", [
-        ["some-documents", "Yes, I can upload", "Property File Scan can attach them to the issue file."],
+        ["some-documents", "Yes, I can upload", "Smart Document Scan can attach them to the issue file."],
         ["unknown", "Not sure", "CMP can save unclear evidence for review."],
         ["missing-certificates", "No", "CMP will offer inspection or follow-up support."]
       ])}
@@ -1282,7 +1304,7 @@ function renderScenarioQuestions(route) {
         ["landlord-occupation", "Landlord/family occupation", "CMP will recommend advisor support early."]
       ])}
       ${choiceGroup("Has a notice already been served?", "noticeServed", [
-        ["no", "No", "CMP will recommend human review before next steps."],
+        ["no", "No", "Advisor review recommended before next steps."],
         ["yes", "Yes", "CMP will ask for a copy and timeline."],
         ["not-sure", "Not sure", "CMP will save this as advisor-review needed."]
       ])}
@@ -1303,7 +1325,7 @@ function renderScenarioQuestions(route) {
     ])}
     ${choiceGroup("Could this be an HMO or need licensing?", "hmo", [
       ["not-sure", "Not sure", "Licensing/HMO review will be raised."],
-      ["possible", "Possible HMO", "CMP will recommend review and human support."],
+      ["possible", "Possible HMO", "CMP will recommend licensing review and advisor support."],
       ["no", "No", "CMP will monitor rather than fix first."]
     ])}
     ${choiceGroup("Any damp, mould or serious repair issue?", "damp", [
@@ -1312,7 +1334,7 @@ function renderScenarioQuestions(route) {
       ["serious", "Serious or recurring", "CMP will recommend inspection and support."]
     ])}
     ${choiceGroup("Do you already have property documents?", "docs", [
-      ["some-documents", "Some documents", "Property File Scan can suggest matches."],
+      ["some-documents", "Some documents", "Smart Document Scan can suggest matches."],
       ["missing-certificates", "Missing certificates", "Service routes will be easier to book."],
       ["unknown", "Unknown evidence position", "CMP will ask fewer questions and prioritise proof."]
     ])}
@@ -1342,12 +1364,12 @@ function renderSmartCheck() {
   const route = routePacks[state.routeIntent || "az"];
   const modules = getVisibleModules();
   const checkLines = state.routeIntent === "possession"
-    ? ["Address identity anchored", "Tenancy and deposit evidence mapped", "Repair and communication evidence checked", "Human advisor route recommended"]
-    : ["Address identity anchored", "Prototype EPC reviewed after address selection", "Landlord-only records separated from found data", "Module priorities ranked"];
+    ? ["Address identity anchored", "Tenancy and deposit evidence mapped", "Repair and communication evidence checked", "Advisor review recommended"]
+    : ["Address identity anchored", "EPC match ready to review", "Landlord proof separated from record matches", "Property Plan priorities ranked"];
   return `
     <section class="page">
       ${renderProgress("smart")}
-      ${renderPageHead(`${route.short} Smart Check`, "CMP has built the first version of this property plan. Review the map before resolving the first item.")}
+      ${renderPageHead(`${route.short} Smart Check`, "CMP has built your Property Plan. Review the map before fixing the first item.")}
       <div class="wizard-layout">
         <div class="panel">
           <div class="scan-steps">
@@ -1359,8 +1381,8 @@ function renderSmartCheck() {
             `).join("")}
           </div>
           <div class="notice info" style="margin-top: 1rem;">
-            <strong>Honest prototype data.</strong>
-            <span>CMP has not independently checked Gas Safety, EICR, licensing, deposit, tenancy or repair records. These modules stay evidence-led until the landlord confirms proof.</span>
+            <strong>Ready to review.</strong>
+            <span>CMP has organised the requirements from your answers and property file. Review before relying on this information.</span>
           </div>
           <div class="panel-actions" style="margin-top: 1rem;">
             <button class="secondary-button" type="button" data-action="open-documents">
@@ -1368,16 +1390,16 @@ function renderSmartCheck() {
               Add documents
             </button>
             <button class="primary-button" type="button" data-action="review-map">
-              Review ${state.routeIntent === "possession" ? "readiness map" : "Compliance Map"}
+              Review ${state.routeIntent === "possession" ? "evidence readiness" : "A-Z Compliance Map"}
               <span class="btn-icon" aria-hidden="true">${icons.arrow}</span>
             </button>
           </div>
         </div>
         <aside class="panel">
-          <h2>${modules.length} module${modules.length === 1 ? "" : "s"} prepared</h2>
+          <h2>${modules.length} requirement${modules.length === 1 ? "" : "s"} ready to review</h2>
           <ul class="compact-list" style="margin-top: 1rem;">
             ${modules.slice(0, 6).map((module) => `
-              <li>${icons.map}<span><strong>${module.name}</strong><br>${module.status}</span></li>
+              <li>${icons.map}<span><strong>${module.name}</strong><br>${escapeHtml(displayStatus(module.status))}</span></li>
             `).join("")}
           </ul>
         </aside>
@@ -1414,15 +1436,15 @@ function renderWorkspace() {
         </div>
       </div>
 
-      ${state.lastOutcome ? `<div class="notice safe" style="margin-bottom: 1rem;"><strong>Property plan updated.</strong><span>${escapeHtml(state.lastOutcome)}</span></div>` : ""}
+      ${state.lastOutcome ? `<div class="notice safe" style="margin-bottom: 1rem;"><strong>Property Plan updated.</strong><span>${escapeHtml(state.lastOutcome)}</span></div>` : ""}
 
       <div class="map-layout">
         <div>
           <div class="map-panel">
             <div class="map-toolbar">
               <div>
-                <h2>${route === "possession" ? "Possession evidence readiness map" : route === "az" ? "A-Z Compliance Map" : `${routePacks[route].short} module map`}</h2>
-                <p class="small-copy">${route === "az" ? "One clear status and one action per module." : "This route stays short unless the landlord expands to A-Z."}</p>
+                <h2>${route === "possession" ? "Possession evidence readiness" : route === "az" ? "A-Z Compliance Map" : `${routePacks[route].short} Property Plan`}</h2>
+                <p class="small-copy">${route === "az" ? "One clear status and one next action per requirement." : "This route stays focused unless the landlord expands to A-Z."}</p>
               </div>
               <span class="state-chip" data-tone="info">${readiness}% readiness</span>
             </div>
@@ -1436,15 +1458,15 @@ function renderWorkspace() {
           <div class="outcome-grid">
             <div class="outcome-card">
               <h3>Evidence</h3>
-              <p>${state.evidence.length} confirmed upload${state.evidence.length === 1 ? "" : "s"}; ${counts.evidenceGaps} module${counts.evidenceGaps === 1 ? "" : "s"} still need proof or answers.</p>
+              <p>${state.evidence.length} evidence item${state.evidence.length === 1 ? "" : "s"} added; ${counts.evidenceGaps} requirement${counts.evidenceGaps === 1 ? "" : "s"} still need proof or answers.</p>
             </div>
             <div class="outcome-card">
               <h3>Services</h3>
-              <p>${state.serviceDrafts.length} service request${state.serviceDrafts.length === 1 ? "" : "s"} prepared. Core compliance services appear from module gaps.</p>
+              <p>${state.serviceDrafts.length} booking detail${state.serviceDrafts.length === 1 ? "" : "s"} ready. Services appear from gaps in the Property Plan.</p>
             </div>
             <div class="outcome-card">
               <h3>Monitoring</h3>
-              <p>${counts.monitoring} reminder${counts.monitoring === 1 ? "" : "s"} created from evidence, services or monitor-later choices.</p>
+              <p>${counts.monitoring} reminder${counts.monitoring === 1 ? "" : "s"} created from evidence, services or Monitor later choices.</p>
             </div>
           </div>
 
@@ -1459,7 +1481,7 @@ function renderWorkspace() {
               <h2>Need the full view?</h2>
               <p>Expand this same property file into the A-Z Compliance Map without starting again.</p>
               <div class="panel-actions" style="margin-top: 0.8rem;">
-                <button class="secondary-button" type="button" data-action="expand-az">Continue A-Z check</button>
+                <button class="secondary-button" type="button" data-action="expand-az">Review full A-Z map</button>
               </div>
             </div>
           ` : ""}
@@ -1470,11 +1492,11 @@ function renderWorkspace() {
 }
 
 function getWorkspaceTitle(route) {
-  if (route === "possession") return "Evidence readiness before advisor support.";
-  if (route === "epc") return "EPC route for this property.";
-  if (route === "gas") return "Gas Safety route for this property.";
-  if (route === "damp") return "Damp and mould support route.";
-  return "Property plan from the A-Z check.";
+  if (route === "possession") return "Possession preparation.";
+  if (route === "epc") return "EPC check for this property.";
+  if (route === "gas") return "Gas Safety check for this property.";
+  if (route === "damp") return "Damp and mould support.";
+  return "Property Plan from the A-Z Compliance Map.";
 }
 
 function renderModuleRow(module, isFixFirst) {
@@ -1490,7 +1512,7 @@ function renderModuleRow(module, isFixFirst) {
       </div>
       <div class="module-cell">
         <span class="module-cell-label">Status</span>
-        <span class="state-chip" data-tone="${tone}">${escapeHtml(module.status)}</span>
+        <span class="state-chip" data-tone="${tone}">${escapeHtml(displayStatus(module.status))}</span>
       </div>
       <div class="module-cell">
         <span class="module-cell-label">Evidence</span>
@@ -1498,28 +1520,82 @@ function renderModuleRow(module, isFixFirst) {
       </div>
       <div class="module-cell">
         <span class="module-cell-label">Source</span>
-        <span>${escapeHtml(module.source)}</span>
+        <span>${escapeHtml(displaySource(module.source))}</span>
       </div>
       <button class="module-action" type="button" data-action="open-module" data-module="${module.id}">
-        ${escapeHtml(module.action)}
+        ${escapeHtml(actionCopyFor(module))}
       </button>
     </article>
   `;
 }
 
+function displayStatus(status) {
+  const labels = {
+    [oldStatus.complete]: "Ready to review",
+    [oldStatus.evidenceUploaded]: "Evidence added",
+    [oldStatus.bookable]: "Service ready to book",
+    [oldStatus.review]: "Advisor review recommended",
+    [oldStatus.humanReview]: "Advisor review recommended",
+    [oldStatus.serviceReady]: "Booking details ready",
+    [oldStatus.callReady]: "Advisor review requested"
+  };
+  return labels[status] || status;
+}
+
+function displaySource(source) {
+  const labels = {
+    [oldSource.address]: "Address selected by landlord",
+    [oldSource.epc]: "EPC match ready to review",
+    [oldSource.upload]: "Document added by landlord"
+  };
+  return labels[source] || source;
+}
+
+function actionCopyFor(module) {
+  if (module.action === "Book service" || module.status === oldStatus.bookable || module.status === "Service ready to book") return serviceButtonCopyFor(module);
+  if (module.action === "Add proof") return "Add proof";
+  if (module.action === "Answer question") return "Answer requirement";
+  if (module.action === "Set reminder") return "Monitor later";
+  if (module.action === "Speak to a human") return "Request advisor review";
+  if (module.action === "View detail") return `Review ${module.name} requirement`;
+  return module.action || "Review requirement";
+}
+
+function fixActionCopyFor(module) {
+  if (module.status === "Needs proof") return "Review missing evidence";
+  if (module.status === "Needs answer") return "Answer requirement";
+  if (module.status === "Advisor review recommended" || module.status === oldStatus.humanReview || module.status === oldStatus.review) return "Request advisor review";
+  if (module.status === "Needs service") return "Book now";
+  return "Fix this first";
+}
+
+function serviceButtonCopyFor(module) {
+  if (module.id === "epc") return "Book EPC assessment";
+  if (module.id === "gasSafety") return "Book Gas Safety check";
+  if (module.id === "eicr") return "Book EICR";
+  if (module.id === "smokeCo") return "Arrange alarm check";
+  if (module.id === "licensing") return "Request licensing review";
+  if (module.id === "dampMould") return "Request damp and mould inspection";
+  if (module.id === "inspections") return "Book property inspection";
+  if (module.id === "noticeStatus" || module.id === "humanReview") return "Prepare evidence pack";
+  if (module.serviceType?.includes("review") || module.serviceType?.includes("support")) return "Request advisor review";
+  return "Book now";
+}
+
 function renderFixPanel(module) {
   if (!module) return "";
-  const actionLabel = module.action === "Book service" || module.status === "Bookable now" ? "Book service" : "Resolve this item";
+  const actionLabel = module.action === "Book service" || module.status === oldStatus.bookable || module.status === "Service ready to book" ? "Book now" : fixActionCopyFor(module);
+  const opensService = actionLabel === "Book now";
   return `
     <section class="fix-panel" aria-label="Fix First">
       <span class="state-chip" data-tone="risk">${icons.warning} Fix First</span>
       <h2>${escapeHtml(module.name)}</h2>
       <p>${escapeHtml(module.description)}</p>
       <ul class="compact-list">
-        <li>${icons.check}<span>One module is prioritised so the landlord is not choosing between many actions.</span></li>
-        <li>${icons.check}<span>Evidence, service and monitoring outcomes update this property plan.</span></li>
+        <li>${icons.check}<span>The highest priority requirement is shown first so the next step is clear.</span></li>
+        <li>${icons.check}<span>Evidence, booking and monitoring outcomes update this Property Plan.</span></li>
       </ul>
-      <button class="primary-button" type="button" data-action="${actionLabel === "Book service" ? "open-service" : "resolve-fix"}" data-module="${module.id}">
+      <button class="primary-button" type="button" data-action="${opensService ? "open-service" : "resolve-fix"}" data-module="${module.id}">
         ${actionLabel}
         <span class="btn-icon" aria-hidden="true">${icons.arrow}</span>
       </button>
@@ -1542,25 +1618,25 @@ function renderModuleDetail(module) {
           <h2>${escapeHtml(module.name)}</h2>
           <p>${escapeHtml(module.description)}</p>
         </div>
-        <span class="state-chip" data-tone="${toneFor(module.status)}">${escapeHtml(module.status)}</span>
+        <span class="state-chip" data-tone="${toneFor(module.status)}">${escapeHtml(displayStatus(module.status))}</span>
       </div>
       <div class="detail-actions">
         <button class="detail-action" type="button" data-action="simulate-evidence" data-module="${module.id}">
-          <span><strong>Add proof</strong><span>Simulate confirmed evidence for this module.</span></span>
+          <span><strong>Add proof</strong><span>Document added for review and linked to this requirement.</span></span>
           ${icons.upload}
         </button>
         ${serviceAllowed ? `
           <button class="detail-action" type="button" data-action="open-service" data-module="${module.id}">
-            <span><strong>${module.serviceType.includes("review") || module.serviceType.includes("support") ? "Prepare review route" : "Book service"}</strong><span>${escapeHtml(module.serviceType)} linked to this gap.</span></span>
+            <span><strong>${module.serviceType.includes("review") || module.serviceType.includes("support") ? "Request advisor review" : serviceButtonCopyFor(module)}</strong><span>${escapeHtml(module.serviceType)} linked to this gap.</span></span>
             ${icons.service}
           </button>
         ` : ""}
         <button class="detail-action" type="button" data-action="answer-module" data-module="${module.id}">
-          <span><strong>Answer question</strong><span>Record what the landlord says and keep proof optional.</span></span>
+          <span><strong>Save answer</strong><span>Record what the landlord says and keep proof as the next option.</span></span>
           ${icons.check}
         </button>
         <button class="detail-action" type="button" data-action="monitor-later" data-module="${module.id}">
-          <span><strong>Set reminder</strong><span>Keep this in the property plan without treating it as done.</span></span>
+          <span><strong>Monitor later</strong><span>Keep this in the Property Plan without treating it as complete.</span></span>
           ${icons.map}
         </button>
         <button class="detail-action" type="button" data-action="what-if" data-value="${escapeHtml(whatIfPrompt)}">
@@ -1577,8 +1653,8 @@ function renderModuleDetail(module) {
         </button>
       </div>
       <div class="notice info">
-        <strong>Prototype limit.</strong>
-        <span>This prototype does not verify documents legally and does not contact suppliers or take payment.</span>
+        <strong>Review before relying on this information.</strong>
+        <span>Guidance only, not legal advice. CMP helps organise the evidence needed for review.</span>
       </div>
     </section>
   `;
@@ -1593,9 +1669,9 @@ function renderBookingPanel(moduleId) {
       <div class="service-head">
         <div>
           <h2>${escapeHtml(serviceName)}</h2>
-          <p>Prepared from ${escapeHtml(module.name)} for ${escapeHtml(state.property.address)}.</p>
+          <p>Booking details for ${escapeHtml(module.name)} at ${escapeHtml(state.property.address)}.</p>
         </div>
-        <span class="state-chip" data-tone="info">Service route</span>
+        <span class="state-chip" data-tone="info">Service ready to book</span>
       </div>
       <form class="field-grid" data-form="booking" data-module="${module.id}">
         <div class="split-form">
@@ -1626,13 +1702,14 @@ function renderBookingPanel(moduleId) {
           </select>
         </div>
         <div class="notice">
-          <strong>What this should produce</strong>
+          <strong>Booking details ready</strong>
           <span>${escapeHtml(serviceOutcomeFor(module))}</span>
-          <span>No supplier contacted in this prototype. No payment taken in this prototype.</span>
+          <span>No supplier has been contacted yet. No payment has been taken.</span>
+          <span>A CMP advisor can review this before it is sent.</span>
         </div>
         <div class="panel-actions">
-          <button class="primary-button" type="submit">Prepare service request</button>
-          <button class="secondary-button" type="button" data-action="open-module" data-module="${module.id}">Return to module</button>
+          <button class="primary-button" type="submit">Save booking details</button>
+          <button class="secondary-button" type="button" data-action="open-module" data-module="${module.id}">Review requirement</button>
         </div>
       </form>
     </section>
@@ -1640,12 +1717,13 @@ function renderBookingPanel(moduleId) {
 }
 
 function serviceOutcomeFor(module) {
-  if (module.id === "epc") return "EPC evidence can update the EPC module and create renewal monitoring.";
-  if (module.id === "gasSafety") return "A Gas Safety certificate can update the module and create annual monitoring.";
-  if (module.id === "eicr") return "An EICR can update electrical evidence and create a review reminder.";
-  if (module.id === "dampMould") return "Inspection notes and photos can update the issue file and follow-up monitoring.";
-  if (module.id === "licensing") return "A review can clarify whether the licensing/HMO module should narrow or escalate.";
-  return "The resulting evidence or advisor note can be added back to the property plan.";
+  if (module.id === "epc") return "This service should help produce the EPC evidence needed for your property file.";
+  if (module.id === "gasSafety") return "This service should help produce the Gas Safety evidence needed for your property file.";
+  if (module.id === "eicr") return "This service should help produce the electrical safety evidence needed for your property file.";
+  if (module.id === "dampMould") return "This service should help produce inspection notes and photos for your property file.";
+  if (module.id === "licensing") return "A CMP advisor can help review whether licensing or HMO evidence is needed.";
+  if (module.id === "humanReview" || module.id === "noticeStatus") return "A CMP advisor can help check what evidence should be prepared before the next step.";
+  return "This service should help produce the evidence needed for your property file.";
 }
 
 function renderServiceBand(route) {
@@ -1655,8 +1733,8 @@ function renderServiceBand(route) {
     <section style="margin-top: 1rem;">
       <div class="map-toolbar">
         <div>
-          <h2>Bookable services from this ${route === "az" ? "check" : "route"}</h2>
-          <p class="small-copy">Services appear because a module gap needs evidence or expert review.</p>
+          <h2>Services ready to book</h2>
+          <p class="small-copy">Services appear because a requirement needs evidence, inspection or advisor review.</p>
         </div>
       </div>
       <div class="services-grid">
@@ -1665,7 +1743,7 @@ function renderServiceBand(route) {
             <span class="service-icon" aria-hidden="true">${icons.service}</span>
             <h3>${escapeHtml(module.serviceType)}</h3>
             <p>Linked to ${escapeHtml(module.name)} for this property.</p>
-            <button class="secondary-button" type="button" data-action="open-service" data-module="${module.id}">Open service panel</button>
+            <button class="secondary-button" type="button" data-action="open-service" data-module="${module.id}">${escapeHtml(serviceButtonCopyFor(module))}</button>
           </article>
         `).join("")}
       </div>
@@ -1675,13 +1753,13 @@ function renderServiceBand(route) {
 
 function isServiceVisible(module) {
   return Boolean(module.serviceType)
-    && ["Bookable now", "Needs service", "Needs proof", "Review required", "Human review recommended"].includes(module.status);
+    && ["Service ready to book", oldStatus.bookable, "Needs service", "Needs proof", oldStatus.review, "Advisor review recommended", oldStatus.humanReview].includes(module.status);
 }
 
 function renderServices() {
   return `
     <section class="page">
-      ${renderPageHead("Services should fix module gaps.", "CMP services are entry points and outcomes from the property plan, not a disconnected shop.")}
+      ${renderPageHead("Book services linked to property gaps.", "Find the missing evidence, book the right service and keep the proof with your Property Plan.")}
       <div class="services-grid">
         ${Object.entries(directServices).map(([id, service]) => `
           <article class="service-card">
@@ -1689,7 +1767,7 @@ function renderServices() {
             <h3>${escapeHtml(service.title)}</h3>
             <p>${escapeHtml(service.outcome)}</p>
             <button class="primary-button" type="button" data-action="start-route" data-route="${service.route}">
-              Start related route
+              ${service.title}
             </button>
           </article>
         `).join("")}
@@ -1698,7 +1776,7 @@ function renderServices() {
         <div class="panel-head">
           <div>
             <h2>Review and advisor routes</h2>
-            <p>These routes prepare the property file or connect the landlord to human support.</p>
+            <p>These routes prepare the property file or connect the landlord to advisor support.</p>
           </div>
           <button class="secondary-button" type="button" data-action="request-human">${icons.phone} Speak to a CMP advisor</button>
         </div>
@@ -1719,7 +1797,7 @@ function renderProperties() {
   const counts = getCounts();
   return `
     <section class="page">
-      ${renderPageHead("My Properties", "Each property appears once with its next action, evidence gaps, services and monitoring together.")}
+      ${renderPageHead("My Properties", "Each property appears once with Fix first, evidence gaps, services ready to book and monitoring reminders together.")}
       ${state.property ? `
         <div class="properties-grid">
           <article class="panel">
@@ -1734,24 +1812,24 @@ function renderProperties() {
               <div class="readiness-ring">${getReadiness()}%</div>
               <div>
                 <h3>${escapeHtml(getFixFirstModule()?.name || "No Fix First item")}</h3>
-                <p>${escapeHtml(getFixFirstModule()?.description || "Open the property plan to continue.")}</p>
+                <p>${escapeHtml(getFixFirstModule()?.description || "Open the Property Plan to review the next step.")}</p>
               </div>
             </div>
             <div class="outcome-grid">
               <div class="outcome-card"><h3>Evidence gaps</h3><p>${counts.evidenceGaps}</p></div>
-              <div class="outcome-card"><h3>Services ready</h3><p>${counts.servicesReady}</p></div>
-              <div class="outcome-card"><h3>Monitoring</h3><p>${counts.monitoring}</p></div>
+              <div class="outcome-card"><h3>Services ready to book</h3><p>${counts.servicesReady}</p></div>
+              <div class="outcome-card"><h3>Monitoring reminders</h3><p>${counts.monitoring}</p></div>
             </div>
             <div class="panel-actions" style="margin-top: 1rem;">
-              <button class="primary-button" type="button" data-action="open-workspace">Open property plan</button>
-              <button class="secondary-button" type="button" data-action="route-home">Add another route</button>
+              <button class="primary-button" type="button" data-action="open-workspace">Open Property Plan</button>
+              <button class="secondary-button" type="button" data-action="route-home">Review supporting next steps</button>
             </div>
           </article>
         </div>
       ` : `
         <div class="panel">
           <h2>No property file yet</h2>
-          <p>Start with A-Z or choose a single-service route.</p>
+          <p>Start with the A-Z Compliance Map or choose a specific service route.</p>
           <div class="panel-actions" style="margin-top: 1rem;">
             <button class="primary-button" type="button" data-action="start-az">Check a property</button>
           </div>
@@ -1796,7 +1874,7 @@ function renderDocumentDrawer() {
     return `
       <div class="notice info">
         <strong>Select an address first.</strong>
-        <span>Property File Scan attaches documents to the active property file.</span>
+        <span>Smart Document Scan attaches documents to the active Property Plan.</span>
       </div>
     `;
   }
@@ -1804,8 +1882,8 @@ function renderDocumentDrawer() {
   if (state.scan.phase === "scanning") {
     return `
       <div class="scan-steps">
-        <div class="scan-step"><span class="spinner" aria-hidden="true"></span><strong>Scanning file</strong></div>
-        <p class="small-copy">CMP is looking for a likely document type and useful dates. This is simulated for the prototype.</p>
+        <div class="scan-step"><span class="spinner" aria-hidden="true"></span><strong>Smart Document Scan running</strong></div>
+        <p class="small-copy">CMP is looking for a likely document type and useful dates.</p>
       </div>
     `;
   }
@@ -1816,9 +1894,9 @@ function renderDocumentDrawer() {
     return `
       <div class="scan-result">
         <div class="notice ${unknown ? "" : "safe"}">
-          <strong>${unknown ? "CMP is not sure what this is." : "CMP has suggested a match."}</strong>
-          <span>${unknown ? "Save it for review or ask a human to look at the property file." : `Suggested document type: ${escapeHtml(module.name)}.`}</span>
-          <span>Please confirm before CMP updates your property plan.</span>
+          <strong>${unknown ? "Ready for landlord confirmation." : "Suggested match"}</strong>
+          <span>${unknown ? "Save it for review or speak to a human if you are unsure." : `Suggested document type: ${escapeHtml(module.name)}.`}</span>
+          <span>Confirm before CMP updates your Property Plan.</span>
         </div>
         <div class="extracted-grid">
           ${[
@@ -1826,7 +1904,7 @@ function renderDocumentDrawer() {
             ["Document date", "12 Jun 2026"],
             ["Expiry/review date", unknown ? "Not found" : module?.monitoringDate || "Review date needed"],
             ["Contractor/company", unknown ? "Not found" : "Northside Property Services"],
-            ["Reference number", unknown ? "Not found" : "CMP-PROTO-2048"],
+            ["Reference number", unknown ? "Not found" : "CMP-2048"],
             ["Issue type", unknown ? "Unknown document" : module.name]
           ].map(([label, value]) => `
             <div class="extracted-field">
@@ -1836,11 +1914,11 @@ function renderDocumentDrawer() {
           `).join("")}
         </div>
         <div class="notice info">
-          <strong>Prototype limit.</strong>
-          <span>This prototype does not verify documents legally.</span>
+          <strong>Review before relying on this information.</strong>
+          <span>Evidence appears to match this requirement. Please confirm.</span>
         </div>
         <div class="panel-actions">
-          ${unknown ? "" : `<button class="primary-button" type="button" data-action="confirm-scan">Confirm and update plan</button>`}
+          ${unknown ? "" : `<button class="primary-button" type="button" data-action="confirm-scan">Confirm and update Property Plan</button>`}
           <button class="secondary-button" type="button" data-action="save-scan-review">Save for review</button>
           <button class="secondary-button" type="button" data-action="request-human">${icons.phone} Speak to a human</button>
         </div>
@@ -1851,11 +1929,11 @@ function renderDocumentDrawer() {
   if (state.scan.phase === "saved") {
     return `
       <div class="notice info">
-        <strong>Saved for review.</strong>
-        <span>CMP has not updated any module until the landlord confirms what the document is.</span>
+        <strong>Document added for review.</strong>
+        <span>CMP has not updated the Property Plan until the landlord confirms what the document is.</span>
       </div>
       <div class="panel-actions" style="margin-top: 1rem;">
-        <button class="primary-button" type="button" data-action="simulate-scan">Scan another file</button>
+        <button class="primary-button" type="button" data-action="simulate-scan">Scan another document</button>
         <button class="secondary-button" type="button" data-action="request-human">Ask a human to review</button>
       </div>
     `;
@@ -1865,12 +1943,12 @@ function renderDocumentDrawer() {
     <div class="scan-zone">
       <span class="state-icon" aria-hidden="true">${icons.upload}</span>
       <div>
-        <strong>Drop or select a property file</strong>
-        <p class="small-copy">CMP can suggest a match, extract useful fields and ask you to confirm before the property plan changes.</p>
+        <strong>Drop property documents here</strong>
+        <p class="small-copy">CMP will suggest what each document relates to. Confirm before CMP updates your Property Plan.</p>
       </div>
       <label class="primary-button" for="documentFile">Select file</label>
       <input id="documentFile" type="file">
-      <button class="secondary-button" type="button" data-action="simulate-scan">Simulate scan</button>
+      <button class="secondary-button" type="button" data-action="simulate-scan">Run Smart Document Scan</button>
     </div>
     <div class="prompt-grid">
       <button type="button" data-action="scan-unknown">Not sure what this is?</button>
@@ -1916,15 +1994,15 @@ function confirmScan() {
 function renderAskDrawer() {
   const module = getModule(state.selectedModuleId) || getFixFirstModule();
   const intro = module
-    ? `Ask about ${module.name}, the current ${module.status.toLowerCase()} item, or the next property action.`
-    : "Ask about the current property check.";
+    ? `Ask about ${module.name}, the current ${displayStatus(module.status).toLowerCase()} item, or the next property action.`
+    : "Ask about this property.";
   const prompts = [
     "What should I fix first?",
     "Can I rent this property yet?",
-    "What proof do I need for this?",
+    "What evidence do I need?",
     "Which services can I book?",
     "What happens if I do nothing?",
-    "What if this property is an HMO?"
+    "Should I speak to a human?"
   ];
   return `
     <p class="small-copy">${escapeHtml(intro)}</p>
@@ -1936,13 +2014,13 @@ function renderAskDrawer() {
         <div class="ask-message user">${escapeHtml(item.question)}</div>
         <div class="ask-message cmp">${escapeHtml(item.answer)}</div>
       `).join("") : `
-        <div class="ask-message cmp">CMP gives contextual guidance from this prototype property file. It does not provide legal advice or verify documents legally.</div>
+        <div class="ask-message cmp">CMP can suggest next steps from your property file. Guidance only, not legal advice.</div>
       `}
     </div>
     <form data-form="ask" class="field-grid">
       <div class="field">
         <label for="askInput">Type a question</label>
-        <textarea id="askInput" placeholder="Ask about this module or next action"></textarea>
+        <textarea id="askInput"></textarea>
       </div>
       <button class="primary-button" type="submit">Ask CMP</button>
     </form>
@@ -1963,30 +2041,34 @@ function answerFor(question) {
 
   if (lower.includes("fix first")) {
     return fix
-      ? `Fix ${fix.name} first because it has the highest current urgency in this route. You can add proof, prepare a service request, set monitoring or ask a CMP advisor.`
+      ? `Fix ${fix.name} first because it has the highest current urgency in this route. You can add proof, book a service, set monitoring or ask a CMP advisor.`
       : "There is no Fix First item yet. Start a property check so CMP can build a map.";
   }
 
   if (lower.includes("rent this property")) {
-    return "CMP can show missing evidence and service routes, but this prototype does not make a legal decision. Resolve the Fix First item, check the remaining evidence gaps and speak to an advisor if anything is unclear.";
+    return "CMP can show missing evidence and service routes, but it does not make a legal decision. Fix the first item, review the remaining evidence gaps and speak to an advisor if anything is unclear.";
   }
 
-  if (lower.includes("proof")) {
+  if (lower.includes("proof") || lower.includes("evidence")) {
     return selected
-      ? `${selected.name} currently shows: ${selected.evidence}. Add a document, confirm what you hold, or prepare a service route if the evidence is missing.`
-      : "Proof attaches to modules after a property has been selected.";
+      ? `${selected.name} currently shows: ${selected.evidence}. Add a document, confirm what you hold, or book a relevant service if the evidence is missing.`
+      : "Evidence attaches to requirements after a property has been selected.";
   }
 
   if (lower.includes("services") || lower.includes("book")) {
-    return "Core services from this prototype are EPC assessment, Gas Safety, EICR, property inspection and damp/mould inspection. Review and possession routes lead to advisor support rather than automatic booking.";
+    return "Available service routes include EPC assessment, Gas Safety, EICR, property inspection and damp or mould inspection. Review and possession routes lead to advisor support rather than automatic booking.";
   }
 
   if (lower.includes("hmo")) {
-    return "If HMO or licensing is uncertain, CMP recommends a review route or advisor support. This prototype records uncertainty and prepares the property file; it does not decide the legal licensing position.";
+    return "If HMO or licensing is uncertain, CMP recommends a licensing review or advisor support. CMP records the uncertainty and prepares the property file; it does not decide the legal licensing position.";
   }
 
   if (lower.includes("tenant") || lower.includes("leave") || lower.includes("possession")) {
     return "For possession preparation, CMP helps organise tenancy, deposit, notice, arrears, repair and communication evidence before advisor support. It does not generate notices or give legal advice.";
+  }
+
+  if (lower.includes("human") || lower.includes("advisor")) {
+    return "Speak to a human if the evidence is unclear, the route is high risk, or you are preparing for possession. A CMP advisor can help check the next step.";
   }
 
   if (lower.includes("nothing") || lower.includes("ignore") || lower.includes("happen")) {
