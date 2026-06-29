@@ -13756,6 +13756,10 @@ body[data-public-page="add-property"] .add-property-progress .step-pill-current 
   background: var(--h-success-soft);
 }
 
+body[data-public-page="add-property"] .add-property-progress .step-pill small {
+  color: var(--h-soft-ink);
+}
+
 body[data-public-page="add-property"] .add-property-flow {
   max-width: 980px;
   margin-inline: auto;
@@ -13839,6 +13843,14 @@ body[data-public-page] .stage-h-review-panel-head p {
   margin: 0;
 }
 
+body[data-public-page="add-property"] .stage-h-review-panel-head p,
+body[data-public-page="add-property"] .address-card p,
+body[data-public-page="add-property"] .address-card small,
+body[data-public-page="add-property"] .add-property-review-item small,
+body[data-public-page="add-property"] .add-property-review-item .property-summary-meta {
+  color: var(--h-soft-ink);
+}
+
 body[data-public-page] .add-property-review-list {
   display: grid;
   gap: 10px;
@@ -13862,6 +13874,58 @@ body[data-public-page] .add-property-review-item .property-summary-meta {
 body[data-public-page] .stage-h-handoff-card {
   border-left: 5px solid var(--h-accent);
   background: #ffffff;
+}
+
+body[data-public-page="add-property"] .stage-h-handoff-card {
+  grid-template-columns: minmax(0, 1fr) auto;
+  margin-top: 0;
+  margin-bottom: 0;
+  border-color: var(--h-border-strong);
+  color: var(--h-ink);
+  background: #ffffff;
+}
+
+body[data-public-page="add-property"] .stage-h-handoff-card h3 {
+  color: var(--h-ink);
+}
+
+body[data-public-page="add-property"] .stage-h-handoff-card p {
+  color: var(--h-soft-ink);
+}
+
+body[data-public-page="add-property"] .stage-h-handoff-card .section-kicker {
+  color: var(--h-accent);
+}
+
+body[data-public-page="add-property"] .stage-h-handoff-card .button.secondary {
+  border-color: var(--h-border-strong);
+  color: var(--h-ink);
+  background: #ffffff;
+}
+
+body[data-public-page] .assistant-fab {
+  background-color: #0f172a;
+}
+
+@media (max-width: 760px) {
+  body[data-public-page="add-property"] .stage-h-handoff-card {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding: 18px;
+  }
+
+  body[data-public-page="add-property"] .stage-h-handoff-card .service-journey-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    justify-content: stretch;
+    width: 100%;
+  }
+
+  body[data-public-page="add-property"] .stage-h-handoff-card .button {
+    width: 100%;
+    justify-content: center;
+    white-space: normal;
+  }
 }
 
 body[data-public-page="my-properties"] .my-properties-state-one .my-properties-bridge-hero {

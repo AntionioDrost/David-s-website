@@ -5152,6 +5152,7 @@ function renderSelectedCanonicalWorkspaceShell() {
   const headerPrimaryAction = document.querySelector(".portfolio-header-actions .primary-button");
   const headerSecondaryAction = document.querySelector(".portfolio-header-actions .secondary-button");
   const summaryPrimaryAction = document.querySelector("[data-home-open-action]");
+  const summaryActionRow = summaryPrimaryAction?.closest(".button-row");
 
   if (!isCanonicalWorkspaceValid()) {
     document.body.classList.add("canonical-property-route");
@@ -5265,13 +5266,13 @@ function renderSelectedCanonicalWorkspaceShell() {
   // Legacy Stage C marker: Property details -> Property Brain -> Next action.
   // Legacy Stage C marker: Answer the remaining property questions, then CMP will build the Property Brain and recommend one clear next action.
   // Stage C source contract still derives the same selected-property state; only the rendered label changes.
-  const propertySetupOrientation = "Property details → Property file → Action Plan";
-  const propertySetupIntro = "Answer the remaining property questions, then CMP will build the property file and recommend one clear priority.";
+  const propertySetupOrientation = "Overview → Evidence → Action Plan → Monitoring";
+  const propertySetupIntro = "Answer the remaining property questions so CMP can complete the Property Brain and recommend one clear next action.";
   const canonicalAskReportPanelMarkup = renderCanonicalAskReportPanel();
   const assistantResponse = document.querySelector("[data-assistant-response]");
   document.title = `${shell.address} | CMP`;
   setText(".breadcrumb", `Properties / ${shell.address}`);
-  setText(".prototype-badge", "Property workspace · Smart Checks");
+  setText(".prototype-badge", "Property workspace");
   setText("#propertyTitle", shell.address);
   if (headerIntro) {
     headerIntro.textContent = [shell.postcode, canonicalStatusLabel(derivedState?.overallStatus), canonicalRiskLabel(derivedState?.riskLevel)].filter(Boolean).join(" · ");
@@ -5286,8 +5287,8 @@ function renderSelectedCanonicalWorkspaceShell() {
   if (headerPrimaryAction) {
     headerPrimaryAction.textContent = primaryAction.label;
     headerPrimaryAction.removeAttribute("data-journey-start");
-    headerPrimaryAction.setAttribute("data-normal-canonical-primary", "");
-    headerPrimaryAction.hidden = false;
+    headerPrimaryAction.removeAttribute("data-normal-canonical-primary");
+    headerPrimaryAction.hidden = true;
   }
   if (headerSecondaryAction) {
     headerSecondaryAction.hidden = true;
@@ -5298,9 +5299,9 @@ function renderSelectedCanonicalWorkspaceShell() {
   homeHeader?.removeAttribute("hidden");
   smartSearchSection?.setAttribute("hidden", "");
   autopilotCard?.removeAttribute("hidden");
-  pulseGrid?.removeAttribute("hidden");
-  homeScoreGrid?.removeAttribute("hidden");
-  homePriorityCard?.removeAttribute("hidden");
+  pulseGrid?.setAttribute("hidden", "");
+  homeScoreGrid?.setAttribute("hidden", "");
+  homePriorityCard?.setAttribute("hidden", "");
   if (homeSecondaryGrid) {
     homeSecondaryGrid.hidden = true;
   }
@@ -5308,9 +5309,11 @@ function renderSelectedCanonicalWorkspaceShell() {
     homeQuickWin.hidden = true;
   }
   setText("[data-portfolio-home] .section-kicker", "Property workspace");
-  setText("#portfolioHomeTitle", propertySetupIncomplete ? "Your property file is taking shape" : `Workspace for ${shell.address}`);
+  setText("#portfolioHomeTitle", shell.address);
   if (homeIntro) {
-    homeIntro.textContent = propertySetupIncomplete ? propertySetupIntro : nextBestAction?.reason || shell.intro;
+    homeIntro.textContent = propertySetupIncomplete
+      ? propertySetupIntro
+      : nextBestAction?.reason || shell.intro;
   }
   if (homeBadge) {
     homeBadge.textContent = propertySetupOrientation;
@@ -5331,19 +5334,19 @@ function renderSelectedCanonicalWorkspaceShell() {
     homePromptRow.remove();
   }
   if (propertyHeadingBlock) {
-    propertyHeadingBlock.querySelector(".section-kicker").textContent = "Selected property";
-    propertyHeading.textContent = "Property workspace";
-    propertyHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "This is the selected property opened from My Properties or Add Property.";
+    propertyHeadingBlock.hidden = true;
   }
   if (upcomingHeadingBlock) {
-    upcomingHeadingBlock.querySelector(".section-kicker").textContent = "Action path";
-    upcomingHeading.textContent = "Evidence, service and monitoring";
-    upcomingHeadingBlock.querySelector("p:not(.section-kicker)").textContent = "Follow one property-specific next step, then keep evidence and monitoring tied to this address.";
+    upcomingHeadingBlock.hidden = true;
   }
-  setText("[data-home-summary-title]", propertySetupIncomplete ? "Your property file is taking shape" : nextBestAction?.title || "Review priority");
+  setText("[data-home-summary-title]", nextBestAction?.title || primaryAction.label || "Continue property setup");
   setText("[data-home-summary-body]", propertySetupIncomplete ? propertySetupIntro : landlordWorkspaceDisplayCopy(nextBestAction?.reason || shell.smartCheckSummary || "Review the property position and one clear priority."));
   if (summaryPrimaryAction) {
     summaryPrimaryAction.textContent = primaryAction.label;
+    summaryPrimaryAction.setAttribute("data-normal-canonical-primary", "");
+  }
+  if (summaryActionRow && rankList && summaryActionRow.parentElement === rankList.parentElement) {
+    rankList.parentElement.insertBefore(summaryActionRow, rankList);
   }
   setText("[data-home-priority-area]", nextBestAction?.primaryCtaLabel || "Smart Checks");
   setText("[data-home-priority-status]", canonicalStatusLabel(derivedState?.overallStatus));
@@ -5359,33 +5362,38 @@ function renderSelectedCanonicalWorkspaceShell() {
   renderScoreCards(homeScoreGrid, canonicalStage6ScoreCards(derivedState), { compact: true });
   if (rankList) {
     rankList.hidden = false;
-    const actionItems = (derivedState?.actionItems || []).slice(0, 4);
     const foundItems = shell.foundDataSummary?.length ? shell.foundDataSummary : [];
-    rankList.innerHTML = actionItems.length
-      ? actionItems.map((item, index) => `
-        <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
-          <span>${index === 0 ? "Priority action" : `Priority ${index + 1}`}</span>
-          <strong>${escapeHtml(item.title)}</strong>
-          <p>${escapeHtml(item.reason)} · ${escapeHtml(item.priorityExplanation || "Prioritised from current property information.")}</p>
-        </article>
-      `).join("")
-      : foundItems.length
-      ? foundItems.map((item, index) => `
-        <article class="priority-rank-item${index === 0 ? " is-primary" : ""}">
-          <span>${index === 0 ? "Found" : "Check"}</span>
-          <strong>${escapeHtml(item.label)}</strong>
-          <p>${escapeHtml(landlordWorkspaceDisplayCopy(item.value))} · Source: ${escapeHtml(landlordWorkspaceDisplayCopy(item.sourceLabel))} · Confidence: ${escapeHtml(item.confidence)}</p>
-        </article>
-      `).join("")
-      : `
-        <article class="priority-rank-item is-primary">
-          <span>Prepared</span>
-          <strong>Review what CMP found</strong>
-          <p>CMP has prepared the selected property workspace from the property file.</p>
-        </article>
-      `;
+    const confirmed = foundItems.slice(0, 4).map((item) => `${item.label}: ${landlordWorkspaceDisplayCopy(item.value)}`);
+    const stillNeeds = [
+      ...(shell.missingUnknownSummary || []).map((item) => item.label),
+      ...(shell.needsConfirmationSummary || []).map((item) => item.label),
+      ...evidenceGaps.map((gap) => canonicalEvidenceLabel(gap.evidenceType))
+    ].filter(Boolean).slice(0, 5);
+    rankList.innerHTML = `
+      <article class="priority-rank-item is-primary normal-overview-status">
+        <span>Property file strength</span>
+        <strong>${escapeHtml(canonicalScoreValue(derivedState, "evidenceStrength"))}% evidenced · ${escapeHtml(canonicalStatusLabel(derivedState?.overallStatus))}</strong>
+        <p>${escapeHtml(propertySetupIncomplete ? propertySetupIntro : shell.smartCheckSummary || "CMP has prepared this selected-property workspace from the property file.")}</p>
+      </article>
+      <article class="priority-rank-item normal-overview-status">
+        <span>What CMP has confirmed</span>
+        <strong>${escapeHtml(confirmed.length ? `${confirmed.length} useful facts` : "Starting property identity")}</strong>
+        <ul>${(confirmed.length ? confirmed : [shell.address, shell.postcode].filter(Boolean)).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </article>
+      <article class="priority-rank-item normal-overview-status">
+        <span>What still needs checking</span>
+        <strong>${escapeHtml(stillNeeds.length ? `${stillNeeds.length} open checks` : "No open check showing")}</strong>
+        <ul>${(stillNeeds.length ? stillNeeds : ["Keep monitoring evidence dates"]).map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>
+      </article>
+      <article class="priority-rank-item normal-overview-status">
+        <span>Next best action</span>
+        <strong>${escapeHtml(nextBestAction?.title || primaryAction.label || "Continue property setup")}</strong>
+        <p>${escapeHtml(landlordWorkspaceDisplayCopy(nextBestAction?.reason || propertySetupIntro))}</p>
+      </article>
+    `;
   }
   if (propertyList) {
+    propertyList.hidden = true;
     propertyList.innerHTML = `
       <article class="portfolio-property-card is-most-urgent">
         <div class="portfolio-property-main">
@@ -5420,6 +5428,7 @@ function renderSelectedCanonicalWorkspaceShell() {
     `;
   }
   if (upcomingGrid) {
+    upcomingGrid.hidden = true;
     const upcomingItems = [
       ...(serviceOption ? [{
         badge: "Service recommendation",
@@ -6414,7 +6423,7 @@ function syncDemoChrome() {
   document.body.classList.toggle("hide-prototype-machinery", shouldHidePrototypeMachinery());
   document.body.classList.toggle("simple-product-nav", simpleProductNav);
 
-  setNavItemLabel("Home", normalCanonical ? "Property file" : "Home");
+  setNavItemLabel("Home", normalCanonical ? "Overview" : "Home");
   setNavItemLabel("Properties", normalCanonical ? "My Properties" : simpleProductNav ? "Property" : "Properties");
   setNavItemLabel("Compliance centre", simpleProductNav ? "Complete property check" : "Compliance centre");
   setNavItemLabel("Add property", "Add property");
@@ -16132,8 +16141,8 @@ function renderSelectedCanonicalEvidenceState() {
   if (searchInput && searchInput.value !== labsState.evidenceSearch) searchInput.value = labsState.evidenceSearch;
   document.querySelectorAll("[data-evidence-property-filter]").forEach((button) => {
     const propertyFilter = button.dataset.evidencePropertyFilter;
-    button.hidden = propertyFilter === "willow-brook";
-    button.classList.toggle("is-active", propertyFilter === "all" || propertyFilter === "the-butts");
+    button.hidden = propertyFilter !== "the-butts";
+    button.classList.toggle("is-active", propertyFilter === "the-butts");
     if (propertyFilter === "the-butts") button.textContent = "Selected property";
   });
   document.querySelectorAll("[data-evidence-filter]").forEach((button) => {
@@ -16947,7 +16956,12 @@ function renderSelectedCanonicalActionPlanState() {
   }
   setText("[data-tasks-active-pill]", `${actionItems.length} unresolved ${actionItems.length === 1 ? "action" : "actions"}`);
   setText("[data-tasks-active-count]", String(actionItems.length));
-  setText("[data-tasks-priority-label]", next ? canonicalEvidenceLabel(next.primaryCtaType || next.title) : "None");
+  const priorityLabel = next && /gas/i.test(`${next.title} ${next.reason} ${next.primaryCtaLabel}`)
+    ? "Gas Safety evidence"
+    : next
+      ? landlordWorkspaceDisplayCopy(next.title)
+      : "None";
+  setText("[data-tasks-priority-label]", priorityLabel);
   setText("[data-tasks-due-count]", String((derivedState?.monitoringItems || []).filter((item) => item.currentState === "open").length));
   setText("[data-tasks-completed-count]", String(serviceRequests.filter(isCanonicalServiceRequestClosed).length));
   setText("[data-tasks-start-title]", landlordWorkspaceDisplayCopy(next?.title || "No unresolved action"));
@@ -16982,7 +16996,10 @@ function renderSelectedCanonicalActionPlanState() {
   document.querySelector(".tasks-completed-section")?.toggleAttribute("hidden", false);
 
   const searchInput = document.querySelector("[data-task-search]");
-  if (searchInput && searchInput.value !== labsState.taskSearch) searchInput.value = labsState.taskSearch;
+  if (searchInput) {
+    searchInput.placeholder = "Search selected-property actions...";
+    if (searchInput.value !== labsState.taskSearch) searchInput.value = labsState.taskSearch;
+  }
   document.querySelectorAll("[data-task-filter]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.taskFilter === labsState.taskFilter);
   });
@@ -17695,6 +17712,10 @@ function renderSelectedCanonicalMonitoringState() {
   setText("[data-activity-action-count]", String((derivedState?.actionItems || []).length + serviceRequests.length));
   setText("[data-activity-open-count]", String(openItems.length));
   setText("[data-activity-open-detail]", openItems.length === 1 ? "open item" : "open items");
+  const summaryLabels = Array.from(page.querySelectorAll(".activity-summary-grid .portfolio-pulse-card small"));
+  if (summaryLabels[0]) summaryLabels[0].textContent = "property timeline";
+  if (summaryLabels[1]) summaryLabels[1].textContent = "documents and records";
+  if (summaryLabels[2]) summaryLabels[2].textContent = "task and support events";
   setText("[data-activity-visit-title]", monitoringItems.length ? `${monitoringItems.length} monitoring items` : "No monitoring items");
   const visitList = document.querySelector("[data-activity-visit-list]");
   if (visitList) {
@@ -17708,7 +17729,10 @@ function renderSelectedCanonicalMonitoringState() {
   }
 
   const searchInput = document.querySelector("[data-activity-search]");
-  if (searchInput && searchInput.value !== labsState.activitySearch) searchInput.value = labsState.activitySearch;
+  if (searchInput) {
+    searchInput.placeholder = "Search selected-property monitoring...";
+    if (searchInput.value !== labsState.activitySearch) searchInput.value = labsState.activitySearch;
+  }
   document.querySelectorAll("[data-activity-filter]").forEach((button) => {
     button.classList.toggle("is-active", button.dataset.activityFilter === labsState.activityFilter);
   });
@@ -22745,6 +22769,19 @@ function renderSelectedCanonicalTimelineState() {
   const groups = [...new Set(events.map((event) => event.group))];
   const list = document.querySelector("[data-timeline-list]");
   if (!list) return;
+  const activityKicker = document.querySelector("[data-portfolio-activity] .section-kicker");
+  const activityHeaderBody = document.querySelector("[data-portfolio-activity] .portfolio-activity-header p:not(.section-kicker)");
+  const activityBadge = document.querySelector("[data-portfolio-activity] .prototype-badge");
+  const activityAsk = document.querySelector("[data-activity-ask]");
+  const activitySecondary = document.querySelector("[data-activity-open-timeline]");
+  if (activityKicker) activityKicker.textContent = "Monitoring";
+  setText("#portfolioActivityTitle", "Monitoring");
+  if (activityHeaderBody) {
+    activityHeaderBody.textContent = "CMP keeps the selected property watched after the next action, so evidence gaps and follow-ups do not disappear.";
+  }
+  if (activityBadge) activityBadge.textContent = "Selected property";
+  if (activityAsk) activityAsk.textContent = "Ask CMP about monitoring";
+  if (activitySecondary) activitySecondary.hidden = true;
   list.innerHTML = groups.length
     ? groups.map((group) => `
         <section class="timeline-day">

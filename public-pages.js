@@ -2599,25 +2599,12 @@
         items: foundStageItems,
         tone: "found"
       },
-      ...(needsItems.length ? [{
+      {
         title: "What CMP still needs",
         eyebrow: "Needs your answer",
         body: "These points stay open until you add proof or answer them in the property file.",
-        items: needsItems,
+        items: needsItems.length ? needsItems : [reviewStagePlaceholder("Remaining property questions", "No extra question is showing for this property right now.")],
         tone: "needed"
-      }] : []),
-      {
-        title: "What to do next",
-        eyebrow: "Next action",
-        body: handoff.copy,
-        items: [{
-          id: "review-handoff",
-          label: handoff.primaryLabel,
-          value: handoff.heading,
-          confidence: "landlord review needed",
-          sourceLabel: "CMP property file"
-        }],
-        tone: "next"
       }
     ];
     return `
@@ -2642,10 +2629,10 @@
           </div>
         `).join("")}
 
-        <div class="review-handoff-card stage-h-handoff-card">
+        <div class="review-handoff-card stage-h-handoff-card" data-canonical-handoff-section>
           <div>
             <span class="section-kicker">Next action</span>
-            <h3>What to do next</h3>
+            <h3>${escapeHtml(handoff.heading)}</h3>
             <p>${escapeHtml(handoff.copy)}</p>
           </div>
           <div class="service-journey-actions">
@@ -2670,14 +2657,11 @@
   }
 
   function reviewHandoffState(review) {
-    const hasPropertyQuestions = reviewQuestionItems(review).length > 0;
     // Legacy Stage C.1 marker: old "Open Property Brain" / "Open the Property Brain to review" labels now render as workspace copy.
     return {
       heading: "What happens next",
-      copy: hasPropertyQuestions
-        ? "Answer the remaining property questions so CMP can complete the property file and recommend one clear next action."
-        : "Open the property workspace to review the property position and one clear next action.",
-      primaryLabel: hasPropertyQuestions ? "Answer property questions" : "Open property workspace",
+      copy: "Answer the remaining property questions so CMP can complete the Property Brain and recommend one clear next action.",
+      primaryLabel: "Continue property setup",
       href: review.handoffHref
     };
   }

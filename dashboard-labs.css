@@ -19827,10 +19827,40 @@ body.canonical-property-route .workspace {
 body.normal-canonical-workspace [data-global-nav="Add property"],
 body.normal-canonical-workspace [data-global-nav="Ask CMP"],
 body.normal-canonical-workspace [data-global-nav="Compliance centre"],
+body.normal-canonical-workspace [data-global-nav="My Properties"],
+body.normal-canonical-workspace [data-global-nav="Properties"],
+body.normal-canonical-workspace [data-global-nav="Request service"],
 body.normal-canonical-workspace [data-global-nav="Learn"],
 body.normal-canonical-workspace [data-global-nav="Settings"],
 body.normal-canonical-workspace .quiet-add {
   display: none !important;
+}
+
+body.normal-canonical-workspace [aria-labelledby="navSupport"],
+body.normal-canonical-workspace [aria-labelledby="navAccount"] {
+  display: none !important;
+}
+
+body.normal-canonical-workspace .labs-shell {
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
+}
+
+body.normal-canonical-workspace .assistant-rail {
+  display: none !important;
+}
+
+body.normal-canonical-workspace.assistant-open .assistant-rail {
+  display: block !important;
+  position: fixed;
+  top: 24px;
+  right: 24px;
+  z-index: 70;
+  width: min(360px, calc(100vw - 48px));
+  height: calc(100vh - 48px);
+}
+
+body.normal-canonical-workspace.assistant-open .drawer-backdrop {
+  display: block;
 }
 
 body.normal-canonical-workspace .portfolio-header-actions {
@@ -19866,6 +19896,42 @@ body.canonical-property-route .portfolio-property-card {
   border-radius: 12px;
 }
 
+body.canonical-property-route .portfolio-autopilot-card {
+  align-items: stretch;
+}
+
+body.canonical-property-route .priority-rank-list {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+body.canonical-property-route .normal-overview-status {
+  align-content: start;
+  min-height: 0;
+}
+
+body.canonical-property-route .normal-overview-status ul {
+  display: grid;
+  gap: 6px;
+  margin: 0;
+  padding-left: 18px;
+  color: var(--workspace-muted);
+  line-height: 1.45;
+}
+
+body.canonical-property-route .normal-overview-status li {
+  color: var(--workspace-muted);
+}
+
+body.canonical-property-route .portfolio-summary-panel .button-row {
+  overflow-x: visible;
+}
+
+body.normal-canonical-workspace .tasks-start-card p,
+body.normal-canonical-workspace .tasks-start-card .property-card-label,
+body.normal-canonical-workspace .tasks-start-card .task-meta-row span:not(.doc-status) {
+  color: var(--workspace-muted);
+}
+
 body.canonical-property-route .assistant-rail .prompt-stack button {
   min-height: 38px;
   line-height: 1.2;
@@ -19875,10 +19941,28 @@ body.canonical-property-route .assistant-rail .prompt-stack button {
   body.canonical-property-route .home-upcoming-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  body.normal-canonical-workspace .labs-shell {
+    grid-template-columns: 1fr;
+  }
+
+  body.normal-canonical-workspace.assistant-open .assistant-rail {
+    top: auto;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+    height: auto;
+    max-height: min(78vh, 660px);
+    border-radius: 24px 24px 0 0;
+  }
 }
 
 @media (max-width: 760px) {
   body.canonical-property-route .home-upcoming-grid {
+    grid-template-columns: 1fr;
+  }
+
+  body.canonical-property-route .priority-rank-list {
     grid-template-columns: 1fr;
   }
 }

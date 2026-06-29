@@ -1,0 +1,434 @@
+[
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "01-add-property-initial",
+    "file": "before/1440x1000-01-add-property-initial.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "02-review-found-data",
+    "file": "before/1440x1000-02-review-found-data.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "03-review-handoff",
+    "file": "before/1440x1000-03-review-handoff.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "04-property-questions",
+    "file": "before/1440x1000-04-property-questions.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "05-first-workspace-overview",
+    "file": "before/1440x1000-05-first-workspace-overview.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "06-evidence",
+    "file": "before/1440x1000-06-evidence.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "07-action-plan",
+    "file": "before/1440x1000-07-action-plan.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "08-monitoring",
+    "file": "before/1440x1000-08-monitoring.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1440x1000",
+    "state": "09-my-properties-one-property",
+    "file": "before/1440x1000-09-my-properties-one-property.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "01-add-property-initial",
+    "file": "before/1280x800-01-add-property-initial.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "02-review-found-data",
+    "file": "before/1280x800-02-review-found-data.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "03-review-handoff",
+    "file": "before/1280x800-03-review-handoff.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "04-property-questions",
+    "file": "before/1280x800-04-property-questions.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "05-first-workspace-overview",
+    "file": "before/1280x800-05-first-workspace-overview.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "06-evidence",
+    "file": "before/1280x800-06-evidence.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "07-action-plan",
+    "file": "before/1280x800-07-action-plan.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "08-monitoring",
+    "file": "before/1280x800-08-monitoring.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1280x800",
+    "state": "09-my-properties-one-property",
+    "file": "before/1280x800-09-my-properties-one-property.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "01-add-property-initial",
+    "file": "before/1024x900-01-add-property-initial.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "02-review-found-data",
+    "file": "before/1024x900-02-review-found-data.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "03-review-handoff",
+    "file": "before/1024x900-03-review-handoff.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "04-property-questions",
+    "file": "before/1024x900-04-property-questions.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "05-first-workspace-overview",
+    "file": "before/1024x900-05-first-workspace-overview.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "06-evidence",
+    "file": "before/1024x900-06-evidence.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "07-action-plan",
+    "file": "before/1024x900-07-action-plan.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "08-monitoring",
+    "file": "before/1024x900-08-monitoring.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "1024x900",
+    "state": "09-my-properties-one-property",
+    "file": "before/1024x900-09-my-properties-one-property.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "01-add-property-initial",
+    "file": "before/390x844-01-add-property-initial.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "02-review-found-data",
+    "file": "before/390x844-02-review-found-data.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "03-review-handoff",
+    "file": "before/390x844-03-review-handoff.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "04-property-questions",
+    "file": "before/390x844-04-property-questions.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "05-first-workspace-overview",
+    "file": "before/390x844-05-first-workspace-overview.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "06-evidence",
+    "file": "before/390x844-06-evidence.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "07-action-plan",
+    "file": "before/390x844-07-action-plan.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "08-monitoring",
+    "file": "before/390x844-08-monitoring.png"
+  },
+  {
+    "phase": "before",
+    "breakpoint": "390x844",
+    "state": "09-my-properties-one-property",
+    "file": "before/390x844-09-my-properties-one-property.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "01-add-property-initial",
+    "file": "after/1440x1000-01-add-property-initial.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "02-review-found-data",
+    "file": "after/1440x1000-02-review-found-data.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "03-review-handoff",
+    "file": "after/1440x1000-03-review-handoff.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "04-property-questions",
+    "file": "after/1440x1000-04-property-questions.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "05-first-workspace-overview",
+    "file": "after/1440x1000-05-first-workspace-overview.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "06-evidence",
+    "file": "after/1440x1000-06-evidence.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "07-action-plan",
+    "file": "after/1440x1000-07-action-plan.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "08-monitoring",
+    "file": "after/1440x1000-08-monitoring.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1440x1000",
+    "state": "09-my-properties-one-property",
+    "file": "after/1440x1000-09-my-properties-one-property.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "01-add-property-initial",
+    "file": "after/1280x800-01-add-property-initial.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "02-review-found-data",
+    "file": "after/1280x800-02-review-found-data.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "03-review-handoff",
+    "file": "after/1280x800-03-review-handoff.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "04-property-questions",
+    "file": "after/1280x800-04-property-questions.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "05-first-workspace-overview",
+    "file": "after/1280x800-05-first-workspace-overview.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "06-evidence",
+    "file": "after/1280x800-06-evidence.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "07-action-plan",
+    "file": "after/1280x800-07-action-plan.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "08-monitoring",
+    "file": "after/1280x800-08-monitoring.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1280x800",
+    "state": "09-my-properties-one-property",
+    "file": "after/1280x800-09-my-properties-one-property.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "01-add-property-initial",
+    "file": "after/1024x900-01-add-property-initial.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "02-review-found-data",
+    "file": "after/1024x900-02-review-found-data.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "03-review-handoff",
+    "file": "after/1024x900-03-review-handoff.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "04-property-questions",
+    "file": "after/1024x900-04-property-questions.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "05-first-workspace-overview",
+    "file": "after/1024x900-05-first-workspace-overview.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "06-evidence",
+    "file": "after/1024x900-06-evidence.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "07-action-plan",
+    "file": "after/1024x900-07-action-plan.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "08-monitoring",
+    "file": "after/1024x900-08-monitoring.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "1024x900",
+    "state": "09-my-properties-one-property",
+    "file": "after/1024x900-09-my-properties-one-property.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "01-add-property-initial",
+    "file": "after/390x844-01-add-property-initial.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "02-review-found-data",
+    "file": "after/390x844-02-review-found-data.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "03-review-handoff",
+    "file": "after/390x844-03-review-handoff.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "04-property-questions",
+    "file": "after/390x844-04-property-questions.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "05-first-workspace-overview",
+    "file": "after/390x844-05-first-workspace-overview.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "06-evidence",
+    "file": "after/390x844-06-evidence.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "07-action-plan",
+    "file": "after/390x844-07-action-plan.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "08-monitoring",
+    "file": "after/390x844-08-monitoring.png"
+  },
+  {
+    "phase": "after",
+    "breakpoint": "390x844",
+    "state": "09-my-properties-one-property",
+    "file": "after/390x844-09-my-properties-one-property.png"
+  }
+]
