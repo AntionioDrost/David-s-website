@@ -244,6 +244,14 @@ function handleClick(event) {
     startRoute("az");
   }
 
+  if (action === "view-example-plan") {
+    openExamplePropertyPlan("az");
+  }
+
+  if (action === "preview-possession") {
+    openExamplePropertyPlan("possession");
+  }
+
   if (action === "start-route") {
     startRoute(route);
   }
@@ -423,6 +431,48 @@ function startRoute(route) {
     askLog: [],
     lastOutcome: ""
   });
+}
+
+function openExamplePropertyPlan(route = "az") {
+  const addressOptions = [
+    {
+      id: "example-bs6-6aa-0",
+      line1: "12 Oakfield Road",
+      line2: "",
+      town: "Bristol",
+      postcode: "BS6 6AA",
+      localAuthority: "Bristol City Council"
+    }
+  ];
+  const property = {
+    id: "cmp-prime-v2-example-property",
+    address: formatAddress(addressOptions[0]),
+    postcode: addressOptions[0].postcode,
+    localAuthority: addressOptions[0].localAuthority,
+    propertyType: "Terraced house",
+    bedrooms: 3,
+    lastUpdated: "Today"
+  };
+
+  state.routeIntent = route;
+  state.selectedAddressId = addressOptions[0].id;
+  state.addressOptions = addressOptions;
+  state.property = property;
+  state.scenario = structuredClone(defaultState.scenario);
+  state.modules = buildModules(route);
+  state.selectedModuleId = getFixFirstModule()?.id || Object.keys(state.modules)[0] || null;
+  state.activeServiceModuleId = null;
+  state.monitoring = [];
+  state.serviceDrafts = [];
+  state.evidence = [];
+  state.humanRequests = [];
+  state.scan = structuredClone(defaultState.scan);
+  state.askLog = [];
+  state.lastOutcome = "";
+  state.view = "workspace";
+  saveState();
+  render();
+  renderDrawers();
 }
 
 function createAddressOptions(postcode) {
@@ -1033,10 +1083,16 @@ function renderHome() {
           <div class="hero-actions">
             <button class="primary-button" type="button" data-action="start-az">
               <span class="btn-icon" aria-hidden="true">${icons.arrow}</span>
-              Start A-Z Compliance Map
+              Check a property
             </button>
-            <button class="secondary-button" type="button" data-action="route-home">
-              Choose a property route
+            <button class="secondary-button" type="button" data-action="view-example-plan">
+              View example Property Plan
+            </button>
+            <button class="secondary-button" type="button" data-action="start-route" data-route="epc">
+              Try EPC route
+            </button>
+            <button class="secondary-button" type="button" data-action="preview-possession">
+              Preview possession preparation
             </button>
           </div>
           <div class="promise-strip" aria-label="CMP Prime flow">
