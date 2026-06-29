@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Service Request - CMP Prime</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="assets/cmp-prime.css">
+    <script src="assets/property-data.js" defer></script>
+    <script src="assets/cmp-prime.js" defer></script>
+  </head>
+  <body data-page="services">
+    <header class="prime-header">
+      <div class="page-shell prime-header-inner">
+        <a class="brand" href="index.html" aria-label="CMP Prime home">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 5 39 10v12c0 10.5-6 17.8-15 21-9-3.2-15-10.5-15-21V10L24 5Z" fill="#EAF8F1" stroke="#0B8F5A" stroke-width="3"/>
+            <path d="m17 24 5 5 10-12" fill="none" stroke="#10201C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>CMP Prime</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="property.html">Property Brain</a>
+          <a data-nav="services" href="services.html">Services</a>
+          <a href="my-properties.html">My Properties</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="page-hero">
+        <h1>Service help for a property gap.</h1>
+        <p>Services appear here only because the active property has a missing record or action that may need help.</p>
+      </section>
+
+      <section class="services-layout">
+        <article class="service-gap-card">
+          <p class="eyebrow-text">Linked property</p>
+          <h2 id="serviceProperty"></h2>
+          <p><strong>Linked gap:</strong> <span id="serviceGap"></span></p>
+          <p><strong>Recommended service:</strong> <span id="serviceType"></span></p>
+          <p id="serviceReason"></p>
+          <div class="request-preview">
+            <strong>Draft request preview</strong>
+            <p id="servicePreview"></p>
+          </div>
+          <div class="status-strip">
+            <span class="status-label service-request-drafted">Service request drafted</span>
+            <span class="status-label no-supplier-contacted">No supplier contacted</span>
+            <span class="status-label no-payment-taken">No payment taken</span>
+          </div>
+          <div class="button-row">
+            <button class="btn primary" type="button" id="draftServiceFromPage">Draft service request</button>
+            <a class="btn secondary" href="property.html#evidence-vault">Return to evidence options</a>
+          </div>
+        </article>
+
+        <aside class="linked-gap-card">
+          <h2>What happens next</h2>
+          <p>CMP saves the draft against the property file and adds a follow-up reminder. The landlord decides whether to send it outside this prototype.</p>
+          <div id="serviceHistory"></div>
+        </aside>
+      </section>
+    </main>
+  </body>
+</html>

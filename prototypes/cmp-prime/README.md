@@ -1,101 +1,52 @@
 # CMP Prime
 
-## Concept
+CMP Prime is the action-led CMP prototype. It helps a self-managing landlord check one rental property, understand what CMP found, answer only the missing details, and move to one practical next action.
 
-CMP Prime is the action-led version of CMP. Its internal shorthand is a landlord command centre, but public-facing copy must avoid that term and focus on readiness, clear findings, and one next action.
+## Build Scope
 
-It helps a self-managing landlord see whether a property is ready to rent, what CMP has found, what needs evidence, and what action should happen next.
+This prototype is static and self-contained inside `prototypes/cmp-prime/`.
 
-## Target User Feeling
+Created routes:
 
-The landlord should feel focused, confident, and guided. The experience should feel like a modern business tool that reduces uncertainty and makes the next step obvious.
+- `index.html` - homepage and product explanation.
+- `add-property.html` - postcode lookup, Smart Checks, found-data review, and landlord questions.
+- `property.html` - Property Brain, Evidence Vault, Action Plan, Services, Monitoring, and contextual Ask CMP drawer.
+- `services.html` - service request draft tied to the active property gap.
+- `my-properties.html` - one-property status with portfolio comparison hidden until two or more properties exist.
 
-## Visual Direction
+Shared assets:
 
-- Modern SaaS dashboard.
-- Clear readiness summary.
-- Strong next action area.
-- Sparse, high-contrast surfaces.
-- No permanent side panels that compete with the main task.
+- `assets/cmp-prime.css`
+- `assets/cmp-prime.js`
+- `assets/property-data.js`
 
-## Logo Direction
+Validation:
 
-- Shield/tick mark.
-- Compact enough for a header and mobile view.
-- Should signal readiness and protection without implying legal certification.
+- `tools/cmp-prime-check.mjs`
 
-## Colour Scheme
+## Data
 
-- Charcoal.
-- Emerald.
-- Clean white.
-- Pale mint.
+CMP Prime uses only this localStorage namespace:
 
-The palette must be visibly different from CMP Vault and CMP Concierge.
+```text
+cmpPrimePrototypeV1
+```
 
-## Core Journey
+It does not read or write old CMP storage keys.
 
-Homepage
--> Add Property
--> Smart Checks
--> Review found data
--> Answer missing details
--> Property Brain
--> One next best action
--> Evidence or service action
--> Monitoring
--> My Properties
+## External Data
 
-## Pages To Build Later
+Allowed live lookup:
 
-- Homepage / property readiness entry screen.
-- Add Property.
-- Smart Checks.
-- Review found data.
-- Missing details.
-- Property Brain.
-- Evidence or service action.
-- Monitoring.
-- My Properties.
+- Postcodes.io postcode validation and local authority/admin context.
 
-Do not create these pages during the setup pass.
+Fallback behaviour:
 
-## What Must Not Be Copied From Old CMP
+- If postcode lookup fails, the journey continues with a sample property fallback.
+- EPC is isolated behind a placeholder adapter and currently uses honest prototype copy: `Prototype EPC data shown for review`.
 
-- Root-level CMP UI.
-- Old journey code.
-- Rescue prototype pages.
-- Old copy patterns.
-- Old progress systems.
-- Old Add Property routing.
-- Old Ask CMP placement.
-- Old screenshot or audit outputs.
+No private API keys are used.
 
-CMP Prime must be built independently inside `prototypes/cmp-prime/`.
+## Prototype Limits
 
-## API Approach
-
-- Use a local adapter layer for external data calls.
-- Postcodes.io may be used for live postcode validation and local authority/admin data.
-- EPC lookup may be added later only through a safe server-side or environment-safe adapter.
-- The prototype must continue gracefully if EPC lookup is unavailable.
-- Do not expose private tokens in frontend JavaScript.
-- Do not fake official verification for Gas Safety, EICR, smoke/CO, licensing, deposits, or tenancy documents.
-
-## Validation Requirements
-
-- One primary CTA per screen.
-- One Add Property path.
-- One postcode input.
-- One Smart Checks step.
-- One found-data review.
-- One next action.
-- Evidence state can change after a simulated upload.
-- Service request state can change after a drafted request.
-- Monitoring updates after evidence or service changes.
-- Ask CMP appears only in context.
-- My Properties works.
-- No invisible text.
-- No horizontal overflow.
-- Works at 1440x1000, 1280x800, 1024x900, and 390x844.
-- Uses 44px minimum tap targets on mobile.
+The prototype gives landlord guidance only. It does not provide legal advice, contact suppliers, take payment, or make compliance guarantees.

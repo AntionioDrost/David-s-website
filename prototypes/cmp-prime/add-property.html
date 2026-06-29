@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Check a Property - CMP Prime</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="assets/cmp-prime.css">
+    <script src="assets/property-data.js" defer></script>
+    <script src="assets/cmp-prime.js" defer></script>
+  </head>
+  <body data-page="add-property">
+    <header class="prime-header">
+      <div class="page-shell prime-header-inner">
+        <a class="brand" href="index.html" aria-label="CMP Prime home">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 5 39 10v12c0 10.5-6 17.8-15 21-9-3.2-15-10.5-15-21V10L24 5Z" fill="#EAF8F1" stroke="#0B8F5A" stroke-width="3"/>
+            <path d="m17 24 5 5 10-12" fill="none" stroke="#10201C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>CMP Prime</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a data-nav="add-property" href="add-property.html">Check a property</a>
+          <a href="my-properties.html">My Properties</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="page-hero">
+        <h1>Which property are you checking?</h1>
+        <p>Start with one postcode. CMP Prime will prepare Smart Checks, show what was found, then ask only for the missing details.</p>
+      </section>
+
+      <div class="journey-stack">
+        <section class="journey-panel" aria-labelledby="addPropertyTitle">
+          <h2 id="addPropertyTitle">Add Property</h2>
+          <form id="propertyLookupForm" class="lookup-form">
+            <div class="field">
+              <label for="postcode">Property postcode</label>
+              <input id="postcode" name="postcode" autocomplete="postal-code" placeholder="BS1 5AH" required>
+            </div>
+            <p class="help-note">Postcode data can help identify local authority and admin context. Missing records can be added later.</p>
+            <button class="btn primary" type="submit">Run Smart Checks</button>
+            <p id="lookupStatus" class="form-status" aria-live="polite"></p>
+          </form>
+          <div id="manualFallback" class="manual-fallback" hidden>
+            <strong>Lookup fallback</strong>
+            <p>Enter address manually if the postcode lookup is unavailable.</p>
+            <div class="field">
+              <label for="manualAddress">Address line</label>
+              <input id="manualAddress" name="manualAddress" placeholder="18 Alder Mews, Bristol">
+            </div>
+            <button class="btn secondary" id="applyManualAddress" type="button">Use this address</button>
+          </div>
+          <div id="selectedAddress" aria-live="polite"></div>
+        </section>
+
+        <section class="journey-panel" id="smartChecksPanel" hidden aria-labelledby="smartChecksTitle">
+          <h2 id="smartChecksTitle">Smart Checks</h2>
+          <p>What has CMP found?</p>
+          <div id="smartChecksContent"></div>
+          <button class="btn primary" id="reviewFoundData" type="button">Review found data</button>
+        </section>
+
+        <section class="journey-panel" id="reviewPanel" hidden aria-labelledby="reviewTitle">
+          <h2 id="reviewTitle">Review Found Data</h2>
+          <p>Check what CMP found before answering the missing details.</p>
+          <div class="review-columns">
+            <div class="content-card">
+              <h2>What CMP found</h2>
+              <ul id="foundDataList" class="review-list"></ul>
+            </div>
+            <div class="content-card">
+              <h2>What CMP still needs from you</h2>
+              <ul id="needsDataList" class="review-list"></ul>
+            </div>
+          </div>
+          <button class="btn primary" id="confirmFoundData" type="button">Confirm and continue</button>
+        </section>
+
+        <section class="journey-panel" id="questionsPanel" hidden aria-labelledby="questionsTitle">
+          <h2 id="questionsTitle">Property Questions</h2>
+          <p>Answer only the practical details CMP needs to build the Property Brain.</p>
+          <form id="propertyQuestionsForm" class="question-grid">
+            <fieldset class="question-group">
+              <legend>Is the property tenanted, vacant, or being prepared?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="occupancyStatus" value="Tenanted" checked>Tenanted</label>
+                <label class="question-option"><input type="radio" name="occupancyStatus" value="Vacant">Vacant</label>
+                <label class="question-option"><input type="radio" name="occupancyStatus" value="Being prepared">Being prepared</label>
+              </div>
+            </fieldset>
+            <fieldset class="question-group">
+              <legend>Do you have a current Gas Safety certificate?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="gasSafety" value="yes">Yes</label>
+                <label class="question-option"><input type="radio" name="gasSafety" value="no" checked>No</label>
+                <label class="question-option"><input type="radio" name="gasSafety" value="not-known">Not sure</label>
+              </div>
+            </fieldset>
+            <fieldset class="question-group">
+              <legend>Do you have a current EICR?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="eicr" value="yes">Yes</label>
+                <label class="question-option"><input type="radio" name="eicr" value="no" checked>No</label>
+                <label class="question-option"><input type="radio" name="eicr" value="not-known">Not sure</label>
+              </div>
+            </fieldset>
+            <fieldset class="question-group">
+              <legend>Are smoke and CO alarms installed and tested?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="smokeCo" value="yes" checked>Yes</label>
+                <label class="question-option"><input type="radio" name="smokeCo" value="no">No</label>
+                <label class="question-option"><input type="radio" name="smokeCo" value="not-known">Not sure</label>
+              </div>
+            </fieldset>
+            <fieldset class="question-group">
+              <legend>Is there a tenancy deposit?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="deposit" value="yes" checked>Yes</label>
+                <label class="question-option"><input type="radio" name="deposit" value="no">No</label>
+                <label class="question-option"><input type="radio" name="deposit" value="not-known">Not sure</label>
+              </div>
+            </fieldset>
+            <fieldset class="question-group">
+              <legend>Is a tenancy agreement ready?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="tenancyAgreement" value="yes" checked>Yes</label>
+                <label class="question-option"><input type="radio" name="tenancyAgreement" value="no">No</label>
+                <label class="question-option"><input type="radio" name="tenancyAgreement" value="not-known">Not sure</label>
+              </div>
+            </fieldset>
+            <fieldset class="question-group">
+              <legend>Any known damp/mould or repair issue?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="dampMould" value="no" checked>No</label>
+                <label class="question-option"><input type="radio" name="dampMould" value="yes">Yes</label>
+              </div>
+            </fieldset>
+            <fieldset class="question-group">
+              <legend>Is the property an HMO or subject to licensing?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="licensing" value="yes">Yes</label>
+                <label class="question-option"><input type="radio" name="licensing" value="no">No</label>
+                <label class="question-option"><input type="radio" name="licensing" value="unsure" checked>Not sure</label>
+              </div>
+            </fieldset>
+            <fieldset class="question-group">
+              <legend>Do you want CMP to prepare service requests for missing checks?</legend>
+              <div class="question-options">
+                <label class="question-option"><input type="radio" name="serviceHelp" value="yes" checked>Yes</label>
+                <label class="question-option"><input type="radio" name="serviceHelp" value="no">No</label>
+              </div>
+            </fieldset>
+            <button class="btn primary" type="submit">Save answers</button>
+          </form>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>

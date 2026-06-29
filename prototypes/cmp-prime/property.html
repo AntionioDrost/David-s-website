@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Property Brain - CMP Prime</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="assets/cmp-prime.css">
+    <script src="assets/property-data.js" defer></script>
+    <script src="assets/cmp-prime.js" defer></script>
+  </head>
+  <body data-page="property">
+    <header class="prime-header">
+      <div class="page-shell prime-header-inner">
+        <a class="brand" href="index.html" aria-label="CMP Prime home">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 5 39 10v12c0 10.5-6 17.8-15 21-9-3.2-15-10.5-15-21V10L24 5Z" fill="#EAF8F1" stroke="#0B8F5A" stroke-width="3"/>
+            <path d="m17 24 5 5 10-12" fill="none" stroke="#10201C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>CMP Prime</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="add-property.html">Check a property</a>
+          <a data-nav="property" href="property.html">Property Brain</a>
+          <a href="my-properties.html">My Properties</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-shell property-shell">
+      <section class="property-summary">
+        <div>
+          <p class="eyebrow-text">Active property</p>
+          <h1 id="propertyTitle">Property</h1>
+          <p id="propertyMeta"></p>
+          <div class="metrics-grid" aria-label="Property readiness summary">
+            <div class="metric-card"><strong id="readinessScore">0%</strong><span>Readiness score</span></div>
+            <div class="metric-card"><strong id="evidenceStrength">0%</strong><span>Evidence file strength</span></div>
+            <div class="metric-card"><strong id="confirmedCount">0</strong><span>Confirmed records</span></div>
+            <div class="metric-card"><strong id="missingCount">0</strong><span>Missing details</span></div>
+          </div>
+          <article class="next-action-card">
+            <p class="eyebrow-text">One next action</p>
+            <h2 id="nextActionTitle"></h2>
+            <p id="nextActionReason"></p>
+            <p><strong>Evidence route:</strong> <span id="nextActionEvidence"></span></p>
+            <div class="button-row">
+              <button class="btn primary" type="button" id="startNextAction">Start next action</button>
+              <button class="btn secondary" type="button" id="viewEvidenceGaps">View evidence gaps</button>
+            </div>
+          </article>
+        </div>
+        <div class="summary-actions">
+          <button class="btn secondary" type="button" id="openAskCmp">Ask CMP about this property</button>
+        </div>
+      </section>
+
+      <div class="tabbar" role="tablist" aria-label="Property sections">
+        <button type="button" role="tab" data-tab-target="overview">Overview</button>
+        <button type="button" role="tab" data-tab-target="evidence-vault">Evidence Vault</button>
+        <button type="button" role="tab" data-tab-target="action-plan">Action Plan</button>
+        <button type="button" role="tab" data-tab-target="services">Services</button>
+        <button type="button" role="tab" data-tab-target="monitoring">Monitoring</button>
+      </div>
+
+      <section class="content-card" data-tab-panel="overview" aria-labelledby="overviewTitle">
+        <h2 id="overviewTitle">How ready is this property?</h2>
+        <div class="overview-grid">
+          <div>
+            <h3>What is confirmed</h3>
+            <div id="overviewConfirmed" class="record-pill-list"></div>
+          </div>
+          <div>
+            <h3>What is missing</h3>
+            <div id="overviewMissing" class="record-pill-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="content-card" data-tab-panel="evidence-vault" aria-labelledby="vaultTitle" hidden>
+        <h2 id="vaultTitle">Evidence Vault</h2>
+        <p>Store proof against the property record it belongs to. Added files update readiness but are not treated as legal advice.</p>
+        <p id="evidenceSuccess" class="success-banner" hidden>Evidence added. Readiness and evidence strength have been updated.</p>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Record</th>
+                <th>Status</th>
+                <th>Evidence</th>
+                <th>Source</th>
+                <th>Expiry/review</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="evidenceRows"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="content-card" data-tab-panel="action-plan" aria-labelledby="actionPlanTitle" hidden>
+        <h2 id="actionPlanTitle">What should I fix first?</h2>
+        <div id="actionPlanContent"></div>
+      </section>
+
+      <section class="content-card" data-tab-panel="services" aria-labelledby="servicesTitle" hidden>
+        <h2 id="servicesTitle">What help can I request for this gap?</h2>
+        <div id="propertyServicesContent"></div>
+      </section>
+
+      <section class="content-card" data-tab-panel="monitoring" aria-labelledby="monitoringTitle" hidden>
+        <h2 id="monitoringTitle">What do I need to remember later?</h2>
+        <ul id="monitoringItems" class="timeline"></ul>
+        <div class="button-row">
+          <a class="btn primary" href="my-properties.html">Save monitoring plan</a>
+          <a class="btn secondary" href="my-properties.html">Return to My Properties</a>
+        </div>
+      </section>
+    </main>
+
+    <dialog id="evidenceDialog">
+      <form id="evidenceForm" class="dialog-body">
+        <h2 id="evidenceDialogTitle">Add evidence</h2>
+        <p>Enter or select a file name for this prototype upload. CMP will mark the record as Evidence added.</p>
+        <input type="hidden" id="evidenceRecordId">
+        <div class="field">
+          <label for="evidenceFileName">File name</label>
+          <input id="evidenceFileName" name="evidenceFileName" placeholder="Gas Safety certificate.pdf" required>
+        </div>
+        <div class="button-row">
+          <button class="btn primary" type="submit">Add evidence</button>
+          <button class="btn secondary" type="button" id="closeEvidenceDialog">Cancel</button>
+        </div>
+      </form>
+    </dialog>
+
+    <aside class="ask-drawer" id="askCmpDrawer" hidden aria-label="Ask CMP drawer">
+      <div class="ask-panel">
+        <button class="btn secondary" type="button" id="closeAskCmp">Close</button>
+        <h2>Ask CMP about this property</h2>
+        <p>Contextual help for this property record and current action.</p>
+        <div class="ask-prompts">
+          <button type="button" data-ask-prompt="What should I fix first?">What should I fix first?</button>
+          <button type="button" data-ask-prompt="What evidence do I need?">What evidence do I need?</button>
+          <button type="button" data-ask-prompt="Why is this the priority?">Why is this the priority?</button>
+          <button type="button" data-ask-prompt="What service should I request?">What service should I request?</button>
+          <button type="button" data-ask-prompt="What should I monitor next?">What should I monitor next?</button>
+        </div>
+        <p id="askCmpResponse" class="ask-response"></p>
+      </div>
+    </aside>
+  </body>
+</html>

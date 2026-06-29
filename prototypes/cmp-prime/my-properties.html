@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>My Properties - CMP Prime</title>
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="assets/cmp-prime.css">
+    <script src="assets/property-data.js" defer></script>
+    <script src="assets/cmp-prime.js" defer></script>
+  </head>
+  <body data-page="my-properties">
+    <header class="prime-header">
+      <div class="page-shell prime-header-inner">
+        <a class="brand" href="index.html" aria-label="CMP Prime home">
+          <svg viewBox="0 0 48 48" aria-hidden="true">
+            <path d="M24 5 39 10v12c0 10.5-6 17.8-15 21-9-3.2-15-10.5-15-21V10L24 5Z" fill="#EAF8F1" stroke="#0B8F5A" stroke-width="3"/>
+            <path d="m17 24 5 5 10-12" fill="none" stroke="#10201C" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <span>CMP Prime</span>
+        </a>
+        <nav class="nav-links" aria-label="Primary">
+          <a href="index.html">Home</a>
+          <a href="add-property.html">Check a property</a>
+          <a data-nav="my-properties" href="my-properties.html">My Properties</a>
+        </nav>
+      </div>
+    </header>
+
+    <main class="page-shell">
+      <section class="page-hero">
+        <h1>Which property needs attention next?</h1>
+        <p>Your active property appears with readiness, evidence gaps, monitoring alerts and its one next action.</p>
+        <div class="cta-row">
+          <a class="btn primary" href="property.html">Open property</a>
+          <a class="btn secondary" href="add-property.html">Add another property</a>
+        </div>
+      </section>
+
+      <section id="propertiesList" class="property-list" aria-label="Properties"></section>
+      <section id="propertyComparison" class="content-card" hidden></section>
+    </main>
+  </body>
+</html>
