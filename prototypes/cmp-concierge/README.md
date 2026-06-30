@@ -1,104 +1,37 @@
 # CMP Concierge
 
-## Concept
+CMP Concierge is a service-first landlord support prototype. It helps a landlord describe what they need, choose a service route, identify evidence, prepare booking details, upload documents for review, and speak to a CMP advisor when the route needs human guidance.
 
-CMP Concierge is the services-first version of CMP. It organises landlord tasks around guided help, service request preparation, missing evidence, and follow-up monitoring.
+Core promise:
 
-It helps a self-managing landlord understand what CMP has found, what needs landlord confirmation, and which service request or evidence action should happen next.
+> Tell CMP what you need. We'll guide the service, evidence and next step.
 
-## Target User Feeling
+## Prototype Shape
 
-The landlord should feel helped, not judged. The experience should feel practical, friendly, and guided while still being clear about missing evidence and renewal risks.
+- Static single-page app in `index.html`, `styles.css` and `app.js`.
+- New local storage namespace: `cmpConciergePrototypeV1`.
+- No API keys, supplier integrations, payments or production services.
+- One sample property: `22 Warwick Row, Coventry, CV1 1EX`.
+- Main journeys: route selection, property selection, targeted questions, Service Plan, booking preparation, document check, possession preparation, advisor route, My Requests, My Properties and Ask CMP.
 
 ## Visual Direction
 
-- Helpful service organiser.
-- Guided task flow.
-- Warm but professional service request surfaces.
-- Main task stays central; support actions stay contextual.
-- No legacy route patterns or old broken journey code.
+- Dark premium concierge interface.
+- Deep plum, midnight navy, electric blue, coral, soft lilac and warm cream palette.
+- Inline SVG house/service-bell mark with `CMP Concierge` lockup.
+- Large guided choice panels, service cards, route preview and booking timeline.
+- Service-first experience, not a map, records binder or generic dashboard.
 
-## Logo Direction
+## Trust Boundary
 
-- House/service bell mark.
-- Should suggest practical help for landlords.
-- Must not imply that suppliers have been contacted unless a real request has been sent.
+The prototype prepares service requests, evidence summaries and advisor prompts. It uses calm boundaries such as "No supplier contacted yet", "No payment taken", "advisor review recommended" and "guidance only, not legal advice".
 
-## Colour Scheme
+## Validation
 
-- Deep plum.
-- Blue.
-- Coral.
-- Soft lilac.
+Run:
 
-The palette must be visibly different from CMP Prime and CMP Vault.
-
-## Core Journey
-
-Homepage
--> Add Property
--> Smart Checks
--> Review found data
--> Answer missing details
--> Property Plan
--> One next best action
--> Evidence or service action
--> Monitoring
--> My Properties
-
-## Pages To Build Later
-
-- Homepage / guided help entry screen.
-- Add Property.
-- Smart Checks.
-- Review found data.
-- Missing details.
-- Property Plan.
-- Service request draft.
-- Evidence upload simulation.
-- Monitoring.
-- My Properties.
-
-Do not create these pages during the setup pass.
-
-## What Must Not Be Copied From Old CMP
-
-- Root-level CMP UI.
-- Old journey code.
-- Rescue prototype pages.
-- Old service request patterns.
-- Old Ask CMP placement.
-- Old duplicated Add Property routes.
-- Old low-contrast visual treatment.
-- Old screenshot or audit outputs.
-
-CMP Concierge must be built independently inside `prototypes/cmp-concierge/`.
-
-## API Approach
-
-- Use a local adapter layer for external data calls.
-- Postcodes.io may be used for live postcode validation and local authority/admin data.
-- EPC lookup may be added later only through a safe server-side or environment-safe adapter.
-- The prototype must remain useful if EPC lookup is unavailable.
-- Do not expose private tokens in frontend JavaScript.
-- Do not fake official verification for Gas Safety, EICR, smoke/CO, licensing, deposits, or tenancy documents.
-- Do not claim a supplier was contacted unless a real request was sent.
-
-## Validation Requirements
-
-- One primary CTA per screen.
-- One Add Property path.
-- One postcode input.
-- One Smart Checks step.
-- One found-data review.
-- One next action.
-- Service request draft is clear.
-- Evidence state can change after a simulated upload.
-- Service request state can change after a drafted request.
-- Monitoring updates after evidence or service changes.
-- Ask CMP appears only in context.
-- My Properties works.
-- No invisible text.
-- No horizontal overflow.
-- Works at 1440x1000, 1280x800, 1024x900, and 390x844.
-- Uses 44px minimum tap targets on mobile.
+```bash
+git diff --check
+node --check prototypes/cmp-concierge/app.js
+node prototypes/cmp-concierge/tools/cmp-concierge-check.mjs
+```
