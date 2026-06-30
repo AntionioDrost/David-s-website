@@ -1,103 +1,65 @@
 # CMP Vault
 
-## Concept
+CMP Vault is the records-first Prototype Option 2 for the CMP prototype programme.
 
-CMP Vault is the records-first version of CMP. It presents the product as a secure property file and evidence vault for self-managing landlords.
+It is a secure property passport for self-managing landlords: certificates, evidence, service outcomes and renewal dates are kept in one organised property file. The product question is:
 
-It helps a landlord organise rental records, understand missing evidence, prepare service requests, and monitor renewals without implying that CMP has legally verified compliance.
+> Is my property file complete, current and ready to rely on?
 
-## Target User Feeling
+## Built Surface
 
-The landlord should feel organised, reassured, and in control of the property file. The experience should make evidence gaps easy to spot and renewals easy to track.
+- Homepage with the required Vault positioning and four entry CTAs.
+- Start Vault flow: postcode, address selection and property passport creation.
+- Document-first flow: simulated scan, suggested matches, landlord confirmation and record updates.
+- Main Vault screen: property passport header, category rail, record drawers, file health, renewal panel and document inbox.
+- Record detail drawer with one primary action and contextual Ask CMP prompts.
+- Record-linked service flow with quiet service copy and follow-up reminder updates.
+- Renewal timeline route.
+- Possession readiness file framed as evidence readiness for advisor review.
+- My Properties with one property card shown once.
 
-## Visual Direction
+## Implementation Boundary
 
-- Secure property file / digital binder.
-- Evidence-first layout.
-- Record sections with clear status labels.
-- Calm, archival, trustworthy visual tone.
-- No cluttered dashboard patterns from old CMP pages.
+This prototype is static and self-contained in `prototypes/cmp-vault/`.
 
-## Logo Direction
+Allowed implementation files:
 
-- Vault/folder/keyhole mark.
-- Should imply safe record keeping.
-- Must not imply government approval or official legal certification.
+- `index.html`
+- `styles.css`
+- `app.js`
+- `README.md`
+- `tools/cmp-vault-check.mjs`
 
-## Colour Scheme
+No root HTML, CSS or JavaScript is used. No CMP Prime files are imported or edited. No API keys are required.
 
-- Navy.
-- Brass.
-- Parchment.
-- Slate.
+## Storage
 
-The palette must be visibly different from CMP Prime and CMP Concierge.
+Vault-only local storage namespace:
 
-## Core Journey
+```text
+cmpVaultPrototypeV1
+```
 
-Homepage
--> Add Property
--> Smart Checks
--> Review found data
--> Answer missing details
--> Property Vault
--> One next best action
--> Evidence or service action
--> Monitoring
--> My Properties
+The prototype does not read or write CMP Prime, dashboard, Supabase or old CMP storage keys.
 
-## Pages To Build Later
+## Sample Property
 
-- Homepage / property file entry screen.
-- Add Property.
-- Smart Checks.
-- Review found data.
-- Missing details.
-- Property Vault.
-- Evidence record detail.
-- Service request preparation.
-- Renewal monitoring.
-- My Properties.
+The seeded example property is:
 
-Do not create these pages during the setup pass.
+```text
+48 Maple Terrace, Leamington Spa, CV32 5AA
+```
 
-## What Must Not Be Copied From Old CMP
+It uses static records for safety certificates, energy and condition, tenancy file, licensing/special cases, services and possession readiness.
 
-- Root-level CMP UI.
-- Old journey code.
-- Rescue prototype pages.
-- Old evidence displays.
-- Old route structure.
-- Old terminology.
-- Old portfolio tools before multiple properties exist.
-- Old screenshot or audit outputs.
+## Validation
 
-CMP Vault must be built independently inside `prototypes/cmp-vault/`.
+Run:
 
-## API Approach
+```bash
+git diff --check
+node --check prototypes/cmp-vault/app.js
+node prototypes/cmp-vault/tools/cmp-vault-check.mjs
+```
 
-- Use a local adapter layer for external data calls.
-- Postcodes.io may be used for live postcode validation and local authority/admin data.
-- EPC lookup may be added later only through a safe server-side or environment-safe adapter.
-- The prototype must not block if EPC lookup is unavailable.
-- Do not expose private tokens in frontend JavaScript.
-- Do not fake official verification for Gas Safety, EICR, smoke/CO, licensing, deposits, or tenancy documents.
-
-## Validation Requirements
-
-- One primary CTA per screen.
-- One Add Property path.
-- One postcode input.
-- One Smart Checks step.
-- One found-data review.
-- One next action.
-- Evidence states are visible and understandable.
-- Evidence state can change after a simulated upload.
-- Service request state can change after a drafted request.
-- Monitoring updates after evidence or service changes.
-- Ask CMP appears only in context.
-- My Properties works.
-- No invisible text.
-- No horizontal overflow.
-- Works at 1440x1000, 1280x800, 1024x900, and 390x844.
-- Uses 44px minimum tap targets on mobile.
+Browser QA should use a fresh temporary context. Do not clear normal browser storage.

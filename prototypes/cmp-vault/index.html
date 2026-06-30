@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>CMP Vault | Records-first property passport</title>
+    <meta
+      name="description"
+      content="CMP Vault is a records-first property passport for certificates, evidence, services and renewal dates."
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='10' fill='%230E1B2A'/%3E%3Cpath d='M12 25h18l5 6h17v18a6 6 0 0 1-6 6H18a6 6 0 0 1-6-6V25Z' fill='%23B88A3B'/%3E%3Ccircle cx='32' cy='41' r='5' fill='%23FFFDF7'/%3E%3C/svg%3E"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app" class="app-shell">
+      <header class="site-header">
+        <a class="brand" href="#home" aria-label="CMP Vault home">
+          <svg class="brand-mark" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+            <path d="M10 22h19l5 6h20v24a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6V22Z" fill="currentColor" opacity=".18" />
+            <path d="M10 22h19l5 6h20v24a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6V22Z" fill="none" stroke="currentColor" stroke-width="4" stroke-linejoin="round" />
+            <rect x="21" y="8" width="22" height="22" rx="7" fill="#FFFDF7" stroke="currentColor" stroke-width="4" />
+            <circle cx="32" cy="40" r="5" fill="currentColor" />
+            <path d="M32 44v7" stroke="#FFFDF7" stroke-width="4" stroke-linecap="round" />
+          </svg>
+          <span>CMP Vault</span>
+        </a>
+        <nav class="site-nav" aria-label="Vault navigation">
+          <a href="#home">Home</a>
+          <a href="#document-first">Add documents</a>
+          <a href="#properties">My Properties</a>
+        </nav>
+      </header>
+
+      <main class="home-shell" data-route="home">
+        <section class="hero-section" aria-labelledby="home-title">
+          <div class="hero-copy">
+            <h1 id="home-title">Build a complete property file before you need it.</h1>
+            <p>
+              Your certificates, evidence and renewal dates in one secure property vault.
+              Store the proof, spot the gaps and keep the file ready for review.
+            </p>
+            <div class="hero-actions">
+              <button class="button button-primary" type="button">Start a property vault</button>
+              <button class="button button-secondary" type="button">Upload documents first</button>
+              <button class="button button-secondary" type="button">Open example vault</button>
+              <button class="button button-secondary" type="button">Check possession evidence readiness</button>
+            </div>
+          </div>
+          <div class="passport-visual" aria-label="Property passport preview">
+            <div class="vault-spine"></div>
+            <div class="vault-cover">
+              <span class="cover-label">Property passport</span>
+              <strong>Secure evidence file</strong>
+              <div class="seal">
+                <span>File strength</span>
+                <b>72%</b>
+              </div>
+              <ul>
+                <li>Certificates</li>
+                <li>Tenancy file</li>
+                <li>Renewal ribbon</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="how-section" aria-labelledby="how-title">
+          <h2 id="how-title">How it works</h2>
+          <ol>
+            <li>Create the property passport.</li>
+            <li>Add or scan documents.</li>
+            <li>Confirm record matches.</li>
+            <li>Track renewals and gaps.</li>
+            <li>Ask an advisor when the file needs review.</li>
+          </ol>
+        </section>
+      </main>
+    </div>
+    <script src="app.js" defer></script>
+  </body>
+</html>
