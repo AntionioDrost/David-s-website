@@ -1,27 +1,99 @@
+const optimized = "./assets/optimized/";
+
 const assets = {
-  logo: "./assets/logo-grey.png",
-  hero: "./assets/origami-house-wide.png",
-  house: "./assets/origami-house-hd.png",
-  epcTile: "./assets/top-tile-epc.png",
+  logo: `${optimized}logo-grey-live.png`,
+  colourLogo: `${optimized}logo-colour-horizontal.png`,
+  heroWide: `${optimized}homepage-origami-house-wide.webp`,
+  heroCropped: `${optimized}homepage-origami-house-cropped.webp`,
+  warningEpc: `${optimized}homepage-warning-epc.webp`,
+  warningSolicitor: `${optimized}homepage-warning-solicitor.webp`,
+  dashboard: `${optimized}homepage-dashboard-overview.webp`,
+  complianceTile: `${optimized}service-compliance-checker-tile.webp`,
+  epcTile: `${optimized}service-epc-tile.webp`,
+  amlTile: `${optimized}service-aml-tile.webp`,
+  licensingTile: `${optimized}service-selective-licensing-tile.webp`,
+  mortgagesTile: `${optimized}service-mortgages-tile.webp`,
+  insuranceTile: `${optimized}service-landlord-insurance-tile.webp`,
+  supportLost: `${optimized}support-feel-lost.webp`,
+  supportOvercomplicating: `${optimized}support-overcomplicating.webp`,
+  supportEpc: `${optimized}support-epc-big-tile.webp`,
+  tick: `${optimized}tick-green.png`,
 };
 
-const serviceAssets = {
-  epc: "./assets/service-epc.png",
-  gas: "./assets/service-gas.png",
-  eicr: "./assets/service-eicr.png",
-  inspections: "./assets/service-property-inspections.png",
-  aml: "./assets/service-aml.png",
-  monitoring: "./assets/service-property-inspections.png",
-  tenant: "./assets/service-possession.png",
-  licensing: "./assets/service-licensing.png",
-  hmo: "./assets/service-licensing.png",
-  mould: "./assets/service-mould.png",
-  rent: "./assets/service-rent-guarantee.png",
-  possession: "./assets/service-possession.png",
-  insurance: "./assets/service-insurance.png",
-  mortgages: "./assets/service-mortgages.png",
-  tax: "./assets/service-aml.png",
-  advisory: "./assets/service-property-inspections.png",
+const serviceIcons = {
+  epc: `${optimized}service-icon-epc.webp`,
+  gas: `${optimized}service-icon-gas.webp`,
+  eicr: `${optimized}service-icon-eicr.webp`,
+  inspections: `${optimized}service-icon-property-inspections.webp`,
+  aml: `${optimized}service-icon-aml.webp`,
+  monitoring: `${optimized}service-compliance-checker-tile.webp`,
+  tenant: `${optimized}service-icon-evictions-possession.webp`,
+  licensing: `${optimized}service-icon-selective-licensing.webp`,
+  hmo: `${optimized}service-icon-selective-licensing.webp`,
+  mould: `${optimized}service-icon-property-inspections.webp`,
+  rent: `${optimized}service-icon-evictions-possession.webp`,
+  possession: `${optimized}service-icon-evictions-possession.webp`,
+  insurance: assets.insuranceTile,
+  mortgages: assets.mortgagesTile,
+  tax: `${optimized}service-icon-aml.webp`,
+  advisory: `${optimized}service-icon-property-inspections.webp`,
+};
+
+const serviceTiles = {
+  epc: assets.epcTile,
+  gas: `${optimized}gas-card-what-is-gas-safety.webp`,
+  eicr: `${optimized}eicr-card-legally-important.webp`,
+  inspections: `${optimized}property-inspections-main-tile.webp`,
+  aml: assets.amlTile,
+  monitoring: assets.complianceTile,
+  tenant: assets.warningSolicitor,
+  licensing: assets.licensingTile,
+  hmo: assets.licensingTile,
+  mould: assets.supportOvercomplicating,
+  rent: assets.supportLost,
+  possession: `${optimized}possession-section-21.webp`,
+  insurance: assets.insuranceTile,
+  mortgages: assets.mortgagesTile,
+  tax: `${optimized}aml-note.webp`,
+  advisory: assets.supportEpc,
+};
+
+const serviceMedia = {
+  epc: [
+    ["What is an EPC?", `${optimized}epc-card-what-is-an-epc.webp`],
+    ["Know your rating instantly", `${optimized}epc-card-know-your-rating.webp`],
+    ["Upgrade guidance", `${optimized}epc-card-upgrade-guidance.webp`],
+  ],
+  gas: [
+    ["Why it matters", `${optimized}gas-card-why-it-matters.webp`],
+    ["Paperwork kept together", `${optimized}gas-card-paperwork.webp`],
+    ["Track the renewal", `${optimized}gas-card-track-it.webp`],
+  ],
+  eicr: [
+    ["Electrical report context", `${optimized}eicr-section-strip.webp`],
+    ["Legally important", `${optimized}eicr-card-legally-important.webp`],
+    ["No guesswork", `${optimized}eicr-card-no-guesswork.webp`],
+  ],
+  inspections: [
+    ["Property inspection route", `${optimized}property-inspections-main-tile.webp`],
+    ["Evidence helps", `${optimized}inspection-card-evidence-helps.webp`],
+    ["Stay informed", `${optimized}inspection-card-stay-informed.webp`],
+  ],
+  aml: [
+    ["Identity notes", `${optimized}aml-note.webp`],
+    ["Red flags to review", `${optimized}aml-red-flags.webp`],
+    ["Transaction record support", `${optimized}aml-strip-money.jpg`],
+  ],
+  licensing: [
+    ["Selective licensing", assets.licensingTile],
+    ["Local guidance route", `${optimized}service-icon-selective-licensing.webp`],
+    ["Document support", assets.supportLost],
+  ],
+  possession: [
+    ["Section 21 information", `${optimized}possession-section-21.webp`],
+    ["Section 8 routes", `${optimized}possession-section-8-routes.webp`],
+    ["Advisor review available", assets.supportLost],
+  ],
 };
 
 const services = [
@@ -52,7 +124,7 @@ const services = [
     title: "Electrical Installation Condition Reports (EICR)",
     shortTitle: "EICR",
     promise: "Track the electrical report, renewal timing and any follow-up works.",
-    choices: ["I need an EICR", "I have unsatisfactory observations", "I need renewal tracking"],
+    choices: ["I need an EICR", "I have observations to resolve", "I need renewal tracking"],
     checks: ["Report date", "Outcome", "Remedial notes", "Renewal reminder"],
     documents: ["EICR report", "Remedial certificate", "Contractor invoice", "Access notes"],
     booking: "Book EICR",
@@ -115,7 +187,7 @@ const services = [
   },
   {
     id: "hmo",
-    title: "HMO/licensing review",
+    title: "HMO/Licensing Review",
     shortTitle: "HMO review",
     promise: "Prepare occupancy and property-use information for a licensing review.",
     choices: ["I need HMO review", "The property use changed", "I want advisor support"],
@@ -126,8 +198,8 @@ const services = [
   },
   {
     id: "mould",
-    title: "Mould & Damp support",
-    shortTitle: "Mould & damp",
+    title: "Mould & Damp Support",
+    shortTitle: "Mould and damp",
     promise: "Create a clear record of damp signs, repairs, communication and next steps.",
     choices: ["Tenant reported damp", "I need inspection evidence", "I need repair follow-up"],
     checks: ["Photos", "Repair history", "Tenant messages", "Inspection notes"],
@@ -149,12 +221,16 @@ const services = [
   {
     id: "possession",
     title: "Possession & Eviction Preparation",
-    shortTitle: "Possession preparation",
+    shortTitle: "Possession & eviction preparation",
     promise: "Prepare your evidence before speaking to an advisor and keep the file organised for review.",
-    choices: ["Prepare your evidence before speaking to an advisor", "Check what documents may be needed", "Build an evidence pack for review"],
+    choices: [
+      "Prepare your evidence before speaking to an advisor",
+      "Check what documents may be needed",
+      "Build an evidence pack for review",
+    ],
     checks: ["Tenancy evidence", "Deposit evidence", "Certificate evidence", "Communication record"],
     documents: ["Tenancy agreement", "Deposit documents", "EPC and Gas Safety proof", "Tenant communications"],
-    booking: "Request advisor review",
+    booking: "Advisor review available",
     related: ["tenant", "rent", "advisory"],
     careful: true,
   },
@@ -205,12 +281,12 @@ const services = [
 ];
 
 const helpTopics = [
-  { id: "epc", title: "Check EPC or energy rating", text: "Start with EPC evidence, rating improvement or renewal help." },
-  { id: "gas", title: "Book or upload Gas Safety", text: "Keep the certificate, renewal date and service route together." },
-  { id: "eicr", title: "Check EICR position", text: "Track electrical evidence, remedial notes and renewal timing." },
-  { id: "inspections", title: "Arrange property inspection", text: "Record condition, alarm notes, photos and follow-up actions." },
-  { id: "mould", title: "Handle mould or damp", text: "Organise reports, photos, repair notes and human review." },
-  { id: "possession", title: "Possession & eviction preparation", text: "Prepare documents for advisor review without overclaiming the outcome." },
+  { id: "epc", title: "Check EPC or energy rating", text: "Start with EPC evidence, rating improvement or renewal help.", image: assets.epcTile },
+  { id: "gas", title: "Book or upload Gas Safety", text: "Keep the certificate, renewal date and service route together.", image: `${optimized}gas-card-know-status.webp` },
+  { id: "eicr", title: "Check EICR position", text: "Track electrical evidence, remedial notes and renewal timing.", image: `${optimized}eicr-card-no-guesswork.webp` },
+  { id: "inspections", title: "Arrange property inspection", text: "Record condition, alarm notes, photos and follow-up actions.", image: `${optimized}inspection-card-evidence-helps.webp` },
+  { id: "licensing", title: "Check licensing questions", text: "Prepare local authority, HMO or selective licensing evidence.", image: assets.licensingTile },
+  { id: "possession", title: "Possession & eviction preparation", text: "Prepare documents for advisor review without overclaiming the outcome.", image: `${optimized}possession-section-21.webp` },
 ];
 
 const generatedAddresses = [
@@ -244,6 +320,14 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
+function imageHtml({ src, alt = "", className = "", width, height, loading = "lazy" }) {
+  const classAttr = className ? ` class="${escapeHtml(className)}"` : "";
+  const widthAttr = width ? ` width="${width}"` : "";
+  const heightAttr = height ? ` height="${height}"` : "";
+  const loadingAttr = loading ? ` loading="${loading}"` : "";
+  return `<img${classAttr} src="${src}" alt="${escapeHtml(alt)}"${widthAttr}${heightAttr} decoding="async"${loadingAttr}>`;
+}
+
 function serviceById(id) {
   return services.find((service) => service.id === id) || services[0];
 }
@@ -258,6 +342,7 @@ function startFlow(needId = state.selectedNeedId, serviceInProgress = "") {
   state.flowStep = "postcode";
   state.postcode = "";
   state.addressOptions = [];
+  state.uploadedDocument = false;
   state.selectedNeedId = needId;
   state.serviceInProgress = serviceInProgress || `${serviceById(needId).shortTitle} support`;
   setView("check");
@@ -284,8 +369,8 @@ function renderHeader() {
   return `
     <header class="site-header">
       <div class="header-inner">
-        <button class="brand-button" type="button" data-view="home" aria-label="Go to CMP Origin home">
-          <img class="brand-logo" src="${assets.logo}" alt="ComplyMyProperty.com">
+        <button class="brand-button" type="button" data-view="home" aria-label="Go to ComplyMyProperty home">
+          ${imageHtml({ src: assets.logo, alt: "ComplyMyProperty.com", className: "brand-logo", width: 1304, height: 168, loading: "" })}
         </button>
         <nav class="header-nav" aria-label="Primary navigation">
           <button type="button" data-view="home">Home</button>
@@ -324,11 +409,26 @@ function renderHome() {
         </div>
       </div>
       <div class="hero-media">
-        <img src="${assets.hero}" alt="Paper house surrounded by landlord compliance documents">
-        <div class="hero-address-panel">
+        ${imageHtml({ src: assets.heroWide, alt: "Paper origami house and property documents", className: "hero-image", width: 3456, height: 1071, loading: "" })}
+        <div class="hero-check-panel">
           <span>Find Address</span>
-          <strong>Start with a postcode, then choose what you need help with.</strong>
+          <strong>Start with a postcode, choose the address, then decide what needs attention.</strong>
         </div>
+      </div>
+    </section>
+
+    <section class="what-section" aria-labelledby="what-cmp-does">
+      <div class="section-heading split-heading">
+        <div>
+          <p class="section-label">What CMP does</p>
+          <h2 id="what-cmp-does">Simple compliance steps for real landlord jobs.</h2>
+        </div>
+        <p>Check a property, fix the gaps, and store the proof without turning every task into a separate admin trail.</p>
+      </div>
+      <div class="what-grid">
+        ${renderWhatCard("Check", "Start from a property address and see which records may need attention.", assets.complianceTile)}
+        ${renderWhatCard("Fix", "Move straight into EPC, Gas Safety, EICR, licensing, AML or advisor support.", assets.warningEpc)}
+        ${renderWhatCard("Store", "Secure document storage keeps proof, reminders and service notes connected.", assets.dashboard)}
       </div>
     </section>
 
@@ -336,32 +436,10 @@ function renderHome() {
       <div class="section-heading">
         <p class="section-label">Start here</p>
         <h2>What do you need help with today?</h2>
-        <p>CMP Origin keeps service choices, property checks, documents and human support connected to one property record.</p>
+        <p>CMP keeps service choices, property checks, documents and human support connected to one property record.</p>
       </div>
       <div class="choice-grid">
         ${helpTopics.map(renderHelpTopicCard).join("")}
-      </div>
-    </section>
-
-    <section class="origin-band">
-      <div>
-        <p class="section-label">Finished Wix direction</p>
-        <h2>Real people. Smart tech. No guesswork.</h2>
-        <p>Smart tools help sort your documents. Our team helps check the next step. Upload what you have - CMP will help organise it.</p>
-      </div>
-      <div class="support-strip">
-        <article>
-          <h3>Smart document upload</h3>
-          <p>Secure document storage keeps EPCs, Gas Safety, EICR, tenancy records and inspection proof attached to the property.</p>
-        </article>
-        <article>
-          <h3>Human support</h3>
-          <p>Speak to someone if you are unsure. Advisor callbacks sit beside service booking and document review.</p>
-        </article>
-        <article>
-          <h3>Connected services</h3>
-          <p>Services are suggested from compliance gaps rather than sitting as disconnected brochure pages.</p>
-        </article>
       </div>
     </section>
 
@@ -374,15 +452,57 @@ function renderHome() {
         <button class="secondary-button" type="button" data-view="services">View all services</button>
       </div>
       <div class="service-grid compact">
-        ${services.slice(0, 8).map(renderServiceCard).join("")}
+        ${services.slice(0, 8).map((service) => renderServiceCard(service)).join("")}
+      </div>
+    </section>
+
+    <section class="people-tech-section">
+      <div class="people-copy">
+        <p class="section-label">Smart tech + real people</p>
+        <h2>Real people. Smart tech. No guesswork.</h2>
+        <p>Smart tools help sort your documents. Our team helps check the next step. Advisor review available when the route needs a human decision.</p>
+        <div class="support-points">
+          ${["Guidance only, not legal advice", "Evidence ready for review", "Review before relying on this information"].map((item) => `
+            <span>${imageHtml({ src: assets.tick, alt: "", width: 153, height: 152 })}${escapeHtml(item)}</span>
+          `).join("")}
+        </div>
+      </div>
+      <div class="support-tile-grid">
+        ${renderSupportTile("Feel a bit lost?", "Ask for help choosing the next practical step.", assets.supportLost)}
+        ${renderSupportTile("Too much admin?", "Keep the service route and records in one place.", assets.supportOvercomplicating)}
+      </div>
+    </section>
+
+    <section class="dashboard-preview-section">
+      <div class="dashboard-preview-copy">
+        <p class="section-label">Property dashboard</p>
+        <h2>Your compliance picture, one property at a time.</h2>
+        <p>Property status, next actions, service progress, documents, reminders and recent activity stay connected after the check-property flow.</p>
+        <button class="primary-button" type="button" data-flow-start="epc">Check your property</button>
+      </div>
+      <div class="dashboard-preview-media">
+        ${imageHtml({ src: assets.dashboard, alt: "ComplyMyProperty dashboard overview", width: 4961, height: 3508 })}
       </div>
     </section>
   `;
 }
 
+function renderWhatCard(title, text, image) {
+  return `
+    <article class="what-card">
+      ${imageHtml({ src: image, alt: "", width: 800, height: 1000 })}
+      <div>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(text)}</p>
+      </div>
+    </article>
+  `;
+}
+
 function renderHelpTopicCard(topic) {
   return `
-    <button class="choice-card" type="button" data-flow-start="${topic.id}">
+    <button class="choice-card image-choice" type="button" data-flow-start="${topic.id}">
+      <span class="choice-image">${imageHtml({ src: topic.image, alt: "", width: 3935, height: 4825 })}</span>
       <span>${escapeHtml(topic.title)}</span>
       <small>${escapeHtml(topic.text)}</small>
     </button>
@@ -391,41 +511,49 @@ function renderHelpTopicCard(topic) {
 
 function renderServicesHub() {
   return `
-    <section class="page-hero compact-hero">
+    <section class="page-hero compact-hero services-hero">
       <div>
-        <h1>Services that lead back to your property record.</h1>
-        <p>Each service starts a practical journey: answer a few questions, add a postcode or address, upload what you have, and continue into the same property dashboard.</p>
+        <button class="back-button" type="button" data-view="home">Home</button>
+        <h1>Choose the service you need today.</h1>
+        <p>The broad CMP service catalogue starts with one clear choice, then routes back to the property record, documents and advisor support where useful.</p>
       </div>
-      <img src="${assets.house}" alt="Folded paper house made from landlord guidance documents">
+      ${imageHtml({ src: assets.heroCropped, alt: "Paper house made from property documents", className: "hero-house-cutout", width: 3024, height: 4032 })}
     </section>
-    <section class="service-preview-section">
+    <section class="service-preview-section hub-section">
       <div class="section-heading">
         <p class="section-label">Full service list</p>
-        <h2>Choose the service you need today.</h2>
+        <h2>Landlord services without the clutter.</h2>
+        <p>Each tile gives a clear outcome and a route into the same check-property journey. Details stay on the service page, not all at once.</p>
       </div>
       <div class="service-grid">
-        ${services.map(renderServiceCard).join("")}
+        ${services.map((service) => renderServiceCard(service)).join("")}
       </div>
     </section>
   `;
 }
 
 function renderServiceCard(service) {
+  const image = serviceTiles[service.id] || serviceIcons[service.id] || assets.complianceTile;
   return `
     <button class="service-card" type="button" data-service="${service.id}">
       <span class="service-image">
-        <img src="${serviceAssets[service.id]}" alt="">
+        ${imageHtml({ src: image, alt: "", width: 3935, height: 4825 })}
       </span>
       <span class="service-title">${escapeHtml(service.title)}</span>
       <small>${escapeHtml(service.promise)}</small>
+      <span class="card-cta">View service</span>
     </button>
   `;
 }
 
 function renderServicePage(service) {
   const relatedServices = service.related.map(serviceById);
-  const heroImage = service.id === "epc" ? assets.epcTile : serviceAssets[service.id];
-  const heroClass = service.id === "epc" ? "service-photo" : "service-icon-large";
+  const heroImage = serviceTiles[service.id] || serviceIcons[service.id];
+  const mediaItems = serviceMedia[service.id] || [
+    [service.shortTitle, heroImage],
+    ["Document support", assets.supportLost],
+    ["Advisor review available", assets.supportOvercomplicating],
+  ];
 
   return `
     <section class="page-hero service-hero">
@@ -433,13 +561,15 @@ function renderServicePage(service) {
         <button class="back-button" type="button" data-view="services">Services</button>
         <h1>${escapeHtml(service.title)}</h1>
         <p>${escapeHtml(service.promise)}</p>
-        ${service.id === "possession" ? `<p class="careful-copy">Prepare your evidence before speaking to an advisor. Check what documents may be needed. Build an evidence pack for review.</p>` : ""}
+        ${service.careful ? `<p class="careful-copy">Prepare your evidence before speaking to an advisor. Check what documents may be needed. Build an evidence pack for review. Advisor review available.</p>` : ""}
         <div class="hero-actions">
           <button class="primary-button" type="button" data-flow-start="${service.id}">Start this service</button>
-          <button class="secondary-button" type="button" data-dashboard-service="${service.id}">Route into property dashboard</button>
+          <button class="secondary-button" type="button" data-dashboard-service="${service.id}">Open property dashboard</button>
         </div>
       </div>
-      <img class="${heroClass}" src="${heroImage}" alt="">
+      <div class="service-hero-visual">
+        ${imageHtml({ src: heroImage, alt: "", width: 3935, height: 4825, loading: "" })}
+      </div>
     </section>
 
     <section class="service-template">
@@ -455,22 +585,43 @@ function renderServicePage(service) {
           </button>
         `).join("")}
       </div>
+
       <div class="detail-columns">
         ${renderChecklist("What CMP checks", service.checks)}
-        ${renderChecklist("What documents may be needed", service.documents)}
+        ${renderChecklist("Documents that may be needed", service.documents)}
         <article class="detail-panel action-panel">
-          <h3>What service can be booked</h3>
-          <p>${escapeHtml(service.booking)} with document support and advisor callback where needed.</p>
-          <button class="primary-button" type="button" data-flow-start="${service.id}">${escapeHtml(service.booking)}</button>
+          <h3>Bookable service or advisor option</h3>
+          <p>${escapeHtml(service.booking)} with document support and a clear route back to the property dashboard.</p>
+          <button class="primary-button light-button" type="button" data-flow-start="${service.id}">${escapeHtml(service.booking)}</button>
         </article>
       </div>
+
+      <div class="postcode-cta">
+        <div>
+          <p class="section-label">Address first</p>
+          <h2>Start with the property address.</h2>
+          <p>Use a postcode to choose the address, then CMP can connect this service, documents and reminders to the right property.</p>
+        </div>
+        <button class="primary-button" type="button" data-flow-start="${service.id}">Check your property</button>
+      </div>
+
+      <div class="service-media-grid">
+        ${mediaItems.map(([title, image]) => `
+          <article class="service-media-card">
+            ${imageHtml({ src: image, alt: "", width: 3935, height: 4825 })}
+            <h3>${escapeHtml(title)}</h3>
+          </article>
+        `).join("")}
+      </div>
+
       <div class="human-panel">
-        <img src="${assets.house}" alt="">
+        ${imageHtml({ src: assets.heroCropped, alt: "", width: 3024, height: 4032 })}
         <div>
           <h3>Human support stays available.</h3>
           <p>Speak to someone if you are unsure. CMP can help sort the documents, explain the next practical step and keep records safely in the dashboard.</p>
         </div>
       </div>
+
       <div class="related-row">
         <h3>Related services</h3>
         <div class="related-actions">
@@ -487,7 +638,7 @@ function renderChecklist(title, items) {
   return `
     <article class="detail-panel">
       <h3>${escapeHtml(title)}</h3>
-      <ul>
+      <ul class="tick-list">
         ${items.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}
       </ul>
     </article>
@@ -495,15 +646,13 @@ function renderChecklist(title, items) {
 }
 
 function renderCheckFlow() {
-  const activeService = serviceById(state.selectedNeedId);
-
   return `
     <section class="flow-shell">
       <div class="flow-header">
         <div>
           <p class="section-label">Check property</p>
-          <h1>Find the address, then choose what needs attention.</h1>
-          <p>No live lookup is used in this prototype. The postcode creates plausible address choices and lets the landlord edit the property route.</p>
+          <h1>Start with the address.</h1>
+          <p>Enter a postcode, select the address, choose what needs attention, then continue to the property dashboard.</p>
         </div>
         <div class="flow-status">
           <span class="${state.flowStep === "postcode" ? "active" : ""}">Postcode</span>
@@ -512,17 +661,19 @@ function renderCheckFlow() {
           <span class="${state.flowStep === "confirm" ? "active" : ""}">Confirm</span>
         </div>
       </div>
-      ${renderFlowStep(activeService)}
+      ${renderFlowStep()}
     </section>
   `;
 }
 
-function renderFlowStep(activeService) {
+function renderFlowStep() {
   if (state.flowStep === "address") {
     return `
       <section class="flow-card">
-        <h2>Select address</h2>
-        <p>Postcode ${escapeHtml(state.postcode || "SW1A 1AA")} returned more than one possible address.</p>
+        <div>
+          <h2>Select address</h2>
+          <p>Postcode ${escapeHtml(state.postcode || "SW1A 1AA")} returned more than one possible address.</p>
+        </div>
         <div class="address-list">
           ${state.addressOptions.map((address) => `
             <button type="button" class="address-option" data-address="${escapeHtml(address)}">${escapeHtml(address)}</button>
@@ -537,8 +688,10 @@ function renderFlowStep(activeService) {
   if (state.flowStep === "need") {
     return `
       <section class="flow-card">
-        <h2>What do you need help with today?</h2>
-        <p>${escapeHtml(state.selectedAddress)}</p>
+        <div>
+          <h2>What do you need help with today?</h2>
+          <p>${escapeHtml(state.selectedAddress)}</p>
+        </div>
         <div class="choice-grid three">
           ${helpTopics.map((topic) => `
             <button type="button" class="choice-card ${state.selectedNeedId === topic.id ? "selected" : ""}" data-need="${topic.id}">
@@ -552,6 +705,7 @@ function renderFlowStep(activeService) {
   }
 
   if (state.flowStep === "confirm") {
+    const activeService = serviceById(state.selectedNeedId);
     return `
       <section class="flow-card confirm-card">
         <div>
@@ -562,11 +716,12 @@ function renderFlowStep(activeService) {
         <label class="field-label" for="situation">Current situation</label>
         <textarea id="situation" rows="4" data-situation-input>${escapeHtml(state.situation)}</textarea>
         <div class="document-panel">
+          ${imageHtml({ src: serviceTiles[state.selectedNeedId] || assets.supportLost, alt: "", width: 3935, height: 4825 })}
           <div>
             <h3>Smart document upload</h3>
             <p>Smart tools help sort your documents. Secure document storage keeps records with this property.</p>
           </div>
-          <button type="button" class="secondary-button" data-upload-demo>${state.uploadedDocument ? "Document marked for review" : "Upload what you have"}</button>
+          <button type="button" class="secondary-button" data-upload-demo>${state.uploadedDocument ? "Document added for review" : "Upload what you have"}</button>
         </div>
         <button class="primary-button" type="button" data-complete-flow>Continue to property dashboard</button>
       </section>
@@ -577,7 +732,7 @@ function renderFlowStep(activeService) {
     <section class="flow-card postcode-card">
       <div>
         <h2>Enter postcode</h2>
-        <p>Start with a postcode. The next step lets you choose the address before CMP shows property-specific actions.</p>
+        <p>The next step lets you choose the address before CMP shows property-specific actions.</p>
       </div>
       <form data-postcode-form>
         <label class="field-label" for="postcode">Postcode</label>
@@ -591,30 +746,36 @@ function renderFlowStep(activeService) {
 }
 
 function renderMyProperties() {
+  const properties = [
+    {
+      address: state.selectedAddress,
+      status: "Action needed",
+      action: "EPC evidence review",
+      documents: "4 saved, 2 to add",
+      image: assets.dashboard,
+    },
+    {
+      address: "41 Maple Road, Bristol, BS3 1QP",
+      status: "Monitor",
+      action: "Gas Safety renewal reminder",
+      documents: "8 saved",
+      image: `${optimized}gas-card-track-it.webp`,
+    },
+  ];
+
   return `
     <section class="page-hero compact-hero properties-hero">
       <div>
+        <button class="back-button" type="button" data-view="home">Home</button>
         <h1>My Properties</h1>
         <p>A simple landlord workspace for property records, service status, documents, renewals and human support.</p>
       </div>
       <button class="primary-button" type="button" data-flow-start="epc">Add or check a property</button>
     </section>
     <section class="property-list">
-      ${[
-        {
-          address: state.selectedAddress,
-          status: "Action needed",
-          action: "EPC evidence review",
-          documents: "4 saved, 2 to add",
-        },
-        {
-          address: "41 Maple Road, Bristol, BS3 1QP",
-          status: "Monitor",
-          action: "Gas Safety renewal reminder",
-          documents: "8 saved",
-        },
-      ].map((property) => `
+      ${properties.map((property) => `
         <button class="property-card" type="button" data-open-dashboard="${escapeHtml(property.address)}">
+          <span class="property-thumb">${imageHtml({ src: property.image, alt: "", width: 4961, height: 3508 })}</span>
           <span>
             <strong>${escapeHtml(property.address)}</strong>
             <small>${escapeHtml(property.documents)}</small>
@@ -631,7 +792,7 @@ function renderMyProperties() {
 
 function renderDashboard() {
   const service = serviceById(state.selectedNeedId);
-  const documentLabel = state.uploadedDocument ? "Document marked for human review" : "Needs document upload";
+  const documentLabel = state.uploadedDocument ? "Document added for review" : "Needs document upload";
 
   return `
     <section class="dashboard-shell">
@@ -679,19 +840,28 @@ function renderDashboard() {
           </div>
         </section>
 
+        <section class="workspace-panel next-action-panel">
+          <h2>Next action</h2>
+          <div class="next-action-media">
+            ${imageHtml({ src: serviceTiles[service.id] || serviceIcons[service.id], alt: "", width: 3935, height: 4825 })}
+          </div>
+          <p>${escapeHtml(service.promise)}</p>
+          <button type="button" class="primary-button" data-service="${service.id}">Review service details</button>
+        </section>
+
         <section class="workspace-panel">
           <h2>Services you may need</h2>
           <div class="service-actions">
             ${[service, ...service.related.map(serviceById)].slice(0, 4).map((item) => `
               <button type="button" class="service-action" data-service="${item.id}">
-                <img src="${serviceAssets[item.id]}" alt="">
+                ${imageHtml({ src: serviceIcons[item.id] || serviceTiles[item.id], alt: "", width: 1254, height: 1254 })}
                 <span>${escapeHtml(item.shortTitle)}</span>
               </button>
             `).join("")}
           </div>
         </section>
 
-        <section class="workspace-panel">
+        <section class="workspace-panel documents-panel" data-documents-panel>
           <h2>Documents and records</h2>
           <div class="document-list">
             ${[
@@ -706,7 +876,7 @@ function renderDashboard() {
               </div>
             `).join("")}
           </div>
-          <button type="button" class="secondary-button" data-upload-demo>${state.uploadedDocument ? "Document marked for review" : "Upload what you have"}</button>
+          <button type="button" class="secondary-button" data-upload-demo>${state.uploadedDocument ? "Document added for review" : "Upload what you have"}</button>
         </section>
 
         <section class="workspace-panel">
@@ -719,7 +889,7 @@ function renderDashboard() {
         </section>
 
         <section class="workspace-panel human-support">
-          <img src="${assets.house}" alt="">
+          ${imageHtml({ src: assets.supportLost, alt: "", width: 4825, height: 3935 })}
           <div>
             <h2>Human support</h2>
             <p>Our team helps check the next step. Speak to someone if you are unsure, or ask for an advisor callback.</p>
@@ -733,11 +903,23 @@ function renderDashboard() {
             <li>Address selected from postcode search.</li>
             <li>${escapeHtml(service.shortTitle)} route opened.</li>
             <li>${escapeHtml(documentLabel)}.</li>
-            <li>Dashboard updated with the next service action.</li>
+            <li>Property dashboard updated with the next service action.</li>
           </ul>
         </section>
       </div>
     </section>
+  `;
+}
+
+function renderSupportTile(title, text, image) {
+  return `
+    <article class="support-tile">
+      ${imageHtml({ src: image, alt: "", width: 4825, height: 3935 })}
+      <div>
+        <h3>${escapeHtml(title)}</h3>
+        <p>${escapeHtml(text)}</p>
+      </div>
+    </article>
   `;
 }
 
@@ -746,8 +928,9 @@ function renderFooter() {
     <footer class="site-footer">
       <div class="footer-inner">
         <section class="footer-brand">
-          <img src="${assets.logo}" alt="ComplyMyProperty.com">
+          ${imageHtml({ src: assets.logo, alt: "ComplyMyProperty.com", width: 1304, height: 168 })}
           <p>Landlord compliance made simple. Secure document storage. Clear compliance guidance. Trusted landlord support.</p>
+          <p class="trust-note">Guidance only, not legal advice. Review before relying on this information.</p>
         </section>
         <section>
           <h2>Contact</h2>
@@ -759,8 +942,13 @@ function renderFooter() {
           <p>EPC, Gas Safety, EICR, inspections, AML, licensing, damp, rent guarantee, possession preparation, insurance, mortgages and tax record support.</p>
         </section>
         <section>
+          <h2>Company</h2>
+          <p>Platform for private landlord compliance records, service routes and advisor support.</p>
+          <p class="social-links">LinkedIn / Facebook / Instagram</p>
+        </section>
+        <section>
           <h2>Legal</h2>
-          <p>Privacy, terms, data protection, company information, ICO registration and service disclaimers for prototype review.</p>
+          <p>Privacy, terms, data protection, company information and service guidance boundaries.</p>
         </section>
       </div>
     </footer>

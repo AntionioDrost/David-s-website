@@ -1,10 +1,10 @@
 # CMP Origin
 
-CMP Origin is the Wix-aligned ComplyMyProperty prototype direction. It is a self-contained static prototype built inside `prototypes/cmp-origin/`.
+CMP Origin is the Wix-aligned ComplyMyProperty direction. It is a self-contained static front-end built inside `prototypes/cmp-origin/`.
 
 ## Purpose
 
-Show Nick what the original ComplyMyProperty website could become if the current Wix direction were completed as a working landlord journey.
+Show what the original ComplyMyProperty website could become if the current Wix direction were completed as a working landlord journey.
 
 ## Scope
 

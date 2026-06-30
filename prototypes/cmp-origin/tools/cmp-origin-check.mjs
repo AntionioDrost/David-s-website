@@ -15,15 +15,16 @@ const requiredFiles = [
   "prototypes/cmp-origin/app.js",
   "prototypes/cmp-origin/README.md",
   "prototypes/cmp-origin/tools/cmp-origin-check.mjs",
-  "prototypes/cmp-origin/assets/logo-grey.png",
-  "prototypes/cmp-origin/assets/origami-house-wide.png",
-  "prototypes/cmp-origin/assets/origami-house-hd.png",
-  "prototypes/cmp-origin/assets/service-epc.png",
-  "prototypes/cmp-origin/assets/service-gas.png",
-  "prototypes/cmp-origin/assets/service-eicr.png",
-  "prototypes/cmp-origin/assets/service-property-inspections.png",
-  "prototypes/cmp-origin/assets/service-aml.png",
-  "prototypes/cmp-origin/assets/service-possession.png",
+  "prototypes/cmp-origin/assets/optimized/logo-grey-live.png",
+  "prototypes/cmp-origin/assets/optimized/homepage-origami-house-wide.webp",
+  "prototypes/cmp-origin/assets/optimized/homepage-origami-house-cropped.webp",
+  "prototypes/cmp-origin/assets/optimized/homepage-dashboard-overview.webp",
+  "prototypes/cmp-origin/assets/optimized/service-compliance-checker-tile.webp",
+  "prototypes/cmp-origin/assets/optimized/service-epc-tile.webp",
+  "prototypes/cmp-origin/assets/optimized/service-aml-tile.webp",
+  "prototypes/cmp-origin/assets/optimized/service-selective-licensing-tile.webp",
+  "prototypes/cmp-origin/assets/optimized/service-mortgages-tile.webp",
+  "prototypes/cmp-origin/assets/optimized/service-landlord-insurance-tile.webp",
 ];
 
 const forbiddenChangedPathPatterns = [
@@ -82,8 +83,8 @@ const requiredServices = [
   "Compliance Monitoring & Deadline Tracking",
   "Tenant Documentation & Legal Support",
   "Selective Licensing Guidance",
-  "HMO/licensing review",
-  "Mould & Damp support",
+  "HMO/Licensing Review",
+  "Mould & Damp Support",
   "Rent Guarantee",
   "Possession & Eviction Preparation",
   "Landlord Insurance",
@@ -230,6 +231,8 @@ async function main() {
   }
 
   assert("Uses local asset paths only", !/https?:\/\/|static\.wixstatic\.com/i.test(source));
+  assert("Uses optimized CMP Origin assets", /assets\/optimized\//.test(source));
+  assert("Does not use old unoptimized CMP Origin image paths", !/assets\/(?:logo-grey|origami-house|service-|top-tile)[^/]*\.(?:png|jpg|jpeg|webp)/i.test(source));
   assert("Uses CMP green token", styles.includes("#007a3f") || styles.includes("#007A3F"));
   assert("Uses pale Wix-aligned background token", styles.includes("#f5f6f4") || styles.includes("#F5F6F4"));
   assert("Avoids generic SaaS chart labels", !/chart|analytics|metric|kpi/i.test(source));
