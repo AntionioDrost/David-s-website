@@ -1,0 +1,95 @@
+{
+  "generatedAt": "2026-07-01T13:33:53+0100",
+  "branch": "prototype/cmp-origin-v2-homepage-aesthetic-uplift-v1",
+  "sourceUrl": "file:///Users/davidtaylor/Desktop/VIBECODE/David-s-website/prototypes/cmp-origin-v2/index.html",
+  "browserTooling": {
+    "browserPlugin": "not available",
+    "fallback": "Playwright CLI wrapper",
+    "reason": "Browser plugin/browser skill was not listed in the active toolset."
+  },
+  "referenceInspection": {
+    "liveWixUrl": "https://www.complymyproperty.com/",
+    "slowScrollLazyLoadPass": true,
+    "liveWixTitle": "ComplyMyProperty | Landlord Compliance Made Simple",
+    "liveWixPageHeight": 7558,
+    "liveWixConsoleErrors": []
+  },
+  "localRenderChecks": {
+    "desktopViewport": "1440x1000",
+    "mobileViewport": "390x844",
+    "desktopPageHeight": 8140,
+    "mobilePageHeight": 12995,
+    "mobileHorizontalOverflowPx": 0,
+    "localConsoleErrors": [],
+    "assetImageCount": 18,
+    "incompleteAssetImages": []
+  },
+  "screenshots": [
+    {
+      "label": "Homepage desktop full page",
+      "viewport": "1440x1000",
+      "path": "screenshots/01-homepage-desktop-full.png",
+      "fullPage": true
+    },
+    {
+      "label": "Hero desktop",
+      "viewport": "1440x1000",
+      "path": "screenshots/02-hero-desktop.png",
+      "fullPage": false
+    },
+    {
+      "label": "Postcode and origami section",
+      "viewport": "1440x1000",
+      "path": "screenshots/03-postcode-origami-section.png",
+      "fullPage": false
+    },
+    {
+      "label": "Warning tiles",
+      "viewport": "1440x1000",
+      "path": "screenshots/04-warning-tiles.png",
+      "fullPage": false
+    },
+    {
+      "label": "Services section",
+      "viewport": "1440x1000",
+      "path": "screenshots/05-services-section.png",
+      "fullPage": false
+    },
+    {
+      "label": "Product preview",
+      "viewport": "1440x1000",
+      "path": "screenshots/06-product-preview.png",
+      "fullPage": false
+    },
+    {
+      "label": "Smart-tech support",
+      "viewport": "1440x1000",
+      "path": "screenshots/07-smart-tech-support.png",
+      "fullPage": false
+    },
+    {
+      "label": "Footer",
+      "viewport": "1440x1000",
+      "path": "screenshots/08-footer.png",
+      "fullPage": false
+    },
+    {
+      "label": "Postcode interaction state",
+      "viewport": "1440x1000",
+      "path": "screenshots/09-postcode-interaction-state.png",
+      "fullPage": false
+    },
+    {
+      "label": "Selected service interaction state",
+      "viewport": "1440x1000",
+      "path": "screenshots/10-selected-service-interaction-state.png",
+      "fullPage": false
+    },
+    {
+      "label": "Homepage mobile full page",
+      "viewport": "390x844",
+      "path": "screenshots/11-homepage-mobile-full.png",
+      "fullPage": true
+    }
+  ]
+}

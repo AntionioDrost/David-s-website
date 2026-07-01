@@ -10,7 +10,11 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 const root = path.resolve(fileURLToPath(new URL("../../..", import.meta.url)));
 const v2Dir = path.join(root, "prototypes", "cmp-origin-v2");
 const assetDir = path.join(v2Dir, "assets");
-const auditPrefix = "audit/2026-07-01-cmp-origin-v2-homepage-foundation/";
+const auditPrefixes = [
+  "audit/2026-07-01-cmp-origin-v2-homepage-foundation/",
+  "audit/2026-07-01-cmp-origin-v2-homepage-polish/",
+  "audit/2026-07-01-cmp-origin-v2-homepage-aesthetic-uplift/",
+];
 
 const requiredFiles = [
   "prototypes/cmp-origin-v2/CMP_ORIGIN_V2_HOMEPAGE_VISUAL_BLUEPRINT.md",
@@ -105,7 +109,7 @@ function gitLines(args) {
 function statusFiles() {
   const lines = gitLines(["status", "--short", "--untracked-files=all"]);
   return lines
-    .map((line) => line.slice(3).replace(/^"|"$/g, ""))
+    .map((line) => line.slice(2).trim().replace(/^"|"$/g, ""))
     .map((line) => {
       const renamed = line.split(" -> ");
       return renamed[renamed.length - 1];
@@ -136,7 +140,7 @@ function pathIsAllowed(file) {
   if (file === "prototypes/cmp-origin-v2/README.md") return true;
   if (file === "prototypes/cmp-origin-v2/tools/cmp-origin-v2-homepage-check.mjs") return true;
   if (file.startsWith("prototypes/cmp-origin-v2/assets/")) return true;
-  if (file.startsWith(auditPrefix)) return true;
+  if (auditPrefixes.some((prefix) => file.startsWith(prefix))) return true;
   return false;
 }
 

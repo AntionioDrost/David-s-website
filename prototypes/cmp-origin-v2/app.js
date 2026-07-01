@@ -65,6 +65,7 @@ function renderAddressResults(postcode) {
 
   const cleanPostcode = postcode.trim() || "your postcode";
   panel.hidden = false;
+  panel.classList.remove("is-address-selected");
   panel.innerHTML = `
     <strong>Sample addresses for ${cleanPostcode.toUpperCase()}</strong>
     <p>Prototype results only. Choose one to continue the homepage flow.</p>
@@ -114,6 +115,10 @@ document.addEventListener("click", (event) => {
   const serviceButton = event.target.closest("[data-service]");
   if (serviceButton) {
     event.preventDefault();
+    document
+      .querySelectorAll(".service-card.is-selected")
+      .forEach((card) => card.classList.remove("is-selected"));
+    serviceButton.closest(".service-card")?.classList.add("is-selected");
     renderSelectedService(serviceButton.dataset.service);
   }
 
@@ -132,6 +137,7 @@ document.addEventListener("click", (event) => {
     event.preventDefault();
     const panel = document.querySelector("#address-panel");
     if (!panel) return;
+    panel.classList.add("is-address-selected");
     panel.innerHTML = `
       <strong>${addressButton.dataset.address}</strong>
       <p>This fictional address is selected for the prototype. Next, choose one service or keep building the compliance picture.</p>

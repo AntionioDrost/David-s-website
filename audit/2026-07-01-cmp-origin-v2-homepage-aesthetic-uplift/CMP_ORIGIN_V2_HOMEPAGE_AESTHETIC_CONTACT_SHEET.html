@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CMP Origin V2 Homepage Aesthetic Uplift Contact Sheet</title>
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f5f6f4;
+        --card: #ffffff;
+        --text: #1f1f1f;
+        --muted: #626966;
+        --border: #dce1dc;
+        --green: #007a3f;
+        font-family: Aptos, "Segoe UI", ui-sans-serif, system-ui, sans-serif;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px;
+        background: var(--bg);
+        color: var(--text);
+      }
+
+      main {
+        width: min(100%, 1220px);
+        margin: 0 auto;
+      }
+
+      header,
+      .summary,
+      figure {
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        background: var(--card);
+        box-shadow: 0 16px 38px rgba(31, 31, 31, 0.08);
+      }
+
+      header {
+        padding: 22px;
+        margin-bottom: 22px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 32px;
+        line-height: 1.08;
+      }
+
+      h2 {
+        margin: 0 0 12px;
+        font-size: 18px;
+      }
+
+      p,
+      li {
+        color: var(--muted);
+        line-height: 1.5;
+      }
+
+      .summary {
+        padding: 20px 22px;
+        margin-bottom: 24px;
+      }
+
+      .summary ul {
+        margin: 0;
+        padding-left: 18px;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      figure {
+        margin: 0;
+        overflow: hidden;
+      }
+
+      figcaption {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 12px 14px;
+        color: var(--text);
+        font-weight: 850;
+      }
+
+      figcaption span {
+        color: var(--green);
+        font-size: 12px;
+        text-transform: uppercase;
+      }
+
+      img {
+        display: block;
+        width: 100%;
+        height: auto;
+        border-top: 1px solid var(--border);
+        background: #fff;
+      }
+
+      @media (max-width: 760px) {
+        body {
+          padding: 16px;
+        }
+
+        .grid {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <h1>CMP Origin V2 Homepage Aesthetic Uplift Contact Sheet</h1>
+        <p>Rendered QA captures for the controlled aesthetic uplift pass.</p>
+      </header>
+
+      <section class="summary">
+        <h2>QA Summary</h2>
+        <ul>
+          <li>Browser plugin availability: not available; Playwright CLI wrapper used.</li>
+          <li>Desktop viewport: 1440x1000.</li>
+          <li>Mobile viewport: 390x844.</li>
+          <li>Mobile horizontal overflow: 0px.</li>
+          <li>Local console errors captured during screenshot pass: none.</li>
+          <li>All local asset images loaded before capture: yes.</li>
+        </ul>
+      </section>
+
+      <section class="grid" aria-label="Homepage aesthetic uplift screenshots">
+        <figure>
+          <figcaption>Homepage desktop full page <span>1440x1000</span></figcaption>
+          <img src="./screenshots/01-homepage-desktop-full.png" alt="Homepage desktop full page">
+        </figure>
+        <figure>
+          <figcaption>Hero desktop <span>1440x1000</span></figcaption>
+          <img src="./screenshots/02-hero-desktop.png" alt="Hero desktop">
+        </figure>
+        <figure>
+          <figcaption>Postcode and origami section <span>1440x1000</span></figcaption>
+          <img src="./screenshots/03-postcode-origami-section.png" alt="Postcode and origami section">
+        </figure>
+        <figure>
+          <figcaption>Warning tiles <span>1440x1000</span></figcaption>
+          <img src="./screenshots/04-warning-tiles.png" alt="Warning tiles">
+        </figure>
+        <figure>
+          <figcaption>Services section <span>1440x1000</span></figcaption>
+          <img src="./screenshots/05-services-section.png" alt="Services section">
+        </figure>
+        <figure>
+          <figcaption>Product preview <span>1440x1000</span></figcaption>
+          <img src="./screenshots/06-product-preview.png" alt="Product preview">
+        </figure>
+        <figure>
+          <figcaption>Smart-tech support <span>1440x1000</span></figcaption>
+          <img src="./screenshots/07-smart-tech-support.png" alt="Smart-tech support">
+        </figure>
+        <figure>
+          <figcaption>Footer <span>1440x1000</span></figcaption>
+          <img src="./screenshots/08-footer.png" alt="Footer">
+        </figure>
+        <figure>
+          <figcaption>Postcode interaction state <span>1440x1000</span></figcaption>
+          <img src="./screenshots/09-postcode-interaction-state.png" alt="Postcode interaction state">
+        </figure>
+        <figure>
+          <figcaption>Selected service interaction state <span>1440x1000</span></figcaption>
+          <img src="./screenshots/10-selected-service-interaction-state.png" alt="Selected service interaction state">
+        </figure>
+        <figure>
+          <figcaption>Homepage mobile full page <span>390x844</span></figcaption>
+          <img src="./screenshots/11-homepage-mobile-full.png" alt="Homepage mobile full page">
+        </figure>
+      </section>
+    </main>
+  </body>
+</html>
