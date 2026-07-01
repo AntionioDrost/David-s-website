@@ -39,6 +39,22 @@ const sampleAddresses = [
   "Apartment 6, 41 Highfield Avenue, Solihull B91 3QD",
 ];
 
+const landlordUpdates = [
+  "Renters' reform watch: keep evidence and notices organised.",
+  "EPC planning: know what expires before it becomes urgent.",
+  "Damp and mould: record repairs, inspections and tenant reports clearly.",
+  "Licensing checks: confirm local rules before advertising a property.",
+];
+
+function escapeHtml(value) {
+  return value
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function scrollToTarget(selector) {
   const target = document.querySelector(selector);
   if (!target) return;
@@ -63,7 +79,7 @@ function renderAddressResults(postcode) {
   const panel = document.querySelector("#address-panel");
   if (!panel) return;
 
-  const cleanPostcode = postcode.trim() || "your postcode";
+  const cleanPostcode = escapeHtml(postcode.trim() || "your postcode");
   panel.hidden = false;
   panel.classList.remove("is-address-selected");
   panel.innerHTML = `
@@ -73,8 +89,8 @@ function renderAddressResults(postcode) {
       ${sampleAddresses
         .map(
           (address) => `
-            <button type="button" data-address="${address}">
-              ${address}
+            <button type="button" data-address="${escapeHtml(address)}">
+              ${escapeHtml(address)}
             </button>
           `,
         )
@@ -93,8 +109,8 @@ function renderSelectedService(serviceName) {
     <div class="selected-service-inner">
       <div>
         <p class="eyebrow">SELECTED SERVICE</p>
-        <h3>${service.title}</h3>
-        <p>${service.body}</p>
+        <h3>${escapeHtml(service.title)}</h3>
+        <p>${escapeHtml(service.body)}</p>
       </div>
       <div class="selected-service-actions">
         <button class="button button-primary" type="button" data-scroll="#postcode">Check a property first</button>
@@ -103,6 +119,91 @@ function renderSelectedService(serviceName) {
     </div>
   `;
   panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+}
+
+function initUpdatesTicker() {
+  const headline = document.querySelector("[data-update-headline]");
+  const prev = document.querySelector("[data-update-prev]");
+  const next = document.querySelector("[data-update-next]");
+  if (!headline || !prev || !next) return;
+
+  let index = 0;
+  const render = () => {
+    headline.textContent = landlordUpdates[index];
+  };
+
+  prev.addEventListener("click", () => {
+    index = (index - 1 + landlordUpdates.length) % landlordUpdates.length;
+    render();
+  });
+
+  next.addEventListener("click", () => {
+    index = (index + 1) % landlordUpdates.length;
+    render();
+  });
+}
+
+function initInspectionCarousel() {
+  const carousel = document.querySelector("[data-inspection-carousel]");
+  if (!carousel) return;
+
+  const slides = [...carousel.querySelectorAll("[data-slide]")];
+  const dots = [...carousel.querySelectorAll("[data-inspection-dot]")];
+  const prev = carousel.querySelector("[data-inspection-prev]");
+  const next = carousel.querySelector("[data-inspection-next]");
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let index = 0;
+  let timer = null;
+
+  const render = (nextIndex) => {
+    index = (nextIndex + slides.length) % slides.length;
+    slides.forEach((slide, slideIndex) => {
+      slide.classList.toggle("is-active", slideIndex === index);
+    });
+    dots.forEach((dot, dotIndex) => {
+      dot.classList.toggle("is-active", dotIndex === index);
+      dot.setAttribute("aria-current", dotIndex === index ? "true" : "false");
+    });
+  };
+
+  const stop = () => {
+    if (!timer) return;
+    window.clearInterval(timer);
+    timer = null;
+  };
+
+  const start = () => {
+    if (reducedMotion || timer) return;
+    timer = window.setInterval(() => render(index + 1), 5200);
+  };
+
+  prev?.addEventListener("click", () => {
+    stop();
+    render(index - 1);
+    start();
+  });
+
+  next?.addEventListener("click", () => {
+    stop();
+    render(index + 1);
+    start();
+  });
+
+  dots.forEach((dot) => {
+    dot.addEventListener("click", () => {
+      stop();
+      render(Number(dot.dataset.inspectionDot));
+      start();
+    });
+  });
+
+  carousel.addEventListener("mouseenter", stop);
+  carousel.addEventListener("mouseleave", start);
+  carousel.addEventListener("focusin", stop);
+  carousel.addEventListener("focusout", start);
+
+  render(0);
+  start();
 }
 
 document.addEventListener("click", (event) => {
@@ -139,7 +240,7 @@ document.addEventListener("click", (event) => {
     if (!panel) return;
     panel.classList.add("is-address-selected");
     panel.innerHTML = `
-      <strong>${addressButton.dataset.address}</strong>
+      <strong>${escapeHtml(addressButton.dataset.address || "")}</strong>
       <p>This fictional address is selected for the prototype. Next, choose one service or keep building the compliance picture.</p>
       <div class="selected-service-actions">
         <button class="button button-primary" type="button" data-scroll="#services">View services</button>
@@ -161,3 +262,6 @@ document.addEventListener("keydown", (event) => {
     hidePropertiesPanel();
   }
 });
+
+initUpdatesTicker();
+initInspectionCarousel();

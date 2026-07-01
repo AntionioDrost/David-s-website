@@ -1,0 +1,89 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="260" viewBox="0 0 1440 260" role="img" aria-labelledby="title desc">
+  <title id="title">No recycled photos. No camera-roll shortcuts.</title>
+  <desc id="desc">No upload loophole banner showing a crossed-out upload icon beside a live camera frame with session ID, date stamped and location checked evidence.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#111513"/>
+      <stop offset="0.55" stop-color="#1d211d"/>
+      <stop offset="1" stop-color="#2c3429"/>
+    </linearGradient>
+    <linearGradient id="warmPanel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff5e4" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#9ccf8e" stop-opacity="0.06"/>
+    </linearGradient>
+    <pattern id="ticks" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M0 18H36M18 0V36" stroke="#f8efe2" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="16" stdDeviation="18" flood-color="#000" flood-opacity="0.3"/>
+    </filter>
+    <style>
+      .sans{font-family:Aptos, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif}
+      .eyebrow{font-size:15px;font-weight:800;letter-spacing:2.4px;fill:#c7d8b6}
+      .headline{font-size:40px;font-weight:760;letter-spacing:0;fill:#fff8ec}
+      .body{font-size:20px;font-weight:430;fill:#d8ddd3}
+      .badgeText{font-size:15px;font-weight:760;fill:#f8f2e8}
+    </style>
+  </defs>
+  <rect width="1440" height="260" fill="url(#bg)"/>
+  <rect width="1440" height="260" fill="url(#ticks)"/>
+  <path d="M716 0H1440V260H880C820 212 788 156 780 92C775 54 752 24 716 0Z" fill="#fff2dc" opacity="0.035"/>
+
+  <g class="sans">
+    <text class="eyebrow" x="76" y="56">NO UPLOAD LOOPHOLE</text>
+    <text class="headline" x="76" y="101">No recycled photos.</text>
+    <text class="headline" x="76" y="141">No camera-roll shortcuts.</text>
+    <text class="body" x="78" y="171">Inspections are recorded inside the app at the property, during the session.</text>
+
+    <g transform="translate(76 184)">
+      <rect width="126" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M18 23V11m0 0-6 6m6-6 6 6M11 25h14" stroke="#9bd38e" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"/>
+      <text class="badgeText" x="36" y="22">In-app camera</text>
+    </g>
+    <g transform="translate(218 184)">
+      <rect width="104" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <rect x="13" y="11" width="17" height="14" rx="3" fill="none" stroke="#9bd38e" stroke-width="2"/>
+      <path d="M17 15h9M17 20h6" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <text class="badgeText" x="39" y="22">Session ID</text>
+    </g>
+    <g transform="translate(337 184)">
+      <rect width="124" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M13 13h18v14H13zM17 9v6M27 9v6" fill="none" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <text class="badgeText" x="41" y="22">Date stamped</text>
+    </g>
+  </g>
+
+  <g transform="translate(824 28)">
+    <rect x="0" y="12" width="532" height="190" rx="28" fill="url(#warmPanel)" stroke="#fff8eb" stroke-opacity="0.16"/>
+    <g filter="url(#shadow)">
+      <rect x="38" y="45" width="178" height="126" rx="24" fill="#101613" stroke="#fff8eb" stroke-opacity="0.18" stroke-width="2"/>
+      <path d="M96 85V63m0 0-17 17m17-17 17 17M66 121h60c9 0 16 7 16 16v9" fill="none" stroke="#fff8eb" stroke-opacity="0.58" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M61 58L192 167" stroke="#df766b" stroke-width="9" stroke-linecap="round"/>
+      <path d="M60 58L192 167" stroke="#ffe6dd" stroke-opacity="0.45" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="186" cy="64" r="17" fill="#df766b"/>
+      <path d="M178 56l16 16M194 56l-16 16" stroke="#fff4e8" stroke-width="3" stroke-linecap="round"/>
+    </g>
+
+    <g transform="translate(255 32)" filter="url(#shadow)">
+      <rect width="238" height="166" rx="30" fill="#151d18" stroke="#eff7e9" stroke-opacity="0.18" stroke-width="2"/>
+      <rect x="23" y="24" width="192" height="118" rx="22" fill="#0c1210" stroke="#9bd38e" stroke-opacity="0.35"/>
+      <path d="M43 50h31M43 50v31M195 50h-31M195 50v31M43 119h31M43 119V88M195 119h-31M195 119V88" stroke="#9bd38e" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="119" cy="83" r="26" fill="none" stroke="#fff8eb" stroke-opacity="0.28" stroke-width="3"/>
+      <circle cx="119" cy="83" r="9" fill="#9bd38e"/>
+      <path d="M36 142h166" stroke="#fff8eb" stroke-opacity="0.12" stroke-width="2"/>
+    </g>
+
+    <g class="sans" transform="translate(388 25)">
+      <rect width="128" height="34" rx="17" fill="#fff8eb" fill-opacity="0.13" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <text x="19" y="22" font-size="14" font-weight="760" fill="#fff8ec">24 JUN 2026</text>
+    </g>
+    <g class="sans" transform="translate(230 170)">
+      <rect width="154" height="36" rx="18" fill="#101613" stroke="#9bd38e" stroke-opacity="0.42"/>
+      <circle cx="21" cy="18" r="5" fill="#9bd38e"/>
+      <text x="36" y="23" font-size="14" font-weight="760" fill="#fff8ec">SESSION A17F</text>
+    </g>
+    <g transform="translate(500 124)">
+      <path d="M25 0C11.2 0 0 11.2 0 24.9 0 44.3 25 64 25 64s25-19.7 25-39.1C50 11.2 38.8 0 25 0Zm0 34a9 9 0 1 1 0-18 9 9 0 0 1 0 18Z" fill="#9bd38e"/>
+    </g>
+  </g>
+</svg>

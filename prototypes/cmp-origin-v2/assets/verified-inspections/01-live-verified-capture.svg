@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="260" viewBox="0 0 1440 260" role="img" aria-labelledby="title desc">
+  <title id="title">Verified tenant inspections, captured live</title>
+  <desc id="desc">Coming soon banner showing a CMP Verified Inspections phone capture over a property floorplan with live capture, location checked and CMP record badges.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f1412"/>
+      <stop offset="0.55" stop-color="#18221d"/>
+      <stop offset="1" stop-color="#243126"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff8eb" stop-opacity="0.16"/>
+      <stop offset="1" stop-color="#d7ead2" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="beam" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#9bd38e" stop-opacity="0"/>
+      <stop offset="0.35" stop-color="#9bd38e" stop-opacity="0.5"/>
+      <stop offset="1" stop-color="#9bd38e" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" fill="none" stroke="#f5efe3" stroke-opacity="0.055" stroke-width="1"/>
+    </pattern>
+    <filter id="softShadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000000" flood-opacity="0.32"/>
+    </filter>
+    <style>
+      .sans{font-family:Aptos, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif}
+      .eyebrow{font-size:15px;font-weight:800;letter-spacing:2.4px;fill:#b9d7ad}
+      .headline{font-size:40px;font-weight:760;letter-spacing:0;fill:#fff8ec}
+      .body{font-size:20px;font-weight:430;fill:#d9dfd6}
+      .badgeText{font-size:15px;font-weight:760;fill:#f8f2e8}
+      .mutedStroke{stroke:#f6eedf;stroke-opacity:.22}
+    </style>
+  </defs>
+  <rect width="1440" height="260" fill="url(#bg)"/>
+  <rect width="1440" height="260" fill="url(#grid)"/>
+  <path d="M0 219 C190 190 310 248 515 216 C717 184 805 205 990 181 C1172 158 1295 102 1440 124 V260 H0Z" fill="#fff3df" opacity="0.035"/>
+
+  <g class="sans">
+    <text class="eyebrow" x="76" y="56">COMING SOON</text>
+    <text class="headline" x="76" y="101">Verified tenant inspections,</text>
+    <text class="headline" x="76" y="141">captured live</text>
+    <text class="body" x="78" y="171">Guided in-app scans with time, location and inspection evidence attached.</text>
+
+    <g transform="translate(76 184)">
+      <rect width="118" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <circle cx="20" cy="17" r="5" fill="#91c986"/>
+      <text class="badgeText" x="34" y="22">Live capture</text>
+    </g>
+    <g transform="translate(210 184)">
+      <rect width="156" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M20 9c-5 0-9 4-9 9 0 7 9 14 9 14s9-7 9-14c0-5-4-9-9-9Zm0 12a3 3 0 1 1 0-6 3 3 0 0 1 0 6Z" fill="#91c986"/>
+      <text class="badgeText" x="38" y="22">Location checked</text>
+    </g>
+    <g transform="translate(383 184)">
+      <rect width="118" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M14 10h15v16H14z" fill="none" stroke="#91c986" stroke-width="2"/>
+      <path d="M18 15h7M18 20h7" stroke="#91c986" stroke-width="2" stroke-linecap="round"/>
+      <text class="badgeText" x="38" y="22">CMP record</text>
+    </g>
+  </g>
+
+  <g transform="translate(822 22)">
+    <g opacity="0.9">
+      <rect x="74" y="18" width="442" height="190" rx="26" fill="url(#panel)" stroke="#fff8eb" stroke-opacity="0.16"/>
+      <path d="M104 163H235V71H383V48H487V180H353V208H104Z" fill="#f8f1e5" fill-opacity="0.035" stroke="#f8f1e5" stroke-opacity="0.28" stroke-width="2"/>
+      <path d="M235 71V133M235 133H312M312 133V208M383 48V114M383 114H487M353 180V114" fill="none" stroke="#f8f1e5" stroke-opacity="0.19" stroke-width="2"/>
+      <path d="M118 86H188M118 105H198M406 75H459M406 94H459M124 183H220M366 157H459" stroke="#f8f1e5" stroke-opacity="0.11" stroke-width="1.6"/>
+    </g>
+
+    <g filter="url(#softShadow)" transform="translate(222 4) rotate(-2 116 118)">
+      <rect x="0" y="0" width="214" height="232" rx="34" fill="#101613" stroke="#eef7e7" stroke-opacity="0.18" stroke-width="2"/>
+      <rect x="14" y="16" width="186" height="200" rx="24" fill="#1b2520"/>
+      <rect x="36" y="34" width="142" height="122" rx="18" fill="#0e1512" stroke="#a8d79a" stroke-opacity="0.35"/>
+      <path d="M48 124H166M48 64H166M72 44V146M132 44V146" stroke="#dff1d6" stroke-opacity="0.12" stroke-width="1"/>
+      <rect x="38" y="83" width="140" height="26" fill="url(#beam)" opacity="0.95"/>
+      <path d="M47 53h25M47 53v25M167 53h-25M167 53v25M47 146h25M47 146v-25M167 146h-25M167 146v-25" stroke="#9bd38e" stroke-width="3" stroke-linecap="round"/>
+      <rect x="38" y="169" width="138" height="26" rx="13" fill="#eef7e7" fill-opacity="0.09" stroke="#eef7e7" stroke-opacity="0.12"/>
+      <circle cx="54" cy="182" r="5" fill="#9bd38e"/>
+      <text class="sans" x="66" y="187" font-size="13" font-weight="760" fill="#eef7e7">LIVE SESSION</text>
+      <rect x="78" y="8" width="58" height="5" rx="2.5" fill="#eef7e7" fill-opacity="0.35"/>
+    </g>
+
+    <g class="sans" transform="translate(466 68)">
+      <rect width="150" height="42" rx="21" fill="#f8f1e5" fill-opacity="0.12" stroke="#f8f1e5" stroke-opacity="0.18"/>
+      <text x="20" y="26" font-size="15" font-weight="760" fill="#fff8ec">09:42 today</text>
+    </g>
+    <g transform="translate(490 135)">
+      <path d="M28 0c-15.5 0-28 12.4-28 27.7C0 49.3 28 71 28 71s28-21.7 28-43.3C56 12.4 43.5 0 28 0Zm0 39a11 11 0 1 1 0-22 11 11 0 0 1 0 22Z" fill="#9bd38e" fill-opacity="0.9"/>
+    </g>
+  </g>
+</svg>

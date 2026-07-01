@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
 import { execFileSync, spawnSync } from "node:child_process";
-import { existsSync, mkdtempSync, statSync, writeFileSync } from "node:fs";
+import { existsSync, mkdtempSync, readdirSync, statSync, writeFileSync } from "node:fs";
 import { readFile } from "node:fs/promises";
 import os from "node:os";
 import path from "node:path";
@@ -14,6 +14,7 @@ const auditPrefixes = [
   "audit/2026-07-01-cmp-origin-v2-homepage-foundation/",
   "audit/2026-07-01-cmp-origin-v2-homepage-polish/",
   "audit/2026-07-01-cmp-origin-v2-homepage-aesthetic-uplift/",
+  "audit/2026-07-01-cmp-origin-v2-premium-homepage-rebuild/",
 ];
 
 const requiredFiles = [
@@ -39,6 +40,12 @@ const requiredAssets = [
   "service-landlord-insurance-tile.webp",
   "support-feel-lost.webp",
   "support-overcomplicating.webp",
+  "verified-inspections/01-live-verified-capture.svg",
+  "verified-inspections/02-no-upload-loophole.svg",
+  "verified-inspections/03-room-coverage.svg",
+  "verified-inspections/04-lidar-depth-aware.svg",
+  "verified-inspections/05-compare-over-time.svg",
+  "verified-inspections/06-evidence-with-property.svg",
 ];
 
 const optionalAssets = [
@@ -55,10 +62,13 @@ const requiredCopy = [
   "Landlord compliance made simple.",
   "Check your property. Fix the gaps. Store the proof.",
   "What do you need help with today?",
-  "The one stop shop for Property Compliance.",
+  "The one stop shop for Property Compliance",
   "We don\u2019t just make you compliant.",
-  "Our Main Services.",
-  "How ComplyMyProperty works.",
+  "Our Main Services",
+  "Latest property news, without the noise",
+  "CMP Verified Inspections",
+  "Coming soon: inspections with fewer blind spots.",
+  "How ComplyMyProperty works",
   "Real people. Smart tech. No guesswork.",
 ];
 
@@ -74,6 +84,8 @@ const forbiddenTerms = [
   "payment taken",
   "AI approved",
   "legally checked",
+  "court-ready",
+  "legally binding proof",
 ];
 
 const checks = [];
@@ -114,7 +126,18 @@ function statusFiles() {
       const renamed = line.split(" -> ");
       return renamed[renamed.length - 1];
     })
+    .filter((line) => !line.startsWith("cmp-verified-inspections-carousel-assets/"))
     .filter(Boolean);
+}
+
+function collectFiles(dir) {
+  if (!existsSync(dir)) return [];
+  return readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+    const target = path.join(dir, entry.name);
+    if (entry.isDirectory()) return collectFiles(target);
+    if (entry.isFile()) return [target];
+    return [];
+  });
 }
 
 async function readIfExists(relativePath) {
@@ -302,6 +325,7 @@ async function main() {
   const decoded = decodeBasicEntities(source);
 
   assert("No source-selected assets are used", !/source-selected/i.test(source));
+  assert("No source asset folder references are used", !/cmp-verified-inspections-carousel-assets|prototypes\/cmp-origin\/assets/i.test(source));
   assert("No raw Desktop paths are referenced", !/\/Users\/davidtaylor\/Desktop|Desktop\/Comply my property/i.test(source));
   assert("No Wix hotlinks are used", !/wixstatic|static\.wix|https?:\/\//i.test(source));
   assert("Logo asset exists and is used", existsSync(path.join(assetDir, "logo-grey-live.png")) && source.includes("logo-grey-live.png"));
@@ -316,16 +340,21 @@ async function main() {
   }
 
   assert("Footer exists", /<footer\b/i.test(html));
+  assert("Latest Updates section exists", /id=["']updates["']/i.test(html) && /updates-ticker/i.test(html));
+  assert("Verified Inspections section exists", /id=["']verified-inspections["']/i.test(html));
+  assert(
+    "Verified Inspections carousel uses local copied V2 assets",
+    /assets\/verified-inspections\/01-live-verified-capture\.svg/.test(source) &&
+      /assets\/verified-inspections\/06-evidence-with-property\.svg/.test(source),
+  );
 
   const lower = decoded.toLowerCase();
   for (const term of forbiddenTerms) {
     assert(`Forbidden overclaim term absent: ${term}`, !lower.includes(term.toLowerCase()));
   }
 
-  const assetsToCheck = [...requiredAssets, ...optionalAssets];
+  const assetsToCheck = collectFiles(assetDir);
   const oversized = assetsToCheck
-    .map((asset) => path.join(assetDir, asset))
-    .filter((assetPath) => existsSync(assetPath))
     .map((assetPath) => ({ file: rel(assetPath), size: statSync(assetPath).size }))
     .filter((item) => item.size > 350 * 1024);
   assert("No V2 asset exceeds 350 KB unless explicitly reported", oversized.length === 0, JSON.stringify(oversized));

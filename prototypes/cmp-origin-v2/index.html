@@ -6,7 +6,7 @@
     <title>ComplyMyProperty - CMP Origin V2 Homepage</title>
     <meta
       name="description"
-      content="CMP Origin V2 homepage prototype for ComplyMyProperty landlord compliance support."
+      content="A premium CMP Origin V2 homepage prototype for UK private landlord compliance support."
     >
     <link rel="icon" href="data:,">
     <link rel="stylesheet" href="./styles.css">
@@ -16,12 +16,7 @@
     <header class="site-header" data-section="header">
       <div class="header-shell">
         <a class="brand-link" href="#top" aria-label="ComplyMyProperty home">
-          <img
-            src="./assets/logo-grey-live.png"
-            width="650"
-            height="84"
-            alt="ComplyMyProperty.com"
-          >
+          <img src="./assets/logo-grey-live.png" width="650" height="84" alt="ComplyMyProperty.com">
         </a>
 
         <nav class="primary-nav" aria-label="Primary navigation">
@@ -29,7 +24,7 @@
           <a href="#services">Services</a>
           <a href="#postcode">Check Property</a>
           <a href="#how-it-works">How It Works</a>
-          <a href="#footer">Contact</a>
+          <a href="#support">Support</a>
         </nav>
 
         <div class="header-actions">
@@ -44,7 +39,7 @@
     <main id="top">
       <section class="hero section-white" aria-labelledby="hero-title">
         <div class="hero-copy">
-          <p class="trust-line">The safest place for private landlords to get organised at their own pace.</p>
+          <p class="trust-line">Built for private landlords who want fewer loose ends.</p>
           <p class="eyebrow">LANDLORD COMPLIANCE MADE SIMPLE</p>
           <h1 id="hero-title">Landlord compliance made simple.</h1>
           <p class="hero-support">Check your property. Fix the gaps. Store the proof.</p>
@@ -58,16 +53,24 @@
           </div>
         </div>
 
-        <div class="hero-visual" aria-label="Paper house and compliance documents">
-          <div class="hero-paper hero-paper-left" aria-hidden="true"></div>
-          <img
-            src="./assets/homepage-origami-house-cropped.webp"
-            width="900"
-            height="1200"
-            alt="Paper house built from landlord compliance documents"
-            fetchpriority="high"
-          >
-          <div class="hero-paper hero-paper-right" aria-hidden="true"></div>
+        <div class="hero-stage" aria-label="Paper house and compliance documents">
+          <div class="paper-sheet paper-sheet-left" aria-hidden="true"></div>
+          <figure class="hero-house">
+            <img
+              src="./assets/homepage-origami-house-cropped.webp"
+              width="900"
+              height="1200"
+              alt="Paper house built from landlord compliance documents"
+              fetchpriority="high"
+            >
+          </figure>
+          <div class="paper-sheet paper-sheet-right" aria-hidden="true"></div>
+          <div class="hero-proof-panel" aria-hidden="true">
+            <span>Evidence</span>
+            <strong>EPC</strong>
+            <strong>Gas</strong>
+            <strong>EICR</strong>
+          </div>
         </div>
       </section>
 
@@ -76,30 +79,30 @@
           <p class="eyebrow">WHAT DO YOU NEED HELP WITH TODAY?</p>
           <h2 id="help-title">What do you need help with today?</h2>
           <p>
-            Choose one service, keep the journey focused, and only widen into a broader property check if it helps.
+            Pick the route that matches today. CMP keeps the journey focused, plain-English and easy to widen later.
           </p>
         </div>
 
-        <div class="route-grid" aria-label="Service route choices">
+        <div class="route-grid" aria-label="Landlord route choices">
           <button class="route-card" type="button" data-scroll="#postcode">
             <span>01</span>
             <strong>Check a property</strong>
-            <small>See what is missing before it becomes urgent.</small>
+            <small>Find gaps before they become urgent.</small>
           </button>
           <button class="route-card" type="button" data-scroll="#services">
             <span>02</span>
             <strong>Book a certificate or inspection</strong>
-            <small>Start with EPC, gas, EICR or inspection support.</small>
-          </button>
-          <button class="route-card" type="button" data-service="Possession & Eviction Preparation">
-            <span>03</span>
-            <strong>Prepare possession evidence</strong>
-            <small>Keep records together before notices or solicitor review.</small>
+            <small>EPC, gas, EICR, inspections and more.</small>
           </button>
           <button class="route-card" type="button" data-open-properties>
-            <span>04</span>
+            <span>03</span>
             <strong>Upload documents</strong>
-            <small>Store certificates, reports and evidence in one place.</small>
+            <small>Keep evidence, certificates and reports together.</small>
+          </button>
+          <button class="route-card" type="button" data-service="Compliance Checker A-Z">
+            <span>04</span>
+            <strong>Build an action plan</strong>
+            <small>Turn unknowns into next steps.</small>
           </button>
         </div>
       </section>
@@ -107,7 +110,7 @@
       <section class="postcode-band" id="postcode" aria-labelledby="postcode-title">
         <div class="postcode-content">
           <div class="section-heading centered compact">
-            <h2 id="postcode-title">The one stop shop for Property Compliance.</h2>
+            <h2 id="postcode-title">The one stop shop for Property Compliance</h2>
             <p>Enter your postcode here to check compliance.</p>
           </div>
 
@@ -148,8 +151,8 @@
               loading="lazy"
             >
             <div>
-              <h3>You are either compliant, or exposed.</h3>
-              <p>Stay aware of the EPC evidence a landlord may need before a simple gap becomes a bigger issue.</p>
+              <h3>EPC evidence gaps</h3>
+              <p>Check the record, understand the next step and keep renewal notes with the property.</p>
             </div>
           </article>
           <article class="warning-card">
@@ -161,8 +164,8 @@
               loading="lazy"
             >
             <div>
-              <h3>Do not leave the file to memory.</h3>
-              <p>Keep notices, certificates and property records together before solicitor or advisor review.</p>
+              <h3>Evidence before pressure</h3>
+              <p>Keep certificates, notices and property records easier to review before advisor conversations.</p>
             </div>
           </article>
         </div>
@@ -175,29 +178,29 @@
           <p>
             Not every landlord starts with perfect records. CMP helps you work from what you actually have, then build a clearer compliance picture step by step.
           </p>
+          <p>
+            Designed around plain-English guidance, neurodivergent-friendly workflows and real-world testing, it helps self-managing landlords move from no clue to under control.
+          </p>
         </div>
         <div class="honesty-panel">
           <figure class="honesty-visual" aria-hidden="true">
-            <img
-              src="./assets/homepage-origami-house-cropped.webp"
-              width="900"
-              height="1200"
-              alt=""
-              loading="lazy"
-            >
+            <img src="./assets/homepage-origami-house-cropped.webp" width="900" height="1200" alt="" loading="lazy">
           </figure>
           <div class="honesty-list" aria-label="Common starting points">
             <div><span></span> Missing certificates or unclear renewal dates</div>
             <div><span></span> Unsure whether a service is needed yet</div>
-            <div><span></span> Property records scattered across messages and files</div>
+            <div><span></span> Records scattered across messages and files</div>
+            <div><span></span> A need for guided next actions, not jargon</div>
           </div>
         </div>
       </section>
 
       <section class="services-section section-soft" id="services" aria-labelledby="services-title">
-        <div class="section-heading">
-          <p class="eyebrow">SERVICES</p>
-          <h2 id="services-title">Our Main Services.</h2>
+        <div class="section-heading split">
+          <div>
+            <p class="eyebrow">SERVICES</p>
+            <h2 id="services-title">Our Main Services</h2>
+          </div>
           <p>Take a look at some of the services we offer.</p>
         </div>
 
@@ -227,7 +230,7 @@
             </div>
           </article>
           <article class="service-card">
-            <img src="./assets/eicr-card-legally-important.webp" width="900" height="1104" alt="EICR service tile" loading="lazy">
+            <img src="./assets/eicr-card-legally-important.webp" width="900" height="1105" alt="EICR service tile" loading="lazy">
             <div>
               <h3>EICR</h3>
               <p>Track electrical reports, remedial notes and next review dates.</p>
@@ -271,33 +274,109 @@
         <div class="selected-service" id="selected-service" hidden aria-live="polite"></div>
       </section>
 
+      <section class="updates-section section-white" id="updates" aria-labelledby="updates-title">
+        <div class="updates-shell">
+          <div class="updates-heading">
+            <p class="eyebrow">EXAMPLE LANDLORD UPDATES</p>
+            <h2 id="updates-title">Latest property news, without the noise</h2>
+            <p>
+              Prototype headlines showing how CMP could surface useful reminders, legislation watch-points and record-keeping prompts for landlords.
+            </p>
+          </div>
+          <div class="updates-ticker" data-updates-ticker aria-live="polite">
+            <div class="ticker-label">Landlord watch</div>
+            <p data-update-headline>Renters&rsquo; reform watch: keep evidence and notices organised.</p>
+            <div class="ticker-controls" aria-label="Landlord updates controls">
+              <button type="button" data-update-prev aria-label="Previous update">Prev</button>
+              <button type="button" data-update-next aria-label="Next update">Next</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="verified-section section-soft" id="verified-inspections" aria-labelledby="verified-title">
+        <div class="verified-copy">
+          <p class="eyebrow">COMING SOON</p>
+          <h2 id="verified-title">CMP Verified Inspections</h2>
+          <p class="verified-lede">
+            Coming soon: inspections with fewer blind spots.
+          </p>
+          <p>
+            CMP Verified Inspections is being designed to give landlords a clearer, more reliable view of property condition between visits, using live in-app capture, location checks, timestamps and guided room-by-room prompts.
+          </p>
+          <ul class="verified-points">
+            <li>Tenants complete a guided in-app camera flow.</li>
+            <li>Old camera-roll uploads are not the inspection path.</li>
+            <li>Room coverage can move from red to green before submission.</li>
+            <li>LiDAR-enhanced on compatible iPhone Pro and iPad Pro devices.</li>
+          </ul>
+        </div>
+
+        <div class="inspection-carousel" data-inspection-carousel>
+          <div class="inspection-viewport">
+            <article class="inspection-slide is-active" data-slide="0">
+              <img src="./assets/verified-inspections/01-live-verified-capture.svg" width="1040" height="420" alt="Coming soon banner for CMP Verified Inspections showing a phone mockup over a property floorplan with live capture, location checked and CMP record badges." loading="lazy">
+            </article>
+            <article class="inspection-slide" data-slide="1">
+              <img src="./assets/verified-inspections/02-no-upload-loophole.svg" width="1040" height="420" alt="No upload loophole banner showing a crossed-out upload icon, live camera frame, timestamp chip, location pin and inspection session ID." loading="lazy">
+            </article>
+            <article class="inspection-slide" data-slide="2">
+              <img src="./assets/verified-inspections/03-room-coverage.svg" width="1040" height="420" alt="Room-by-room guidance banner showing a property floorplan with red, amber and green coverage areas." loading="lazy">
+            </article>
+            <article class="inspection-slide" data-slide="3">
+              <img src="./assets/verified-inspections/04-lidar-depth-aware.svg" width="1040" height="420" alt="Depth-aware where supported banner showing LiDAR-enhanced scanning on compatible iPhone Pro and iPad Pro devices." loading="lazy">
+            </article>
+            <article class="inspection-slide" data-slide="4">
+              <img src="./assets/verified-inspections/05-compare-over-time.svg" width="1040" height="420" alt="Compare over time banner showing before and after inspection cards with a highlighted issue." loading="lazy">
+            </article>
+            <article class="inspection-slide" data-slide="5">
+              <img src="./assets/verified-inspections/06-evidence-with-property.svg" width="1040" height="420" alt="Property evidence banner showing a CMP evidence report card with timestamps and an inspection timeline." loading="lazy">
+            </article>
+          </div>
+          <div class="inspection-controls" aria-label="Verified Inspections carousel controls">
+            <button type="button" data-inspection-prev aria-label="Previous Verified Inspections slide">Prev</button>
+            <div class="inspection-dots" aria-label="Choose Verified Inspections slide">
+              <button type="button" class="is-active" data-inspection-dot="0" aria-label="Show slide 1"></button>
+              <button type="button" data-inspection-dot="1" aria-label="Show slide 2"></button>
+              <button type="button" data-inspection-dot="2" aria-label="Show slide 3"></button>
+              <button type="button" data-inspection-dot="3" aria-label="Show slide 4"></button>
+              <button type="button" data-inspection-dot="4" aria-label="Show slide 5"></button>
+              <button type="button" data-inspection-dot="5" aria-label="Show slide 6"></button>
+            </div>
+            <button type="button" data-inspection-next aria-label="Next Verified Inspections slide">Next</button>
+          </div>
+        </div>
+      </section>
+
       <section class="dashboard-section section-white" id="how-it-works" aria-labelledby="works-title">
         <div class="section-heading centered">
           <p class="eyebrow">HOW IT WORKS</p>
-          <h2 id="works-title">How ComplyMyProperty works.</h2>
+          <h2 id="works-title">How ComplyMyProperty works</h2>
           <p>From postcode to fully compliant</p>
         </div>
 
-        <div class="dashboard-frame">
-          <img
-            src="./assets/homepage-dashboard-overview.webp"
-            width="1400"
-            height="990"
-            alt="ComplyMyProperty process and product preview"
-            loading="lazy"
-          >
-        </div>
+        <div class="dashboard-story">
+          <div class="dashboard-frame">
+            <img
+              src="./assets/homepage-dashboard-overview.webp"
+              width="1400"
+              height="990"
+              alt="ComplyMyProperty process and product preview"
+              loading="lazy"
+            >
+          </div>
 
-        <ol class="step-list">
-          <li><span>1</span>Find the property</li>
-          <li><span>2</span>Choose the service or check</li>
-          <li><span>3</span>Upload or add evidence</li>
-          <li><span>4</span>Book help when needed</li>
-          <li><span>5</span>Keep reminders and records in one place</li>
-        </ol>
+          <ol class="step-list">
+            <li><span>1</span>Find the property</li>
+            <li><span>2</span>Choose the service or check</li>
+            <li><span>3</span>Upload or add evidence</li>
+            <li><span>4</span>Book help when needed</li>
+            <li><span>5</span>Keep reminders and records in one place</li>
+          </ol>
+        </div>
       </section>
 
-      <section class="people-tech section-soft" aria-labelledby="people-tech-title">
+      <section class="people-tech section-soft" id="support" aria-labelledby="people-tech-title">
         <div class="people-copy">
           <p class="eyebrow">SMART TECH, HUMAN SUPPORT</p>
           <h2 id="people-tech-title">Real people. Smart tech. No guesswork.</h2>
@@ -307,6 +386,8 @@
             <span>Advisor support</span>
             <span>Service booking</span>
             <span>Secure records</span>
+            <span>Plain-English next steps</span>
+            <span>Reduced compliance overwhelm</span>
           </div>
         </div>
 
@@ -320,16 +401,10 @@
     <footer class="site-footer" id="footer">
       <div class="footer-grid">
         <div class="footer-brand">
-          <img
-            src="./assets/logo-grey-live.png"
-            width="650"
-            height="84"
-            alt="ComplyMyProperty.com"
-            loading="lazy"
-          >
+          <img src="./assets/logo-grey-live.png" width="650" height="84" alt="ComplyMyProperty.com" loading="lazy">
           <strong>ComplyMyProperty.com</strong>
           <p>The compliance operating system for UK landlords</p>
-          <p>Secure document storage. Clear compliance guidance. Trusted landlord support.</p>
+          <p>Secure document storage. Clear compliance guidance. Human support when the next step needs a second pair of eyes.</p>
         </div>
         <div>
           <h2>Contact &amp; Support</h2>

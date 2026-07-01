@@ -1,0 +1,91 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="260" viewBox="0 0 1440 260" role="img" aria-labelledby="title desc">
+  <title id="title">See what changed since move-in</title>
+  <desc id="desc">Compare over time banner showing before and after inspection cards with highlighted changes for damage, maintenance and stronger condition records.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101412"/>
+      <stop offset="0.5" stop-color="#1c211d"/>
+      <stop offset="1" stop-color="#2b332a"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff8eb" stop-opacity="0.14"/>
+      <stop offset="1" stop-color="#9bd38e" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="cardA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#f8f1e5" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#f8f1e5" stop-opacity="0.06"/>
+    </linearGradient>
+    <pattern id="grid" width="38" height="38" patternUnits="userSpaceOnUse">
+      <path d="M38 0H0V38" fill="none" stroke="#fff8eb" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="17" stdDeviation="18" flood-color="#000" flood-opacity="0.29"/>
+    </filter>
+    <style>
+      .sans{font-family:Aptos, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif}
+      .eyebrow{font-size:15px;font-weight:800;letter-spacing:2.4px;fill:#b9d7ad}
+      .headline{font-size:46px;font-weight:760;letter-spacing:0;fill:#fff8ec}
+      .body{font-size:20px;font-weight:430;fill:#d9dfd6}
+      .badgeText{font-size:15px;font-weight:760;fill:#f8f2e8}
+    </style>
+  </defs>
+  <rect width="1440" height="260" fill="url(#bg)"/>
+  <rect width="1440" height="260" fill="url(#grid)"/>
+  <path d="M856 0h584v260H972c-55-39-91-85-108-138C850 79 848 38 856 0Z" fill="#fff3df" opacity="0.036"/>
+
+  <g class="sans">
+    <text class="eyebrow" x="76" y="58">COMPARE OVER TIME</text>
+    <text class="headline" x="76" y="109">See what changed since move-in</text>
+    <text class="body" x="78" y="146">Baseline inspections help landlords spot damage, neglect</text>
+    <text class="body" x="78" y="174">and maintenance issues earlier.</text>
+
+    <g transform="translate(76 194)">
+      <rect width="132" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M15 11h16v16H15zM19 16h8M19 21h6" fill="none" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <text class="badgeText" x="41" y="22">Baseline record</text>
+    </g>
+    <g transform="translate(225 194)">
+      <rect width="138" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M14 23l8-12 8 12M36 11v16" fill="none" stroke="#9bd38e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+      <text class="badgeText" x="46" y="22">Change detection</text>
+    </g>
+    <g transform="translate(380 194)">
+      <rect width="132" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M14 23c8-10 14-10 22 0M14 12h22" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <text class="badgeText" x="46" y="22">Repair evidence</text>
+    </g>
+  </g>
+
+  <g transform="translate(810 24)">
+    <rect x="20" y="10" width="558" height="198" rx="28" fill="url(#panel)" stroke="#fff8eb" stroke-opacity="0.16"/>
+    <g class="sans" filter="url(#shadow)">
+      <g transform="translate(58 38)">
+        <rect width="218" height="144" rx="24" fill="url(#cardA)" stroke="#fff8eb" stroke-opacity="0.17"/>
+        <text x="24" y="32" font-size="16" font-weight="800" fill="#fff8ec">MOVE-IN BASELINE</text>
+        <text x="24" y="55" font-size="13" font-weight="700" fill="#b8c4b3">12 MAR 2026</text>
+        <rect x="24" y="72" width="170" height="50" rx="12" fill="#101613" stroke="#fff8eb" stroke-opacity="0.13"/>
+        <path d="M39 101h136M39 87h88M39 115h109" stroke="#9bd38e" stroke-opacity="0.42" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="175" cy="88" r="7" fill="#9bd38e"/>
+      </g>
+      <g transform="translate(322 38)">
+        <rect width="218" height="144" rx="24" fill="url(#cardA)" stroke="#fff8eb" stroke-opacity="0.17"/>
+        <text x="24" y="32" font-size="16" font-weight="800" fill="#fff8ec">LATEST CHECK</text>
+        <text x="24" y="55" font-size="13" font-weight="700" fill="#b8c4b3">24 JUN 2026</text>
+        <rect x="24" y="72" width="170" height="50" rx="12" fill="#101613" stroke="#fff8eb" stroke-opacity="0.13"/>
+        <path d="M39 101h136M39 87h88M39 115h109" stroke="#9bd38e" stroke-opacity="0.28" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="132" cy="103" r="18" fill="#d86157" fill-opacity="0.24" stroke="#df766b" stroke-width="3"/>
+        <path d="M122 103h20M132 93v20" stroke="#fff5ea" stroke-width="3" stroke-linecap="round"/>
+      </g>
+    </g>
+    <path d="M290 110h27m-10-10 10 10-10 10" fill="none" stroke="#fff8eb" stroke-opacity="0.38" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    <g class="sans" transform="translate(462 20)">
+      <rect width="100" height="36" rx="18" fill="#121a16" stroke="#df766b" stroke-opacity="0.5"/>
+      <circle cx="21" cy="18" r="6" fill="#df766b"/>
+      <text x="36" y="23" font-size="14" font-weight="760" fill="#fff8ec">New issue</text>
+    </g>
+    <g class="sans" transform="translate(82 188)">
+      <rect width="184" height="34" rx="17" fill="#101613" stroke="#9bd38e" stroke-opacity="0.4"/>
+      <text x="20" y="22" font-size="14" font-weight="760" fill="#fff8ec">Condition record linked</text>
+    </g>
+  </g>
+</svg>
