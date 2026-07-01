@@ -1,0 +1,377 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ComplyMyProperty - CMP Origin V2 Homepage</title>
+    <meta
+      name="description"
+      content="CMP Origin V2 homepage prototype for ComplyMyProperty landlord compliance support."
+    >
+    <link rel="icon" href="data:,">
+    <link rel="stylesheet" href="./styles.css">
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <header class="site-header" data-section="header">
+      <div class="header-shell">
+        <a class="brand-link" href="#top" aria-label="ComplyMyProperty home">
+          <img
+            src="./assets/logo-grey-live.png"
+            width="650"
+            height="84"
+            alt="ComplyMyProperty.com"
+          >
+        </a>
+
+        <nav class="primary-nav" aria-label="Primary navigation">
+          <a href="#top">Home</a>
+          <a href="#services">Services</a>
+          <a href="#postcode">Check Property</a>
+          <a href="#how-it-works">How It Works</a>
+          <a href="#footer">Contact</a>
+        </nav>
+
+        <div class="header-actions">
+          <button class="text-button" type="button" data-open-properties>My Properties</button>
+          <button class="button button-primary" type="button" data-scroll="#postcode">
+            Check your property
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <main id="top">
+      <section class="hero section-white" aria-labelledby="hero-title">
+        <div class="hero-copy">
+          <p class="trust-line">The safest place for private landlords to get organised at their own pace.</p>
+          <p class="eyebrow">LANDLORD COMPLIANCE MADE SIMPLE</p>
+          <h1 id="hero-title">Landlord compliance made simple.</h1>
+          <p class="hero-support">Check your property. Fix the gaps. Store the proof.</p>
+          <p class="hero-body">
+            Built for private landlords. No subscription fee. Start with one service, check a property, or build your compliance picture at your own pace.
+          </p>
+          <div class="hero-actions" aria-label="Homepage actions">
+            <button class="button button-primary" type="button" data-scroll="#postcode">Check your property</button>
+            <button class="button button-secondary" type="button" data-scroll="#services">View services</button>
+            <button class="text-button text-button-large" type="button" data-open-properties>My Properties</button>
+          </div>
+        </div>
+
+        <div class="hero-visual" aria-label="Paper house and compliance documents">
+          <div class="hero-paper hero-paper-left" aria-hidden="true"></div>
+          <img
+            src="./assets/homepage-origami-house-cropped.webp"
+            width="900"
+            height="1200"
+            alt="Paper house built from landlord compliance documents"
+            fetchpriority="high"
+          >
+          <div class="hero-paper hero-paper-right" aria-hidden="true"></div>
+        </div>
+      </section>
+
+      <section class="help-section section-white" aria-labelledby="help-title">
+        <div class="section-heading centered">
+          <p class="eyebrow">WHAT DO YOU NEED HELP WITH TODAY?</p>
+          <h2 id="help-title">What do you need help with today?</h2>
+          <p>
+            Choose one service, keep the journey focused, and only widen into a broader property check if it helps.
+          </p>
+        </div>
+
+        <div class="route-grid" aria-label="Service route choices">
+          <button class="route-card" type="button" data-scroll="#postcode">
+            <span>01</span>
+            <strong>Check a property</strong>
+            <small>See what is missing before it becomes urgent.</small>
+          </button>
+          <button class="route-card" type="button" data-scroll="#services">
+            <span>02</span>
+            <strong>Book a certificate or inspection</strong>
+            <small>Start with EPC, gas, EICR or inspection support.</small>
+          </button>
+          <button class="route-card" type="button" data-service="Possession & Eviction Preparation">
+            <span>03</span>
+            <strong>Prepare possession evidence</strong>
+            <small>Keep records together before notices or solicitor review.</small>
+          </button>
+          <button class="route-card" type="button" data-open-properties>
+            <span>04</span>
+            <strong>Upload documents</strong>
+            <small>Store certificates, reports and evidence in one place.</small>
+          </button>
+        </div>
+      </section>
+
+      <section class="postcode-band" id="postcode" aria-labelledby="postcode-title">
+        <div class="postcode-content">
+          <div class="section-heading centered compact">
+            <h2 id="postcode-title">The one stop shop for Property Compliance.</h2>
+            <p>Enter your postcode here to check compliance.</p>
+          </div>
+
+          <form class="postcode-form" id="postcode-form" novalidate>
+            <label class="sr-only" for="postcode-input">Postcode</label>
+            <input id="postcode-input" name="postcode" type="text" placeholder="Postcode" autocomplete="postal-code">
+            <button class="button button-primary" type="submit">Find Address</button>
+          </form>
+
+          <div class="address-panel" id="address-panel" hidden aria-live="polite"></div>
+        </div>
+
+        <figure class="origami-wide">
+          <img
+            src="./assets/homepage-origami-house-wide.webp"
+            width="1800"
+            height="558"
+            alt="Origami property standing on landlord compliance documents"
+          >
+        </figure>
+      </section>
+
+      <section class="warning-section section-soft" aria-labelledby="warning-title">
+        <div class="section-heading centered">
+          <h2 id="warning-title">We don&rsquo;t just make you compliant.<br>We prepare you for what happens next.</h2>
+          <p>
+            CMP helps landlords spot missing records, book the right services and keep the evidence together before it becomes urgent.
+          </p>
+        </div>
+
+        <div class="warning-grid">
+          <article class="warning-card">
+            <img
+              src="./assets/homepage-warning-epc.webp"
+              width="900"
+              height="563"
+              alt="EPC compliance warning tile"
+              loading="lazy"
+            >
+            <div>
+              <h3>You are either compliant, or exposed.</h3>
+              <p>Stay aware of the EPC evidence a landlord may need before a simple gap becomes a bigger issue.</p>
+            </div>
+          </article>
+          <article class="warning-card">
+            <img
+              src="./assets/homepage-warning-solicitor.webp"
+              width="900"
+              height="563"
+              alt="Solicitor and possession evidence warning tile"
+              loading="lazy"
+            >
+            <div>
+              <h3>Do not leave the file to memory.</h3>
+              <p>Keep notices, certificates and property records together before solicitor or advisor review.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="honesty-section section-white" aria-labelledby="honesty-title">
+        <div class="honesty-copy">
+          <p class="eyebrow">REAL SITUATIONS, CLEARER NEXT STEPS</p>
+          <h2 id="honesty-title">You can be honest with us &mdash; we build around your real situation.</h2>
+          <p>
+            Not every landlord starts with perfect records. CMP helps you work from what you actually have, then build a clearer compliance picture step by step.
+          </p>
+        </div>
+        <div class="honesty-list" aria-label="Common starting points">
+          <div><span></span> Missing certificates or unclear renewal dates</div>
+          <div><span></span> Unsure whether a service is needed yet</div>
+          <div><span></span> Property records scattered across messages and files</div>
+        </div>
+      </section>
+
+      <section class="services-section section-soft" id="services" aria-labelledby="services-title">
+        <div class="section-heading">
+          <p class="eyebrow">SERVICES</p>
+          <h2 id="services-title">Our Main Services.</h2>
+          <p>Take a look at some of the services we offer.</p>
+        </div>
+
+        <div class="service-grid" aria-label="Main services preview">
+          <article class="service-card">
+            <img src="./assets/service-compliance-checker-tile.webp" width="900" height="1104" alt="Compliance Checker A-Z service tile" loading="lazy">
+            <div>
+              <h3>Compliance Checker A-Z</h3>
+              <p>Find the gaps and understand what needs attention first.</p>
+              <button type="button" data-service="Compliance Checker A-Z">View service</button>
+            </div>
+          </article>
+          <article class="service-card">
+            <img src="./assets/service-epc-tile.webp" width="900" height="1104" alt="EPC certificates service tile" loading="lazy">
+            <div>
+              <h3>EPC Certificates</h3>
+              <p>Check EPC status, renewal timing and rating improvement needs.</p>
+              <button type="button" data-service="EPC Certificates">View service</button>
+            </div>
+          </article>
+          <article class="service-card">
+            <img src="./assets/gas-card-what-is-gas-safety.webp" width="900" height="1104" alt="Gas safety service tile" loading="lazy">
+            <div>
+              <h3>Gas Safety</h3>
+              <p>Keep gas safety renewals, reports and reminders together.</p>
+              <button type="button" data-service="Gas Safety">View service</button>
+            </div>
+          </article>
+          <article class="service-card">
+            <img src="./assets/eicr-card-legally-important.webp" width="900" height="1104" alt="EICR service tile" loading="lazy">
+            <div>
+              <h3>EICR</h3>
+              <p>Track electrical reports, remedial notes and next review dates.</p>
+              <button type="button" data-service="EICR">View service</button>
+            </div>
+          </article>
+          <article class="service-card">
+            <img src="./assets/property-inspections-main-tile.webp" width="900" height="1104" alt="Property inspections service tile" loading="lazy">
+            <div>
+              <h3>Property Inspections</h3>
+              <p>Record condition, visits, evidence and follow-up actions.</p>
+              <button type="button" data-service="Property Inspections">View service</button>
+            </div>
+          </article>
+          <article class="service-card">
+            <img src="./assets/service-aml-tile.webp" width="900" height="1104" alt="AML checks service tile" loading="lazy">
+            <div>
+              <h3>AML Checks</h3>
+              <p>Organise identity and ownership checks for property work.</p>
+              <button type="button" data-service="AML Checks">View service</button>
+            </div>
+          </article>
+          <article class="service-card">
+            <img src="./assets/service-selective-licensing-tile.webp" width="900" height="1104" alt="Selective licensing service tile" loading="lazy">
+            <div>
+              <h3>Selective Licensing</h3>
+              <p>Prepare council licensing documents and local-review notes.</p>
+              <button type="button" data-service="Selective Licensing">View service</button>
+            </div>
+          </article>
+          <article class="service-card">
+            <img src="./assets/possession-section-21.webp" width="900" height="1104" alt="Possession and eviction preparation service tile" loading="lazy">
+            <div>
+              <h3>Possession &amp; Eviction Preparation</h3>
+              <p>Gather tenancy records before notices or advisor review.</p>
+              <button type="button" data-service="Possession & Eviction Preparation">View service</button>
+            </div>
+          </article>
+        </div>
+
+        <div class="selected-service" id="selected-service" hidden aria-live="polite"></div>
+      </section>
+
+      <section class="dashboard-section section-white" id="how-it-works" aria-labelledby="works-title">
+        <div class="section-heading centered">
+          <p class="eyebrow">HOW IT WORKS</p>
+          <h2 id="works-title">How ComplyMyProperty works.</h2>
+          <p>From postcode to fully compliant</p>
+        </div>
+
+        <div class="dashboard-frame">
+          <img
+            src="./assets/homepage-dashboard-overview.webp"
+            width="1400"
+            height="990"
+            alt="ComplyMyProperty process and product preview"
+            loading="lazy"
+          >
+        </div>
+
+        <ol class="step-list">
+          <li><span>1</span>Find the property</li>
+          <li><span>2</span>Choose the service or check</li>
+          <li><span>3</span>Upload or add evidence</li>
+          <li><span>4</span>Book help when needed</li>
+          <li><span>5</span>Keep reminders and records in one place</li>
+        </ol>
+      </section>
+
+      <section class="people-tech section-soft" aria-labelledby="people-tech-title">
+        <div class="people-copy">
+          <p class="eyebrow">SMART TECH, HUMAN SUPPORT</p>
+          <h2 id="people-tech-title">Real people. Smart tech. No guesswork.</h2>
+          <p>AI helps us move fast &mdash; our team helps make sure the next step makes sense.</p>
+          <div class="support-points" aria-label="Support points">
+            <span>Smart document sorting</span>
+            <span>Advisor support</span>
+            <span>Service booking</span>
+            <span>Secure records</span>
+          </div>
+        </div>
+
+        <div class="support-tiles" aria-label="Human support examples">
+          <img src="./assets/support-feel-lost.webp" width="900" height="734" alt="Feel a bit lost support tile" loading="lazy">
+          <img src="./assets/support-overcomplicating.webp" width="900" height="734" alt="Overcomplicating things support tile" loading="lazy">
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer" id="footer">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <strong>ComplyMyProperty.com</strong>
+          <p>The compliance operating system for UK landlords</p>
+          <p>Secure document storage. Clear compliance guidance. Trusted landlord support.</p>
+        </div>
+        <div>
+          <h2>Contact &amp; Support</h2>
+          <p>Telephone<br>0121 770 8814</p>
+          <p>Mobile / WhatsApp<br>07984 516279</p>
+          <p>info@complymyproperty.com<br>support@complymyproperty.com</p>
+        </div>
+        <div>
+          <h2>Services</h2>
+          <ul>
+            <li>EPC Certificates</li>
+            <li>Gas Safety</li>
+            <li>EICR</li>
+            <li>Property Inspections</li>
+            <li>AML Checks</li>
+            <li>Selective Licensing</li>
+          </ul>
+        </div>
+        <div>
+          <h2>Company Information</h2>
+          <p>ComplyMyProperty is operated by Urban Grey Estates Ltd.</p>
+          <p>Registered Office<br>66 Station Road<br>Marston Green<br>Birmingham B37 7BA</p>
+        </div>
+        <div>
+          <h2>Data Protection</h2>
+          <p>ComplyMyProperty processes and stores data in accordance with UK GDPR and applicable data protection legislation.</p>
+          <p>ICO Registration: ZB898960</p>
+        </div>
+        <div>
+          <h2>Legal</h2>
+          <ul>
+            <li>Privacy Policy</li>
+            <li>Terms &amp; Conditions</li>
+            <li>Cookie Policy</li>
+            <li>Data Protection Policy</li>
+          </ul>
+        </div>
+        <div>
+          <h2>Follow</h2>
+          <p>Instagram<br>@ComplyMyPropertyUK</p>
+          <p>Facebook<br>/complymyproperty</p>
+          <p>LinkedIn<br>ComplyMyProperty</p>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2026 ComplyMyProperty. All rights reserved.</p>
+        <button class="text-button" type="button" data-scroll="#top">Back to top</button>
+      </div>
+    </footer>
+
+    <aside class="properties-panel" id="properties-panel" hidden aria-live="polite" aria-label="My Properties coming next panel">
+      <div>
+        <button class="panel-close" type="button" data-close-properties aria-label="Close My Properties panel">Close</button>
+        <p class="eyebrow">COMING NEXT</p>
+        <h2>My Properties will connect this homepage to your compliance file.</h2>
+        <p>
+          For this homepage prototype, the action stays here: check a property, pick a service, or prepare documents. Full property dashboards are intentionally out of scope.
+        </p>
+        <button class="button button-primary" type="button" data-scroll="#postcode" data-close-properties>Check your property</button>
+      </div>
+    </aside>
+  </body>
+</html>
