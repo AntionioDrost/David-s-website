@@ -1,0 +1,1646 @@
+[
+  {
+    "group": "logo",
+    "filename": "GREY LOGO COMPLY MY PROPERTY.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/GREY LOGO COMPLY MY PROPERTY.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 29289,
+    "file_size": "28.6 KB",
+    "mode": "RGBA",
+    "width": 1304,
+    "height": 168,
+    "dimensions": "1304x168",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 83.66,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "logo",
+    "filename": "cmp sideways trans.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/cmp sideways trans.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 536250,
+    "file_size": "523.7 KB",
+    "mode": "RGBA",
+    "width": 2480,
+    "height": 2480,
+    "dimensions": "2480x2480",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 94.6,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "logo",
+    "filename": "cmp normal square trans.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/cmp normal square trans.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 736105,
+    "file_size": "718.9 KB",
+    "mode": "RGBA",
+    "width": 2480,
+    "height": 2480,
+    "dimensions": "2480x2480",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 87.28,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "hero",
+    "filename": "homepage-hero-wide.jpg",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/David-s-website/assets/generated/homepage-hero-wide.jpg",
+    "exists": true,
+    "type": "jpg",
+    "file_size_bytes": 254480,
+    "file_size": "248.5 KB",
+    "mode": "RGB",
+    "width": 1823,
+    "height": 863,
+    "dimensions": "1823x863",
+    "has_alpha_channel": false,
+    "transparent_pixels_percent": 0,
+    "alpha_status": "opaque/no alpha channel",
+    "alpha_extrema": null,
+    "corner_rgba": [
+      [
+        27,
+        60,
+        113,
+        255
+      ],
+      [
+        2,
+        0,
+        6,
+        255
+      ],
+      [
+        5,
+        7,
+        19,
+        255
+      ],
+      [
+        77,
+        53,
+        41,
+        255
+      ]
+    ],
+    "corner_background": "opaque varied corners"
+  },
+  {
+    "group": "origami-postcode",
+    "filename": "oragami house.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/oragami house.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 3132740,
+    "file_size": "3.0 MB",
+    "mode": "RGBA",
+    "width": 3456,
+    "height": 1071,
+    "dimensions": "3456x1071",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 46.73,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "origami-postcode",
+    "filename": "HOUSE OREGAMI HD.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/HOUSE OREGAMI HD.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 7242588,
+    "file_size": "6.9 MB",
+    "mode": "RGBA",
+    "width": 3024,
+    "height": 4032,
+    "dimensions": "3024x4032",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 63.19,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "warning",
+    "filename": "top tile epc.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/top tile epc.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 6592497,
+    "file_size": "6.3 MB",
+    "mode": "RGBA",
+    "width": 8000,
+    "height": 5000,
+    "dimensions": "8000x5000",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 53.44,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "warning",
+    "filename": "top tile solicitor.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/top tile solicitor.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 4842903,
+    "file_size": "4.6 MB",
+    "mode": "RGBA",
+    "width": 8000,
+    "height": 5000,
+    "dimensions": "8000x5000",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 53.46,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "Compliance Checker A-Z TILE.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/Compliance Checker A-Z TILE.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 23857534,
+    "file_size": "22.8 MB",
+    "mode": "RGBA",
+    "width": 3935,
+    "height": 4825,
+    "dimensions": "3935x4825",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 7.64,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "epc's tile.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/epc's tile.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 430013,
+    "file_size": "419.9 KB",
+    "mode": "RGBA",
+    "width": 8000,
+    "height": 8000,
+    "dimensions": "8000x8000",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 72.6,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": " AML TILE.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/ AML TILE.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 16953811,
+    "file_size": "16.2 MB",
+    "mode": "RGBA",
+    "width": 3935,
+    "height": 4825,
+    "dimensions": "3935x4825",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 7.64,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "gas safety tile2.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/gas safety tile2.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 865194,
+    "file_size": "844.9 KB",
+    "mode": "RGBA",
+    "width": 3935,
+    "height": 4825,
+    "dimensions": "3935x4825",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 7.64,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "property inspections tile.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/property inspections tile.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 2077700,
+    "file_size": "2.0 MB",
+    "mode": "RGBA",
+    "width": 3935,
+    "height": 4825,
+    "dimensions": "3935x4825",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 7.64,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "landlord insurance tile.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/landlord insurance tile.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 23237068,
+    "file_size": "22.2 MB",
+    "mode": "RGBA",
+    "width": 3935,
+    "height": 4825,
+    "dimensions": "3935x4825",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 7.64,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "Selective licensing tile.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/Selective licensing tile.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 2224288,
+    "file_size": "2.1 MB",
+    "mode": "RGBA",
+    "width": 3935,
+    "height": 4825,
+    "dimensions": "3935x4825",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 7.64,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "Mortgages tile.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/Mortgages tile.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1235490,
+    "file_size": "1.2 MB",
+    "mode": "RGBA",
+    "width": 3935,
+    "height": 4825,
+    "dimensions": "3935x4825",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 7.64,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "Trouble Tenants tile.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/Trouble Tenants tile.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1959995,
+    "file_size": "1.9 MB",
+    "mode": "RGBA",
+    "width": 3935,
+    "height": 4825,
+    "dimensions": "3935x4825",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 7.64,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services",
+    "filename": "making-tax-digital.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/making-tax-digital.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 219525,
+    "file_size": "214.4 KB",
+    "mode": "RGBA",
+    "width": 1920,
+    "height": 1080,
+    "dimensions": "1920x1080",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 0.0,
+    "alpha_status": "alpha channel but fully opaque",
+    "alpha_extrema": [
+      255,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        255
+      ],
+      [
+        255,
+        255,
+        255,
+        255
+      ]
+    ],
+    "corner_background": "opaque similar corners"
+  },
+  {
+    "group": "services-icons",
+    "filename": "SERVICE_0008_----EPC.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/iconsforcmp/SERVICE_0008_----EPC.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1146472,
+    "file_size": "1.1 MB",
+    "mode": "RGBA",
+    "width": 1254,
+    "height": 1254,
+    "dimensions": "1254x1254",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 50.26,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services-icons",
+    "filename": "SERVICE_0009_gas.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/iconsforcmp/SERVICE_0009_gas.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1042162,
+    "file_size": "1017.7 KB",
+    "mode": "RGBA",
+    "width": 1254,
+    "height": 1254,
+    "dimensions": "1254x1254",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 58.19,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services-icons",
+    "filename": "SERVICE_0005_EICR.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/iconsforcmp/SERVICE_0005_EICR.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1014959,
+    "file_size": "991.2 KB",
+    "mode": "RGBA",
+    "width": 1254,
+    "height": 1254,
+    "dimensions": "1254x1254",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 58.17,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services-icons",
+    "filename": "SERVICE_0003_AML-Checks.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/iconsforcmp/SERVICE_0003_AML-Checks.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 773444,
+    "file_size": "755.3 KB",
+    "mode": "RGBA",
+    "width": 1254,
+    "height": 1254,
+    "dimensions": "1254x1254",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 62.53,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "services-icons",
+    "filename": "SERVICE_0010_----Property-Inspections.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/iconsforcmp/SERVICE_0010_----Property-Inspections.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1038794,
+    "file_size": "1014.4 KB",
+    "mode": "RGBA",
+    "width": 1254,
+    "height": 1254,
+    "dimensions": "1254x1254",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 57.39,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        18,
+        18,
+        18,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "latest-support",
+    "filename": "Feel a bit lost_.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/Feel a bit lost_.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 12421743,
+    "file_size": "11.8 MB",
+    "mode": "RGBA",
+    "width": 4825,
+    "height": 3935,
+    "dimensions": "4825x3935",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 10.9,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "latest-support",
+    "filename": "bit lost tile.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/bit lost tile.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 12431902,
+    "file_size": "11.9 MB",
+    "mode": "RGBA",
+    "width": 4825,
+    "height": 3935,
+    "dimensions": "4825x3935",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 10.9,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "latest-support",
+    "filename": "overcomplicating things tile.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/overcomplicating things tile.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1544233,
+    "file_size": "1.5 MB",
+    "mode": "RGBA",
+    "width": 4825,
+    "height": 3935,
+    "dimensions": "4825x3935",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 10.9,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "latest-support",
+    "filename": "EPC BIG TILE.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/EPC BIG TILE.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 12157603,
+    "file_size": "11.6 MB",
+    "mode": "RGBA",
+    "width": 4825,
+    "height": 3935,
+    "dimensions": "4825x3935",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 10.9,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "latest-support",
+    "filename": "mk-assets-20584440-automatedtasks-26-10-22.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/mk-assets-20584440-automatedtasks-26-10-22.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 116301,
+    "file_size": "113.6 KB",
+    "mode": "RGBA",
+    "width": 2200,
+    "height": 1240,
+    "dimensions": "2200x1240",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 0.0,
+    "alpha_status": "alpha channel but fully opaque",
+    "alpha_extrema": [
+      255,
+      255
+    ],
+    "corner_rgba": [
+      [
+        195,
+        207,
+        250,
+        255
+      ],
+      [
+        195,
+        207,
+        250,
+        255
+      ],
+      [
+        195,
+        207,
+        250,
+        255
+      ],
+      [
+        195,
+        207,
+        250,
+        255
+      ]
+    ],
+    "corner_background": "opaque similar corners"
+  },
+  {
+    "group": "how-it-works",
+    "filename": "how it works png.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/how it works png.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1832050,
+    "file_size": "1.7 MB",
+    "mode": "RGBA",
+    "width": 4961,
+    "height": 3508,
+    "dimensions": "4961x3508",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 0.2,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "dashboard-product",
+    "filename": "dashboard png.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/dashboard png.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 940347,
+    "file_size": "918.3 KB",
+    "mode": "RGBA",
+    "width": 4961,
+    "height": 3508,
+    "dimensions": "4961x3508",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 56.61,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "dashboard-product",
+    "filename": "cmp-dashboard-preview.png",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/David-s-website/assets/cmp-dashboard-preview.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 1537383,
+    "file_size": "1.5 MB",
+    "mode": "RGB",
+    "width": 1536,
+    "height": 1024,
+    "dimensions": "1536x1024",
+    "has_alpha_channel": false,
+    "transparent_pixels_percent": 0,
+    "alpha_status": "opaque/no alpha channel",
+    "alpha_extrema": null,
+    "corner_rgba": [
+      [
+        217,
+        228,
+        240,
+        255
+      ],
+      [
+        254,
+        255,
+        254,
+        255
+      ],
+      [
+        222,
+        227,
+        239,
+        255
+      ],
+      [
+        236,
+        240,
+        245,
+        255
+      ]
+    ],
+    "corner_background": "opaque varied corners"
+  },
+  {
+    "group": "support-human-tech",
+    "filename": "human-support-review.png",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/David-s-website/assets/generated/public-v2-system/photos/human-support-review.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 2054629,
+    "file_size": "2.0 MB",
+    "mode": "RGB",
+    "width": 1536,
+    "height": 1024,
+    "dimensions": "1536x1024",
+    "has_alpha_channel": false,
+    "transparent_pixels_percent": 0,
+    "alpha_status": "opaque/no alpha channel",
+    "alpha_extrema": null,
+    "corner_rgba": [
+      [
+        167,
+        165,
+        159,
+        255
+      ],
+      [
+        210,
+        203,
+        199,
+        255
+      ],
+      [
+        94,
+        71,
+        53,
+        255
+      ],
+      [
+        151,
+        133,
+        111,
+        255
+      ]
+    ],
+    "corner_background": "opaque varied corners"
+  },
+  {
+    "group": "support-human-tech",
+    "filename": "png human layer.png",
+    "source_path": "/Users/davidtaylor/Desktop/Comply my property all/png human layer.png",
+    "exists": true,
+    "type": "png",
+    "file_size_bytes": 10982563,
+    "file_size": "10.5 MB",
+    "mode": "RGBA",
+    "width": 4961,
+    "height": 2707,
+    "dimensions": "4961x2707",
+    "has_alpha_channel": true,
+    "transparent_pixels_percent": 44.62,
+    "alpha_status": "has transparent pixels",
+    "alpha_extrema": [
+      0,
+      255
+    ],
+    "corner_rgba": [
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ],
+      [
+        255,
+        255,
+        255,
+        0
+      ]
+    ],
+    "corner_background": "transparent/varied corners"
+  },
+  {
+    "group": "verified-inspections",
+    "filename": "01-live-verified-capture.svg",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/CMP-source-assets/cmp-verified-inspections-carousel-assets/01-live-verified-capture.svg",
+    "exists": true,
+    "type": "svg",
+    "file_size_bytes": 5916,
+    "file_size": "5.8 KB",
+    "dimensions": "1440x260",
+    "width": 1440,
+    "height": 260,
+    "mode": "svg",
+    "has_alpha": "vector transparency possible",
+    "transparent_pixels_percent": null,
+    "alpha_status": "SVG/vector; preserve as original SVG",
+    "corner_background": "vector"
+  },
+  {
+    "group": "verified-inspections",
+    "filename": "02-no-upload-loophole.svg",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/CMP-source-assets/cmp-verified-inspections-carousel-assets/02-no-upload-loophole.svg",
+    "exists": true,
+    "type": "svg",
+    "file_size_bytes": 5721,
+    "file_size": "5.6 KB",
+    "dimensions": "1440x260",
+    "width": 1440,
+    "height": 260,
+    "mode": "svg",
+    "has_alpha": "vector transparency possible",
+    "transparent_pixels_percent": null,
+    "alpha_status": "SVG/vector; preserve as original SVG",
+    "corner_background": "vector"
+  },
+  {
+    "group": "verified-inspections",
+    "filename": "03-room-coverage.svg",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/CMP-source-assets/cmp-verified-inspections-carousel-assets/03-room-coverage.svg",
+    "exists": true,
+    "type": "svg",
+    "file_size_bytes": 5872,
+    "file_size": "5.7 KB",
+    "dimensions": "1440x260",
+    "width": 1440,
+    "height": 260,
+    "mode": "svg",
+    "has_alpha": "vector transparency possible",
+    "transparent_pixels_percent": null,
+    "alpha_status": "SVG/vector; preserve as original SVG",
+    "corner_background": "vector"
+  },
+  {
+    "group": "verified-inspections",
+    "filename": "04-lidar-depth-aware.svg",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/CMP-source-assets/cmp-verified-inspections-carousel-assets/04-lidar-depth-aware.svg",
+    "exists": true,
+    "type": "svg",
+    "file_size_bytes": 5855,
+    "file_size": "5.7 KB",
+    "dimensions": "1440x260",
+    "width": 1440,
+    "height": 260,
+    "mode": "svg",
+    "has_alpha": "vector transparency possible",
+    "transparent_pixels_percent": null,
+    "alpha_status": "SVG/vector; preserve as original SVG",
+    "corner_background": "vector"
+  },
+  {
+    "group": "verified-inspections",
+    "filename": "05-compare-over-time.svg",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/CMP-source-assets/cmp-verified-inspections-carousel-assets/05-compare-over-time.svg",
+    "exists": true,
+    "type": "svg",
+    "file_size_bytes": 5860,
+    "file_size": "5.7 KB",
+    "dimensions": "1440x260",
+    "width": 1440,
+    "height": 260,
+    "mode": "svg",
+    "has_alpha": "vector transparency possible",
+    "transparent_pixels_percent": null,
+    "alpha_status": "SVG/vector; preserve as original SVG",
+    "corner_background": "vector"
+  },
+  {
+    "group": "verified-inspections",
+    "filename": "06-evidence-with-property.svg",
+    "source_path": "/Users/davidtaylor/Desktop/VIBECODE/CMP-source-assets/cmp-verified-inspections-carousel-assets/06-evidence-with-property.svg",
+    "exists": true,
+    "type": "svg",
+    "file_size_bytes": 5940,
+    "file_size": "5.8 KB",
+    "dimensions": "1440x260",
+    "width": 1440,
+    "height": 260,
+    "mode": "svg",
+    "has_alpha": "vector transparency possible",
+    "transparent_pixels_percent": null,
+    "alpha_status": "SVG/vector; preserve as original SVG",
+    "corner_background": "vector"
+  }
+]
