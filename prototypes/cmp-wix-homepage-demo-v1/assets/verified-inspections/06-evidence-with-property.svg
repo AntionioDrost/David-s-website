@@ -1,0 +1,92 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="260" viewBox="0 0 1440 260" role="img" aria-labelledby="title desc">
+  <title id="title">Evidence that lives with the property</title>
+  <desc id="desc">Built for landlord confidence banner showing a CMP property evidence report card with timestamps, verification chips and inspection timeline.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101412"/>
+      <stop offset="0.55" stop-color="#1b211d"/>
+      <stop offset="1" stop-color="#283327"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff6e7" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#9bd38e" stop-opacity="0.06"/>
+    </linearGradient>
+    <pattern id="grid" width="44" height="44" patternUnits="userSpaceOnUse">
+      <path d="M44 0H0V44" fill="none" stroke="#fff8eb" stroke-opacity="0.045" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity="0.29"/>
+    </filter>
+    <style>
+      .sans{font-family:Aptos, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif}
+      .eyebrow{font-size:15px;font-weight:800;letter-spacing:2.4px;fill:#b9d7ad}
+      .headline{font-size:46px;font-weight:760;letter-spacing:0;fill:#fff8ec}
+      .body{font-size:20px;font-weight:430;fill:#d9dfd6}
+      .badgeText{font-size:15px;font-weight:760;fill:#f8f2e8}
+    </style>
+  </defs>
+  <rect width="1440" height="260" fill="url(#bg)"/>
+  <rect width="1440" height="260" fill="url(#grid)"/>
+  <path d="M828 0h612v260H932c-58-46-88-99-91-159C839 65 835 31 828 0Z" fill="#fff3df" opacity="0.036"/>
+
+  <g class="sans">
+    <text class="eyebrow" x="76" y="58">BUILT FOR LANDLORD CONFIDENCE</text>
+    <text class="headline" x="76" y="109">Evidence that lives with the property</text>
+    <text class="body" x="78" y="146">Inspection history, timestamps, media and issue notes</text>
+    <text class="body" x="78" y="174">stay organised inside CMP.</text>
+
+    <g transform="translate(76 194)">
+      <rect width="96" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M15 10v17M15 18h16M31 10v17" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <text class="badgeText" x="42" y="22">Audit trail</text>
+    </g>
+    <g transform="translate(189 194)">
+      <rect width="148" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M14 24c10-16 20-16 30 0" fill="none" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="29" cy="14" r="4" fill="#9bd38e"/>
+      <text class="badgeText" x="52" y="22">Condition history</text>
+    </g>
+    <g transform="translate(355 194)">
+      <rect width="116" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M13 15h20M13 22h14" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <text class="badgeText" x="43" y="22">Fewer disputes</text>
+    </g>
+  </g>
+
+  <g transform="translate(824 24)">
+    <rect x="16" y="8" width="558" height="198" rx="28" fill="url(#card)" stroke="#fff8eb" stroke-opacity="0.16"/>
+    <g class="sans" filter="url(#shadow)" transform="translate(62 30)">
+      <rect width="320" height="166" rx="26" fill="#121a16" stroke="#fff8eb" stroke-opacity="0.18" stroke-width="2"/>
+      <text x="24" y="36" font-size="18" font-weight="830" fill="#fff8ec">CMP Property Evidence Record</text>
+      <text x="24" y="59" font-size="13" font-weight="700" fill="#b9c6b6">Flat 4B • Verified inspection history</text>
+      <rect x="24" y="78" width="126" height="28" rx="14" fill="#9bd38e" fill-opacity="0.16" stroke="#9bd38e" stroke-opacity="0.35"/>
+      <circle cx="41" cy="92" r="5" fill="#9bd38e"/>
+      <text x="55" y="97" font-size="13" font-weight="800" fill="#fff8ec">Location checked</text>
+      <rect x="162" y="78" width="118" height="28" rx="14" fill="#fff8eb" fill-opacity="0.1" stroke="#fff8eb" stroke-opacity="0.14"/>
+      <text x="181" y="97" font-size="13" font-weight="800" fill="#fff8ec">Date stamped</text>
+      <path d="M24 128h244" stroke="#fff8eb" stroke-opacity="0.14" stroke-width="2"/>
+      <circle cx="36" cy="128" r="6" fill="#9bd38e"/>
+      <circle cx="126" cy="128" r="6" fill="#d5a24d"/>
+      <circle cx="222" cy="128" r="6" fill="#9bd38e"/>
+      <text x="24" y="152" font-size="13" font-weight="720" fill="#dbe3d8">Move-in</text>
+      <text x="102" y="152" font-size="13" font-weight="720" fill="#dbe3d8">Mid-term</text>
+      <text x="196" y="152" font-size="13" font-weight="720" fill="#dbe3d8">Move-out</text>
+    </g>
+
+    <g class="sans" transform="translate(414 44)">
+      <rect width="132" height="42" rx="21" fill="#101613" stroke="#9bd38e" stroke-opacity="0.42"/>
+      <circle cx="22" cy="21" r="6" fill="#9bd38e"/>
+      <text x="38" y="26" font-size="14" font-weight="800" fill="#fff8ec">Media linked</text>
+    </g>
+    <g class="sans" transform="translate(426 100)">
+      <rect width="120" height="42" rx="21" fill="#101613" stroke="#fff8eb" stroke-opacity="0.2"/>
+      <path d="M18 16h17v12H18zM22 20h9" fill="none" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <text x="45" y="26" font-size="14" font-weight="800" fill="#fff8ec">Issue notes</text>
+    </g>
+    <g class="sans" transform="translate(392 158)">
+      <rect width="164" height="42" rx="21" fill="#101613" stroke="#fff8eb" stroke-opacity="0.2"/>
+      <text x="22" y="26" font-size="14" font-weight="800" fill="#fff8ec">Timeline preserved</text>
+    </g>
+    <path d="M386 112c24-2 32-14 40-26M386 130c28 3 37 17 45 32" fill="none" stroke="#fff8eb" stroke-opacity="0.16" stroke-width="2"/>
+  </g>
+</svg>

@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1440" height="260" viewBox="0 0 1440 260" role="img" aria-labelledby="title desc">
+  <title id="title">Red-to-green coverage before submit</title>
+  <desc id="desc">Room-by-room guidance banner showing a floorplan coverage map moving from red and amber missed areas to green completed zones before submission.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#101412"/>
+      <stop offset="0.5" stop-color="#1a211d"/>
+      <stop offset="1" stop-color="#27352a"/>
+    </linearGradient>
+    <linearGradient id="coverage" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#d86157"/>
+      <stop offset="0.47" stop-color="#d5a24d"/>
+      <stop offset="1" stop-color="#82bf7b"/>
+    </linearGradient>
+    <linearGradient id="panel" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#fff8eb" stop-opacity="0.15"/>
+      <stop offset="1" stop-color="#9bd38e" stop-opacity="0.06"/>
+    </linearGradient>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M42 0H0V42" fill="none" stroke="#f7efe0" stroke-opacity="0.05" stroke-width="1"/>
+    </pattern>
+    <filter id="shadow" x="-20%" y="-30%" width="140%" height="170%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000" flood-opacity="0.26"/>
+    </filter>
+    <style>
+      .sans{font-family:Aptos, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif}
+      .eyebrow{font-size:15px;font-weight:800;letter-spacing:2.4px;fill:#b9d7ad}
+      .headline{font-size:46px;font-weight:760;letter-spacing:0;fill:#fff8ec}
+      .body{font-size:20px;font-weight:430;fill:#d9dfd6}
+      .badgeText{font-size:15px;font-weight:760;fill:#f8f2e8}
+    </style>
+  </defs>
+  <rect width="1440" height="260" fill="url(#bg)"/>
+  <rect width="1440" height="260" fill="url(#grid)"/>
+  <path d="M940 0C875 52 850 118 870 196c6 23 18 44 35 64h535V0Z" fill="#fff3df" opacity="0.035"/>
+
+  <g class="sans">
+    <text class="eyebrow" x="76" y="58">ROOM-BY-ROOM GUIDANCE</text>
+    <text class="headline" x="76" y="109">Red-to-green coverage before submit</text>
+    <text class="body" x="78" y="146">Prompts help capture walls, floors, ceilings and key fixtures</text>
+    <text class="body" x="78" y="174">before the inspection is complete.</text>
+
+    <g transform="translate(76 194)">
+      <rect width="158" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M15 23l7-12 7 12H15Z" fill="#d86157"/>
+      <text class="badgeText" x="39" y="22">Missed areas flagged</text>
+    </g>
+    <g transform="translate(252 194)">
+      <rect width="132" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M13 18h18M22 9v18" stroke="#9bd38e" stroke-width="2.4" stroke-linecap="round"/>
+      <text class="badgeText" x="41" y="22">Guided capture</text>
+    </g>
+    <g transform="translate(402 194)">
+      <rect width="128" height="34" rx="17" fill="#fff8eb" fill-opacity="0.12" stroke="#fff8eb" stroke-opacity="0.18"/>
+      <path d="M13 11h19v16H13zM17 16h11M17 21h7" fill="none" stroke="#9bd38e" stroke-width="2" stroke-linecap="round"/>
+      <text class="badgeText" x="41" y="22">Clearer records</text>
+    </g>
+  </g>
+
+  <g transform="translate(820 24)">
+    <rect x="28" y="8" width="548" height="198" rx="28" fill="url(#panel)" stroke="#fff8eb" stroke-opacity="0.16"/>
+    <g filter="url(#shadow)" transform="translate(78 34)">
+      <path d="M0 0h430v142H0Z" fill="#121a16" stroke="#fff8eb" stroke-opacity="0.15" stroke-width="2"/>
+      <path d="M24 22h127v98H24ZM151 22h116v56H151ZM151 78h116v42H151ZM267 22h139v98H267Z" fill="#f8f1e5" fill-opacity="0.035" stroke="#f8f1e5" stroke-opacity="0.23" stroke-width="2"/>
+      <rect x="30" y="28" width="115" height="86" rx="8" fill="#d86157" fill-opacity="0.25"/>
+      <rect x="157" y="28" width="104" height="44" rx="8" fill="#d5a24d" fill-opacity="0.28"/>
+      <rect x="157" y="84" width="104" height="30" rx="8" fill="#82bf7b" fill-opacity="0.28"/>
+      <rect x="273" y="28" width="127" height="86" rx="8" fill="#82bf7b" fill-opacity="0.34"/>
+      <path d="M39 48h86M39 68h66M39 88h82" stroke="#f9f1e6" stroke-opacity="0.17" stroke-width="2"/>
+      <path d="M289 48h94M289 68h76M289 88h90" stroke="#f9f1e6" stroke-opacity="0.17" stroke-width="2"/>
+      <circle cx="88" cy="72" r="26" fill="none" stroke="#df766b" stroke-width="4" stroke-dasharray="7 7"/>
+      <path d="M199 49l11 11 24-27" fill="none" stroke="#f7d47d" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M320 70l18 18 40-48" fill="none" stroke="#9bd38e" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
+    </g>
+
+    <g class="sans" transform="translate(106 189)">
+      <rect width="398" height="16" rx="8" fill="#fff8eb" fill-opacity="0.12"/>
+      <rect width="324" height="16" rx="8" fill="url(#coverage)"/>
+      <text x="415" y="14" font-size="15" font-weight="800" fill="#fff8ec">82%</text>
+      <text x="0" y="-11" font-size="13" font-weight="760" fill="#cdd8c8">Coverage ready check</text>
+    </g>
+
+    <g class="sans" transform="translate(480 58)">
+      <rect width="118" height="40" rx="20" fill="#121a16" stroke="#d86157" stroke-opacity="0.5"/>
+      <circle cx="22" cy="20" r="6" fill="#d86157"/>
+      <text x="38" y="25" font-size="14" font-weight="760" fill="#fff8ec">Wall missed</text>
+    </g>
+    <g class="sans" transform="translate(498 116)">
+      <rect width="122" height="40" rx="20" fill="#121a16" stroke="#9bd38e" stroke-opacity="0.45"/>
+      <circle cx="22" cy="20" r="6" fill="#9bd38e"/>
+      <text x="38" y="25" font-size="14" font-weight="760" fill="#fff8ec">Floor clear</text>
+    </g>
+  </g>
+</svg>
